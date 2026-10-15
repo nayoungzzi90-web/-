@@ -3,3 +3,6 @@ dist
 .env
 .env.local
 *.local
+
+# Edge Function 공유 코드(생성물): npm run sync:functions
+supabase/functions/_shared/lib/

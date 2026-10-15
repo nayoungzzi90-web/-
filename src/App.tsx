@@ -11,6 +11,7 @@ import Compatibility from './pages/Compatibility';
 import Daily from './pages/Daily';
 import Home from './pages/Home';
 import Invite from './pages/Invite';
+import Lab from './pages/Lab';
 import Login from './pages/Login';
 import Me from './pages/Me';
 import { Admin, Legal, NotFound } from './pages/Misc';
@@ -48,6 +49,7 @@ export default function App() {
         <Route path="/invite" element={<Invite />} />
         <Route path="/me" element={<Me />} />
         <Route path="/login" element={<Login />} />
+        {import.meta.env.DEV && <Route path="/lab" element={<Lab />} />}
         <Route path="/admin/*" element={<Admin />} />
         <Route path="/legal/:kind" element={<Legal />} />
         <Route path="*" element={<NotFound />} />

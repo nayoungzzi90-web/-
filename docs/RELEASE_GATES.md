@@ -22,7 +22,7 @@
 2. ⏳ PG 계약·990원 결제·수수료·웹훅 실거래 (`VITE_FLAG_LIVE_PAYMENT=false`) 🚫
 3. ⏳ 궁합 제3자 정보 적법성 (`VITE_FLAG_COMPAT_ENABLED=false` 프로덕션 기본) 🚫
 4. ⏳ OAuth(카카오·구글) 콘솔 설정, 계정 연결 정책, RLS 침투 테스트
-5. ⏳ AI 모델 품질·원가·개인정보 전송 정책 (`VITE_FLAG_LLM_REPORTS=false`). 현재 리포트는 템플릿 샘플이며 **분량 QA 는 FAIL** 로 표시됨
+5. ⏳ AI 모델 품질·원가·개인정보 전송 정책. 파이프라인·자동 QA·서버 함수는 구현·테스트됐으나(가짜 LLM 기준) **실제 API 로는 미검증**. 앱의 현재 리포트는 여전히 템플릿 샘플이며 분량 QA 는 FAIL 로 표시됨 → `docs/AI_REPORT_DESIGN.md` §8
 6. ⏳ 엽전 지급·복구 서버 동시성 실측
 7. ⏳ 캐릭터 독자 제작·상업 이용권 (`public/characters/README.md`)
 8. ⏳ 약관·개인정보처리방침·환불 규정 법률 검토 (현재 자리표시자)
