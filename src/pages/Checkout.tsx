@@ -7,6 +7,7 @@ import { mutate, track } from '../lib/mock/db';
 import { useSession } from '../lib/mock/hooks';
 import { confirmPayment, mockProvider, PayError } from '../lib/mock/payment';
 import { createJob, runJob } from '../lib/mock/service';
+import { balanceOf, CoinError, redeemCoins } from '../lib/mock/ledger';
 
 export default function Checkout() {
   const { orderId = '' } = useParams();
@@ -23,6 +24,28 @@ export default function Checkout() {
   const itemName = orderItemName(order.productId, order.subjectId);
   const backPath = isCoin ? '/rewards' : CATALOG[order.productId as ProductId].path;
   const ent = Object.values(db.entitlements).find((e) => e.orderId === order.id);
+
+  const coinCost = isCoin ? 0 : CATALOG[order.productId as ProductId].coinCost;
+  const balance = balanceOf(db, user.id);
+  /** 현금 결제 대신 보유 엽전으로 열람 (현금 주문은 취소하고 같은 대상으로 교환) */
+  function payWithCoins() {
+    if (busy) return;
+    setBusy(true); setMsg(null);
+    try {
+      const res = mutate((d) => {
+        const r = redeemCoins(d, user!.id, order.productId as ProductId, order.subjectId);
+        d.orders[order.id].status = 'cancelled';
+        const job = createJob(d, r.entitlement);
+        track(d, 'coin_redeemed', { product_id: order.productId });
+        return { reportId: d.entitlements[r.entitlement.id].reportId!, jobId: job.id };
+      });
+      void runJob(res.jobId);
+      nav(`/reports/${res.reportId}`);
+    } catch (e) {
+      setMsg({ kind: 'error', text: e instanceof CoinError ? e.message : '엽전으로 열람하지 못했어요.' });
+      setBusy(false);
+    }
+  }
 
   async function pay(amount = order.amountKrw) {
     if (busy) return; // 중복 클릭 방지
@@ -61,6 +84,9 @@ export default function Checkout() {
       ) : order.status === 'pending' ? (
         <div className="stack">
           <button className="btn block" onClick={() => pay()} disabled={busy}>{busy ? '처리 중…' : `테스트 결제 ${won(order.amountKrw)}`}</button>
+          {!isCoin && (balance >= coinCost
+            ? <button className="btn secondary block" onClick={payWithCoins} disabled={busy}>엽전 {coinCost}닢으로 대신 열람 (보유 {balance}닢)</button>
+            : <p className="muted small center" style={{ margin: 0 }}>엽전이 {coinCost - balance}닢 부족해요. <Link to="/rewards">엽전 충전하기</Link></p>)}
           <button className="btn ghost block" onClick={() => setCancel(true)} disabled={busy}>결제 취소하고 돌아가기</button>
           {flags.livePayment ? null : <p className="muted small">실제 결제(PG)는 계약과 심사가 끝난 뒤 관리자 승인으로 켜져요.</p>}
           <details className="sandbox"><summary><b>샌드박스 검증 도구</b></summary>

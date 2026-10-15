@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { CharacterCard, ShareCard, saveSvgAsPng, useSvgRef } from '../components/Character';
 import { ErrorState, ProductCard } from '../components/Common';
-import { CATALOG } from '../lib/catalog';
+import { CATALOG, won } from '../lib/catalog';
 import { CHARACTERS } from '../lib/content/characters';
 import { Branch, Element, ELEMENT_KO, STEM_KO, BRANCH_KO, STEMS, BRANCHES, Stem } from '../lib/saju/types';
 import { BRANCH_ELEMENT, STEM_ELEMENT, branchGod, tenGod } from '../lib/saju/rules';
@@ -26,6 +26,7 @@ export default function CharacterResult() {
   const chart = db.charts[id];
   const svgRef = useSvgRef();
   const [msg, setMsg] = useState('');
+  const [tab, setTab] = useState<'me' | 'chart' | 'share'>('me');
   useEffect(() => { if (chart) mutate((d) => { d.activeChartId = chart.id; track(d, 'character_view'); }); }, [chart?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // 본인 게스트 세션/계정의 결과만 열람 (URL 의 ID 만으로 타인 결과를 볼 수 없음)
@@ -56,71 +57,88 @@ export default function CharacterResult() {
     else copy();
   }
 
+  const tabs = [['me', '내 친구'], ['chart', '사주 원국'], ['share', '공유하기']] as const;
   return (
     <div>
       <CharacterCard base={base} result={character} alias={chart.input.alias} />
       {facts.warnings.filter((w) => WARN_TEXT[w] && w !== 'luck_cycles_unavailable').map((w) => <div key={w} className="notice" role="note">{WARN_TEXT[w]}</div>)}
 
-      <section className="card">
-        <h2>내 기질</h2>
-        <p>{base.temperament}</p>
-        <div className="grid2">
-          <div><h3>강점</h3><ul className="list-plain">{base.strengths.map((s) => <li key={s}>✔ {s}</li>)}</ul></div>
-          <div><h3>약점</h3><ul className="list-plain">{base.weaknesses.map((s) => <li key={s}>△ {s}</li>)}</ul></div>
-        </div>
-        <p className="muted small" style={{ marginTop: 10 }}>{character.basis.grounded} {character.basis.creative}</p>
-      </section>
+      <div className="tabs" role="tablist" aria-label="결과 보기">
+        {tabs.map(([k, l]) => (
+          <button key={k} role="tab" id={`tab-${k}`} aria-selected={tab === k} aria-controls={`panel-${k}`} onClick={() => setTab(k)}>{l}</button>
+        ))}
+      </div>
 
-      <section className="card" aria-labelledby="pill-h">
-        <div className="row between"><h2 id="pill-h" style={{ margin: 0 }}>내 사주 원국</h2><span className="badge mock">샘플 계산</span></div>
-        <div className="chart-head" style={{ marginTop: 10 }}>{['시주', '일주', '월주', '연주'].map((l) => <span key={l}>{l}</span>)}</div>
-        <div className="chart-grid" role="table" aria-label="사주 원국표">
-          {cols.map((p, i) => (
-            <div key={i} className="chart-god-wrap">
-              <div className={`chart-god${i === 1 ? ' me' : ''}`}>{p ? (i === 1 ? '일간(나)' : tenGod(facts.dayMaster, p[0] as Stem)) : ''}</div>
-              <div className={`tile-el ${p ? ELEMENT_CLASS[STEM_ELEMENT[p[0] as Stem]] : 'none'}${i === 1 ? ' me' : ''}`}>{p ? p[0] : '—'}</div>
-              <div style={{ height: 8 }} />
-              <div className={`tile-el ${p ? ELEMENT_CLASS[BRANCH_ELEMENT[p[1] as Branch]] : 'none'}`}>{p ? p[1] : '—'}</div>
-              <div className="chart-god">{p ? branchGod(facts.dayMaster, p[1] as Branch) : '시간 미상'}</div>
-              <div className="muted small">{p ? pk(p) : ''}</div>
-            </div>
-          ))}
-        </div>
-        <p className="muted small" style={{ margin: '4px 0 12px' }}>지지의 십성은 본기(대표 천간) 기준의 단순 표시예요. 일간(나)은 붉은 테두리로 표시했어요.</p>
-        <div>
+      {tab === 'me' && (
+        <section className="card" id="panel-me" role="tabpanel" aria-labelledby="tab-me">
+          <h2>내 기질</h2>
+          <p>{base.temperament}</p>
+          <div className="grid2">
+            <div><h3>강점</h3><ul className="list-plain">{base.strengths.map((s) => <li key={s}>✔ {s}</li>)}</ul></div>
+            <div><h3>약점</h3><ul className="list-plain">{base.weaknesses.map((s) => <li key={s}>△ {s}</li>)}</ul></div>
+          </div>
+          <p className="muted small" style={{ marginTop: 10 }}>{character.basis.grounded} {character.basis.creative}</p>
+        </section>
+      )}
+
+      {tab === 'chart' && (
+        <section className="card" id="panel-chart" role="tabpanel" aria-labelledby="tab-chart">
+          <div className="row between"><h2 style={{ margin: 0 }}>내 사주 원국</h2><span className="badge mock">샘플 계산</span></div>
+          <div className="chart-head" style={{ marginTop: 10 }}>{['시주', '일주', '월주', '연주'].map((l) => <span key={l}>{l}</span>)}</div>
+          <div className="chart-grid" role="table" aria-label="사주 원국표">
+            {cols.map((p, i) => (
+              <div key={i} className="chart-god-wrap">
+                <div className={`chart-god${i === 1 ? ' me' : ''}`}>{p ? (i === 1 ? '일간(나)' : tenGod(facts.dayMaster, p[0] as Stem)) : ''}</div>
+                <div className={`tile-el ${p ? ELEMENT_CLASS[STEM_ELEMENT[p[0] as Stem]] : 'none'}${i === 1 ? ' me' : ''}`}>{p ? p[0] : '—'}</div>
+                <div style={{ height: 8 }} />
+                <div className={`tile-el ${p ? ELEMENT_CLASS[BRANCH_ELEMENT[p[1] as Branch]] : 'none'}`}>{p ? p[1] : '—'}</div>
+                <div className="chart-god">{p ? branchGod(facts.dayMaster, p[1] as Branch) : '시간 미상'}</div>
+                <div className="muted small">{p ? pk(p) : ''}</div>
+              </div>
+            ))}
+          </div>
+          <p className="muted small" style={{ margin: '4px 0 12px' }}>지지의 십성은 본기(대표 천간) 기준의 단순 표시예요. 일간(나)은 붉은 테두리로 표시했어요.</p>
           {(Object.keys(EL_COLOR) as Element[]).map((e) => (
             <div key={e} className="el-row"><span>{ELEMENT_KO[e]}</span>
               <div className="bar" aria-hidden><i style={{ width: `${(facts.fiveElements[e] / total) * 100}%`, background: EL_COLOR[e] }} /></div>
               <span>{facts.fiveElements[e]}</span></div>
           ))}
-        </div>
-      </section>
-
-      <section className="card" aria-labelledby="share-h">
-        <h2 id="share-h">친구에게 공유하기</h2>
-        <p className="muted small">공유 카드에는 생년월일·시간·성별·사주 원국·이메일이 들어가지 않아요. 미리보기를 확인하고 공유하세요.</p>
-        <div style={{ maxWidth: 300, margin: '0 auto 12px' }}><ShareCard base={base} result={character} alias={chart.input.alias} inviteUrl={inviteUrl.split('?')[0]} svgRef={svgRef} /></div>
-        <div className="grid2">
-          <button className="btn secondary" onClick={save}>이미지 저장</button>
-          <button className="btn secondary" onClick={copy}>링크 복사</button>
-        </div>
-        <button className="btn block" style={{ marginTop: 10 }} onClick={share}>공유하기</button>
-        <p role="status" className="muted small" style={{ marginTop: 8 }}>{msg}</p>
-        {!user && <p className="muted small">로그인하면 내 초대 코드가 링크에 포함되고, 친구가 가입·체험을 마칠 때 엽전이 적립돼요. 링크 복사·공유 버튼만으로는 엽전이 지급되지 않아요.</p>}
-      </section>
-
-      {!user && (
-        <div className="card flat center">
-          <p>결과를 저장하고 싶다면?</p>
-          <button className="btn teal" onClick={() => nav(`/login?next=${encodeURIComponent(`/character/result/${chart.id}`)}`)}>로그인하고 저장하기</button>
-        </div>
+        </section>
       )}
 
-      <h2>이어서 보기</h2>
-      <Link className="card product" to="/daily"><div><h3>오늘의 운세 보러 가기</h3><p className="muted small" style={{ margin: 0 }}>무료 · 한국 날짜 기준</p></div><span className="price">→</span></Link>
-      <ProductCard product={CATALOG.basic} />
+      {tab === 'share' && (
+        <section className="card" id="panel-share" role="tabpanel" aria-labelledby="tab-share">
+          <h2>친구에게 공유하기</h2>
+          <p className="muted small">공유 카드에는 생년월일·시간·성별·사주 원국·이메일이 들어가지 않아요. 미리보기를 확인하고 공유하세요.</p>
+          <div style={{ maxWidth: 300, margin: '0 auto 12px' }}><ShareCard base={base} result={character} alias={chart.input.alias} inviteUrl={inviteUrl.split('?')[0]} svgRef={svgRef} /></div>
+          <div className="grid2">
+            <button className="btn secondary" onClick={save}>이미지 저장</button>
+            <button className="btn secondary" onClick={copy}>링크 복사</button>
+          </div>
+          <button className="btn block" style={{ marginTop: 10 }} onClick={share}>공유하기</button>
+          <p role="status" className="muted small" style={{ marginTop: 8 }}>{msg}</p>
+          {!user && <p className="muted small">로그인하면 내 초대 코드가 링크에 포함되고, 친구가 가입·체험을 마칠 때 엽전이 적립돼요. 링크 복사·공유 버튼만으로는 엽전이 지급되지 않아요.</p>}
+        </section>
+      )}
+
+      {/* 다음 행동: 무료 운세 → 추천 상품 → 저장 */}
+      <section className="card next-step" aria-labelledby="next-h">
+        <h2 id="next-h">다음으로 이렇게 해 보세요</h2>
+        <div className="stack">
+          <Link className="btn secondary block go" to="/daily">오늘의 운세 보기 · 무료</Link>
+          <Link className="btn block go" to="/products/basic">기본사주 보기 · {won(CATALOG.basic.priceKrw)} 또는 엽전 {CATALOG.basic.coinCost}닢</Link>
+        </div>
+        {!user && (
+          <p className="muted small" style={{ margin: '12px 0 0' }}>
+            결과를 저장하려면 <button className="linklike" onClick={() => nav(`/login?next=${encodeURIComponent(`/character/result/${chart.id}`)}`)}>로그인</button>하세요. 무료 체험 결과는 그대로 이어져요.
+          </p>
+        )}
+      </section>
+
+      <h2>더 알아보기</h2>
       <ProductCard product={CATALOG.love_deep} />
       <ProductCard product={CATALOG.compatibility} />
+      <p className="center"><Link to="/birth">다른 생년월일로 다시 보기</Link></p>
     </div>
   );
 }

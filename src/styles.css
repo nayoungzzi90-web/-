@@ -186,3 +186,13 @@ a.friend { text-decoration: none; color: var(--ink); display: block; }
 .friend em { display: block; font-style: normal; font-size: .62rem; color: var(--red); font-weight: 700; margin-top: 2px; line-height: 1.2; }
 .friends.ten { grid-template-columns: repeat(5, 1fr); }
 .friends.ten .friend b { font-size: .7rem; }
+
+.back { flex: none; width: 42px; height: 42px; border-radius: 50%; border: 1.5px solid var(--line); background: var(--card); font-size: 1.7rem; line-height: 1; cursor: pointer; box-shadow: var(--shadow-s); display: grid; place-items: center; padding: 0 0 4px; }
+.header .logo { margin-right: auto; }
+.tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; background: var(--bg-2); padding: 5px; border-radius: 14px; border: 1.5px solid var(--line); margin-bottom: 14px; }
+.tabs button { min-height: 44px; border: 0; background: transparent; border-radius: 10px; font-weight: 700; cursor: pointer; color: var(--ink-2); }
+.tabs button[aria-selected='true'] { background: var(--card); color: var(--red); box-shadow: var(--shadow-s); font-weight: 900; }
+.next-step { border-color: var(--red); background: linear-gradient(#FFF3D6, #FFFBF0); }
+.next-step .row { flex-wrap: nowrap; }
+
+.linklike { background: none; border: 0; padding: 0; color: var(--red); font-weight: 700; text-decoration: underline; cursor: pointer; font-size: inherit; }

@@ -230,3 +230,15 @@ describe('캐릭터·운세 결정론 (AC-01, AC-11)', () => {
     expect(buildDaily(f, '2026-10-14').dayPillar).not.toBe(buildDaily(f, '2026-10-15').dayPillar);
   });
 });
+
+import { formatDate } from '../../components/BirthForm';
+describe('생년월일 입력 정리', () => {
+  it('숫자만 쳐도 YYYY-MM-DD 로 정리하고 8자리를 넘기지 않는다', () => {
+    expect(formatDate('1995')).toBe('1995');
+    expect(formatDate('199505')).toBe('1995-05');
+    expect(formatDate('19950517')).toBe('1995-05-17');
+    expect(formatDate('1995-05-17-99')).toBe('1995-05-17');
+    expect(formatDate('abc19.95/05')).toBe('1995-05');
+    expect(formatDate('')).toBe('');
+  });
+});

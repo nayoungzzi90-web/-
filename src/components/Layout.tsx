@@ -1,4 +1,4 @@
-import { Link, NavLink, Outlet } from 'react-router-dom';
+import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { CoinBalance } from './Common';
 import { ArtSvg } from './art';
 import { Coin } from './Scene';
@@ -6,8 +6,14 @@ import { useSession } from '../lib/mock/hooks';
 
 export function Header() {
   const { user, balance } = useSession();
+  const loc = useLocation();
+  const nav = useNavigate();
+  const isHome = loc.pathname === '/';
   return (
     <header className="header">
+      {!isHome && (
+        <button className="back" aria-label="뒤로 가기" onClick={() => (loc.key === 'default' ? nav('/') : nav(-1))}>‹</button>
+      )}
       <Link to="/" className="logo" aria-label="오행 친구들 홈"><ArtSvg stem="戊" size={30} /> 오행 친구들</Link>
       <div className="header-actions">
         {user ? <CoinBalance amount={balance} /> : null}

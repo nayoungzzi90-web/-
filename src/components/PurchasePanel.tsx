@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { CATALOG, ProductId, won } from '../lib/catalog';
 import { mutate, track } from '../lib/mock/db';
 import { useSession } from '../lib/mock/hooks';
@@ -12,22 +12,22 @@ import { ConfirmationDialog } from './Common';
  * 구매 영역: 현금(테스트 결제) 또는 엽전 교환.
  * 가격·엽전 수량 표시는 서버 카탈로그 값이고, 주문 금액은 서버가 다시 조회한다.
  */
-export function PurchasePanel({ productId, getSubjectId, existingReportId, blockedReason, nextPath }: { productId: ProductId; getSubjectId: () => string; existingReportId?: string; blockedReason?: string; nextPath: string }) {
+export function PurchasePanel({ productId, getSubjectId, existingReportId, blockedReason, nextPath, resumable = true }: { productId: ProductId; getSubjectId: () => string; existingReportId?: string; blockedReason?: string; nextPath: string; resumable?: boolean }) {
   const p = CATALOG[productId];
   const { user, balance } = useSession();
   const nav = useNavigate();
   const [confirm, setConfirm] = useState(false);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [params, setParams] = useSearchParams();
+  const resumed = useRef(false);
 
-  if (existingReportId) {
-    return <Link className="btn teal block" to={`/reports/${existingReportId}`}>내 리포트 보기</Link>;
-  }
-  const needLogin = () => nav(`/login?next=${encodeURIComponent(nextPath)}`);
+  /** 로그인 뒤 돌아오면 누르려던 버튼(buy=cash|coin)을 자동으로 이어서 실행 */
+  const needLogin = (intent: 'cash' | 'coin') => nav(`/login?next=${encodeURIComponent(resumable ? `${nextPath}?buy=${intent}` : nextPath)}`);
 
   function buyCash() {
     setError('');
-    if (!user) return needLogin();
+    if (!user) return needLogin('cash');
     try {
       const subject = getSubjectId();
       const orderId = mutate((db) => { const o = createOrder(db, user.id, productId, subject); track(db, 'checkout_started', { product_id: productId, method: 'cash' }); return o.id; });
@@ -53,6 +53,17 @@ export function PurchasePanel({ productId, getSubjectId, existingReportId, block
       setBusy(false);
     }
   }
+  useEffect(() => {
+    const intent = params.get('buy');
+    if (!intent || !user || resumed.current || existingReportId || blockedReason) return;
+    resumed.current = true;
+    setParams((q) => { q.delete('buy'); return q; }, { replace: true });
+    if (intent === 'cash') buyCash();
+    else if (intent === 'coin' && balance >= p.coinCost) setConfirm(true);
+  }); // eslint-disable-line react-hooks/exhaustive-deps
+  if (existingReportId) {
+    return <Link className="btn teal block" to={`/reports/${existingReportId}`}>내 리포트 보기</Link>;
+  }
   const short = user && balance < p.coinCost;
   return (
     <div className="card" style={{ borderColor: 'var(--red)' }}>
@@ -60,8 +71,8 @@ export function PurchasePanel({ productId, getSubjectId, existingReportId, block
       {blockedReason ? <div className="notice" style={{ marginTop: 12 }}>{blockedReason}</div> : (
         <div className="stack" style={{ marginTop: 12 }}>
           <button className="btn block" onClick={buyCash} disabled={busy}>{p.name} {won(p.priceKrw)}에 보기</button>
-          <button className="btn secondary block" onClick={() => (user ? setConfirm(true) : needLogin())} disabled={busy || !!short}>엽전 {p.coinCost}닢으로 열람</button>
-          {user ? <p className="muted small" style={{ margin: 0 }}>보유 엽전 {balance}닢 {short && <>· {p.coinCost - balance}닢 부족해요. <Link to="/invite">친구 초대로 모으기</Link></>}</p> : <p className="muted small" style={{ margin: 0 }}>결제·교환 직전에 로그인이 필요해요. 무료 체험 결과는 그대로 이어져요.</p>}
+          <button className="btn secondary block" onClick={() => (user ? setConfirm(true) : needLogin('coin'))} disabled={busy || !!short}>엽전 {p.coinCost}닢으로 열람</button>
+          {user ? <p className="muted small" style={{ margin: 0 }}>보유 엽전 {balance}닢 {short && <>· {p.coinCost - balance}닢 부족해요. <Link to="/rewards">엽전 충전하기</Link> · <Link to="/invite">친구 초대로 모으기</Link></>}</p> : <p className="muted small" style={{ margin: 0 }}>결제·교환 직전에 로그인이 필요해요. 무료 체험 결과는 그대로 이어져요.</p>}
         </div>
       )}
       {error && <p className="err" role="alert">{error}</p>}

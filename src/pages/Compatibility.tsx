@@ -12,7 +12,7 @@ import { BirthInput } from '../lib/saju/types';
 
 export default function Compatibility() {
   const p = CATALOG.compatibility;
-  const { chart } = useSession();
+  const { chart, user } = useSession();
   const [other, setOther] = useState<BirthInput | null>(null);
 
   if (!flags.compatEnabled) {
@@ -37,7 +37,13 @@ export default function Compatibility() {
       <div className="notice info">
         <b>보관 안내</b> · 두 사람의 입력 정보와 궁합 결과는 <b>결과 생성 후 {COMPAT_RETENTION_DAYS}일</b>(오늘 생성 시 {expiry.getFullYear()}.{expiry.getMonth() + 1}.{expiry.getDate()}까지) 재열람할 수 있고, 이후 자동 삭제돼요. 상대방의 실명은 받지 않아요.
       </div>
-      {!chart ? (
+      {!user ? (
+        <div className="card center">
+          <h2>로그인하고 시작해요</h2>
+          <p className="muted">궁합은 결과를 {COMPAT_RETENTION_DAYS}일 동안 안전하게 보관해야 해서 로그인이 필요해요. 상대방 정보는 로그인한 뒤에 입력하게 돼요.</p>
+          <Link className="btn go" to="/login?next=/products/compatibility">로그인하고 이어서 하기</Link>
+        </div>
+      ) : !chart ? (
         <div className="card center"><p>먼저 내 출생 정보가 필요해요.</p><Link className="btn" to="/birth">내 정보 입력하기</Link></div>
       ) : (
         <>
@@ -61,6 +67,7 @@ export default function Compatibility() {
             <PurchasePanel
               productId="compatibility"
               nextPath="/products/compatibility"
+              resumable={false}
               getSubjectId={() => {
                 const sid = uid('cmp_');
                 mutate((db) => { db.compat[sid] = { id: sid, buyerUserId: db.sessionUserId!, inputA: chart.input, inputB: other }; });

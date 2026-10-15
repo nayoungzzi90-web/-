@@ -1,12 +1,14 @@
 import { useNavigate } from 'react-router-dom';
 import { BirthForm } from '../components/BirthForm';
 import { createChart } from '../lib/mock/service';
+import { useSession } from '../lib/mock/hooks';
 import { mutate, track } from '../lib/mock/db';
 import { useEffect } from 'react';
 import { ArtSvg } from '../components/art';
 
 export default function Birth() {
   const nav = useNavigate();
+  const { chart } = useSession();
   useEffect(() => { mutate((db) => track(db, 'birth_start')); }, []);
   return (
     <div>
@@ -17,8 +19,12 @@ export default function Birth() {
           {(['甲', '丙', '戊', '庚', '壬'] as const).map((st) => <ArtSvg key={st} stem={st} className="art" size={90} />)}
         </div>
       </div>
+      {chart && <div className="notice info" role="note">지난번에 입력한 정보를 불러왔어요. 고치면 새 결과가 만들어지고, 이미 구매한 리포트는 바뀌지 않아요.</div>}
       <div className="card">
         <BirthForm
+          key={chart?.id ?? 'new'}
+          initial={chart?.input}
+          aliasDefault={chart?.input.alias ?? ''}
           submitLabel="무료로 내 사주 보기"
           aliasLabel="별칭 (선택, 공유 카드에 표시돼요)"
           onSubmit={(input) => {

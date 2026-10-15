@@ -3,7 +3,14 @@ import { calculator } from '../lib/saju/sampleCalculator';
 import { BirthInput, CalcError } from '../lib/saju/types';
 
 type Errors = Partial<Record<'date' | 'time' | 'calendar' | 'consent' | 'form', string>>;
-const thisYear = new Date().getFullYear();
+const pad = (n: number) => String(n).padStart(2, '0');
+
+/** 숫자만 쳐도 1995-05-17 형태로 정리 */
+export const formatDate = (raw: string) => {
+  const d = raw.replace(/\D/g, '').slice(0, 8);
+  const y = d.slice(0, 4), m = d.slice(4, 6), day = d.slice(6, 8);
+  return y + (m ? `-${m}` : '') + (day ? `-${day}` : '');
+};
 
 export interface BirthFormProps {
   submitLabel: string;
@@ -20,12 +27,9 @@ export interface BirthFormProps {
 export function BirthForm({ submitLabel, onSubmit, aliasLabel = '별칭 (선택)', aliasDefault = '', showAlias = true, showGender = true, requireConsent, initial, idPrefix = 'b' }: BirthFormProps) {
   const [calendar, setCalendar] = useState<'solar' | 'lunar'>(initial?.calendar ?? 'solar');
   const [leap, setLeap] = useState(false);
-  const [year, setYear] = useState(initial?.year ? String(initial.year) : '');
-  const [month, setMonth] = useState(initial?.month ? String(initial.month) : '');
-  const [day, setDay] = useState(initial?.day ? String(initial.day) : '');
+  const [dateText, setDateText] = useState(initial?.year ? `${initial.year}-${pad(initial.month ?? 1)}-${pad(initial.day ?? 1)}` : '');
   const [unknown, setUnknown] = useState(initial?.timeUnknown ?? false);
-  const [hour, setHour] = useState(initial?.hour !== undefined ? String(initial.hour) : '');
-  const [minute, setMinute] = useState(initial?.minute !== undefined ? String(initial.minute) : '0');
+  const [timeText, setTimeText] = useState(initial?.hour !== undefined ? `${pad(initial.hour)}:${pad(initial.minute ?? 0)}` : '');
   const [gender, setGender] = useState<'F' | 'M' | 'X' | ''>(initial?.gender ?? '');
   const [alias, setAlias] = useState(aliasDefault);
   const [consent, setConsent] = useState(false);
@@ -35,17 +39,20 @@ export function BirthForm({ submitLabel, onSubmit, aliasLabel = '별칭 (선택)
   function submit(e: FormEvent) {
     e.preventDefault();
     const errs: Errors = {};
+    const digits = dateText.replace(/\D/g, '');
+    if (digits.length !== 8) errs.date = '생년월일을 8자리로 입력해 주세요. 예: 1990-01-01';
+    const [hh, mm] = timeText.split(':').map(Number);
     const input: BirthInput = {
-      calendar, leapMonth: calendar === 'lunar' && leap, year: Number(year), month: Number(month), day: Number(day),
-      timeUnknown: unknown, hour: unknown ? undefined : hour === '' ? undefined : Number(hour), minute: unknown ? undefined : Number(minute || 0),
+      calendar, leapMonth: calendar === 'lunar' && leap,
+      year: Number(digits.slice(0, 4)), month: Number(digits.slice(4, 6)), day: Number(digits.slice(6, 8)),
+      timeUnknown: unknown, hour: unknown || !timeText ? undefined : hh, minute: unknown || !timeText ? undefined : mm,
       gender: gender || undefined, country: 'KR', alias: showAlias ? alias : undefined,
     };
-    if (!year || !month || !day) errs.date = '생년월일을 모두 입력해 주세요.';
     try {
       if (!errs.date) calculator.calculate(input); // 검증 겸 사전 계산 (결과는 저장하지 않음)
     } catch (err) {
       if (err instanceof CalcError) {
-        if (err.code === 'INVALID_TIME') errs.time = err.message;
+        if (err.code === 'INVALID_TIME') errs.time = '태어난 시간을 선택하거나 "시간을 몰라요"를 체크해 주세요.';
         else if (err.code === 'LUNAR_UNSUPPORTED') errs.calendar = err.message;
         else errs.date = err.message;
       } else errs.form = '계산 중 문제가 생겼어요. 잠시 후 다시 시도해 주세요.';
@@ -62,6 +69,15 @@ export function BirthForm({ submitLabel, onSubmit, aliasLabel = '별칭 (선택)
   return (
     <form onSubmit={submit} noValidate>
       {errors.form && <div className="notice error" role="alert">{errors.form}</div>}
+
+      <div className="field">
+        <label htmlFor={id('date')}>생년월일</label>
+        <input id={id('date')} className="input" inputMode="numeric" autoComplete="bday" placeholder="예: 1990-01-01" maxLength={10}
+          value={dateText} onChange={(e) => setDateText(formatDate(e.target.value))} aria-invalid={!!errors.date} aria-describedby={id('date-help')} />
+        <p id={id('date-help')} className="muted small" style={{ margin: '6px 0 0' }}>숫자만 입력하면 돼요. 한국에서 태어난 경우만 계산할 수 있어요.</p>
+        {errors.date && <p className="err" role="alert">{errors.date}</p>}
+      </div>
+
       <fieldset>
         <legend>달력 종류</legend>
         <div className="seg cal" role="radiogroup" aria-label="달력 종류">
@@ -74,38 +90,14 @@ export function BirthForm({ submitLabel, onSubmit, aliasLabel = '별칭 (선택)
         {errors.calendar && <p className="err" role="alert">{errors.calendar}</p>}
       </fieldset>
 
-      <fieldset>
-        <legend>생년월일</legend>
-        <div className="grid2" style={{ gridTemplateColumns: '1.3fr 1fr 1fr' }}>
-          <div><label className="sr-only" htmlFor={id('y')}>출생 연도</label>
-            <input id={id('y')} className="input" inputMode="numeric" autoComplete="bday-year" placeholder="연도" maxLength={4} value={year} onChange={(e) => setYear(e.target.value.replace(/\D/g, ''))} aria-invalid={!!errors.date} aria-describedby={errors.date ? id('date-err') : undefined} /></div>
-          <div><label className="sr-only" htmlFor={id('m')}>출생 월</label>
-            <input id={id('m')} className="input" inputMode="numeric" autoComplete="bday-month" placeholder="월" maxLength={2} value={month} onChange={(e) => setMonth(e.target.value.replace(/\D/g, ''))} aria-invalid={!!errors.date} /></div>
-          <div><label className="sr-only" htmlFor={id('d')}>출생 일</label>
-            <input id={id('d')} className="input" inputMode="numeric" autoComplete="bday-day" placeholder="일" maxLength={2} value={day} onChange={(e) => setDay(e.target.value.replace(/\D/g, ''))} aria-invalid={!!errors.date} /></div>
-        </div>
-        <p className="muted small" style={{ margin: '6px 0 0' }}>1920~{Math.min(thisYear, 2030)}년, 한국에서 태어난 경우만 계산할 수 있어요.</p>
-        {errors.date && <p id={id('date-err')} className="err" role="alert">{errors.date}</p>}
-      </fieldset>
-
-      <fieldset>
-        <legend>태어난 시간</legend>
-        <div className="grid2">
-          <div><label className="sr-only" htmlFor={id('h')}>시</label>
-            <select id={id('h')} className="input" disabled={unknown} value={hour} onChange={(e) => setHour(e.target.value)} aria-invalid={!!errors.time}>
-              <option value="">시 선택</option>
-              {Array.from({ length: 24 }, (_, h) => <option key={h} value={h}>{h}시</option>)}
-            </select></div>
-          <div><label className="sr-only" htmlFor={id('min')}>분</label>
-            <select id={id('min')} className="input" disabled={unknown} value={minute} onChange={(e) => setMinute(e.target.value)}>
-              {Array.from({ length: 60 }, (_, m) => <option key={m} value={m}>{m}분</option>)}
-            </select></div>
-        </div>
+      <div className="field">
+        <label htmlFor={id('time')}>태어난 시간</label>
+        <input id={id('time')} className="input" type="time" disabled={unknown} value={timeText} onChange={(e) => setTimeText(e.target.value)} aria-invalid={!!errors.time} />
         <label className="check" style={{ marginTop: 10 }}>
           <input type="checkbox" checked={unknown} onChange={(e) => setUnknown(e.target.checked)} />시간을 몰라요 (시주 없이 계산해요)
         </label>
         {errors.time && <p className="err" role="alert">{errors.time}</p>}
-      </fieldset>
+      </div>
 
       {showGender && (
         <fieldset>
