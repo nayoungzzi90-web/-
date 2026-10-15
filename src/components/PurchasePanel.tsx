@@ -56,17 +56,17 @@ export function PurchasePanel({ productId, getSubjectId, existingReportId, block
   const short = user && balance < p.coinCost;
   return (
     <div className="card" style={{ borderColor: 'var(--red)' }}>
-      <div className="row between"><h2 style={{ margin: 0 }}>{p.name}</h2><span className="price">{won(p.priceKrw)}<small>또는 엽전 {p.coinCost}냥</small></span></div>
+      <div className="row between"><h2 style={{ margin: 0 }}>{p.name}</h2><span className="price">{won(p.priceKrw)}<small>또는 엽전 {p.coinCost}닢</small></span></div>
       {blockedReason ? <div className="notice" style={{ marginTop: 12 }}>{blockedReason}</div> : (
         <div className="stack" style={{ marginTop: 12 }}>
           <button className="btn block" onClick={buyCash} disabled={busy}>{p.name} {won(p.priceKrw)}에 보기</button>
-          <button className="btn secondary block" onClick={() => (user ? setConfirm(true) : needLogin())} disabled={busy || !!short}>엽전 {p.coinCost}냥으로 열람</button>
-          {user ? <p className="muted small" style={{ margin: 0 }}>보유 엽전 {balance}냥 {short && <>· {p.coinCost - balance}냥 부족해요. <Link to="/invite">친구 초대로 모으기</Link></>}</p> : <p className="muted small" style={{ margin: 0 }}>결제·교환 직전에 로그인이 필요해요. 무료 체험 결과는 그대로 이어져요.</p>}
+          <button className="btn secondary block" onClick={() => (user ? setConfirm(true) : needLogin())} disabled={busy || !!short}>엽전 {p.coinCost}닢으로 열람</button>
+          {user ? <p className="muted small" style={{ margin: 0 }}>보유 엽전 {balance}닢 {short && <>· {p.coinCost - balance}닢 부족해요. <Link to="/invite">친구 초대로 모으기</Link></>}</p> : <p className="muted small" style={{ margin: 0 }}>결제·교환 직전에 로그인이 필요해요. 무료 체험 결과는 그대로 이어져요.</p>}
         </div>
       )}
       {error && <p className="err" role="alert">{error}</p>}
-      <ConfirmationDialog open={confirm} title="엽전으로 열람할까요?" confirmLabel={`${p.coinCost}냥 사용`} onConfirm={redeem} onCancel={() => setConfirm(false)}>
-        <p>엽전 {p.coinCost}냥이 차감되고 바로 리포트 생성이 시작돼요. (현재 {balance}냥 → {balance - p.coinCost}냥) 엽전은 현금으로 환급되지 않아요.</p>
+      <ConfirmationDialog open={confirm} title="엽전으로 열람할까요?" confirmLabel={`${p.coinCost}닢 사용`} onConfirm={redeem} onCancel={() => setConfirm(false)}>
+        <p>엽전 {p.coinCost}닢이 차감되고 바로 리포트 생성이 시작돼요. (현재 {balance}닢 → {balance - p.coinCost}닢) 엽전은 현금으로 환급되지 않아요.</p>
       </ConfirmationDialog>
     </div>
   );

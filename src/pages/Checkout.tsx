@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ConfirmationDialog, ErrorState, MockNotice } from '../components/Common';
-import { CATALOG, won } from '../lib/catalog';
+import { CATALOG, ProductId, orderItemName, won } from '../lib/catalog';
 import { flags } from '../lib/flags';
 import { mutate, track } from '../lib/mock/db';
 import { useSession } from '../lib/mock/hooks';
@@ -19,7 +19,9 @@ export default function Checkout() {
 
   if (!user) return <ErrorState title="로그인이 필요해요" message="결제는 로그인 후 진행돼요." action={<Link className="btn" to={`/login?next=${encodeURIComponent(`/checkout/${orderId}`)}`}>로그인</Link>} />;
   if (!order || order.userId !== user.id) return <ErrorState title="주문을 찾을 수 없어요" message="내 주문이 아니거나 존재하지 않는 주문이에요." action={<Link className="btn" to="/">홈으로</Link>} />;
-  const p = CATALOG[order.productId];
+  const isCoin = order.productId === 'coin_pack';
+  const itemName = orderItemName(order.productId, order.subjectId);
+  const backPath = isCoin ? '/rewards' : CATALOG[order.productId as ProductId].path;
   const ent = Object.values(db.entitlements).find((e) => e.orderId === order.id);
 
   async function pay(amount = order.amountKrw) {
@@ -28,14 +30,16 @@ export default function Checkout() {
     try {
       const { paymentKey } = await mockProvider.authorize(order); // 인증 단계(승인 아님)
       // 서버 승인: orderId·amount·paymentKey 를 주문과 대조한 뒤에만 열람 권한 생성
-      const { reportId, jobId } = mutate((d) => {
+      const res = mutate((d) => {
         const r = confirmPayment(d, { orderId: order.id, userId: user!.id, paymentKey, amount });
-        const job = createJob(d, r.entitlement);
         if (!r.duplicate) track(d, 'payment_approved', { product_id: order.productId });
+        if (!r.entitlement) return null; // 엽전 충전: 리포트 없음
+        const job = createJob(d, r.entitlement);
         return { reportId: d.entitlements[r.entitlement.id].reportId!, jobId: job.id };
       });
-      void runJob(jobId);
-      nav(`/reports/${reportId}`);
+      if (!res) { nav('/rewards?charged=' + order.id); return; }
+      void runJob(res.jobId);
+      nav(`/reports/${res.reportId}`);
     } catch (e) {
       setMsg({ kind: 'error', text: e instanceof PayError ? `${e.message} (${e.code})` : '결제를 처리하지 못했어요. 결제가 되지 않았으니 다시 시도해 주세요.' });
       setBusy(false);
@@ -47,10 +51,12 @@ export default function Checkout() {
       <MockNotice>테스트 모드 결제예요. 실제로 청구되지 않고, 승인 로직(주문 번호·금액 검증)만 시뮬레이션해요.</MockNotice>
       <h1>결제</h1>
       <section className="card">
-        <div className="row between"><b>{p.name}</b><b>{won(order.amountKrw)}</b></div>
+        <div className="row between"><b>{itemName}</b><b>{won(order.amountKrw)}</b></div>
         <p className="muted small" style={{ marginBottom: 0 }}>주문 번호 {order.id} · 상태 {order.status === 'paid' ? '결제 완료' : order.status === 'pending' ? '결제 대기' : order.status}</p>
       </section>
-      {order.status === 'paid' && ent?.reportId ? (
+      {order.status === 'paid' && isCoin ? (
+        <Link className="btn teal block" to="/rewards">내 엽전 보기</Link>
+      ) : order.status === 'paid' && ent?.reportId ? (
         <Link className="btn teal block" to={`/reports/${ent.reportId}`}>리포트 보기</Link>
       ) : order.status === 'pending' ? (
         <div className="stack">
@@ -64,7 +70,7 @@ export default function Checkout() {
         </div>
       ) : <div className="notice">이 주문은 더 이상 결제할 수 없어요 ({order.status}).</div>}
       {msg && <div className={`notice ${msg.kind}`} role="alert">{msg.text}</div>}
-      <ConfirmationDialog open={cancel} title="결제를 취소할까요?" confirmLabel="취소하기" cancelLabel="계속 결제" onCancel={() => setCancel(false)} onConfirm={() => { mutate((d) => { d.orders[order.id].status = 'cancelled'; }); nav(p.path); }}>
+      <ConfirmationDialog open={cancel} title="결제를 취소할까요?" confirmLabel="취소하기" cancelLabel="계속 결제" onCancel={() => setCancel(false)} onConfirm={() => { mutate((d) => { d.orders[order.id].status = 'cancelled'; }); nav(backPath); }}>
         <p>아직 결제되지 않았어요. 취소하면 주문이 닫혀요.</p>
       </ConfirmationDialog>
     </div>

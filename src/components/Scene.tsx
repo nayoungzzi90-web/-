@@ -27,7 +27,7 @@ const Cloud = ({ x, y, s = 1, o = 0.9 }: { x: number; y: number; s?: number; o?:
 );
 
 /** 홈 히어로: 한옥 대문 + 친구들 (직접 그린 일러스트) */
-export function HeroScene({ stems = ['甲', '乙', '丙', '丁', '己'] as Stem[] }: { stems?: Stem[] }) {
+export function HeroScene({ stems = ['甲', '丙', '戊', '庚', '壬'] as Stem[] }: { stems?: Stem[] }) {
   return (
     <svg viewBox="0 0 375 330" width="100%" role="img" aria-label="한옥 대문 앞에 모인 오행 친구들" style={{ display: 'block' }}>
       <defs>

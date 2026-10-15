@@ -8,7 +8,7 @@ export function Header() {
   const { user, balance } = useSession();
   return (
     <header className="header">
-      <Link to="/" className="logo" aria-label="오행 친구들 홈"><ArtSvg stem="丙" size={30} /> 오행 친구들</Link>
+      <Link to="/" className="logo" aria-label="오행 친구들 홈"><ArtSvg stem="戊" size={30} /> 오행 친구들</Link>
       <div className="header-actions">
         {user ? <CoinBalance amount={balance} /> : null}
         {user ? <Link className="btn sm ghost" to="/me">보관함</Link> : <Link className="btn sm secondary" to="/login">로그인</Link>}

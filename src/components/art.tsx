@@ -53,163 +53,139 @@ const Sparkle = ({ x, y, s = 1, c = '#FFD25E' }: { x: number; y: number; s?: num
   <path transform={`translate(${x} ${y}) scale(${s})`} d="M0-9L2.6-2.6L9 0L2.6 2.6L0 9L-2.6 2.6L-9 0L-2.6-2.6Z" fill={c} stroke={L} strokeWidth="1.8" strokeLinejoin="round" />
 );
 
-const ART: Record<Stem, () => JSX.Element> = {
-  // 甲 곧은 소나무 도령: 검은 갓 + 소나무 새싹
-  甲: () => (
+/* ── 오행 다섯 친구: 솔이(木) 댕이(火) 호동이(土) 달토(金) 거북이(水). 일간 10종 = 친구 5 × 양/음 2가지 모습 ── */
+const HAT = '#3B2E2A';
+const Scroll = ({ x, y, rot = -18 }: { x: number; y: number; rot?: number }) => (
+  <g transform={`translate(${x} ${y}) rotate(${rot})`}>
+    <rect x="-26" y="-9" width="52" height="18" rx="4" fill="#FFFBF0" {...o} strokeWidth="2.2" />
+    <rect x="-30" y="-12" width="9" height="24" rx="4" fill="#E4A04A" {...o} strokeWidth="2.2" />
+    <rect x="21" y="-12" width="9" height="24" rx="4" fill="#E4A04A" {...o} strokeWidth="2.2" />
+    <path d="M-14-2h24M-14 4h16" stroke="#B83A26" strokeWidth="2" strokeLinecap="round" />
+  </g>
+);
+const Fan = ({ x, y }: { x: number; y: number }) => (
+  <g transform={`translate(${x} ${y})`}>
+    <path d="M0 14L-22-22Q0-36 22-22z" fill="#FFF2C4" {...o} strokeWidth="2.2" />
+    <path d="M0 14L-11-27M0 14L0-30M0 14L11-27" stroke="#B83A26" strokeWidth="1.8" />
+    <circle cx="0" cy="14" r="4" fill="#8A5A2B" stroke={L} strokeWidth="1.6" />
+  </g>
+);
+const Lantern = ({ x, y }: { x: number; y: number }) => (
+  <g transform={`translate(${x} ${y})`}>
+    <path d="M0-24v-10" stroke={L} strokeWidth="3" />
+    <rect x="-9" y="-26" width="18" height="5" rx="2" fill="#8A3F3B" {...o} strokeWidth="2.2" />
+    <ellipse cx="0" cy="-8" rx="14" ry="17" fill="#FFB347" {...o} />
+    <ellipse cx="0" cy="-8" rx="7" ry="11" fill="#FFE9A8" />
+    <rect x="-9" y="8" width="18" height="5" rx="2" fill="#8A3F3B" {...o} strokeWidth="2.2" />
+  </g>
+);
+const Gat = ({ crown = HAT, band = '#B83A26' }: { crown?: string; band?: string }) => (
+  <g>
+    <ellipse cx="100" cy="52" rx="56" ry="12" fill={crown} {...o} />
+    <path d="M72 50q0-34 28-34t28 34z" fill={crown} {...o} />
+    <path d="M72 44h56" stroke={band} strokeWidth="5" strokeLinecap="round" />
+  </g>
+);
+
+// 솔이 (木): 갓 쓴 푸른 선비
+const Soli = ({ yin }: { yin: boolean }) => (
+  <g>
+    <Body color={yin ? '#8FD39A' : '#2F8F7B'} belly="#FFF4DC" />
+    <path d="M88 150l12 14l12-14" fill="#fff" {...o} strokeWidth="2.4" />
+    <path d="M100 164l-6 14M100 164l6 14" stroke="#B83A26" strokeWidth="3.4" strokeLinecap="round" />
+    <Head color={SKIN} />
+    <Face />
+    {yin ? (
+      <g>
+        <path d="M44 74Q58 28 100 26Q142 28 156 74Q132 50 100 54Q68 50 44 74z" fill={HAT} {...o} />
+        <path d="M100 26q-4-18 14-26q6 18-14 26z" fill="#6CC07A" {...o} />
+        <path d="M100 26q-16-2-22-16q18-2 22 16z" fill="#4FA766" {...o} />
+        <g transform="translate(160 150) rotate(30)"><rect x="-3" y="-30" width="6" height="52" rx="3" fill="#8A5A2B" {...o} strokeWidth="2.2" /><path d="M-3-30l3-12l3 12z" fill="#3B2E2A" {...o} strokeWidth="1.8" /></g>
+      </g>
+    ) : (
+      <g>
+        <Gat />
+        <path d="M100 18V4M100 14q-14-2-18-12M100 14q14-2 18-12" stroke="#2F7D4E" strokeWidth="4.5" fill="none" strokeLinecap="round" />
+        <Scroll x={156} y={162} />
+      </g>
+    )}
+  </g>
+);
+
+// 댕이 (火): 댕기 머리 소녀
+const Daengi = ({ yin }: { yin: boolean }) => (
+  <g>
+    {!yin && (<g><circle cx="52" cy="46" r="20" fill={HAT} {...o} /><circle cx="148" cy="46" r="20" fill={HAT} {...o} /><circle cx="52" cy="46" r="7" fill="#E0564A" /><circle cx="148" cy="46" r="7" fill="#E0564A" /></g>)}
+    {yin && (<g><circle cx="30" cy="120" r="17" fill={HAT} {...o} /><circle cx="170" cy="120" r="17" fill={HAT} {...o} /><rect x="22" y="130" width="16" height="9" rx="3" fill="#E0564A" {...o} strokeWidth="2.4" /><rect x="162" y="130" width="16" height="9" rx="3" fill="#E0564A" {...o} strokeWidth="2.4" /></g>)}
+    <Body color={yin ? '#F59AB0' : '#D94B3A'} belly="#FFF4DC" />
+    <path d="M88 150l12 14l12-14" fill="#fff" {...o} strokeWidth="2.4" />
+    <ellipse cx="100" cy="98" rx="72" ry="64" fill={HAT} {...o} />
+    <ellipse cx="100" cy="106" rx="62" ry="54" fill={SKIN} {...o} />
+    <path d="M40 92Q56 38 100 40Q144 38 160 92Q138 64 100 70Q62 64 40 92z" fill={HAT} {...o} />
+    <Face eyeY={108} />
+    {yin ? <Lantern x={162} y={152} /> : (<g><path d="M92 50q8-10 16 0" stroke="#E0564A" strokeWidth="5" fill="none" strokeLinecap="round" /><Sparkle x={168} y={74} s={0.8} /></g>)}
+  </g>
+);
+
+// 호동이 (土): 호랑이
+const Hodongi = ({ yin }: { yin: boolean }) => {
+  const fur = yin ? '#F7C65E' : '#F4A640';
+  return (
     <g>
-      <Body color="#58B5A6" belly="#FFF4DC" />
-      <path d="M88 150l12 14l12-14" fill="#fff" {...o} strokeWidth="2.4" />
-      <Head color={SKIN} />
-      <Face />
-      <ellipse cx="100" cy="52" rx="56" ry="12" fill="#4B3A33" {...o} />
-      <path d="M72 50q0-34 28-34t28 34z" fill="#4B3A33" {...o} />
-      <path d="M72 44h56" stroke="#8A3F3B" strokeWidth="5" strokeLinecap="round" />
-      <path d="M100 18V4M100 14q-14-2-18-12M100 14q14-2 18-12" stroke="#2F7D4E" strokeWidth="4.5" fill="none" strokeLinecap="round" />
-    </g>
-  ),
-  // 乙 살랑살랑 덩굴 아씨: 땋은 머리 + 잎사귀 댕기
-  乙: () => (
-    <g>
-      <Body color="#F59AB0" belly="#FFF4DC" />
-      <circle cx="30" cy="118" r="17" fill="#4B3A33" {...o} />
-      <circle cx="170" cy="118" r="17" fill="#4B3A33" {...o} />
-      <rect x="22" y="128" width="16" height="9" rx="3" fill="#E0564A" {...o} strokeWidth="2.4" />
-      <rect x="162" y="128" width="16" height="9" rx="3" fill="#E0564A" {...o} strokeWidth="2.4" />
-      <ellipse cx="100" cy="98" rx="72" ry="64" fill="#4B3A33" {...o} />
-      <ellipse cx="100" cy="106" rx="62" ry="54" fill={SKIN} {...o} />
-      <path d="M40 92Q56 38 100 40Q144 38 160 92Q138 64 100 70Q62 64 40 92z" fill="#4B3A33" {...o} />
-      <Face eyeY={108} />
-      <path d="M100 38q-6-22 14-30q6 20-14 30z" fill="#6CC07A" {...o} />
-      <path d="M100 38q-16-4-22-18q18-2 22 18z" fill="#4FA766" {...o} />
-    </g>
-  ),
-  // 丙 활짝 해님 호랑이
-  丙: () => (
-    <g>
-      <circle cx="46" cy="52" r="22" fill="#F4A640" {...o} />
-      <circle cx="154" cy="52" r="22" fill="#F4A640" {...o} />
-      <circle cx="46" cy="53" r="10" fill="#FFC9B0" />
-      <circle cx="154" cy="53" r="10" fill="#FFC9B0" />
-      <Body color="#F4A640" belly="#FFE08A" />
-      <Head color="#F4A640" />
-      <path d="M100 42v20M80 46l6 17M120 46l-6 17M34 98l20 4M34 120l20-4M166 98l-20 4M166 120l-20-4" stroke={L} strokeWidth="4.4" strokeLinecap="round" />
+      <circle cx="46" cy="52" r="22" fill={fur} {...o} /><circle cx="154" cy="52" r="22" fill={fur} {...o} />
+      <circle cx="46" cy="53" r="10" fill="#FFC9B0" /><circle cx="154" cy="53" r="10" fill="#FFC9B0" />
+      <Body color={fur} belly="#FFF1D6" />
+      <Head color={fur} />
+      <path d="M100 42v20M80 46l6 17M120 46l-6 17M34 98l20 4M34 120l20-4M166 98l-20 4M166 120l-20-4" stroke={L} strokeWidth="4.2" strokeLinecap="round" />
       <ellipse cx="100" cy="124" rx="34" ry="24" fill="#FFF1D6" {...o} strokeWidth="2.6" />
       <Face />
       <path d="M92 118h16l-8 9z" fill="#E0564A" {...o} strokeWidth="2.2" />
-      <g transform="translate(100 22)"><circle r="12" fill="#FFD25E" {...o} strokeWidth="2.6" />{[0, 45, 90, 135, 180, 225, 270, 315].map((a) => <path key={a} d="M0-17v-6" transform={`rotate(${a})`} stroke={L} strokeWidth="3" strokeLinecap="round" />)}</g>
+      {yin ? (
+        <g transform="translate(160 156)"><path d="M0-22v-8" stroke={L} strokeWidth="2.6" /><path d="M-14-18q14-8 28 0q6 22-14 30q-20-8-14-30z" fill="#E0564A" {...o} strokeWidth="2.4" /><path d="M-8-8h16" stroke="#FFD25E" strokeWidth="2.4" strokeLinecap="round" /></g>
+      ) : (<Fan x={158} y={156} />)}
     </g>
-  ),
-  // 丁 오롯한 등불 토끼
-  丁: () => (
-    <g>
-      <ellipse cx="66" cy="42" rx="19" ry="46" fill="#FFF4EA" {...o} />
-      <ellipse cx="134" cy="42" rx="19" ry="46" fill="#FFF4EA" {...o} />
-      <ellipse cx="66" cy="46" rx="8" ry="30" fill="#FFB5C2" />
-      <ellipse cx="134" cy="46" rx="8" ry="30" fill="#FFB5C2" />
-      <Body color="#F0764B" belly="#FFD7A0" />
-      <Head color="#FFF4EA" />
-      <Face />
-      <path d="M95 117h10l-5 6z" fill="#FF7F9A" {...o} strokeWidth="2" />
-      <g transform="translate(160 150)">
-        <path d="M0-24v-10" stroke={L} strokeWidth="3" />
-        <rect x="-9" y="-26" width="18" height="5" rx="2" fill="#8A3F3B" {...o} strokeWidth="2.2" />
-        <ellipse cx="0" cy="-8" rx="14" ry="17" fill="#FFB347" {...o} />
-        <ellipse cx="0" cy="-8" rx="7" ry="11" fill="#FFE9A8" />
-        <rect x="-9" y="8" width="18" height="5" rx="2" fill="#8A3F3B" {...o} strokeWidth="2.2" />
-      </g>
-    </g>
-  ),
-  // 戊 듬직한 큰바위 곰: 머리 위 작은 바위
-  戊: () => (
-    <g>
-      <circle cx="44" cy="54" r="21" fill="#B98B5E" {...o} />
-      <circle cx="156" cy="54" r="21" fill="#B98B5E" {...o} />
-      <circle cx="44" cy="55" r="9" fill="#E8C7A0" />
-      <circle cx="156" cy="55" r="9" fill="#E8C7A0" />
-      <Body color="#B98B5E" belly="#F1D9B8" />
-      <Head color="#B98B5E" />
-      <ellipse cx="100" cy="122" rx="30" ry="22" fill="#F1D9B8" {...o} strokeWidth="2.6" />
-      <Face />
-      <ellipse cx="100" cy="115" rx="9" ry="6.5" fill={L} />
-      <path d="M100 121v5" stroke={L} strokeWidth="2.6" strokeLinecap="round" />
-      <path d="M82 46q4-20 20-18q16-2 18 18z" fill="#A9B0B8" {...o} />
-      <path d="M92 38q4-6 10-6" stroke="#fff" strokeWidth="3" fill="none" strokeLinecap="round" />
-    </g>
-  ),
-  // 己 포근한 논밭 거북이: 등딱지 + 벼 새싹
-  己: () => (
-    <g>
-      <ellipse cx="84" cy="192" rx="14" ry="8" fill="#B7DFA0" {...o} />
-      <ellipse cx="116" cy="192" rx="14" ry="8" fill="#B7DFA0" {...o} />
-      <path d="M22 158q0-58 78-58t78 58q0 26-78 26t-78-26z" fill="#7DB86A" {...o} />
-      <path d="M60 128l16 12l-6 18M140 128l-16 12l6 18M100 112v26" stroke={L} strokeWidth="2.6" fill="none" opacity=".45" strokeLinecap="round" />
-      <Head color="#B7DFA0" rx={56} ry={50} cy={100} />
-      <Face />
-      <path d="M100 50V30M100 44q-14-2-18-14M100 44q14-2 18-14" stroke="#4E9A3A" strokeWidth="4.5" fill="none" strokeLinecap="round" />
-    </g>
-  ),
-  // 庚 단단한 쇠칼 선비: 은빛 갓 + 반짝이
-  庚: () => (
-    <g>
-      <Body color="#7C8CA3" belly="#E6ECF4" />
-      <path d="M88 150l12 14l12-14" fill="#fff" {...o} strokeWidth="2.4" />
-      <Head color={SKIN} />
-      <Face />
-      <ellipse cx="100" cy="54" rx="58" ry="12" fill="#C9D2DC" {...o} />
-      <path d="M70 52q0-36 30-36t30 36z" fill="#B7C2CF" {...o} />
-      <path d="M70 46h60" stroke="#33495D" strokeWidth="5" strokeLinecap="round" />
-      <path d="M86 28q6-6 14-6" stroke="#fff" strokeWidth="3.4" fill="none" strokeLinecap="round" />
-      <Sparkle x={168} y={60} /><Sparkle x={30} y={78} s={0.7} />
-    </g>
-  ),
-  // 辛 반짝반짝 옥구슬 아씨: 비녀 + 옥구슬
-  辛: () => (
-    <g>
-      <Body color="#B7A4EA" belly="#F3EEFF" />
-      <ellipse cx="100" cy="98" rx="72" ry="64" fill="#5B4B6E" {...o} />
-      <ellipse cx="100" cy="106" rx="62" ry="54" fill={SKIN} {...o} />
-      <path d="M40 94Q54 40 100 42Q146 40 160 94Q138 68 100 72Q62 68 40 94z" fill="#5B4B6E" {...o} />
-      <Face eyeY={108} />
-      <path d="M66 30L134 46" stroke="#D9B14A" strokeWidth="5" strokeLinecap="round" />
-      <circle cx="134" cy="46" r="11" fill="#5FD3C2" {...o} />
-      <circle cx="131" cy="43" r="3.4" fill="#fff" />
-      <Sparkle x={36} y={52} s={0.8} c="#FFFFFF" /><Sparkle x={168} y={90} s={0.7} c="#FFFFFF" />
-    </g>
-  ),
-  // 壬 넓은 강물 용: 작은 뿔 + 수염 + 여의주
-  壬: () => (
-    <g>
-      <path d="M72 54l-12-34l30 22z" fill="#FFF0C9" {...o} />
-      <path d="M128 54l12-34l-30 22z" fill="#FFF0C9" {...o} />
-      <Body color="#7DB9EC" belly="#E3F2FF" />
-      <path d="M78 172q8-8 16 0t16 0t16 0" stroke={L} strokeWidth="2.6" fill="none" opacity=".4" strokeLinecap="round" />
-      <Head color="#7DB9EC" />
-      <ellipse cx="100" cy="124" rx="32" ry="22" fill="#E3F2FF" {...o} strokeWidth="2.6" />
-      <Face />
-      <circle cx="94" cy="116" r="2.6" fill={L} /><circle cx="106" cy="116" r="2.6" fill={L} />
-      <path d="M62 126q-26-4-34 12M138 126q26-4 34 12" stroke={L} strokeWidth="3.2" fill="none" strokeLinecap="round" />
-      <circle cx="154" cy="152" r="13" fill="#FFFFFF" {...o} />
-      <circle cx="150" cy="148" r="3.6" fill="#BFE3FF" />
-    </g>
-  ),
-  // 癸 촉촉한 이슬 고양이: 이슬 방울
-  癸: () => (
-    <g>
-      <path d="M36 82L40 28L84 56z" fill="#9FB8D6" {...o} />
-      <path d="M164 82L160 28L116 56z" fill="#9FB8D6" {...o} />
-      <path d="M46 70L48 42L70 58z" fill="#FFC1D0" />
-      <path d="M154 70L152 42L130 58z" fill="#FFC1D0" />
-      <Body color="#9FB8D6" belly="#F2F7FC" />
-      <Head color="#9FB8D6" />
-      <path d="M100 44v14M84 48l4 12M116 48l-4 12" stroke="#7C98BC" strokeWidth="4.4" strokeLinecap="round" />
-      <ellipse cx="100" cy="124" rx="28" ry="20" fill="#F2F7FC" {...o} strokeWidth="2.6" />
-      <Face cat />
-      <path d="M96 116h8l-4 5z" fill="#FF8FA3" />
-      <path d="M52 114l-26-4M52 124l-26 4M148 114l26-4M148 124l26 4" stroke={L} strokeWidth="2.6" strokeLinecap="round" />
-      <path d="M100 8q16 20 0 30q-16-10 0-30z" fill="#7ED0F0" {...o} />
-      <circle cx="96" cy="26" r="3" fill="#fff" />
-    </g>
-  ),
+  );
+};
+
+// 달토 (金): 토끼
+const Dalto = ({ yin }: { yin: boolean }) => (
+  <g>
+    <ellipse cx="66" cy="42" rx="19" ry="46" fill="#FFF8F0" {...o} /><ellipse cx="134" cy="42" rx="19" ry="46" fill="#FFF8F0" {...o} />
+    <ellipse cx="66" cy="46" rx="8" ry="30" fill="#FFB5C2" /><ellipse cx="134" cy="46" rx="8" ry="30" fill="#FFB5C2" />
+    <Body color={yin ? '#B7A4EA' : '#5B8FD6'} belly="#FFF8F0" />
+    <path d="M88 150l12 14l12-14" fill="#fff" {...o} strokeWidth="2.4" />
+    <Head color="#FFF8F0" />
+    <Face />
+    <path d="M95 117h10l-5 6z" fill="#FF7F9A" {...o} strokeWidth="2" />
+    {yin ? (
+      <g><path d="M70 44L128 30" stroke="#D9B14A" strokeWidth="5" strokeLinecap="round" /><circle cx="128" cy="30" r="10" fill="#5FD3C2" {...o} /><circle cx="125" cy="27" r="3" fill="#fff" /><circle cx="158" cy="158" r="13" fill="#5FD3C2" {...o} /><circle cx="154" cy="154" r="3.6" fill="#fff" /></g>
+    ) : (<Scroll x={156} y={162} rot={-12} />)}
+  </g>
+);
+
+// 거북이 (水): 아기 거북
+const Geobugi = ({ yin }: { yin: boolean }) => (
+  <g>
+    <ellipse cx="84" cy="192" rx="14" ry="8" fill="#9ED8C6" {...o} /><ellipse cx="116" cy="192" rx="14" ry="8" fill="#9ED8C6" {...o} />
+    <path d="M22 158q0-58 78-58t78 58q0 26-78 26t-78-26z" fill={yin ? '#7FC1D8' : '#3E9C8A'} {...o} />
+    <path d="M60 128l16 12l-6 18M140 128l-16 12l6 18M100 112v26" stroke={L} strokeWidth="2.6" fill="none" opacity=".4" strokeLinecap="round" />
+    <path d="M62 156q38 30 76 0l-8 24q-30 10-60 0z" fill={yin ? '#B8D4F2' : '#3A66B5'} {...o} />
+    <Head color="#9ED8C6" rx={56} ry={50} cy={100} />
+    <Face />
+    {yin ? (
+      <g><path d="M100 36q14 18 0 28q-14-10 0-28z" fill="#7ED0F0" {...o} /><circle cx="96" cy="52" r="3" fill="#fff" /></g>
+    ) : (
+      <g><path d="M100 50V30M100 44q-14-2-18-14M100 44q14-2 18-14" stroke="#4E9A3A" strokeWidth="4.5" fill="none" strokeLinecap="round" /></g>
+    )}
+  </g>
+);
+
+const ART: Record<Stem, () => JSX.Element> = {
+  甲: () => <Soli yin={false} />, 乙: () => <Soli yin />,
+  丙: () => <Daengi yin={false} />, 丁: () => <Daengi yin />,
+  戊: () => <Hodongi yin={false} />, 己: () => <Hodongi yin />,
+  庚: () => <Dalto yin={false} />, 辛: () => <Dalto yin />,
+  壬: () => <Geobugi yin={false} />, 癸: () => <Geobugi yin />,
 };
 
 /** 내부 요소만 (공유 카드 같은 다른 SVG 안에 중첩해서 쓸 때) */

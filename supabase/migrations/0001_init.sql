@@ -45,8 +45,8 @@ create table products (
 );
 insert into products(id,name,price_krw,coin_cost,launch_status) values
  ('character','나의 사주 캐릭터',0,0,'free'), ('daily','오늘의 운세',0,0,'free'),
- ('basic','기본사주',990,4,'active'), ('compatibility','궁합',990,4,'active'), ('love_deep','심층 연애운',3900,12,'active'),
- ('date_selection','택일',4900,15,'coming_soon'), ('saju_deep','심층사주',5900,18,'coming_soon');
+ ('basic','기본사주',900,1,'active'), ('compatibility','궁합',900,1,'active'), ('love_deep','심층 연애운',2900,3,'active'),
+ ('date_selection','택일',1900,2,'coming_soon'), ('saju_deep','심층사주',3900,4,'coming_soon');
 
 create table orders (
   id uuid primary key default gen_random_uuid(),

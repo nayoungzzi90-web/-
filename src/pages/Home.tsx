@@ -4,8 +4,15 @@ import { MockNotice, ProductCard } from '../components/Common';
 import { HeroScene } from '../components/Scene';
 import { CATALOG } from '../lib/catalog';
 import { CHARACTERS } from '../lib/content/characters';
-import { ELEMENT_KO } from '../lib/saju/types';
 import { useSession } from '../lib/mock/hooks';
+
+const FIVE = [
+  { stem: '甲', name: '솔이', el: '목(木) · 푸른 선비', role: '기본사주 안내', to: '/products/basic' },
+  { stem: '丙', name: '댕이', el: '화(火) · 열기미 소녀', role: '궁합·연애 안내', to: '/products/love' },
+  { stem: '戊', name: '호동이', el: '토(土) · 인기 호랑이', role: '든든한 조언', to: '/birth' },
+  { stem: '庚', name: '달토', el: '금(金) · 달토끼', role: '오늘의 운세', to: '/daily' },
+  { stem: '壬', name: '거북이', el: '수(水) · 아기 거북', role: '느긋한 큰 흐름', to: '/birth' },
+] as const;
 
 export default function Home() {
   const { chart } = useSession();
@@ -28,22 +35,33 @@ export default function Home() {
       </div>
 
       <section className="tile-grid" aria-label="무료 서비스" style={{ marginTop: 18 }}>
-        <Link to="/daily" className="tile"><CharacterArt base={CHARACTERS['丁']} size={60} className="mini-art" /><b>오늘의 운세</b><span>무료 · 하루 한 번</span></Link>
-        <Link to="/invite" className="tile"><CharacterArt base={CHARACTERS['丙']} size={60} className="mini-art" /><b>친구 초대</b><span>엽전을 모아 열람해요</span></Link>
+        <Link to="/daily" className="tile"><CharacterArt base={CHARACTERS['庚']} size={60} className="mini-art" /><b>오늘의 운세</b><span>무료 · 하루 한 번</span></Link>
+        <Link to="/invite" className="tile"><CharacterArt base={CHARACTERS['戊']} size={60} className="mini-art" /><b>친구 초대</b><span>엽전을 모아 열람해요</span></Link>
       </section>
 
       <section aria-labelledby="chars-h">
-        <h2 id="chars-h">열 친구를 소개해요</h2>
+        <h2 id="chars-h">다섯 친구를 소개해요</h2>
         <div className="friends">
-          {allCharacters.map((c) => (
-            <div key={c.id} className="friend">
-              <CharacterArt base={c} size={80} />
-              <b>{c.name.split(' ').slice(-1)[0]}</b>
-              <small>{c.stem} · {ELEMENT_KO[c.element].slice(0, 1)}</small>
-            </div>
+          {FIVE.map((f) => (
+            <Link key={f.name} to={f.to} className="friend" aria-label={`${f.name} — ${f.role}`}>
+              <CharacterArt base={CHARACTERS[f.stem]} size={80} />
+              <b>{f.name}</b>
+              <small>{f.el}</small>
+              <em>{f.role}</em>
+            </Link>
           ))}
         </div>
-        <p className="muted small" style={{ margin: '10px 0 0' }}>일간(甲乙丙丁戊己庚辛壬癸)에 따라 기본 친구가 정해지고, 표정·소품·칭호가 더해져요. 캐릭터는 창작 표현이며 심리 검사가 아니에요.</p>
+        <details className="acc">
+          <summary>일간별 열 친구 모두 보기</summary>
+          <div className="acc-body">
+            <div className="friends ten">
+              {allCharacters.map((c) => (
+                <div key={c.id} className="friend"><CharacterArt base={c} size={80} /><b>{c.name}</b><small>{c.stem}</small></div>
+              ))}
+            </div>
+            <p className="small" style={{ margin: '10px 0 0' }}>일간(甲乙丙丁戊己庚辛壬癸)에 따라 오행 친구의 양·음 모습이 정해지고, 표정·소품·칭호가 더해져요. 캐릭터는 창작 표현이며 심리 검사가 아니에요.</p>
+          </div>
+        </details>
       </section>
 
       <section aria-labelledby="paid-h">

@@ -13,7 +13,7 @@ export function appendLedger(db: Db, e: { userId: string; delta: number; reason:
   const existing = db.ledger.find((l) => l.idempotencyKey === e.idempotencyKey);
   if (existing) return { entry: existing, duplicate: true };
   const bal = balanceOf(db, e.userId);
-  if (bal + e.delta < 0) throw new CoinError('INSUFFICIENT_COINS', `엽전이 부족해요. (보유 ${bal}냥)`);
+  if (bal + e.delta < 0) throw new CoinError('INSUFFICIENT_COINS', `엽전이 부족해요. (보유 ${bal}닢)`);
   const entry: LedgerEntry = { id: uid('led_'), userId: e.userId, delta: e.delta, reason: e.reason, sourceId: e.sourceId, balanceAfter: bal + e.delta, idempotencyKey: e.idempotencyKey, createdAt: (e.now ?? new Date()).toISOString() };
   db.ledger.push(entry);
   return { entry, duplicate: false };

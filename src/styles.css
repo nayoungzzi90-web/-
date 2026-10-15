@@ -173,3 +173,16 @@ table.tbl th, table.tbl td { text-align: left; padding: 6px 4px; border-bottom: 
 
 @media (min-width: 720px) { .shell { padding-bottom: 120px; } .hero-text h1 { font-size: 3rem; } }
 @media (max-width: 340px) { .grid2, .tile-grid { grid-template-columns: 1fr; } .tile-el { font-size: 1.5rem; height: 50px; } .btn { padding: 0 14px; } .hero-text h1 { font-size: 2.1rem; } }
+
+.pack { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px; width: 100%; text-align: left; padding: 12px 14px; background: var(--card); border: 1.5px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); cursor: pointer; }
+.pack:hover { border-color: var(--red); }
+.pack-coins { display: flex; min-width: 66px; }
+.pack-coins svg { margin-left: -14px; } .pack-coins svg:first-child { margin-left: 0; }
+.pack-name b { display: block; font-size: 1.05rem; } .pack-name small { color: var(--ink-2); font-size: .78rem; }
+.pack-price { font-weight: 900; color: var(--red); text-align: right; font-size: 1.05rem; }
+.pack-price em { display: block; font-style: normal; font-size: .68rem; font-weight: 700; color: var(--gold-text); background: var(--gold-soft); border: 1px solid var(--brass); border-radius: 999px; padding: 0 8px; margin-top: 2px; }
+
+a.friend { text-decoration: none; color: var(--ink); display: block; }
+.friend em { display: block; font-style: normal; font-size: .62rem; color: var(--red); font-weight: 700; margin-top: 2px; line-height: 1.2; }
+.friends.ten { grid-template-columns: repeat(5, 1fr); }
+.friends.ten .friend b { font-size: .7rem; }

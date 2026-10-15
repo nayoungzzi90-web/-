@@ -11,7 +11,7 @@ export const MockNotice = ({ children }: { children?: ReactNode }) => (
 );
 
 export const CoinBalance = ({ amount }: { amount: number }) => (
-  <Link to="/rewards" className="coin" aria-label={`엽전 ${amount}냥 보유`}><Coin size={24} />{amount}</Link>
+  <Link to="/rewards" className="coin" aria-label={`엽전 ${amount}닢 보유`}><Coin size={24} />{amount}</Link>
 );
 
 export const LoadingState = ({ label = '불러오는 중이에요' }: { label?: string }) => (
@@ -62,7 +62,7 @@ export function ProductCard({ product }: { product: Product }) {
         <p className="muted small" style={{ margin: 0 }}>{product.tagline}</p>
       </div>
       <div className="price">
-        {soon ? <span className="badge soon">출시 예정</span> : product.priceKrw === 0 ? <span className="badge ok">무료</span> : (<>{won(product.priceKrw)}<small>또는 {product.coinCost}냥</small></>)}
+        {soon ? <span className="badge soon">출시 예정</span> : product.priceKrw === 0 ? <span className="badge ok">무료</span> : (<>{won(product.priceKrw)}<small>또는 {product.coinCost}닢</small></>)}
       </div>
     </>
   );

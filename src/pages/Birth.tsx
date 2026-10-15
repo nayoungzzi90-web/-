@@ -14,7 +14,7 @@ export default function Birth() {
         <h1 className="title">태어난 순간의 이야기,<br />귀엽게 풀어드려요</h1>
         <p className="muted" style={{ margin: 0 }}>생년월일만 넣으면 무료 원국 풀이를 바로 볼 수 있어요.</p>
         <div className="row" aria-hidden>
-          {(['甲', '乙', '丙', '丁', '己'] as const).map((st) => <ArtSvg key={st} stem={st} className="art" size={90} />)}
+          {(['甲', '丙', '戊', '庚', '壬'] as const).map((st) => <ArtSvg key={st} stem={st} className="art" size={90} />)}
         </div>
       </div>
       <div className="card">

@@ -38,7 +38,7 @@ export default function Login() {
     return (
       <div className="card">
         <h1>로그인 완료</h1>
-        {done.status === 'awarded' && <div className="notice ok">초대해 준 친구에게 엽전 {done.coins}냥이 적립됐어요. 고마워요!</div>}
+        {done.status === 'awarded' && <div className="notice ok">초대해 준 친구에게 엽전 {done.coins}닢이 적립됐어요. 고마워요!</div>}
         {done.status === 'rejected' && <div className="notice">{REASON[done.reason]}</div>}
         {done.status === 'pending' && <div className="notice info">무료 캐릭터 체험을 마치면 초대 보상이 확정돼요.</div>}
         <button className="btn block" onClick={() => nav(next, { replace: true })}>계속하기</button>

@@ -28,7 +28,7 @@ export function captureReferral(db: Db, code: string, now = new Date()): boolean
 }
 
 /**
- * 무료 체험 완료 + 신규 가입 확인 후 추천인에게 2냥.
+ * 무료 체험 완료 + 신규 가입 확인 후 추천인에게 2닢.
  * 멱등: 같은 (추천인, 피추천인) 조합은 한 번만 지급. 한도: 추천인 기준 KST 일 5건 / 월 30건.
  */
 export function completeReferral(db: Db, referred: User, opts: { isNewUser: boolean; now?: Date }): ReferralOutcome {

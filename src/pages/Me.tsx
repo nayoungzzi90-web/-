@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ConfirmationDialog, ErrorState } from '../components/Common';
-import { CATALOG, won } from '../lib/catalog';
+import { CATALOG, orderItemName, won } from '../lib/catalog';
 import { resetDb } from '../lib/mock/db';
 import { useSession } from '../lib/mock/hooks';
 import { aiFailureSimulated, setAiFailureSimulated, signOut } from '../lib/mock/service';
@@ -54,8 +54,8 @@ export default function Me() {
         <h2>주문 내역</h2>
         {orders.length === 0 ? <p className="muted">주문 내역이 없어요.</p> : (
           <ul className="list-plain">{orders.map((o) => (
-            <li key={o.id}><div className="row between"><span>{CATALOG[o.productId].name}</span><span>{o.method === 'coin' ? `${o.coinCost}냥` : won(o.amountKrw)}</span></div>
-              <span className="muted small">{o.createdAt.slice(0, 10)} · {o.method === 'coin' ? '엽전 교환' : '현금 결제'} · {ORDER_KO[o.status]}</span>
+            <li key={o.id}><div className="row between"><span>{orderItemName(o.productId, o.subjectId)}</span><span>{o.method === 'coin' ? `${o.coinCost}닢` : won(o.amountKrw)}</span></div>
+              <span className="muted small">{o.createdAt.slice(0, 10)} · {o.method === 'coin' ? '엽전 교환' : o.productId === 'coin_pack' ? '엽전 충전' : '현금 결제'} · {ORDER_KO[o.status]}</span>
               {o.status === 'pending' && <> · <Link to={`/checkout/${o.id}`}>결제 이어가기</Link></>}</li>
           ))}</ul>
         )}

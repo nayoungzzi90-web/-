@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'react';
-import type { ProductId } from '../catalog';
+import type { OrderItem, ProductId } from '../catalog';
 import type { CharacterResult } from '../content/characters';
 import type { Report } from '../content/report';
 import type { BirthInput, SajuFacts } from '../saju/types';
@@ -13,7 +13,7 @@ import { uid } from '../hash';
 export interface User { id: string; email: string; nickname: string; referralCode: string; createdAt: string; referredBy?: string }
 export interface StoredChart { id: string; guestId: string; ownerUserId?: string; input: BirthInput; facts: SajuFacts; character: CharacterResult; createdAt: string }
 export interface LedgerEntry { id: string; userId: string; delta: number; reason: string; sourceId: string; balanceAfter: number; idempotencyKey: string; createdAt: string }
-export interface Order { id: string; userId: string; productId: ProductId; subjectId: string; amountKrw: number; coinCost: number; method: 'cash' | 'coin'; status: 'pending' | 'paid' | 'failed' | 'cancelled' | 'refund_requested'; idempotencyKey: string; createdAt: string }
+export interface Order { id: string; userId: string; productId: OrderItem; subjectId: string; amountKrw: number; coinCost: number; method: 'cash' | 'coin'; status: 'pending' | 'paid' | 'failed' | 'cancelled' | 'refund_requested'; idempotencyKey: string; createdAt: string }
 export interface Payment { id: string; orderId: string; provider: string; paymentKey: string; approvedAmount: number; status: 'approved'; createdAt: string }
 export interface Entitlement { id: string; userId: string; orderId: string; productId: ProductId; subjectId: string; reportId?: string; status: 'active'; idempotencyKey: string; createdAt: string }
 export interface StoredReport { id: string; userId: string; productId: ProductId; subjectId: string; report: Report | null; generatedAt: string; expiresAt?: string; deletedAt?: string }

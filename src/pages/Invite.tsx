@@ -59,7 +59,7 @@ function Policy() {
     <section className="card flat">
       <h3>엽전 지급 기준</h3>
       <ul className="muted" style={{ paddingLeft: 18, margin: 0 }}>
-        <li>친구가 내 링크로 들어와 <b>무료 캐릭터 체험을 마치고 새로 가입</b>하면 {REFERRAL.rewardCoins}냥이 적립돼요.</li>
+        <li>친구가 내 링크로 들어와 <b>무료 캐릭터 체험을 마치고 새로 가입</b>하면 {REFERRAL.rewardCoins}닢이 적립돼요.</li>
         <li>링크를 복사하거나 공유 버튼을 누르는 것만으로는 적립되지 않아요.</li>
         <li>하루 최대 {REFERRAL.dailyCap}명, 한 달 최대 {REFERRAL.monthlyCap}명까지 (한국 시간 기준).</li>
         <li>본인 링크, 이미 가입한 회원, 같은 친구 중복 가입은 제외돼요.</li>
