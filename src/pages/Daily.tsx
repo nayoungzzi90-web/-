@@ -6,6 +6,7 @@ import { kstDate } from '../lib/kst';
 import { mutate, track } from '../lib/mock/db';
 import { useSession } from '../lib/mock/hooks';
 import { CHARACTERS } from '../lib/content/characters';
+import { CharacterArt } from '../components/Character';
 
 export default function Daily() {
   const { db, chart } = useSession();
@@ -35,7 +36,7 @@ export default function Daily() {
     <div>
       <MockNotice>오늘의 운세는 규칙 기반 문구예요 (AI 호출 없음).</MockNotice>
       <p className="muted" style={{ marginBottom: 4 }}>{date.replace(/-/g, '.')} (한국 시간) · 오늘의 일진 {f.dayPillar}</p>
-      <h1>{base.emoji} {f.oneLine}</h1>
+      <div className="row" style={{ flexWrap: 'nowrap' }}><CharacterArt base={base} size={72} className="mini-art" /><h1 style={{ margin: 0 }}>{f.oneLine}</h1></div>
       <section className="card"><h2>하루 흐름</h2><p>{f.flow}</p></section>
       <section className="card">
         <h2>참고 조언</h2>

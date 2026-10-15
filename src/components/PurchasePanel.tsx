@@ -55,7 +55,7 @@ export function PurchasePanel({ productId, getSubjectId, existingReportId, block
   }
   const short = user && balance < p.coinCost;
   return (
-    <div className="card" style={{ borderColor: 'var(--burgundy)' }}>
+    <div className="card" style={{ borderColor: 'var(--red)' }}>
       <div className="row between"><h2 style={{ margin: 0 }}>{p.name}</h2><span className="price">{won(p.priceKrw)}<small>또는 업전 {p.coinCost}냥</small></span></div>
       {blockedReason ? <div className="notice" style={{ marginTop: 12 }}>{blockedReason}</div> : (
         <div className="stack" style={{ marginTop: 12 }}>

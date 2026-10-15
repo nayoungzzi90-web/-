@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { CharacterBase, CharacterResult, CHARACTERS } from '../lib/content/characters';
-import { ELEMENT_KO } from '../lib/saju/types';
+import { ArtSvg, ArtInner } from './art';
 
 /**
  * 캐릭터 일러스트 슬롯: public/characters/{id}.webp 에 독자 제작 에셋을 넣고 VITE_CHARACTER_ASSETS=true 로 켠다.
@@ -8,24 +8,16 @@ import { ELEMENT_KO } from '../lib/saju/types';
  */
 const HAS_ASSETS = String(import.meta.env.VITE_CHARACTER_ASSETS).toLowerCase() === 'true';
 
+/**
+ * 캐릭터 일러스트: 기본은 코드로 그린 독자 일러스트(components/art.tsx).
+ * 디자이너가 만든 최종 에셋이 생기면 public/characters/{id}.webp 를 넣고 VITE_CHARACTER_ASSETS=true 로 교체한다.
+ */
 export function CharacterArt({ base, size = 200, className = 'art' }: { base: CharacterBase; size?: number; className?: string }) {
   const [useImg, setUseImg] = useState(HAS_ASSETS);
   if (useImg) {
     return <img className={className} src={`/characters/${base.id}.webp`} alt={base.name} width={size} height={size} onError={() => setUseImg(false)} />;
   }
-  return (
-    <svg className={className} viewBox="0 0 200 200" role="img" aria-label={`${base.name} (임시 일러스트)`} width={size} height={size}>
-      <defs>
-        <radialGradient id={`g-${base.id}`} cx="50%" cy="40%" r="70%"><stop offset="0%" stopColor="#FFFBF2" /><stop offset="100%" stopColor={base.color} stopOpacity=".28" /></radialGradient>
-      </defs>
-      <circle cx="100" cy="100" r="92" fill={`url(#g-${base.id})`} stroke={base.color} strokeWidth="3" strokeDasharray="2 7" strokeLinecap="round" />
-      <path d="M52 74 Q100 28 148 74 L140 82 Q100 54 60 82 Z" fill="#302C2B" opacity=".9" />
-      <ellipse cx="100" cy="42" rx="34" ry="8" fill="#302C2B" opacity=".9" />
-      <text x="100" y="124" textAnchor="middle" fontSize="78" dominantBaseline="middle">{base.emoji}</text>
-      <rect x="60" y="150" width="80" height="22" rx="11" fill={base.color} opacity=".92" />
-      <text x="100" y="161" textAnchor="middle" dominantBaseline="middle" fontSize="13" fill="#fff" fontWeight="700">{base.stem} · {ELEMENT_KO[base.element]}</text>
-    </svg>
-  );
+  return <ArtSvg stem={base.stem} size={size} className={className} label={base.name} />;
 }
 
 export function CharacterCard({ base, result, alias }: { base: CharacterBase; result: CharacterResult; alias?: string }) {
@@ -47,17 +39,18 @@ export function CharacterCard({ base, result, alias }: { base: CharacterBase; re
 export function ShareCard({ base, result, alias, inviteUrl, svgRef }: { base: CharacterBase; result: CharacterResult; alias?: string; inviteUrl: string; svgRef: React.RefObject<SVGSVGElement> }) {
   const host = inviteUrl.replace(/^https?:\/\//, '');
   return (
-    <svg ref={svgRef} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 450" width="100%" role="img" aria-label="공유 카드 미리보기" style={{ borderRadius: 16, border: '1px solid #E0D3B8', display: 'block' }}>
-      <rect width="360" height="450" fill="#F8F2E6" />
-      <rect x="12" y="12" width="336" height="426" rx="14" fill="none" stroke={base.color} strokeWidth="2" strokeDasharray="3 6" />
-      <text x="180" y="52" textAnchor="middle" fontSize="15" fill="#7A5A22" fontWeight="700">{result.epithet}</text>
-      <text x="180" y="86" textAnchor="middle" fontSize="26" fill="#302C2B" fontWeight="800">{alias ? `${alias}의 ` : ''}{base.name}</text>
-      <circle cx="180" cy="206" r="96" fill={base.color} opacity=".16" />
-      <text x="180" y="226" textAnchor="middle" fontSize="110">{base.emoji}</text>
-      <text x="180" y="334" textAnchor="middle" fontSize="15" fill="#302C2B">{base.summary}</text>
-      <text x="180" y="362" textAnchor="middle" fontSize="14" fill={base.color} fontWeight="700">{base.shareLine}</text>
-      <rect x="40" y="388" width="280" height="34" rx="17" fill="#8A3F3B" />
-      <text x="180" y="410" textAnchor="middle" fontSize="12.5" fill="#fff" fontWeight="700">{`나도 해보기 · ${host}`.slice(0, 44)}</text>
+    <svg ref={svgRef} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 450" width="100%" role="img" aria-label="공유 카드 미리보기" style={{ borderRadius: 20, display: 'block' }}>
+      <rect width="360" height="450" fill="#FBF4E4" />
+      <rect x="10" y="10" width="340" height="430" rx="26" fill="#FFFDF6" stroke="#3A2A24" strokeWidth="4" />
+      <rect x="14" y="16" width="340" height="430" rx="26" fill="none" />
+      <text x="180" y="54" textAnchor="middle" fontSize="15" fill="#B2552F" fontWeight="800">{result.epithet}</text>
+      <text x="180" y="88" textAnchor="middle" fontSize="25" fill="#3A2A24" fontWeight="900">{alias ? `${alias}의 ` : ''}{base.name}</text>
+      <path d="M42 214c0-76 52-112 138-112s138 36 138 112c0 66-56 102-138 102S42 280 42 214z" fill={base.color} opacity=".22" stroke="#3A2A24" strokeWidth="3.5" />
+      <svg x="80" y="112" width="200" height="200" viewBox="-8 -8 216 216"><ArtInner stem={base.stem} /></svg>
+      <text x="180" y="344" textAnchor="middle" fontSize="14.5" fill="#3A2A24">{base.summary}</text>
+      <text x="180" y="368" textAnchor="middle" fontSize="14" fill={base.color} fontWeight="800">{base.shareLine}</text>
+      <rect x="40" y="388" width="280" height="38" rx="19" fill="#C85A4F" stroke="#3A2A24" strokeWidth="3" />
+      <text x="180" y="412" textAnchor="middle" fontSize="12.5" fill="#fff" fontWeight="800">{`나도 해보기 · ${host}`.slice(0, 44)}</text>
     </svg>
   );
 }

@@ -5,7 +5,7 @@ import type { Evidence, ReportSection as Sec } from '../lib/content/report';
 
 export const MockNotice = ({ children }: { children?: ReactNode }) => (
   <div className="notice" role="note">
-    <b>샌드박스 모드</b> · {children ?? '결제·로그인·AI 리포트는 모두 Mock 이며, 입력한 정보는 이 브라우저에만 저장돼요. 실제 청구는 일어나지 않아요.'}
+    <b>샌드박스 모드</b> · {children ?? '결제·AI 리포트는 Mock이에요. 입력 정보는 이 브라우저에만 저장돼요.'}
   </div>
 );
 
@@ -65,7 +65,7 @@ export function ProductCard({ product }: { product: Product }) {
       </div>
     </>
   );
-  return <Link to={product.path} className="card product">{body}</Link>;
+  return <Link to={product.path} className={`card product pc-${product.id}`}>{body}</Link>;
 }
 
 export function EvidenceAccordion({ items }: { items: Evidence[] }) {

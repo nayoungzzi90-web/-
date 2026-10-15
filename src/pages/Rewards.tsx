@@ -41,7 +41,7 @@ export default function Rewards() {
         {tx.length === 0 ? <p className="muted">아직 내역이 없어요.</p> : (
           <ul className="list-plain">
             {tx.map((l) => (
-              <li key={l.id} className="row between"><span>{REASON_KO[l.reason] ?? l.reason}<br /><span className="muted small">{l.createdAt.slice(0, 16).replace('T', ' ')}</span></span><b style={{ color: l.delta > 0 ? 'var(--teal)' : 'var(--burgundy)' }}>{l.delta > 0 ? '+' : ''}{l.delta}냥</b></li>
+              <li key={l.id} className="row between"><span>{REASON_KO[l.reason] ?? l.reason}<br /><span className="muted small">{l.createdAt.slice(0, 16).replace('T', ' ')}</span></span><b style={{ color: l.delta > 0 ? 'var(--teal)' : 'var(--red)' }}>{l.delta > 0 ? '+' : ''}{l.delta}냥</b></li>
             ))}
           </ul>
         )}

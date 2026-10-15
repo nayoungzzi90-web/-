@@ -1,12 +1,13 @@
 import { Link, NavLink, Outlet } from 'react-router-dom';
 import { CoinBalance } from './Common';
+import { ArtSvg } from './art';
 import { useSession } from '../lib/mock/hooks';
 
 export function Header() {
   const { user, balance } = useSession();
   return (
     <header className="header">
-      <Link to="/" className="logo" aria-label="오행 친구들 홈"><span aria-hidden>🏮</span> 오행 친구들</Link>
+      <Link to="/" className="logo" aria-label="오행 친구들 홈"><ArtSvg stem="丙" size={30} /> 오행 친구들</Link>
       <div className="header-actions">
         {user ? <CoinBalance amount={balance} /> : null}
         {user ? <Link className="btn sm ghost" to="/me">MY</Link> : <Link className="btn sm secondary" to="/login">로그인</Link>}
