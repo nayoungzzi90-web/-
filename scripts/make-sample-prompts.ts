@@ -9,7 +9,7 @@ const facts = calculator.calculate({ calendar: 'solar', leapMonth: false, year: 
 const years = [2026, 2027, 2028, 2029, 2030];
 for (const product of ['basic', 'love_deep'] as const) {
   const interp = buildInterpretation(product, facts, product === 'love_deep' ? { years, yearPillar: (y) => calculator.yearPillar(y) } : {});
-  const text = buildManualPrompt(buildPlan(product, interp), interp);
+  const text = buildManualPrompt(buildPlan(product, interp), interp, true);
   writeFileSync(`docs/sample-prompts/${product}.txt`, text);
   console.log(product, text.length, 'chars');
 }

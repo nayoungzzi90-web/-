@@ -87,3 +87,29 @@ supabase functions deploy generate-report
 - **궁합**: 상대방 입력의 암호화 저장·복호화·30일 삭제 설계가 없어 함수가 501 을 반환합니다(법률 검토 후 설계).
 - 대운은 만세력 라이브러리 연동 전이라 "계산 전"으로만 안내합니다(AI가 지어내지 않도록 사실 줄에 명시).
 - 성별은 `birth_profiles` 스키마에 없어 이성 인연 별은 재성·관성을 함께 봅니다(대운 계산에도 성별이 필요하니 스키마 결정 필요).
+
+---
+
+# v2 — 해석 명제(Claim) 계층 (해석 엔진 설계서 v1.0 반영)
+
+**흐름**: 사주 사실(Fact) → 규칙 엔진이 해석 명제(Claim) 생성 → 승인된 규칙의 명제만 LLM 에 전달 → 섹션마다 `claim_ids` 를 인용하게 하고 QA 로 검증 → `READY / NEEDS_REVIEW / INSUFFICIENT_EVIDENCE` 판정.
+
+| 설계서 항목 | 반영 | 비고 |
+|---|---|---|
+| Fact → Claim → ReportBlock | ✅ | `analysis.ts`, `claims.ts` |
+| 명제 필드(domain/stance/factIds/counterFactIds/condition/limitation/status) | ✅ | `types.ts` Claim |
+| 같은 의미 키의 HIGH/LOW 충돌 탐지 | ✅ | `detectConflicts`; CONTEXTUAL 은 상황 차이로 봄 |
+| 시스템 프롬프트 v1.0 + 상품별 부록 | ✅ | `prompt.ts`, `plan.ts` (`PROMPT_VERSION prompt-2.0`) |
+| 입력 패킷(task/chartStatus/interpretationFacts/generationRules) | ✅ | `buildInputPacket`; 개인 식별 정보 없음 |
+| 출력 상태·근거 부족 시 지어내지 않기 | ✅ | 승인 명제 0개면 호출 없이 차단 |
+| 검증기(간지 불일치·시주·예언·의료·점수·연도·근거 ID·일반론·문체) | ✅ | `qa.ts` |
+| 개인화 테스트 A~E | ✅ | `report.test.ts` |
+| 캐시 키(원국·규칙·프롬프트·모델·승인·문체) | ✅ | `cache.ts` |
+| 합니다체 옵션 | ✅ | `tone: 'hamnida'` — 기본은 해요체 |
+| LLM 의 캐릭터 자유 생성 / 8섹션 기본사주 / 직업·재물·운 흐름 상품 / 출생지 필수 | ⏸ 보류 | PRD 확정(10 일간 캐릭터, 기본사주 6섹션, 한국 출생만)과 충돌하거나 상품이 아직 정의되지 않음 |
+
+## 정직한 한계
+- 명제는 **규칙 엔진이 만든 초안(DRAFT)** 이고, 상담사가 규칙 ID 별로 승인(`approved_rules`)하기 전에는 운영 노출 불가(NEEDS_REVIEW). 규칙 목록: `docs/CLAIM_RULES.md`.
+- 설계서가 언급한 ZIP 파일은 이 환경에 없어 반영하지 못했다.
+- 실제 Claude API 로 호출해 본 적이 없다. 파이프라인은 가짜 LLM 으로만 검증했고, Deno Edge Function 은 타입 검사만 했다.
+- 만세력은 아직 샘플 계산기(`verified:false`)라 어떤 리포트도 READY 가 될 수 없다 — 의도된 안전장치.

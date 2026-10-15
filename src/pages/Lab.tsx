@@ -50,8 +50,10 @@ export default function Lab() {
     const parsed = parsePasted(pasted);
     const rows = built.plan.sections.map((s) => {
       const key = Object.keys(parsed).find((k) => k.includes(s.title) || s.title.includes(k));
-      const body = key ? parsed[key].trim() : '';
-      const issues: QaIssue[] = body ? checkSection(body, [...new Set(built.interp.lines.flatMap((l) => l.evidenceIds))], s, { facts: built.interp, plan: built.plan }) : [{ code: 'MISSING', severity: 'fail', message: `"## ${s.title}" 섹션을 찾지 못했어요.`, sectionId: s.id }];
+      const raw = key ? parsed[key] : '';
+      const claimIds = [...raw.matchAll(/\[claims?:\s*([^\]]*)\]/gi)].flatMap((m) => m[1].split(/[,\s]+/).filter(Boolean));
+      const body = raw.replace(/\[claims?:[^\]]*\]/gi, '').trim();
+      const issues: QaIssue[] = body ? checkSection(body, [...new Set(claimIds)], s, { facts: built.interp, plan: built.plan, allowDraft: true }) : [{ code: 'MISSING', severity: 'fail', message: `"## ${s.title}" 섹션을 찾지 못했어요.`, sectionId: s.id }];
       return { s, body, n: countChars(body), issues };
     });
     const global = checkReport(rows.map((r) => ({ id: r.s.id, title: r.s.title, body: r.body })), built.plan);
@@ -80,6 +82,7 @@ export default function Lab() {
           <section className="card">
             <h2>2. 규칙 엔진이 만든 사실 {built.interp.lines.length}줄</h2>
             <p className="muted small">AI는 이 줄만 근거로 써야 해요. 목차 {built.plan.sections.length}개 · 전체 {built.plan.totalRange[0].toLocaleString()}~{built.plan.totalRange[1].toLocaleString()}자.</p>
+            <details className="acc"><summary>해석 명제 {built.interp.claims.length}개 (승인 전 초안) · 충돌 {built.interp.conflicts.length}건</summary><div className="acc-body"><table className="tbl"><thead><tr><th>ID</th><th>입장</th><th>내용</th></tr></thead><tbody>{built.interp.claims.map((c) => <tr key={c.id}><td className="small">{c.id}<br /><span className="muted">{c.status}</span></td><td>{c.stance}</td><td className="small">{c.thesis}</td></tr>)}</tbody></table></div></details>
             <details className="acc"><summary>사실 줄 보기</summary><div className="acc-body"><ul className="list-plain">{built.interp.lines.map((l) => <li key={l.id}><b>{l.id}</b> {l.text}</li>)}</ul></div></details>
           </section>
 
@@ -87,7 +90,7 @@ export default function Lab() {
             <h2>3. 프롬프트 복사해서 AI에 붙여넣기</h2>
             <div className="grid2">
               <button className="btn sm" onClick={() => copy('전체 프롬프트', fullPrompt)}>전체 프롬프트 복사</button>
-              <button className="btn secondary sm" onClick={() => copy('시스템 프롬프트', buildSystemPrompt(built.plan) + '\n\n' + buildFactsBlock(built.interp))}>시스템+사실만 복사</button>
+              <button className="btn secondary sm" onClick={() => copy('시스템 프롬프트', buildSystemPrompt(built.plan) + '\n\n' + buildFactsBlock(built.interp, built.plan, true))}>시스템+사실만 복사</button>
             </div>
             <p role="status" className="muted small">{copied && `${copied}를 복사했어요.`}</p>
             <details className="acc"><summary>프롬프트 미리보기 ({fullPrompt.length.toLocaleString()}자)</summary><div className="acc-body"><pre style={{ whiteSpace: 'pre-wrap', fontSize: '.78rem' }}>{fullPrompt}</pre></div></details>
@@ -96,8 +99,8 @@ export default function Lab() {
 
           <section className="card">
             <h2>4. AI 결과 붙여넣고 자동 검수</h2>
-            <label htmlFor="lab-paste" className="muted small">"## 섹션 제목" 형식으로 구분해 붙여넣어 주세요.</label>
-            <textarea id="lab-paste" className="input" style={{ minHeight: 180, padding: 12 }} value={pasted} onChange={(e) => setPasted(e.target.value)} placeholder={'## ' + built.plan.sections[0].title + '\n본문…\n\n## ' + built.plan.sections[1].title + '\n본문…'} />
+            <label htmlFor="lab-paste" className="muted small">"## 섹션 제목" 아래에 "[claims: 명제ID, …]" 줄과 본문 형식으로 붙여넣어 주세요.</label>
+            <textarea id="lab-paste" className="input" style={{ minHeight: 180, padding: 12 }} value={pasted} onChange={(e) => setPasted(e.target.value)} placeholder={'## ' + built.plan.sections[0].title + '\n[claims: C-core, C-season]\n본문…\n\n## ' + built.plan.sections[1].title + '\n본문…'} />
             {result && (
               <div style={{ marginTop: 12 }}>
                 <table className="tbl"><thead><tr><th>섹션</th><th>글자</th><th>결과</th></tr></thead><tbody>

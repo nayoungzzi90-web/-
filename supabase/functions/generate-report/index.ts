@@ -65,12 +65,17 @@ async function generate(admin: ReturnType<typeof createClient>, userId: string, 
   const baseYear = kstParts().year; // 생성 시점 기준 (구매 후 새해가 되어도 범위가 바뀌지 않도록 reports 에 저장)
   const years = [0, 1, 2, 3, 4].map((i) => baseYear + i);
   // 교체 지점: 검증된 만세력 어댑터가 준비되면 calculator.yearPillar 를 그 어댑터로 바꾼다
-  const interp = buildInterpretation(product, facts, product === 'love_deep' ? { years, yearPillar: (y) => calculator.yearPillar(y) } : {});
+  // 승인된 규칙 ID 만 APPROVED 명제가 된다 (상담사 승인 = approved_rules 테이블)
+  const { data: approved } = await admin.from('approved_rules').select('rule_id');
+  const approvedRuleIds = new Set((approved ?? []).map((r: { rule_id: string }) => r.rule_id));
+  const interp = buildInterpretation(product, facts, { approvedRuleIds, ...(product === 'love_deep' ? { years, yearPillar: (y: number) => calculator.yearPillar(y) } : {}) });
   const plan = buildPlan(product, interp);
 
   const model = Deno.env.get('LLM_MODEL') ?? 'claude-opus-5-5';
   const llm = new AnthropicLlm({ client: new Anthropic({ apiKey: Deno.env.get('ANTHROPIC_API_KEY')! }), model, effort: (Deno.env.get('LLM_EFFORT') as 'low' | 'medium' | 'high') ?? 'medium' });
-  const r = await runReportPipeline(plan, interp, { llm, model });
+  // 스테이징 전용 스위치: 승인 전 초안 명제로도 생성하되 결과는 NEEDS_REVIEW 로만 저장된다 (운영에서는 설정하지 않는다)
+  const allowDraftClaims = Deno.env.get('ALLOW_DRAFT_CLAIMS') === 'true';
+  const r = await runReportPipeline(plan, interp, { llm, model, allowDraftClaims });
 
   // 원가·토큰·시도 기록 (성공/실패 모두)
   const metrics = { tokens_in: r.usage.inputTokens, tokens_out: r.usage.outputTokens, estimated_cost: r.costUsd, model, calls: r.calls, cache_read_tokens: r.usage.cacheReadTokens, cache_write_tokens: r.usage.cacheWriteTokens };
@@ -78,13 +83,15 @@ async function generate(admin: ReturnType<typeof createClient>, userId: string, 
     await admin.from('generation_jobs').update({ ...metrics, status: 'failed', last_error: `${r.failure?.code}:${r.failure?.message}`.slice(0, 300) }).eq('id', jobId);
     return;
   }
+  // READY 가 아니면(엔진 미검증·명제 미승인·충돌) 사용자에게 보이지 않는 needs_review 로 저장 — 운영 검수 큐에서 확인
+  const visible = r.reportStatus === 'READY' ? 'ready' : 'needs_review';
   const usedEvidence = new Set(r.sections.flatMap((s) => s.evidenceIds));
   await admin.from('reports').update({
-    status: 'ready', generated_at: new Date().toISOString(),
-    body_json: { sections: r.sections.map((s) => ({ id: s.id, title: s.title, body: s.body, evidence_ids: s.evidenceIds })), years: product === 'love_deep' ? years : null, base_year: baseYear },
+    status: visible, cache_key: r.cacheKey, review_reasons: r.reviewReasons, generated_at: new Date().toISOString(),
+    body_json: { sections: r.sections.map((s) => ({ id: s.id, title: s.title, body: s.body, evidence_ids: s.evidenceIds, claim_ids: s.claimIds })), years: product === 'love_deep' ? years : null, base_year: baseYear },
     evidence_json: interp.evidence.filter((e) => usedEvidence.has(e.id)),
     qa_json: { issues: r.issues, versions: r.versions }, plan_json: plan,
     rule_version: interp.version, prompt_version: r.versions.prompt, model_version: model, engine_version: `${facts.computation.engine_name}@${facts.computation.engine_version}`,
   }).eq('id', ent.report_id);
-  await admin.from('generation_jobs').update({ ...metrics, status: 'succeeded', last_error: null }).eq('id', jobId);
+  await admin.from('generation_jobs').update({ ...metrics, status: visible === 'ready' ? 'succeeded' : 'failed', last_error: visible === 'ready' ? null : `NEEDS_REVIEW:${r.reviewReasons.join(',')}`.slice(0, 300) }).eq('id', jobId);
 }
