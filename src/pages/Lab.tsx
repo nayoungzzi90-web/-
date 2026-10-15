@@ -6,7 +6,7 @@ import { buildPlan } from '../lib/report/plan';
 import { buildFactsBlock, buildManualPrompt, buildSystemPrompt, SECTION_SCHEMA } from '../lib/report/prompt';
 import { checkReport, checkSection, countChars } from '../lib/report/qa';
 import type { InterpretationFacts, ProductKey, QaIssue } from '../lib/report/types';
-import { calculator } from '../lib/saju/sampleCalculator';
+import { calculator } from '../lib/saju/calculator';
 import { BirthInput } from '../lib/saju/types';
 import { BirthForm } from '../components/BirthForm';
 

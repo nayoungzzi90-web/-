@@ -3,7 +3,7 @@ import { buildCharacter } from '../content/characters';
 import { generateReport } from '../content/report';
 import { kstParts } from '../kst';
 import { uid } from '../hash';
-import { calculator } from '../saju/sampleCalculator';
+import { calculator } from '../saju/calculator';
 import type { BirthInput } from '../saju/types';
 import { Db, Entitlement, Job, StoredChart, User, getDb, mutate, track } from './db';
 import { captureReferral, completeReferral, newReferralCode, ReferralOutcome } from './referral';

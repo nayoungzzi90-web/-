@@ -12,7 +12,9 @@ import { mutate, track } from '../lib/mock/db';
 const EL_COLOR: Record<Element, string> = { wood: '#2F7068', fire: '#B83A26', earth: '#E4A04A', metal: '#B9B6AE', water: '#203E73' };
 const ELEMENT_CLASS: Record<Element, string> = { wood: 'wood', fire: 'fire', earth: 'earth', metal: 'metal', water: 'water' };
 const WARN_TEXT: Record<string, string> = {
-  engine_unverified: '샘플 계산기로 계산한 결과예요. 검증된 만세력 라이브러리 연동 전이라 실제 사주와 다를 수 있어요.',
+  engine_unverified: '자체 만세력 엔진으로 계산했어요. 독립 계산과는 여러 번 대조했지만 한국천문연구원 공식 절입 시각과의 확인은 아직 끝나지 않았어요.',
+  pillar_policy_dependent: '시간 보정(진태양시)·자시 기준을 어떻게 잡느냐에 따라 일주나 시주가 달라질 수 있어요. 아래 안내를 확인해 주세요.',
+  needs_review: '절입 시각 바로 앞뒤 등 확정할 수 없는 부분이 있어요. 아래 안내를 확인해 주세요.',
   hour_pillar_unavailable: '출생 시간을 몰라 시주는 계산하지 않았어요. 시간이 필요한 해석은 생략돼요.',
   term_boundary_unverified: '절기(입춘 등) 경계일 근처라 연주·월주가 다를 수 있어요. 정식 만세력 검증 후 확정돼요.',
   zi_hour_boundary_rule_applied: '자시(23시~1시)에는 채택한 날짜 경계 규칙이 적용됐어요.',
@@ -63,6 +65,8 @@ export default function CharacterResult() {
       <CharacterCard base={base} result={character} alias={chart.input.alias} />
       {facts.warnings.filter((w) => WARN_TEXT[w] && w !== 'luck_cycles_unavailable').map((w) => <div key={w} className="notice" role="note">{WARN_TEXT[w]}</div>)}
 
+      {facts.review?.uncertainties.filter((u) => u.severity === 'REVIEW' || u.code === 'PILLAR_POLICY_DEPENDENT').map((u, i) => <div key={i} className="notice" role="note">{u.message}</div>)}
+
       <div className="tabs" role="tablist" aria-label="결과 보기">
         {tabs.map(([k, l]) => (
           <button key={k} role="tab" id={`tab-${k}`} aria-selected={tab === k} aria-controls={`panel-${k}`} onClick={() => setTab(k)}>{l}</button>
@@ -83,7 +87,7 @@ export default function CharacterResult() {
 
       {tab === 'chart' && (
         <section className="card" id="panel-chart" role="tabpanel" aria-labelledby="tab-chart">
-          <div className="row between"><h2 style={{ margin: 0 }}>내 사주 원국</h2><span className="badge mock">샘플 계산</span></div>
+          <div className="row between"><h2 style={{ margin: 0 }}>내 사주 원국</h2><span className="badge mock">공식 확인 전</span></div>
           <div className="chart-head" style={{ marginTop: 10 }}>{['시주', '일주', '월주', '연주'].map((l) => <span key={l}>{l}</span>)}</div>
           <div className="chart-grid" role="table" aria-label="사주 원국표">
             {cols.map((p, i) => (

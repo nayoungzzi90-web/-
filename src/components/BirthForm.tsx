@@ -1,5 +1,5 @@
 import { FormEvent, useState } from 'react';
-import { calculator } from '../lib/saju/sampleCalculator';
+import { calculator } from '../lib/saju/calculator';
 import { BirthInput, CalcError } from '../lib/saju/types';
 
 type Errors = Partial<Record<'date' | 'time' | 'calendar' | 'consent' | 'form', string>>;

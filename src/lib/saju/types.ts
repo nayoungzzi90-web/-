@@ -49,6 +49,8 @@ export interface SajuFacts {
     verified: boolean;
   };
   warnings: string[];
+  /** 만세력 엔진이 채우는 검토 정보 (샘플 계산기에는 없음) */
+  review?: { status: 'OK' | 'POLICY_DEPENDENT' | 'NEEDS_REVIEW'; uncertainties: { code: string; severity: 'INFO' | 'REVIEW'; message: string }[] };
 }
 
 export type TenGod = '비견' | '겁재' | '식신' | '상관' | '편재' | '정재' | '편관' | '정관' | '편인' | '정인';

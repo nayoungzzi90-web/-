@@ -1,4 +1,4 @@
-import { calculator } from '../saju/sampleCalculator';
+import { calculator } from '../saju/calculator';
 import { tenGod } from '../saju/rules';
 import { BirthInput, SajuFacts, Stem, TenGod } from '../saju/types';
 import { pick } from '../hash';

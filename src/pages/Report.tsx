@@ -68,7 +68,7 @@ export default function ReportPage() {
       {r.baseYear && <p className="badge ok">{r.years![0]}~{r.years![4]}년 분석</p>}
       {expiresAt && <div className="notice info">이 궁합 결과와 입력 정보는 <b>{expiresAt.slice(0, 10)}</b>까지 볼 수 있고, 이후 자동 삭제돼요.</div>}
       {r.warnings.includes('hour_pillar_unavailable') && <div className="notice">출생 시간을 몰라 시주 없이 분석했어요. 시간이 필요한 해석은 생략했어요.</div>}
-      {r.warnings.includes('engine_unverified') && <div className="notice">샘플 계산기 기준 결과예요. 정식 만세력 검증 전이에요.</div>}
+      {r.warnings.includes('engine_unverified') && <div className="notice">자체 만세력 엔진 기준 결과예요. 공식 절입 자료 확인 전이에요.</div>}
 
       {r.metrics && (
         <section className="card" aria-labelledby="met-h">

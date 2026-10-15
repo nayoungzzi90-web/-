@@ -1,7 +1,7 @@
 import { CATALOG, ProductId } from '../catalog';
 import { CHARACTERS } from './characters';
 import { branchRelation, elementRelation, STEM_ELEMENT, tenGod } from '../saju/rules';
-import { calculator } from '../saju/sampleCalculator';
+import { calculator } from '../saju/calculator';
 import { Branch, BRANCH_KO, BRANCHES, Element, ELEMENT_KO, SajuFacts, Stem, STEM_KO, STEMS } from '../saju/types';
 
 export const REPORT_PROMPT_VERSION = 'mock-template-1.0';
@@ -82,7 +82,7 @@ function love(f: SajuFacts, baseYear: number) {
     { id: 's2', title: '원하는 관계·상대', evidenceIds: ['elements', 'god_month'], body: `편안함을 주는 상대를 선호할 가능성이 있어요. ${ELEMENT_KO[weakest(f)]}의 기운을 보완해 주는 사람에게 끌릴 수 있지만, 이는 경향일 뿐 사람마다 달라요.` },
     { id: 's3', title: '반복될 수 있는 관계 패턴', evidenceIds: ['day_master'], body: `${c.weaknesses.join(' / ')} — 이런 습관이 관계에서 비슷한 장면을 만들 수 있어요. 패턴을 알아차리는 것만으로도 선택이 달라져요.` },
     { id: 's4', title: '강점·어려움', evidenceIds: ['day_master'], body: `강점: ${c.strengths.join(', ')}. 어려움은 솔직한 감정 표현을 미루는 순간에 생기기 쉬워요.` },
-    { id: 's5', title: '현재 대운', evidenceIds: ['pillars'], body: '대운 계산은 검증된 만세력 라이브러리 연동 전이라 이 샘플 리포트에는 포함하지 않았어요. 정식 서비스에서는 대운 시작 나이와 순역행 기준을 함께 안내합니다.' },
+    { id: 's5', title: '현재 대운', evidenceIds: ['pillars'], body: f.luckCycles.length ? `대운은 ${f.luckCycles.slice(0, 4).map((c) => `${c.startAge}세 ${c.pillar}`).join(' → ')} 순으로 이어져요. 시작 나이는 절입 시각을 기준으로 환산한 값이라 공식 절입 자료 확인 전에는 참고용이에요.` : '성별이나 출생 시간이 없어 대운은 계산하지 않았어요.' },
     { id: 's6', title: `${years[0]}~${years[4]}년 세운`, evidenceIds: years.map((y) => `year_${y}`), body: yearRows.map(({ y, yp, g }) => `${y}년(${yp}): 일간 기준 ${g}의 해로, ${GOD_TRAIT[g]}이(가) 관계 속에서 부각돼요.`).join('\n') },
     { id: 's7', title: '조언', evidenceIds: ['elements'], body: '결과를 단정적인 예언으로 받아들이기보다, 관계에서 내가 편안한 방식을 점검하는 질문지로 활용해 보세요.' },
   ];

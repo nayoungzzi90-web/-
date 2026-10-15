@@ -262,7 +262,7 @@ export function calculate(req: ManseRequest, override: ConfigOverride = {}, opts
       const dayDiff = alts.some((a) => a.dayPillar !== c0.day.ganji), hourDiff = alts.some((a) => a.hourPillar !== c0.hour?.ganji);
       uncertainties.push({
         code: 'PILLAR_POLICY_DEPENDENT', severity: 'INFO', pillar: dayDiff ? 'day' : 'hour',
-        message: `${dayDiff ? '일주와 ' : ''}${hourDiff ? '시주' : ''}가 시간 보정·자시 정책 선택에 따라 달라져요 (현재: ${solarLabel(cfg)} + ${cfg.ziHour}). ${lon === null ? '출생지가 입력되지 않아 한반도 경도 범위(서쪽 끝~동쪽 끝)를 모두 시험했어요.' : ''}`.trim(),
+        message: `${dayDiff ? '일주와 ' : ''}${hourDiff ? '시주' : ''}가 시간 보정·자시 정책 선택에 따라 달라져요 (현재 기준: ${solarLabel(cfg)}, 자시 ${ZI_LABEL[cfg.ziHour]}). ${lon === null ? '출생지가 입력되지 않아 한반도 경도 범위(서쪽 끝~동쪽 끝)를 모두 시험했어요.' : ''}`.trim(),
         alternatives: alts,
       });
     }
@@ -335,6 +335,7 @@ export function calculate(req: ManseRequest, override: ConfigOverride = {}, opts
   });
 }
 
+const ZI_LABEL: Record<ManseConfig['ziHour'], string> = { ZI_23_NEXT_DAY: '23시에 날짜 교체', ZI_SPLIT_YAJA: '야자시·조자시 구분', MIDNIGHT: '0시에 날짜 교체' };
 function solarLabel(cfg: ManseConfig) {
   const s = cfg.solarTime;
   return s.mode === 'NONE' ? '보정 없음' : s.mode === 'FIXED_OFFSET' ? `고정 ${s.fixedOffsetMinutes}분` : '경도 보정';

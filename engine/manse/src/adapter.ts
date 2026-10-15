@@ -44,5 +44,6 @@ export function toSajuFacts(r: ManseResult): SajuFacts {
       verified: officialOk && r.status === 'OK',
     },
     warnings,
+    review: { status: r.status, uncertainties: r.uncertainties.filter((u) => u.code !== 'BIRTHPLACE_MISSING' || r.status !== 'OK').map((u) => ({ code: u.code, severity: u.severity, message: u.message })) },
   };
 }

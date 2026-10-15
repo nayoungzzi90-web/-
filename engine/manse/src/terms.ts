@@ -1,4 +1,4 @@
-import rawTerms from '../data/solar_terms.json';
+import rawTerms from '../data/solar_terms.runtime.json';
 import rawMoons from '../data/new_moons.json';
 import { BRANCHES } from './ganji';
 
@@ -20,12 +20,14 @@ const SEQ = (lon: number) => ((((lon - 285) % 360) + 360) % 360) / 15 + 1;
 /** 절(節) 황경 → 월지 번호: 285 소한→丑(1), 315 입춘→寅(2) … 255 대설→子(0) */
 const JIE_BRANCH = (lon: number) => (((lon - 315 + 360) % 360) / 30 + 2) % 12;
 
-export const TERMS: Term[] = (rawTerms.rows as Array<{ year: number; lon: number; name: string; utc_ms: number; x_swe_s: number }>)
-  .map((r) => ({
-    ms: r.utc_ms, year: r.year, seq: SEQ(r.lon), lon: r.lon, name: r.name,
-    isJie: r.lon % 30 === 15, branch: r.lon % 30 === 15 ? JIE_BRANCH(r.lon) : null,
-    status: (Math.abs(r.x_swe_s) <= CROSS_CHECK_TOLERANCE_S ? 'cross_checked' : 'computed') as TermStatus,
-    uncertaintySec: uncertaintyForYear(r.year), dataset: TERM_DATASET,
+const NAMES: Record<number, string> = { 285: '소한', 300: '대한', 315: '입춘', 330: '우수', 345: '경칩', 0: '춘분', 15: '청명', 30: '곡우', 45: '입하', 60: '소만', 75: '망종', 90: '하지', 105: '소서', 120: '대서', 135: '입추', 150: '처서', 165: '백로', 180: '추분', 195: '한로', 210: '상강', 225: '입동', 240: '소설', 255: '대설', 270: '동지' };
+/** rows: [연도, 황경, UTC ms, 교차검증 통과(1/0)] — 전체 필드는 data/solar_terms.json (축소: tools/make-runtime-data.ts) */
+export const TERMS: Term[] = (rawTerms.rows as number[][])
+  .map(([year, lon, ms, ok]) => ({
+    ms, year, seq: SEQ(lon), lon, name: NAMES[lon],
+    isJie: lon % 30 === 15, branch: lon % 30 === 15 ? JIE_BRANCH(lon) : null,
+    status: (ok === 1 ? 'cross_checked' : 'computed') as TermStatus,
+    uncertaintySec: uncertaintyForYear(year), dataset: TERM_DATASET,
   }))
   .sort((a, b) => a.ms - b.ms);
 
