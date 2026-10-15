@@ -109,9 +109,12 @@ def main(out):
         for k in range(24):
             lon = (285 + 15 * k) % 360
             g = term_guess(y, lon)
-            if g < E.jalpha + 3 or g > E.jomega - 3:
-                continue  # DE421 계수 범위 밖
-            jd = solve(sun_lon, g, lon, 0.98565)
+            try:
+                jd = solve(sun_lon, g, lon, 0.98565)
+            except Exception:
+                continue  # DE421 계수 범위 밖 (jplephem DateError)
+            if jd < E.jalpha + 0.5 or jd > E.jomega - 0.5 or abs(jd - g) > 6:
+                continue
             terms.append({'year': y, 'lon': lon, 'tt_jd': jd})
     # 합삭: 1899-12-01 ~ 2102-02 사이. 평균 삭망월 29.530588일 간격으로 후보를 만들고 뉴턴법으로 정련.
     moons = []
@@ -122,14 +125,16 @@ def main(out):
     n_end = int((min(2488435.0, E.jomega - 3) - ref) / 29.530588) + 1
     for n in range(n_start, n_end + 1):
         g = ref + n * 29.530588
-        if g < E.jalpha + 5 or g > E.jomega - 5:
-            continue
         def elong(j): return wrap(moon_lon(j) - sun_lon(j))
         jd = g
-        for _ in range(12):
-            d = elong(jd); jd -= d / 12.19
-            if abs(d) < 1e-9: break
-        moons.append(jd)
+        try:
+            for _ in range(12):
+                d = elong(jd); jd -= d / 12.19
+                if abs(d) < 1e-9: break
+        except Exception:
+            continue
+        if E.jalpha + 0.5 < jd < E.jomega - 0.5 and abs(jd - g) < 2:
+            moons.append(jd)
     json.dump({'engine': 'jplephem 2.6 + de421 2008.1 (own reduction)', 'jd_range': [E.jalpha, E.jomega], 'terms': terms, 'new_moons_tt_jd': moons}, open(out, 'w'))
     print('terms', len(terms), 'new moons', len(moons))
 

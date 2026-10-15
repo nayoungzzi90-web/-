@@ -1,0 +1,711 @@
+{
+  "ok": true,
+  "result": {
+    "schemaVersion": "1.0",
+    "engine": {
+      "name": "ohaeng-manse",
+      "version": "1.0.0",
+      "termDataset": "de421-own-v1",
+      "termEngine": "manse-ref-1.0",
+      "zoneSource": "IANA tz database `asia` (eggert/tz main, 2026-10-15 열람) — Asia/Seoul + Rule ROK"
+    },
+    "status": "POLICY_DEPENDENT",
+    "statusReasons": [],
+    "input": {
+      "calendar": "solar",
+      "year": 1990,
+      "month": 4,
+      "day": 19,
+      "hour": 1,
+      "minute": 10,
+      "gender": "F"
+    },
+    "policy": {
+      "policyVersion": "policy-1.0",
+      "yearBoundary": "IPCHUN",
+      "ziHour": "ZI_SPLIT_YAJA",
+      "solarTime": {
+        "mode": "NONE",
+        "fixedOffsetMinutes": -30,
+        "applyEquationOfTime": false,
+        "missingPlace": "FLAG"
+      },
+      "timeBasis": "KST_PLUS9",
+      "lunarClock": "PRE1912_UTC_PLUS8",
+      "dstAmbiguous": "FIRST",
+      "hiddenStems": {
+        "table": "STANDARD"
+      },
+      "relations": {
+        "halfTriple": "WITH_PEAK"
+      },
+      "luck": {
+        "startPrecision": "EXACT",
+        "yearLengthDays": 365.2425,
+        "missingGender": "OMIT",
+        "count": 10
+      },
+      "boundaryGuardSeconds": 120,
+      "requireOfficialTermData": false
+    },
+    "policyHash": "44e8168281f6702d",
+    "calendar": {
+      "solar": {
+        "year": 1990,
+        "month": 4,
+        "day": 19
+      },
+      "lunar": {
+        "year": 1990,
+        "month": 3,
+        "leap": false,
+        "day": 24
+      },
+      "convertedFrom": "solar"
+    },
+    "time": {
+      "known": true,
+      "civil": "1990-04-19T01:10:00",
+      "utc": "1990-04-18T16:10:00.000Z",
+      "zoneLabel": "KST",
+      "zoneOffsetMinutes": 540,
+      "dst": false,
+      "sajuClock": "1990-04-19T01:10:00",
+      "sajuClockOffsetMinutes": 540,
+      "steps": [
+        "시계 기준(KST_PLUS9): UTC+9.0000h"
+      ]
+    },
+    "pillars": {
+      "year": {
+        "stem": 6,
+        "branch": 6,
+        "ganji": "庚午",
+        "ganjiKo": "경오",
+        "index": 6,
+        "stemTenGod": "편관",
+        "mainTenGod": "상관",
+        "hidden": [
+          {
+            "stem": 2,
+            "stemChar": "丙",
+            "days": 10,
+            "role": "여기",
+            "tenGod": "식신"
+          },
+          {
+            "stem": 5,
+            "stemChar": "己",
+            "days": 9,
+            "role": "중기",
+            "tenGod": "정재"
+          },
+          {
+            "stem": 3,
+            "stemChar": "丁",
+            "days": 11,
+            "role": "정기",
+            "tenGod": "상관"
+          }
+        ],
+        "stemElement": "metal",
+        "branchElement": "fire"
+      },
+      "month": {
+        "stem": 6,
+        "branch": 4,
+        "ganji": "庚辰",
+        "ganjiKo": "경진",
+        "index": 16,
+        "stemTenGod": "편관",
+        "mainTenGod": "편재",
+        "hidden": [
+          {
+            "stem": 1,
+            "stemChar": "乙",
+            "days": 9,
+            "role": "여기",
+            "tenGod": "겁재"
+          },
+          {
+            "stem": 9,
+            "stemChar": "癸",
+            "days": 3,
+            "role": "중기",
+            "tenGod": "정인"
+          },
+          {
+            "stem": 4,
+            "stemChar": "戊",
+            "days": 18,
+            "role": "정기",
+            "tenGod": "편재"
+          }
+        ],
+        "stemElement": "metal",
+        "branchElement": "earth"
+      },
+      "day": {
+        "stem": 0,
+        "branch": 2,
+        "ganji": "甲寅",
+        "ganjiKo": "갑인",
+        "index": 50,
+        "stemTenGod": "일간(나)",
+        "mainTenGod": "비견",
+        "hidden": [
+          {
+            "stem": 4,
+            "stemChar": "戊",
+            "days": 7,
+            "role": "여기",
+            "tenGod": "편재"
+          },
+          {
+            "stem": 2,
+            "stemChar": "丙",
+            "days": 7,
+            "role": "중기",
+            "tenGod": "식신"
+          },
+          {
+            "stem": 0,
+            "stemChar": "甲",
+            "days": 16,
+            "role": "정기",
+            "tenGod": "비견"
+          }
+        ],
+        "stemElement": "wood",
+        "branchElement": "wood"
+      },
+      "hour": {
+        "stem": 1,
+        "branch": 1,
+        "ganji": "乙丑",
+        "ganjiKo": "을축",
+        "index": 1,
+        "stemTenGod": "겁재",
+        "mainTenGod": "정재",
+        "hidden": [
+          {
+            "stem": 9,
+            "stemChar": "癸",
+            "days": 9,
+            "role": "여기",
+            "tenGod": "정인"
+          },
+          {
+            "stem": 7,
+            "stemChar": "辛",
+            "days": 3,
+            "role": "중기",
+            "tenGod": "정관"
+          },
+          {
+            "stem": 5,
+            "stemChar": "己",
+            "days": 18,
+            "role": "정기",
+            "tenGod": "정재"
+          }
+        ],
+        "stemElement": "wood",
+        "branchElement": "earth"
+      }
+    },
+    "basis": {
+      "year": {
+        "rule": "IPCHUN",
+        "termName": "입춘",
+        "termUtc": "1990-02-04T02:14:00.140Z",
+        "secondsFromTerm": 6357359.9
+      },
+      "month": {
+        "prevJie": {
+          "name": "청명",
+          "utc": "1990-04-05T01:12:54.806Z"
+        },
+        "nextJie": {
+          "name": "입하",
+          "utc": "1990-05-05T18:35:26.171Z"
+        },
+        "daysSincePrevJie": 13.623,
+        "commandingStem": "戊"
+      },
+      "day": {
+        "rule": "ZI_SPLIT_YAJA",
+        "clockDate": "1990-04-19"
+      },
+      "hour": {
+        "rule": "ZI_SPLIT_YAJA",
+        "clockHour": 1
+      }
+    },
+    "dayMaster": {
+      "stem": "甲",
+      "stemKo": "갑",
+      "element": "wood",
+      "yang": true
+    },
+    "fiveElementsCount": {
+      "wood": 3,
+      "fire": 1,
+      "earth": 2,
+      "metal": 2,
+      "water": 0
+    },
+    "relations": [
+      {
+        "type": "천간충",
+        "members": [
+          {
+            "pos": "year",
+            "char": "庚"
+          },
+          {
+            "pos": "day",
+            "char": "甲"
+          }
+        ],
+        "detail": "庚甲충"
+      },
+      {
+        "type": "천간합",
+        "members": [
+          {
+            "pos": "year",
+            "char": "庚"
+          },
+          {
+            "pos": "hour",
+            "char": "乙"
+          }
+        ],
+        "element": "금",
+        "detail": "庚乙합 (금으로 화(化)할 수 있으나 실제 화 여부는 미판단)"
+      },
+      {
+        "type": "천간충",
+        "members": [
+          {
+            "pos": "month",
+            "char": "庚"
+          },
+          {
+            "pos": "day",
+            "char": "甲"
+          }
+        ],
+        "detail": "庚甲충"
+      },
+      {
+        "type": "천간합",
+        "members": [
+          {
+            "pos": "month",
+            "char": "庚"
+          },
+          {
+            "pos": "hour",
+            "char": "乙"
+          }
+        ],
+        "element": "금",
+        "detail": "庚乙합 (금으로 화(化)할 수 있으나 실제 화 여부는 미판단)"
+      },
+      {
+        "type": "지지해",
+        "members": [
+          {
+            "pos": "year",
+            "char": "午"
+          },
+          {
+            "pos": "hour",
+            "char": "丑"
+          }
+        ],
+        "detail": "午丑해"
+      },
+      {
+        "type": "지지파",
+        "members": [
+          {
+            "pos": "month",
+            "char": "辰"
+          },
+          {
+            "pos": "hour",
+            "char": "丑"
+          }
+        ],
+        "detail": "辰丑파"
+      },
+      {
+        "type": "지지반합",
+        "members": [
+          {
+            "pos": "day",
+            "char": "寅"
+          },
+          {
+            "pos": "year",
+            "char": "午"
+          }
+        ],
+        "element": "화",
+        "detail": "寅午반합 (寅午戌의 일부, 왕지 午 포함)"
+      }
+    ],
+    "luck": {
+      "direction": "BACKWARD",
+      "directionRule": "연간 양 + 여 → 역행(이전 절입부터)",
+      "anchorTerm": {
+        "name": "청명",
+        "utc": "1990-04-05T01:12:54.806Z",
+        "relation": "PREV_JIE"
+      },
+      "anchorGapDays": 13.622977,
+      "startPrecision": "EXACT",
+      "startAge": {
+        "years": 4,
+        "months": 6,
+        "days": 14
+      },
+      "startAgeYears": 4.540992,
+      "startUtc": "1994-11-02T05:41:14.806Z",
+      "pillars": [
+        {
+          "order": 1,
+          "pillar": {
+            "stem": 5,
+            "branch": 3,
+            "ganji": "己卯",
+            "ganjiKo": "기묘",
+            "index": 15
+          },
+          "startAgeYears": 4.540992,
+          "startAge": {
+            "years": 4,
+            "months": 6,
+            "days": 14
+          },
+          "startUtc": "1994-11-02T05:41:14.806Z",
+          "startKstYear": 1994,
+          "endAgeYears": 14.540992
+        },
+        {
+          "order": 2,
+          "pillar": {
+            "stem": 4,
+            "branch": 2,
+            "ganji": "戊寅",
+            "ganjiKo": "무인",
+            "index": 14
+          },
+          "startAgeYears": 14.540992,
+          "startAge": {
+            "years": 14,
+            "months": 6,
+            "days": 14
+          },
+          "startUtc": "2004-11-01T15:53:14.806Z",
+          "startKstYear": 2004,
+          "endAgeYears": 24.540992
+        },
+        {
+          "order": 3,
+          "pillar": {
+            "stem": 3,
+            "branch": 1,
+            "ganji": "丁丑",
+            "ganjiKo": "정축",
+            "index": 13
+          },
+          "startAgeYears": 24.540992,
+          "startAge": {
+            "years": 24,
+            "months": 6,
+            "days": 14
+          },
+          "startUtc": "2014-11-02T02:05:14.806Z",
+          "startKstYear": 2014,
+          "endAgeYears": 34.540992
+        },
+        {
+          "order": 4,
+          "pillar": {
+            "stem": 2,
+            "branch": 0,
+            "ganji": "丙子",
+            "ganjiKo": "병자",
+            "index": 12
+          },
+          "startAgeYears": 34.540992,
+          "startAge": {
+            "years": 34,
+            "months": 6,
+            "days": 14
+          },
+          "startUtc": "2024-11-01T12:17:14.806Z",
+          "startKstYear": 2024,
+          "endAgeYears": 44.540992
+        },
+        {
+          "order": 5,
+          "pillar": {
+            "stem": 1,
+            "branch": 11,
+            "ganji": "乙亥",
+            "ganjiKo": "을해",
+            "index": 11
+          },
+          "startAgeYears": 44.540992,
+          "startAge": {
+            "years": 44,
+            "months": 6,
+            "days": 14
+          },
+          "startUtc": "2034-11-01T22:29:14.806Z",
+          "startKstYear": 2034,
+          "endAgeYears": 54.540992
+        },
+        {
+          "order": 6,
+          "pillar": {
+            "stem": 0,
+            "branch": 10,
+            "ganji": "甲戌",
+            "ganjiKo": "갑술",
+            "index": 10
+          },
+          "startAgeYears": 54.540992,
+          "startAge": {
+            "years": 54,
+            "months": 6,
+            "days": 14
+          },
+          "startUtc": "2044-11-01T08:41:14.806Z",
+          "startKstYear": 2044,
+          "endAgeYears": 64.540992
+        },
+        {
+          "order": 7,
+          "pillar": {
+            "stem": 9,
+            "branch": 9,
+            "ganji": "癸酉",
+            "ganjiKo": "계유",
+            "index": 9
+          },
+          "startAgeYears": 64.540992,
+          "startAge": {
+            "years": 64,
+            "months": 6,
+            "days": 14
+          },
+          "startUtc": "2054-11-01T18:53:14.806Z",
+          "startKstYear": 2054,
+          "endAgeYears": 74.540992
+        },
+        {
+          "order": 8,
+          "pillar": {
+            "stem": 8,
+            "branch": 8,
+            "ganji": "壬申",
+            "ganjiKo": "임신",
+            "index": 8
+          },
+          "startAgeYears": 74.540992,
+          "startAge": {
+            "years": 74,
+            "months": 6,
+            "days": 14
+          },
+          "startUtc": "2064-11-01T05:05:14.806Z",
+          "startKstYear": 2064,
+          "endAgeYears": 84.540992
+        },
+        {
+          "order": 9,
+          "pillar": {
+            "stem": 7,
+            "branch": 7,
+            "ganji": "辛未",
+            "ganjiKo": "신미",
+            "index": 7
+          },
+          "startAgeYears": 84.540992,
+          "startAge": {
+            "years": 84,
+            "months": 6,
+            "days": 14
+          },
+          "startUtc": "2074-11-01T15:17:14.806Z",
+          "startKstYear": 2074,
+          "endAgeYears": 94.540992
+        },
+        {
+          "order": 10,
+          "pillar": {
+            "stem": 6,
+            "branch": 6,
+            "ganji": "庚午",
+            "ganjiKo": "경오",
+            "index": 6
+          },
+          "startAgeYears": 94.540992,
+          "startAge": {
+            "years": 94,
+            "months": 6,
+            "days": 14
+          },
+          "startUtc": "2084-11-01T01:29:14.806Z",
+          "startKstYear": 2084,
+          "endAgeYears": 104.540992
+        }
+      ],
+      "note": "3일=1년(1일=4개월, 1시진=10일) 환산. 절입 시각은 천문 계산값(공식 미확인)이며 연 길이는 정책값이다."
+    },
+    "yearly": null,
+    "uncertainties": [
+      {
+        "code": "PILLAR_POLICY_DEPENDENT",
+        "severity": "INFO",
+        "pillar": "hour",
+        "message": "시주가 시간 보정·자시 정책 선택에 따라 달라져요 (현재: 보정 없음 + ZI_SPLIT_YAJA). 출생지가 입력되지 않아 한반도 경도 범위(서쪽 끝~동쪽 끝)를 모두 시험했어요.",
+        "alternatives": [
+          {
+            "dayPillar": "甲寅",
+            "hourPillar": "甲子",
+            "whenSolarTime": [
+              "고정 -30분",
+              "서울 경도 126.98° 지방평균시",
+              "한반도 서쪽 끝 124.6° 지방평균시",
+              "한반도 동쪽 끝 131.9° 지방평균시"
+            ],
+            "whenZiHour": [
+              "ZI_23_NEXT_DAY",
+              "ZI_SPLIT_YAJA",
+              "MIDNIGHT"
+            ]
+          }
+        ]
+      },
+      {
+        "code": "BIRTHPLACE_MISSING",
+        "severity": "INFO",
+        "pillar": "time",
+        "message": "출생지가 입력되지 않았어요. 현재 정책은 진태양시 보정을 쓰지 않지만, 출생지에 따라 시주가 달라질 수 있는지는 PILLAR_POLICY_DEPENDENT 에 표시했어요."
+      }
+    ],
+    "warnings": [
+      "절입 시각은 독립 천문 계산 2종이 일치한 값이며, 한국천문연구원 공식 값과의 일치는 확인되지 않았어요."
+    ],
+    "dataVerification": {
+      "dataset": "de421-own-v1",
+      "engine": "manse-ref-1.0",
+      "level": "EPHEMERIS_CROSS_CHECKED",
+      "officialConfirmed": false,
+      "extendedRange": false,
+      "notes": [
+        "한국천문연구원 공식 절입시각과의 일치는 확인되지 않았다 (공식 자료 미적재)."
+      ],
+      "termStatusesUsed": {
+        "1990:청명": "cross_checked",
+        "1990:입하": "cross_checked",
+        "1990:입춘": "cross_checked"
+      }
+    }
+  },
+  "sajuFacts": {
+    "chartId": "manse_0bbabab09bee6ffa",
+    "inputHash": "0bbabab09bee6ffa",
+    "pillars": {
+      "year": "庚午",
+      "month": "庚辰",
+      "day": "甲寅",
+      "hour": "乙丑"
+    },
+    "dayMaster": "甲",
+    "fiveElements": {
+      "wood": 3,
+      "fire": 1,
+      "earth": 2,
+      "metal": 2,
+      "water": 0
+    },
+    "tenGods": [
+      {
+        "position": "year",
+        "stem": "庚",
+        "god": "편관"
+      },
+      {
+        "position": "month",
+        "stem": "庚",
+        "god": "편관"
+      },
+      {
+        "position": "hour",
+        "stem": "乙",
+        "god": "겁재"
+      }
+    ],
+    "luckCycles": [
+      {
+        "startAge": 4.54,
+        "pillar": "己卯"
+      },
+      {
+        "startAge": 14.54,
+        "pillar": "戊寅"
+      },
+      {
+        "startAge": 24.54,
+        "pillar": "丁丑"
+      },
+      {
+        "startAge": 34.54,
+        "pillar": "丙子"
+      },
+      {
+        "startAge": 44.54,
+        "pillar": "乙亥"
+      },
+      {
+        "startAge": 54.54,
+        "pillar": "甲戌"
+      },
+      {
+        "startAge": 64.54,
+        "pillar": "癸酉"
+      },
+      {
+        "startAge": 74.54,
+        "pillar": "壬申"
+      },
+      {
+        "startAge": 84.54,
+        "pillar": "辛未"
+      },
+      {
+        "startAge": 94.54,
+        "pillar": "庚午"
+      }
+    ],
+    "computation": {
+      "engine_name": "ohaeng-manse",
+      "engine_version": "1.0.0",
+      "rules_version": "policy-1.0#44e8168281f6702d / terms:de421-own-v1",
+      "timezone_policy": "KST_PLUS9, solarTime=NONE, zi=ZI_SPLIT_YAJA, zone=IANA tz database `asia` (eggert/tz main, 2026-10-15 열람)",
+      "verified": false
+    },
+    "warnings": [
+      "engine_unverified",
+      "pillar_policy_dependent"
+    ]
+  }
+}

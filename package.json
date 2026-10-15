@@ -10,7 +10,10 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "sync:functions": "node scripts/sync-functions.mjs",
-    "check:functions": "node scripts/sync-functions.mjs && tsc -p supabase/functions/tsconfig.check.json"
+    "check:functions": "node scripts/sync-functions.mjs && tsc -p supabase/functions/tsconfig.check.json",
+    "manse:test": "vitest run engine",
+    "manse:cli": "tsx engine/manse/tools/cli.ts",
+    "manse:seed-sql": "tsx engine/manse/tools/gen-seed-sql.ts"
   },
   "dependencies": {
     "@fontsource/noto-sans-kr": "^5.3.1",
@@ -21,9 +24,13 @@
   },
   "devDependencies": {
     "@anthropic-ai/sdk": "^0.134.0",
+    "@electric-sql/pglite": "^0.5.10",
+    "@types/node": "^22.20.5",
     "@types/react": "^18.3.5",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",
+    "astronomy-engine": "2.1.19",
+    "tsx": "^4.23.15",
     "typescript": "^5.5.4",
     "vite": "^5.4.3",
     "vitest": "^2.0.5"

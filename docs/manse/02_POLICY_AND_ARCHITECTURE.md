@@ -40,11 +40,11 @@
 | `solarTime.fixedOffsetMinutes` | 정수 | `-30` | `FIXED_OFFSET` 일 때만 사용 |
 | `solarTime.applyEquationOfTime` | bool | `false` | 균시차 적용 여부 |
 | `solarTime.missingPlace` | `FLAG` / `USE_SEOUL` / `ERROR` | `FLAG` | `LONGITUDE` 인데 출생지 없을 때 |
-| `timeBasis` | `KST_PLUS9` / `ERA_STANDARD` | `KST_PLUS9` | 1908–11, 1954–61 의 +8:30 시기를 +9로 환산할지 |
-| `dst` | `REMOVE` / `KEEP` | `REMOVE` | 서머타임 시각이면 1시간을 제하고 표준시로 본다 |
+| `timeBasis` | `KST_PLUS9` / `ERA_STANDARD` / `ERA_WALL_CLOCK` | `KST_PLUS9` | 명리 계산용 시계: 항상 UTC+9 / 당시 표준시(서머타임 제외) / 입력한 벽시계 그대로(서머타임 포함). 1908–11, 1954–61 의 +8:30 시기와 서머타임 처리가 갈림 |
+| `lunarClock` | `PRE1912_UTC_PLUS8` / `TZDB_STANDARD` | `PRE1912_UTC_PLUS8` | 음력 역일을 정하는 시계. 1912년 이전만 다르다. 기본값은 독립 라이브러리와의 전수 대조에서 **추정**한 값이며 공식 확인 전 |
 | `dstAmbiguous` | `FIRST` / `SECOND` / `ERROR` | `FIRST` | 서머타임 종료 시 중복 시각. 후보 간 결과가 다르면 `NEEDS_REVIEW` |
 | `hiddenStems.table` | `STANDARD` / `SIMPLE` | `STANDARD` | 월률분야 일수는 학파별 상이 |
-| `luck.startPrecision` | `EXACT` / `DAYS` / `MONTHS` | `EXACT` | 3일=1년, 1일=4개월, 1시진(2시간)=10일 |
+| `luck.startPrecision` | `EXACT` / `DAYS_QUOTIENT` / `SHICHEN` | `EXACT` | 3일=1년, 1일=4개월, 1시진(2시간)=10일. EXACT=분 단위 연속 환산, DAYS_QUOTIENT=일수를 3으로 나눈 몫(세)·나머지×4개월, SHICHEN=달력 날짜 차이와 시진 번호 차이로 센다 |
 | `luck.yearLengthDays` | 숫자 | `365.2425` | 기산 시각을 날짜로 환산할 때 1년의 길이(360 등 대안) |
 | `luck.missingGender` | `OMIT` / `ERROR` | `OMIT` | 성별 없으면 순역 불가 → 대운 생략+경고 |
 | `luck.count` | 정수 | `10` | |
@@ -52,6 +52,8 @@
 | `requireOfficialTermData` | bool | `false` | `true` 이면 공식 확인 안 된 절기 근처 결과는 모두 `NEEDS_REVIEW` |
 
 ## 2.4 상태 판정 (확정하지 않는 규칙)
+
+결과 `status`: `OK`(미확정 없음) / `POLICY_DEPENDENT`(일주·시주가 정책 선택에 따라 달라짐, 대안 제시) / `NEEDS_REVIEW`(절입 경계·시각 미상 절입일·서머타임 중복·공식자료 요구 등으로 확정 불가). `OK` 도 "공식 절입 자료로 확인됨"을 뜻하지 않는다 — 그것은 `dataVerification.officialConfirmed` 가 따로 말한다.
 
 - **절입 경계 가드**: 출생 순간과 연주/월주를 가르는 절입 시각의 차이가 `boundaryGuardSeconds + 절입 불확실도` 이내면 해당 기둥은 `boundary: true`, 양쪽 후보를 `candidates` 로 모두 제시하고 `status = NEEDS_REVIEW`.
 - **시각 미상**: 하루 전체 구간에서 기둥이 하나로 정해지지 않으면(절입일) `candidates` 제시 + `NEEDS_REVIEW`. 시주는 계산하지 않는다.
@@ -61,4 +63,4 @@
 
 ## 2.5 데이터 모델 (PostgreSQL, `supabase/migrations/0005_solar_terms.sql`)
 
-`solar_term_datasets`(출처·엔진 버전·ΔT/윤초 정책) → `solar_terms`(연도·절기·황경·UTC·KST 표시·출처·엔진 버전·검증 상태·불확실도) → `solar_term_checks`(교차검증 기록: 소스, 차이(초), 허용치, 통과) / `official_solar_terms`(공식값 적재용, 현재 비어 있음). 합삭은 `new_moons`. 검증 상태: `computed` → `cross_checked` → `official_confirmed` (또는 `official_mismatch`, `boundary_review`).
+`solar_term_datasets`(출처·엔진 버전·ΔT/윤초 정책) → `solar_terms`(연도·절기·황경·UTC·KST 표시·출처·엔진 버전·검증 상태·불확실도) → `solar_term_checks`(교차검증 기록: 소스, 차이(초), 허용치, 통과) / `official_solar_terms`(공식값 적재용, 현재 비어 있음). 합삭은 `new_moons`(출처 포함). 상태 갱신은 SQL 함수 `refresh_solar_term_status()` 가 하며 TS `official.ts#compareOfficial` 과 같은 규칙이다. 검증 상태: `computed` → `cross_checked` → `official_confirmed` (또는 `official_mismatch`, `boundary_review`).

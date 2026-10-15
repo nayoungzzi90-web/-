@@ -59,10 +59,14 @@ def main(de_path, ae_path, out_dir):
     moons = []
     for jd in de['new_moons_tt_jd']:
         ms, _ = tt_to_utc_ms(jd); moons.append(ms)
+    # DE421 계수 시작(1899-12-04) 직전 합삭은 astronomy-engine 값으로 보충한다 (분 단위 오차 가능, 역일 판정에는 충분한 여유가 있음을 확인)
+    extra = json.load(open(f'{out_dir}/extra_new_moons.json'))
+    sources = ['astronomy-engine'] * len(extra['utc_ms']) + ['de421'] * len(moons)
+    moons = extra['utc_ms'] + moons
     import os
     os.makedirs(out_dir, exist_ok=True)
     json.dump({'source': de['engine'], 'jd_range': de['jd_range'], 'rows': rows}, open(f'{out_dir}/solar_terms.json', 'w'), separators=(',', ':'), ensure_ascii=False)
-    json.dump({'source': de['engine'], 'utc_ms': moons}, open(f'{out_dir}/new_moons.json', 'w'), separators=(',', ':'))
+    json.dump({'source': de['engine'], 'utc_ms': moons, 'sources': sources}, open(f'{out_dir}/new_moons.json', 'w'), separators=(',', ':'))
     def stat(x): x = np.array(x); return {'n': len(x), 'max_s': round(float(x.max()), 2), 'p99_s': round(float(np.percentile(x, 99)), 2), 'mean_s': round(float(x.mean()), 3)}
     def by(lo, hi, key):
         return stat([abs(r[key]) for r in rows if lo <= r['year'] <= hi and r[key] is not None])
