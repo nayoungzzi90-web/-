@@ -18,3 +18,7 @@ npm run build
 
 ## 실서비스 전환 시 해야 할 일 (사람의 작업)
 별도 소유의 Supabase 프로젝트 생성 → 마이그레이션 적용·RLS 테스트 → `lib/mock` 호출을 Edge Function/RPC 로 교체 → OAuth 키·redirect 허용 목록 설정 → 만세력 라이브러리 검증 → PG 계약 → 법률 검토. 자세한 목록은 `docs/RELEASE_GATES.md`.
+
+## 배포 (Vercel)
+`vercel.json` 이 포함되어 있습니다. Vercel 에서 이 저장소를 Import 하면 빌드(`npm run build`)·출력(`dist`)·SPA 라우팅(새로고침/직접 접속 시 404 방지)이 자동 설정됩니다.
+환경변수는 기본값(모두 OFF)으로 두세요. 프로덕션에서는 궁합이 "준비 중"으로 보이고 결제는 테스트 모드로만 동작합니다. 현재는 Mock 데모이므로 일반 공개용이 아닙니다.
