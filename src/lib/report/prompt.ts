@@ -15,7 +15,7 @@ export const SECTION_SCHEMA = {
 } as const;
 
 /** 변하지 않는 시스템 프롬프트 — 섹션 호출 간 캐시 가능하도록 고정 */
-export function buildSystemPrompt(plan: ReportPlan): string {
+export function buildSystemPrompt(plan: ReportPlan, mode: 'api' | 'manual' = 'api'): string {
   return [
     '당신은 사주 풀이를 쉬운 말로 설명해 주는 따뜻한 상담사예요. 사주 계산과 해석 규칙은 이미 끝났고, 당신의 일은 주어진 "사실 줄"을 읽는 사람이 이해하기 쉬운 문장으로 풀어 쓰는 거예요.',
     `이번 리포트: ${plan.productName}.`,
@@ -26,7 +26,9 @@ export function buildSystemPrompt(plan: ReportPlan): string {
     plan.years ? `※ 이 리포트가 다루는 연도는 ${plan.years.join(', ')}년뿐이에요. 다른 연도를 만들지 않아요.` : '',
     '',
     '## 출력',
-    '지정한 JSON 스키마만 반환해요. body 는 문단으로만 쓰고(제목·번호·글머리표·이모지 없음), 목표 글자 수(공백 제외)를 지켜요.',
+    mode === 'api'
+      ? '지정한 JSON 스키마만 반환해요. body 는 문단으로만 쓰고(제목·번호·글머리표·이모지 없음), 목표 글자 수(공백 제외)를 지켜요.'
+      : '아래 "작성할 섹션" 순서대로, 각 섹션을 "## 섹션 제목" 한 줄 다음에 본문 문단으로만 써요(목록·번호·이모지 없음). 각 섹션의 목표 글자 수(공백 제외)를 지켜요. 설명이나 머리말 없이 섹션만 출력해요.',
   ].filter((l) => l !== '').join('\n');
 }
 
@@ -61,3 +63,14 @@ export function buildSectionPrompt(plan: ReportPlan, section: SectionPlan, facts
 
 /** 이전 섹션 요지(중복 방지용): 첫 문장 일부만 */
 export const gistOf = (body: string) => (body.split(/(?<=[.!?요다])\s+/)[0] ?? body).slice(0, 80);
+
+/** 수동 평가용 전체 프롬프트(아무 AI 대화창에 한 번에 붙여넣는 형태). /lab 과 문서 생성이 같은 함수를 쓴다. */
+export function buildManualPrompt(plan: ReportPlan, facts: InterpretationFacts): string {
+  return [
+    buildSystemPrompt(plan, 'manual'), '', buildFactsBlock(facts), '', '---', '## 작성할 섹션 (이 순서, 이 제목으로)',
+    ...plan.sections.map((s, i) => {
+      const primary = facts.lines.filter((l) => l.tags.some((t) => s.focusTags.includes(t))).map((l) => l.id);
+      return `${i + 1}. ## ${s.title}\n   - 목적: ${s.purpose}\n   - 분량: 공백 제외 약 ${s.targetChars}자 (${s.minChars}~${s.maxChars}자)\n   - 우선 사용할 사실 줄: ${primary.join(', ') || '(없음)'}`;
+    }),
+  ].join('\n');
+}

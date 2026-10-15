@@ -3,7 +3,7 @@ import { CATALOG } from '../lib/catalog';
 import { kstParts } from '../lib/kst';
 import { buildCompatInterpretation, buildInterpretation } from '../lib/report/interpretation';
 import { buildPlan } from '../lib/report/plan';
-import { buildFactsBlock, buildSectionPrompt, buildSystemPrompt, SECTION_SCHEMA } from '../lib/report/prompt';
+import { buildFactsBlock, buildManualPrompt, buildSystemPrompt, SECTION_SCHEMA } from '../lib/report/prompt';
 import { checkReport, checkSection, countChars } from '../lib/report/qa';
 import type { InterpretationFacts, ProductKey, QaIssue } from '../lib/report/types';
 import { calculator } from '../lib/saju/sampleCalculator';
@@ -59,7 +59,7 @@ export default function Lab() {
   }, [built, pasted]);
 
   const copy = async (label: string, text: string) => { try { await navigator.clipboard.writeText(text); setCopied(label); } catch { setCopied('복사 실패 — 직접 선택해 복사해 주세요'); } };
-  const fullPrompt = built ? [buildSystemPrompt(built.plan), '', buildFactsBlock(built.interp), '', '---', '아래 각 섹션을 차례로 써 주세요. 형식: "## 섹션 제목" 다음 줄에 본문(해요체, 목록·이모지 없음). 각 섹션 분량과 우선 사실 줄은 섹션 설명을 따르세요.', '', ...built.plan.sections.map((s, i) => buildSectionPrompt(built.plan, s, built.interp, built.plan.sections.slice(0, i).map((p) => ({ title: p.title, gist: '(앞에서 작성)' }))))].join('\n') : '';
+  const fullPrompt = built ? buildManualPrompt(built.plan, built.interp) : '';
 
   return (
     <div>

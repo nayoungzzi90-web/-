@@ -37,6 +37,8 @@ const POS_STEM = { year: '연간', month: '월간', day: '일간', hour: '시간
 const POS_BRANCH = { year: '연지', month: '월지', day: '일지', hour: '시지' } as const;
 type Pos = keyof typeof POS_STEM;
 
+/** 주제 조사: 나→나는, 상대→상대는 */
+const topic = (who: string) => `${who}는`;
 const ko = (s: Stem) => STEM_KO[STEMS.indexOf(s)];
 const bko = (b: Branch) => BRANCH_KO[BRANCHES.indexOf(b)];
 const pillarsOf = (f: SajuFacts) => (Object.entries(f.pillars) as [Pos, string | null][]).filter(([, p]) => p) as [Pos, string][];
@@ -59,7 +61,7 @@ function personLines(b: Builder, f: SajuFacts, p: string, who: string) {
   const pillars = pillarsOf(f);
   b.ev(`${p}pillars`, `${who} 사주 원국`, `연주 ${f.pillars.year}, 월주 ${f.pillars.month}, 일주 ${f.pillars.day}, 시주 ${f.pillars.hour ?? '없음(시간 미상)'}`, 'R-PILLARS');
   b.ev(`${p}day_master`, `${who} 일간`, `${dm}(${ko(dm)}) · ${ELEMENT_KO[dmEl]}`, 'R-DAYMASTER');
-  b.line(`${p}core`, `${who}의 일간은 ${dm}(${ko(dm)})으로 ${ELEMENT_KO[dmEl]} 기운이에요. 사주 원국은 ${pillars.map(([k, v]) => `${POS_STEM[k].slice(0, 1)}주 ${v}`).join(', ')}이에요.${f.pillars.hour ? '' : ' 출생 시간을 몰라 시주는 없어요.'}`, [`${p}pillars`, `${p}day_master`], ['core', 'personality'], [dm, ko(dm) + ' 일간', f.pillars.day]);
+  b.line(`${p}core`, `${who}의 일간은 ${dm}(읽는 법: ${ko(dm)})이고 ${ELEMENT_KO[dmEl]} 기운이에요. 사주 원국(네 기둥): ${pillars.map(([k, v]) => `${POS_STEM[k].slice(0, 1)}주 ${v}`).join(', ')}.${f.pillars.hour ? '' : ' 출생 시간을 몰라 시주는 없어요.'}`, [`${p}pillars`, `${p}day_master`], ['core', 'personality'], [dm, ko(dm) + ' 일간', f.pillars.day]);
 
   // 오행 균형
   const counts = f.fiveElements;
@@ -92,14 +94,14 @@ function personLines(b: Builder, f: SajuFacts, p: string, who: string) {
   const self = groupScore.비겁 + groupScore.인성, other = groupScore.식상 + groupScore.재성 + groupScore.관성;
   const label = self >= other * 1.3 ? '자기 힘(나를 지키는 기운)이 센 편' : other >= self * 1.3 ? '바깥 힘(표현·재물·책임)이 센 편' : '자기 힘과 바깥 힘이 비교적 균형';
   b.ev(`${p}power`, `${who} 자기 힘 vs 바깥 힘`, `비겁+인성 ${self} / 식상+재성+관성 ${other} (월지 2배 가중 · 신강/신약의 단순 근사)`, 'R-POWER');
-  b.line(`${p}power`, `${who}은(는) ${label}이에요. (비겁+인성 ${self} 대 식상+재성+관성 ${other}. 전통 신강·신약의 단순 근사이므로 단정 표현은 피해요.)`, [`${p}power`], ['personality', 'strength', 'career', 'money', 'advice'], [label.slice(0, 4)]);
+  b.line(`${p}power`, `${topic(who)} ${label}이에요. (비겁+인성 ${self} 대 식상+재성+관성 ${other}. 전통 신강·신약의 단순 근사이므로 단정 표현은 피해요.)`, [`${p}power`], ['personality', 'strength', 'career', 'money', 'advice'], [self >= other * 1.3 ? '자기 힘' : other >= self * 1.3 ? '바깥 힘' : '균형']);
 
   // 계절(월령)
   const mb = f.pillars.month[1] as Branch;
   const se = SEASON[mb];
   const supported = se.element === dmEl || (se.element !== 'earth' && PRODUCES[se.element] === dmEl) || (se.element === 'earth' && (dmEl === 'earth' || PRODUCES.earth === dmEl));
   b.ev(`${p}season`, `${who} 태어난 계절`, `월지 ${mb}(${bko(mb)}) → ${se.name}`, 'R-SEASON');
-  b.line(`${p}season`, `${who}은(는) ${se.name}(월지 ${mb})에 태어났고, 이 계절의 기운은 일간의 ${ELEMENT_KO[dmEl]} 기운을 ${supported ? '도와주는 편' : '도와주지 않는 편'}이에요.`, [`${p}season`], ['personality', 'balance', 'advice'], [se.name.slice(0, 2), mb]);
+  b.line(`${p}season`, `${topic(who)} ${se.name}(월지 ${mb})에 태어났고, 이 계절의 기운은 일간의 ${ELEMENT_KO[dmEl]} 기운을 ${supported ? '도와주는 편' : '도와주지 않는 편'}이에요.`, [`${p}season`], ['personality', 'balance', 'advice'], [se.name.slice(0, 2), mb]);
 
   // 원국 안의 합충
   const rel: string[] = [];
@@ -111,7 +113,7 @@ function personLines(b: Builder, f: SajuFacts, p: string, who: string) {
     if (br !== '없음') rel.push(`${POS_BRANCH[a[0]]}(${a[1][1]})와 ${POS_BRANCH[c[0]]}(${c[1][1]})는 ${br}`);
   }
   b.ev(`${p}relations`, `${who} 원국 안의 합충`, rel.length ? rel.join(', ') : '뚜렷한 합·충 없음', 'R-RELATIONS');
-  b.line(`${p}relations`, rel.length ? `${who}의 원국에는 ${rel.join(', ')}이(가) 있어요.` : `${who}의 원국에는 천간합·육합·충이 뚜렷하게 보이지 않아요.`, [`${p}relations`], ['relations', 'personality', 'relationship', 'love'], rel.length ? ['합', '충'].filter((w) => rel.join().includes(w)) : ['합충 없음']);
+  b.line(`${p}relations`, rel.length ? `${who}의 원국에서 보이는 합·충: ${rel.join('; ')}.` : `${who}의 원국에는 천간합·육합·충이 뚜렷하게 보이지 않아요.`, [`${p}relations`], ['relations', 'personality', 'relationship', 'love'], rel.length ? ['합', '충'].filter((w) => rel.join().includes(w)) : ['합충 없음']);
 
   return { dmEl, monthGod };
 }
