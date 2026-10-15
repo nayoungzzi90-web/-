@@ -38,3 +38,7 @@ export const branchRelation = (a: Branch, b: Branch): '육합' | '충' | '없음
 
 export const elementRelation = (a: Element, b: Element): '같은 기운' | '내가 도움' | '도움 받음' | '내가 조절' | '조절 받음' =>
   a === b ? '같은 기운' : PRODUCES[a] === b ? '내가 도움' : PRODUCES[b] === a ? '도움 받음' : CONTROLS[a] === b ? '내가 조절' : '조절 받음';
+
+/** 지지 본기(本氣) 천간 — 지장간 전체가 아니라 대표 천간만 사용하는 단순화 */
+export const BRANCH_MAIN_STEM: Record<Branch, Stem> = { 子: '癸', 丑: '己', 寅: '甲', 卯: '乙', 辰: '戊', 巳: '丙', 午: '丁', 未: '己', 申: '庚', 酉: '辛', 戌: '戊', 亥: '壬' };
+export const branchGod = (dayMaster: Stem, b: Branch): TenGod => tenGod(dayMaster, BRANCH_MAIN_STEM[b]);

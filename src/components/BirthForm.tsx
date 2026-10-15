@@ -64,7 +64,7 @@ export function BirthForm({ submitLabel, onSubmit, aliasLabel = '별칭 (선택)
       {errors.form && <div className="notice error" role="alert">{errors.form}</div>}
       <fieldset>
         <legend>달력 종류</legend>
-        <div className="seg" role="radiogroup" aria-label="달력 종류">
+        <div className="seg cal" role="radiogroup" aria-label="달력 종류">
           <label><input type="radio" name={id('cal')} checked={calendar === 'solar'} onChange={() => setCalendar('solar')} />양력</label>
           <label><input type="radio" name={id('cal')} checked={calendar === 'lunar'} onChange={() => setCalendar('lunar')} />음력</label>
         </div>
@@ -132,7 +132,7 @@ export function BirthForm({ submitLabel, onSubmit, aliasLabel = '별칭 (선택)
           {errors.consent && <p className="err" role="alert">{errors.consent}</p>}
         </div>
       )}
-      <button className="btn block" type="submit">{submitLabel}</button>
+      <button className="btn block go" type="submit">{submitLabel}</button>
     </form>
   );
 }

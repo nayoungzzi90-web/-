@@ -18,7 +18,7 @@ export function newReferralCode(): string {
   return Array.from(buf, (b) => CHARS[b % CHARS.length]).join('');
 }
 
-/** 링크 방문 시 추천 코드를 방문(게스트)에 귀속. 마지막 유효 링크가 우선. 공유/복사만으로는 업전이 지급되지 않는다. */
+/** 링크 방문 시 추천 코드를 방문(게스트)에 귀속. 마지막 유효 링크가 우선. 공유/복사만으로는 엽전이 지급되지 않는다. */
 export function captureReferral(db: Db, code: string, now = new Date()): boolean {
   const referrer = Object.values(db.users).find((u) => u.referralCode === code);
   db.pendingRefCode = code;

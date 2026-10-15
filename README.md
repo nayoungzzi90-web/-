@@ -12,7 +12,7 @@ npm run build
 ## 구성
 - `src/lib/saju` — `ChartCalculator` 인터페이스, **샘플 드라이버(미검증)**, 십성/합충 규칙
 - `src/lib/content` — 캐릭터 10종(결정론 규칙), 오늘의 운세(규칙형+캐시), 리포트 생성기(Mock)+자동 QA
-- `src/lib/mock` — 서버 로직의 참조 구현(업전 원장, 추천, 결제 승인 검증, 리포트 작업, 30일 삭제). localStorage 저장
+- `src/lib/mock` — 서버 로직의 참조 구현(엽전 원장, 추천, 결제 승인 검증, 리포트 작업, 30일 삭제). localStorage 저장
 - `supabase/migrations/0001_init.sql` — 실제 스키마·RLS·`redeem_coins` (**아직 실행·검증 안 됨**), `supabase/tests/rls_tests.sql`
 - `docs/RELEASE_GATES.md` — 출시 차단 조건, `docs/LIBRARY_EVALUATION.md`
 

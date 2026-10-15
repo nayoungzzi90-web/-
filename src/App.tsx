@@ -21,7 +21,7 @@ import SharePage from './pages/SharePage';
 
 export default function App() {
   const loc = useLocation();
-  // 추천 링크 캡처 (?ref=CODE): 방문에 귀속만 하고 이 시점에는 업전을 지급하지 않는다.
+  // 추천 링크 캡처 (?ref=CODE): 방문에 귀속만 하고 이 시점에는 엽전을 지급하지 않는다.
   useEffect(() => {
     const ref = new URLSearchParams(loc.search).get('ref');
     if (ref && /^[A-Z0-9]{6,16}$/.test(ref)) mutate((db) => { if (db.pendingRefCode !== ref) { captureReferral(db, ref); track(db, 'invite_click'); } });

@@ -161,7 +161,7 @@ create policy ledger_own on coin_ledger for select using (user_id = auth.uid());
 -- compatibility_sessions(암호화 입력), generation_jobs, admin_audit_logs, privacy_deletion_jobs, referral_attributions: 정책 없음 = 서버 전용.
 -- 관리자는 profiles.is_admin 플래그를 브라우저에서 믿지 않고, Edge Function 이 서버에서 검증(+MFA) 후 service_role 로 처리한다.
 
--- 업전 교환: 잔액 검증 → 차감 → 주문 → 권한을 한 트랜잭션으로 (동시 2회 클릭 시 한 번만)
+-- 엽전 교환: 잔액 검증 → 차감 → 주문 → 권한을 한 트랜잭션으로 (동시 2회 클릭 시 한 번만)
 create function redeem_coins(p_user uuid, p_product text, p_subject text) returns uuid
 language plpgsql security definer set search_path = public as $$
 declare v_prod products; v_key text; v_bal integer; v_order uuid; v_ent uuid;

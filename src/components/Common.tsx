@@ -1,6 +1,7 @@
 import { ReactNode, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { CATALOG, Product, won } from '../lib/catalog';
+import { Coin } from './Scene';
 import type { Evidence, ReportSection as Sec } from '../lib/content/report';
 
 export const MockNotice = ({ children }: { children?: ReactNode }) => (
@@ -10,7 +11,7 @@ export const MockNotice = ({ children }: { children?: ReactNode }) => (
 );
 
 export const CoinBalance = ({ amount }: { amount: number }) => (
-  <Link to="/rewards" className="coin" aria-label={`업전 ${amount}냥 보유`}><span aria-hidden>🪙</span>{amount}냥</Link>
+  <Link to="/rewards" className="coin" aria-label={`엽전 ${amount}냥 보유`}><Coin size={24} />{amount}</Link>
 );
 
 export const LoadingState = ({ label = '불러오는 중이에요' }: { label?: string }) => (
@@ -65,7 +66,7 @@ export function ProductCard({ product }: { product: Product }) {
       </div>
     </>
   );
-  return <Link to={product.path} className={`card product pc-${product.id}`}>{body}</Link>;
+  return <Link to={product.path} className="card product">{body}</Link>;
 }
 
 export function EvidenceAccordion({ items }: { items: Evidence[] }) {

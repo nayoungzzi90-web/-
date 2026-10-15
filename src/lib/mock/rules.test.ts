@@ -74,7 +74,7 @@ describe('추천 보상 (AC-03, AC-04)', () => {
   });
 });
 
-describe('업전 원장·교환 (AC-06)', () => {
+describe('엽전 원장·교환 (AC-06)', () => {
   it('idempotency_key 중복은 한 번만 반영, 음수 잔액 차단', () => {
     appendLedger(db, { userId: 'A', delta: 4, reason: 't', sourceId: 'x', idempotencyKey: 'k1' });
     expect(appendLedger(db, { userId: 'A', delta: 4, reason: 't', sourceId: 'x', idempotencyKey: 'k1' }).duplicate).toBe(true);

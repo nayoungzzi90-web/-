@@ -16,7 +16,7 @@ export default function Me() {
   if (!user) {
     return (
       <div>
-        <h1>MY</h1>
+        <h1 className="title">보관함</h1>
         <ErrorState title="로그인이 필요해요" message="구매 내역과 리포트는 로그인 후 볼 수 있어요." action={<Link className="btn" to="/login?next=/me">로그인 · 가입</Link>} />
         {chart && <Link className="btn secondary block" to={`/character/result/${chart.id}`}>무료 캐릭터 결과 보기</Link>}
       </div>
@@ -27,7 +27,7 @@ export default function Me() {
   const myCharts = Object.values(db.charts).filter((c) => c.ownerUserId === user.id);
   return (
     <div>
-      <h1>MY</h1>
+      <h1 className="title">보관함</h1>
       <div className="card"><b>{user.nickname}</b><br /><span className="muted small">{user.email}</span></div>
 
       <section className="card">
@@ -55,7 +55,7 @@ export default function Me() {
         {orders.length === 0 ? <p className="muted">주문 내역이 없어요.</p> : (
           <ul className="list-plain">{orders.map((o) => (
             <li key={o.id}><div className="row between"><span>{CATALOG[o.productId].name}</span><span>{o.method === 'coin' ? `${o.coinCost}냥` : won(o.amountKrw)}</span></div>
-              <span className="muted small">{o.createdAt.slice(0, 10)} · {o.method === 'coin' ? '업전 교환' : '현금 결제'} · {ORDER_KO[o.status]}</span>
+              <span className="muted small">{o.createdAt.slice(0, 10)} · {o.method === 'coin' ? '엽전 교환' : '현금 결제'} · {ORDER_KO[o.status]}</span>
               {o.status === 'pending' && <> · <Link to={`/checkout/${o.id}`}>결제 이어가기</Link></>}</li>
           ))}</ul>
         )}
@@ -75,7 +75,7 @@ export default function Me() {
       </details>
 
       <ConfirmationDialog open={del} title="정말 삭제할까요?" confirmLabel="삭제하기" onCancel={() => setDel(false)} onConfirm={() => { resetDb(); setDel(false); nav('/'); }}>
-        <p>이 브라우저에 저장된 모든 샌드박스 데이터(캐릭터, 주문, 리포트, 업전)가 지워져요. 되돌릴 수 없어요.</p>
+        <p>이 브라우저에 저장된 모든 샌드박스 데이터(캐릭터, 주문, 리포트, 엽전)가 지워져요. 되돌릴 수 없어요.</p>
       </ConfirmationDialog>
     </div>
   );

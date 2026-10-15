@@ -13,14 +13,14 @@ export function appendLedger(db: Db, e: { userId: string; delta: number; reason:
   const existing = db.ledger.find((l) => l.idempotencyKey === e.idempotencyKey);
   if (existing) return { entry: existing, duplicate: true };
   const bal = balanceOf(db, e.userId);
-  if (bal + e.delta < 0) throw new CoinError('INSUFFICIENT_COINS', `업전이 부족해요. (보유 ${bal}냥)`);
+  if (bal + e.delta < 0) throw new CoinError('INSUFFICIENT_COINS', `엽전이 부족해요. (보유 ${bal}냥)`);
   const entry: LedgerEntry = { id: uid('led_'), userId: e.userId, delta: e.delta, reason: e.reason, sourceId: e.sourceId, balanceAfter: bal + e.delta, idempotencyKey: e.idempotencyKey, createdAt: (e.now ?? new Date()).toISOString() };
   db.ledger.push(entry);
   return { entry, duplicate: false };
 }
 
 /**
- * 업전 교환: 잔액 검증 → 차감 → 주문 → 열람 권한 생성을 한 번에 처리.
+ * 엽전 교환: 잔액 검증 → 차감 → 주문 → 열람 권한 생성을 한 번에 처리.
  * (서버에서는 단일 DB 트랜잭션/RPC + 행 잠금으로 구현. supabase/migrations 의 redeem_coins 참고)
  * 가격은 클라이언트 값이 아니라 서버 카탈로그에서만 읽는다.
  */

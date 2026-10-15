@@ -5,8 +5,8 @@ import { Stem } from '../lib/saju/types';
  * 모든 색을 속성으로 직접 지정해서 SVG→PNG 공유 카드 저장 때도 똑같이 보인다(CSS 변수 미사용).
  * 같은 "아기 체형"(큰 머리·작은 몸·큰 눈·볼터치)을 공유하고, 머리 위 소품과 색으로 구분한다.
  */
-const L = '#3A2A24'; // 먹색 외곽선
-const W = 3.2;
+const L = '#3B2A22'; // 먹색 외곽선
+const W = 2.6;
 const o = { stroke: L, strokeWidth: W, strokeLinejoin: 'round', strokeLinecap: 'round' } as const;
 const SKIN = '#FFE4CC';
 const BLUSH = '#FF9C8F';

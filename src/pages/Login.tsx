@@ -6,7 +6,7 @@ import { signInMock } from '../lib/mock/service';
 import { useSession } from '../lib/mock/hooks';
 
 const REASON: Record<string, string> = {
-  self_referral: '내 초대 링크로는 업전을 받을 수 없어요.',
+  self_referral: '내 초대 링크로는 엽전을 받을 수 없어요.',
   existing_member: '이미 가입한 회원이라 초대 보상 대상이 아니에요.',
   daily_cap: '초대한 분의 하루 보상 한도에 도달해 이번에는 적립되지 않았어요.',
   monthly_cap: '초대한 분의 월 보상 한도에 도달해 이번에는 적립되지 않았어요.',
@@ -38,7 +38,7 @@ export default function Login() {
     return (
       <div className="card">
         <h1>로그인 완료</h1>
-        {done.status === 'awarded' && <div className="notice ok">초대해 준 친구에게 업전 {done.coins}냥이 적립됐어요. 고마워요!</div>}
+        {done.status === 'awarded' && <div className="notice ok">초대해 준 친구에게 엽전 {done.coins}냥이 적립됐어요. 고마워요!</div>}
         {done.status === 'rejected' && <div className="notice">{REASON[done.reason]}</div>}
         {done.status === 'pending' && <div className="notice info">무료 캐릭터 체험을 마치면 초대 보상이 확정돼요.</div>}
         <button className="btn block" onClick={() => nav(next, { replace: true })}>계속하기</button>
@@ -52,7 +52,7 @@ export default function Login() {
     <div>
       <MockNotice>샌드박스 로그인이에요. 실제 서비스에서는 별도 소유의 Supabase Auth(카카오·구글·이메일)로 연결돼요.</MockNotice>
       <h1>로그인 · 가입</h1>
-      <p className="muted">저장, 업전, 결제를 할 때만 필요해요. 무료 체험 결과는 로그인 후에도 그대로 이어져요.</p>
+      <p className="muted">저장, 엽전, 결제를 할 때만 필요해요. 무료 체험 결과는 로그인 후에도 그대로 이어져요.</p>
       <div className="card stack">
         <button className="btn block" style={{ background: '#FEE500', color: '#191919', borderColor: '#FEE500' }} disabled aria-disabled="true">카카오로 시작하기 (준비 중)</button>
         <button className="btn secondary block" disabled aria-disabled="true">Google로 시작하기 (준비 중)</button>

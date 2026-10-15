@@ -3,17 +3,23 @@ import { BirthForm } from '../components/BirthForm';
 import { createChart } from '../lib/mock/service';
 import { mutate, track } from '../lib/mock/db';
 import { useEffect } from 'react';
+import { ArtSvg } from '../components/art';
 
 export default function Birth() {
   const nav = useNavigate();
   useEffect(() => { mutate((db) => track(db, 'birth_start')); }, []);
   return (
     <div>
-      <h1>출생 정보 입력</h1>
-      <p className="muted">가입 없이 볼 수 있어요. 입력한 정보는 이 기기에서만 계산·저장돼요.</p>
+      <div className="peek">
+        <h1 className="title">태어난 순간의 이야기,<br />귀엽게 풀어드려요</h1>
+        <p className="muted" style={{ margin: 0 }}>생년월일만 넣으면 무료 원국 풀이를 바로 볼 수 있어요.</p>
+        <div className="row" aria-hidden>
+          {(['甲', '乙', '丙', '丁', '己'] as const).map((st) => <ArtSvg key={st} stem={st} className="art" size={90} />)}
+        </div>
+      </div>
       <div className="card">
         <BirthForm
-          submitLabel="내 캐릭터 만나기"
+          submitLabel="무료로 내 사주 보기"
           aliasLabel="별칭 (선택, 공유 카드에 표시돼요)"
           onSubmit={(input) => {
             const chart = createChart(input);

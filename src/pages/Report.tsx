@@ -32,7 +32,7 @@ export default function ReportPage() {
         return (
           <div>
             <h1>리포트 생성이 지연되고 있어요</h1>
-            <div className="notice error" role="alert">자동으로 {job.attempts}번 시도했지만 생성에 실패했어요. 결제(또는 업전 사용)와 주문 내역은 안전하게 보관돼 있고, <b>다시 결제하지 않아도 돼요.</b></div>
+            <div className="notice error" role="alert">자동으로 {job.attempts}번 시도했지만 생성에 실패했어요. 결제(또는 엽전 사용)와 주문 내역은 안전하게 보관돼 있고, <b>다시 결제하지 않아도 돼요.</b></div>
             <div className="stack">
               <button className="btn block" onClick={() => void retryJob(job.id)}>다시 생성 시도</button>
               {order && !refunded && <button className="btn secondary block" onClick={() => setRefundOpen(true)}>환불 요청하기</button>}
@@ -40,7 +40,7 @@ export default function ReportPage() {
               <Link className="btn ghost block" to="/me">주문 내역 보기</Link>
             </div>
             <ConfirmationDialog open={refundOpen} title="환불을 요청할까요?" confirmLabel="환불 요청" onCancel={() => setRefundOpen(false)} onConfirm={() => { mutate((d) => requestRefund(d, user.id, order!.id, 'AI 생성 최종 실패')); setRefundOpen(false); }}>
-              <p>요청이 접수되면 운영팀이 결제 수단과 정책에 따라 처리해요. 업전으로 교환한 주문은 업전 복구로 안내돼요.</p>
+              <p>요청이 접수되면 운영팀이 결제 수단과 정책에 따라 처리해요. 엽전으로 교환한 주문은 엽전 복구로 안내돼요.</p>
             </ConfirmationDialog>
           </div>
         );

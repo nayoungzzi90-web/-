@@ -12,8 +12,8 @@ export default function Invite() {
   if (!user) {
     return (
       <div>
-        <h1>친구 초대</h1>
-        <ErrorState title="로그인하면 초대 코드가 활성화돼요" message="비회원도 링크를 공유할 수는 있지만, 업전은 로그인한 회원에게만 적립돼요." action={<Link className="btn" to="/login?next=/invite">로그인하고 시작하기</Link>} />
+        <h1 className="title">친구 초대</h1>
+        <ErrorState title="로그인하면 초대 코드가 활성화돼요" message="비회원도 링크를 공유할 수는 있지만, 엽전은 로그인한 회원에게만 적립돼요." action={<Link className="btn" to="/login?next=/invite">로그인하고 시작하기</Link>} />
         <Policy />
       </div>
     );
@@ -29,7 +29,7 @@ export default function Invite() {
   };
   return (
     <div>
-      <h1>친구 초대 💌</h1>
+      <h1 className="title">친구 초대</h1>
       <div className="card">
         <p className="muted" style={{ marginTop: 0 }}>내 초대 링크</p>
         <input className="input" readOnly value={url} aria-label="내 초대 링크" onFocus={(e) => e.currentTarget.select()} />
@@ -57,7 +57,7 @@ export default function Invite() {
 function Policy() {
   return (
     <section className="card flat">
-      <h3>업전 지급 기준</h3>
+      <h3>엽전 지급 기준</h3>
       <ul className="muted" style={{ paddingLeft: 18, margin: 0 }}>
         <li>친구가 내 링크로 들어와 <b>무료 캐릭터 체험을 마치고 새로 가입</b>하면 {REFERRAL.rewardCoins}냥이 적립돼요.</li>
         <li>링크를 복사하거나 공유 버튼을 누르는 것만으로는 적립되지 않아요.</li>
