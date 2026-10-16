@@ -18,7 +18,7 @@ export interface Product {
 export const CATALOG: Record<ProductId, Product> = {
   character: { id: 'character', name: '나의 사주 캐릭터', priceKrw: 0, coinCost: 0, status: 'free', path: '/birth', tagline: '일간으로 만나는 나의 오행 친구', toc: ['캐릭터 이름·칭호', '내 기질', '강점', '약점', '공유 카드'] },
   daily: { id: 'daily', name: '오늘의 운세', priceKrw: 0, coinCost: 0, status: 'free', path: '/daily', tagline: '오늘 하루의 흐름과 작은 행동', toc: ['오늘의 한 문장', '하루 흐름', '일·돈·관계 조언', '작은 행동 제안'] },
-  basic: { id: 'basic', name: '기본사주', priceKrw: 900, coinCost: 1, status: 'active', path: '/products/basic', tagline: '원국·성격·재능·직업·재물·관계를 한 번에', length: [1800, 2500], sandboxLength: [3000, 5500], toc: ['원국 핵심', '타고난 성격·기질', '강점·재능', '직업·재물 경향', '관계·연애 경향', '실천 조언'] },
+  basic: { id: 'basic', name: '기본사주', priceKrw: 900, coinCost: 1, status: 'active', path: '/products/basic', tagline: '원국·성격·재능·직업·재물·관계를 한 번에', length: [3000, 4500], sandboxLength: [3000, 5500], toc: ['원국 핵심', '타고난 성격·기질', '강점·재능', '직업·재물 경향', '관계·연애 경향', '실천 조언'] },
   compatibility: { id: 'compatibility', name: '궁합', priceKrw: 900, coinCost: 1, status: 'active', path: '/products/compatibility', tagline: '두 사람의 결을 소통·갈등·애정표현·생활방식으로', length: [1500, 2000], sandboxLength: [1500, 2500], toc: ['관계 유형', '소통', '갈등·차이', '애정표현', '생활방식', '소통 조언'] },
   love_deep: { id: 'love_deep', name: '심층 연애운', priceKrw: 2900, coinCost: 3, status: 'active', path: '/products/love', tagline: '연애 기질과 앞으로 5년의 흐름', length: [4000, 5000], sandboxLength: [4000, 5500], toc: ['연애 기질', '원하는 관계·상대', '반복되는 관계 패턴', '강점·어려움', '현재 대운', '5개 연도 세운', '조언'] },
   date_selection: { id: 'date_selection', name: '택일', priceKrw: 1900, coinCost: 2, status: 'coming_soon', path: '/products/date-selection', tagline: '결혼·이사·개업·계약·행사 후보일 비교', toc: [] },
