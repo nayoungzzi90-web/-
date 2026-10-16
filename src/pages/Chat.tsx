@@ -5,6 +5,7 @@ import { CharacterArt } from '../components/Character';
 import { buildDaily } from '../lib/content/daily';
 import { CHARACTERS } from '../lib/content/characters';
 import { AFFINITY_MAX, FRIEND, HOST, MOODS, Mood, elementReactions, friendBase, hasPolicyNote, moodReply, secretStory } from '../lib/content/chat';
+import { CATEGORIES, CONTEXTS, CRISIS_LINES, Category, Line, SCENARIOS, buildReading, classifyConcern, isCrisis, styleVsChart, teamStory } from '../lib/content/concern';
 import { fnv } from '../lib/hash';
 import { mutate, track } from '../lib/mock/db';
 import { useSession } from '../lib/mock/hooks';
@@ -17,7 +18,7 @@ type Who = 'me' | Element | 'mine';
 interface Msg { id: number; who: Who; text: string; stem?: string }
 type Ask =
   | { type: 'choices'; options: { value: string; label: string }[] }
-  | { type: 'text'; kind: 'date' | 'time'; placeholder: string }
+  | { type: 'text'; kind: 'date' | 'time' | 'free'; placeholder: string }
   | null;
 
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -52,7 +53,7 @@ export default function Chat() {
     setAsk({ type: 'choices', options });
     resolver.current = (v) => { const o = options.find((x) => x.value === v); setAsk(null); push('me', o?.label ?? v); resolve(v); };
   }), [push]);
-  const text = useCallback((kind: 'date' | 'time', placeholder: string) => new Promise<string>((resolve) => {
+  const text = useCallback((kind: 'date' | 'time' | 'free', placeholder: string) => new Promise<string>((resolve) => {
     setInput(''); setError(''); setAsk({ type: 'text', kind, placeholder });
     resolver.current = (v) => { setAsk(null); push('me', v); resolve(v); };
   }), [push]);
@@ -132,7 +133,51 @@ export default function Chat() {
     if (hasPolicyNote(facts)) {
       await say(HOST, '아, 하나 솔직하게 말할게. 태어난 시간이 경계 근처거나 출생지에 따라 시주(시간 기둥)가 두 가지로 읽힐 수 있어. 정확히 하나로 정해지지 않는 부분은 숨기지 않고 알려줄게!');
     }
+    await say(HOST, '참, 고민이 있으면 말해줘! 그 고민에 맞춰서 사주를 더 자세히 봐줄게 💬');
     await hub(facts, id, base.name);
+  }
+
+  async function sayAll(lines: Line[]) { for (const l of lines) await say(l.who, l.text); }
+
+  /** 고민 → 분류 → 상황 → 사주 근거 + 조언. 자유 입력은 키워드 분류에만 쓰고 저장·전송하지 않는다. */
+  async function concern(facts: SajuFacts) {
+    await say(HOST, '고민을 말해 주면 그 부분을 더 깊이 볼게! 사주 전체를 훑는 것보다 훨씬 자세히 이야기할 수 있어.');
+    await say(HOST, '적은 내용은 이 기기 밖으로 나가지 않아. 지금은 키워드로 어떤 고민인지 분류만 해. 말하기 어려우면 아래에서 골라도 돼!');
+    const how = await choose([{ value: 'write', label: '✍️ 직접 적어볼게' }, ...CATEGORIES.map((c) => ({ value: c.id, label: `${c.emoji} ${c.label}` }))]);
+    let cat: Category | null = null;
+    if (how === 'write') {
+      await say(HOST, '편하게 한 줄로 적어줘. 예: "요즘 이직할지 고민이야"');
+      const t = await text('free', '고민을 한 줄로 적어줘');
+      if (isCrisis(t)) { await sayAll(CRISIS_LINES.map((x) => ({ who: HOST, text: x }))); return; }
+      cat = classifyConcern(t);
+      if (cat) {
+        const c = CATEGORIES.find((x) => x.id === cat)!;
+        await say(HOST, `음, "${c.label}" 쪽 고민으로 들렸어. 맞아?`);
+        if ((await choose([{ value: 'y', label: '맞아!' }, { value: 'n', label: '아니, 다른 거야' }])) === 'n') cat = null;
+      } else await say(HOST, '어떤 고민인지 딱 분류하긴 어렵네. 가까운 걸 골라 줄래?');
+      if (!cat) cat = (await choose(CATEGORIES.map((c) => ({ value: c.id, label: `${c.emoji} ${c.label}` })))) as Category;
+    } else cat = how as Category;
+    const c = CATEGORIES.find((x) => x.id === cat)!;
+    await say(c.lead, `${c.emoji} ${c.label} 고민이구나. 내가 먼저 사주를 살펴볼게!`);
+    await say(c.lead, '지금 상황이 어디에 가장 가까워?');
+    const ctx = await choose(CONTEXTS[cat].map((x) => ({ value: x.id, label: x.label })));
+    await say(HOST, '좋아, 네 사주를 펼쳐 놓고 친구들이 같이 볼게…');
+    await sayAll(buildReading(cat, ctx, facts));
+    await say(HOST, '사주는 경향을 보는 도구일 뿐이야. 현실의 사정이 먼저고, 큰 결정은 믿을 만한 사람이나 전문가와 함께 해 줘!');
+    await say(HOST, '더 길고 꼼꼼한 풀이(올해 흐름까지)는 리포트에서 볼 수 있어. 보고 싶으면 "더 깊이 알아보기"를 눌러 줘.');
+  }
+
+  async function play(facts: SajuFacts) {
+    await say(HOST, '상황극 시작! 이런 일이 생기면 너는 어떻게 할래? 솔직하게 골라 줘.');
+    const picks: Element[] = [];
+    for (const sc of SCENARIOS) {
+      await say(HOST, sc.prompt);
+      const v = await choose(sc.options.map((o) => ({ value: o.el, label: o.label })));
+      picks.push(v as Element);
+    }
+    const r = styleVsChart(picks, facts.fiveElements);
+    await say(HOST, '결과 나왔다…! 두구두구 🥁');
+    await sayAll(r.lines);
   }
 
   async function hub(facts: SajuFacts, id: string, name: string) {
@@ -142,15 +187,26 @@ export default function Chat() {
       if (!alive.current) return;
       await say(HOST, done.size ? '다음엔 뭘 해볼까?' : '자, 이제 뭘 해볼까?');
       const opts = [
+        { value: 'concern', label: '💬 고민 털어놓고 자세히 보기' },
+        { value: 'team', label: '🎭 내 사주 팀 케미 보기' },
+        { value: 'play', label: '🎲 상황극으로 나를 알아보기' },
         { value: 'daily', label: '☀️ 오늘 운세 들려줘' },
         { value: 'mood', label: '💭 지금 기분 털어놓기' },
-        { value: 'banter', label: '🗣️ 친구들 수다 보기' },
         ...(affRef.current >= 3 ? [{ value: 'secret', label: '🤫 비밀 이야기 듣기' }] : []),
         { value: 'more', label: '📜 더 깊이 알아보기' },
         { value: 'bye', label: '👋 오늘은 여기까지' },
       ];
       const pick = await choose(opts);
-      if (pick === 'daily') {
+      if (pick === 'concern') {
+        await concern(facts);
+        if (!done.has('concern')) bump();
+      } else if (pick === 'team') {
+        for (const l of teamStory(facts)) await say(l.who, l.text);
+        if (!done.has('team')) bump();
+      } else if (pick === 'play') {
+        await play(facts);
+        if (!done.has('play')) bump();
+      } else if (pick === 'daily') {
         const d = buildDaily(facts);
         await say('mine', `오늘 일진은 ${d.dayPillar}야. ${d.oneLine}`);
         await say('mine', d.flow);
@@ -164,12 +220,6 @@ export default function Chat() {
         const mm = MOODS.find((x) => x.id === m)!;
         await say(mm.friend, `${FRIEND[mm.friend].short}가 대답할게! ${moodReply(m, fnv(facts.inputHash) % 7 + done.size)}`);
         if (!done.has('mood')) bump();
-      } else if (pick === 'banter') {
-        const rs = elementReactions(facts.fiveElements);
-        await say(HOST, '친구들끼리 네 사주를 보고 수다 떠는 중이야, 들어봐 ㅋㅋ');
-        for (const r of rs) await say(r.element, r.text);
-        await say('mine', `내가 대표로 말할게. ${base.shareLine} 다들 지켜봐 줘서 고마워!`);
-        if (!done.has('banter')) bump();
       } else if (pick === 'secret') {
         for (const t of secretStory(base)) await say('mine', t);
         if (!done.has('secret')) bump();
@@ -195,6 +245,11 @@ export default function Chat() {
   function submitText(e: React.FormEvent) {
     e.preventDefault();
     if (ask?.type !== 'text') return;
+    if (ask.kind === 'free') {
+      const t = input.trim();
+      if (!t) { setError('한 줄만 적어줘!'); return; }
+      resolver.current?.(t.slice(0, 80)); return;
+    }
     const digits = input.replace(/\D/g, '');
     if (ask.kind === 'date' && digits.length !== 8) { setError('숫자 8자리로 적어줘! 예: 19900419'); return; }
     if (ask.kind === 'time') {
@@ -250,7 +305,7 @@ export default function Chat() {
         )}
         {ask?.type === 'text' && (
           <form onSubmit={submitText} className="chat-form">
-            <input className="input" inputMode="numeric" autoFocus aria-label={ask.kind === 'date' ? '생년월일' : '태어난 시간'} placeholder={ask.placeholder} value={input} maxLength={ask.kind === 'date' ? 10 : 5}
+            <input className="input" inputMode={ask.kind === 'free' ? 'text' : 'numeric'} autoFocus aria-label={ask.kind === 'date' ? '생년월일' : ask.kind === 'time' ? '태어난 시간' : '고민 한 줄'} placeholder={ask.placeholder} value={input} maxLength={ask.kind === 'date' ? 10 : ask.kind === 'time' ? 5 : 80}
               onChange={(e) => { setInput(ask.kind === 'date' ? formatDate(e.target.value) : e.target.value); setError(''); }} />
             <button className="btn" type="submit">보내기</button>
           </form>
