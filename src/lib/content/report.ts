@@ -2,13 +2,15 @@ import { CATALOG, ProductId } from '../catalog';
 import { CHARACTERS } from './characters';
 import { branchRelation, elementRelation, STEM_ELEMENT, tenGod } from '../saju/rules';
 import { calculator } from '../saju/calculator';
+import { CATEGORIES, CRISIS_LINES, Category, Line, buildReading, classifyConcern, isCrisis } from './concern';
 import { Branch, BRANCH_KO, BRANCHES, Element, ELEMENT_KO, SajuFacts, Stem, STEM_KO, STEMS } from '../saju/types';
 
 export const REPORT_PROMPT_VERSION = 'mock-template-1.0';
 export const REPORT_RULES_VERSION = 'interp-rules-0.1';
 
 export interface Evidence { id: string; label: string; detail: string; ruleId: string }
-export interface ReportSection { id: string; title: string; body: string; evidenceIds: string[] }
+export interface ReportSection { id: string; title: string; body: string; evidenceIds: string[]; /** 카테고리 라벨과 한 줄 제목(화면용) */ tag?: string; headline?: string }
+export interface ConcernReading { text: string; category?: Category; label?: string; crisis?: boolean; lines: Line[] }
 export interface MetricLabel { label: string; level: '잘 맞아요' | '무난해요' | '조율이 필요해요'; note: string }
 export interface QaCheck { id: string; label: string; status: 'pass' | 'fail' | 'warn'; detail: string }
 export interface Report {
@@ -17,6 +19,7 @@ export interface Report {
   sections: ReportSection[];
   evidence: Evidence[];
   metrics?: MetricLabel[];
+  concern?: ConcernReading;
   baseYear?: number;
   years?: number[];
   warnings: string[];
@@ -147,10 +150,42 @@ export function runQa(productId: ProductId, r: Pick<Report, 'sections' | 'chars'
   return checks;
 }
 
-export interface GenerateArgs { productId: ProductId; facts: SajuFacts; factsB?: SajuFacts; baseYear: number }
+export interface GenerateArgs { productId: ProductId; facts: SajuFacts; factsB?: SajuFacts; baseYear: number; concern?: string }
 
 /** 모의 생성기. 실제 LLM 호출은 서버(Edge Function)에서만 하며 브라우저에는 API 키를 두지 않는다. */
-export function generateReport({ productId, facts, factsB, baseYear }: GenerateArgs): Report {
+
+/** 화면용 카테고리 라벨·한 줄 제목. 모두 계산된 사실(일간 캐릭터·십성·오행)에서 규칙으로 만든다. */
+function decorate(productId: ProductId, sections: ReportSection[], f: SajuFacts): ReportSection[] {
+  const c = CHARACTERS[f.dayMaster];
+  const dom = dominant(f), weak = weakest(f), main = f.tenGods[1]?.god ?? '비견';
+  const BASIC: Record<string, [string, string]> = {
+    s1: ['한마디로', `${c.name}, ${c.summary}`],
+    s2: ['나라는 사람', `${GOD_TRAIT[main]}이 드러나는 ${ELEMENT_KO[dom]} 기운의 사람`],
+    s3: ['나만의 매력', `${c.strengths[0]}에서 힘이 나는 사람`],
+    s4: ['일과 돈', `${GOD_TRAIT[main]}을 살리는 나만의 방식`],
+    s5: ['관계와 연애', `알아 두면 편해지는 관계 습관 하나`],
+    s6: ['오늘부터 해볼 것', `${ELEMENT_KO[weak]} 기운을 채우는 작은 습관`],
+  };
+  const LOVE: Record<string, [string, string]> = {
+    s1: ['나의 연애 스타일', `${c.name}의 결을 가진 사랑 방식`], s2: ['끌리는 관계', '편안함의 기준을 알아보기'], s3: ['쓴소리 좀 할게', '반복되기 쉬운 관계 패턴'],
+    s4: ['강점과 어려움', '사랑에서 나를 돕는 힘과 걸림돌'], s5: ['큰 흐름', '대운으로 보는 긴 호흡'], s6: ['앞으로 5년', '연도별 관계 분위기'], s7: ['마무리 조언', '점검 질문으로 쓰는 풀이'],
+  };
+  const map = productId === 'basic' ? BASIC : productId === 'love_deep' ? LOVE : {};
+  return sections.map((x) => ({ ...x, tag: map[x.id]?.[0] ?? '관계 해설', headline: map[x.id]?.[1] ?? x.title }));
+}
+
+/** 적어 준 고민 → 범주 분류 → 사주 근거 풀이. 위기 표현이면 풀이 대신 도움 안내만 한다. */
+export function buildConcern(text: string | undefined, f: SajuFacts): ConcernReading | undefined {
+  const t = text?.trim();
+  if (!t) return undefined;
+  if (isCrisis(t)) return { text: '', crisis: true, lines: CRISIS_LINES.map((x) => ({ who: 'earth' as const, text: x })) };
+  const cat = classifyConcern(t);
+  if (!cat) return { text: t, lines: [{ who: 'earth', text: '적어 준 고민을 한 가지 주제로 나누기는 어려웠어요. 그래서 사주 전체의 결을 바탕으로, 어떤 고민에도 도움이 되는 방향을 아래 해설에 담았어요.' }, { who: 'mine', text: '더 구체적인 상황(누가, 언제, 무엇이 걱정인지)을 적어 주면 다음에는 그 부분에 맞춰 볼 수 있어요.' }] };
+  const c = CATEGORIES.find((x) => x.id === cat)!;
+  return { text: t, category: cat, label: `${c.emoji} ${c.label}`, lines: buildReading(cat, undefined, f) };
+}
+
+export function generateReport({ productId, facts, factsB, baseYear, concern: concern_ }: GenerateArgs): Report {
   let sections: ReportSection[];
   let evidence: Evidence[];
   let metrics: MetricLabel[] | undefined;
@@ -163,11 +198,13 @@ export function generateReport({ productId, facts, factsB, baseYear }: GenerateA
     ({ sections, evidence, metrics } = r);
     extraWarn = r.warnings;
   } else throw new Error('지원하지 않는 상품이에요.');
+  sections = decorate(productId, sections, facts);
+  const concern = productId === 'compatibility' ? undefined : buildConcern(concern_, facts);
   const chars = sections.reduce((n, s) => n + s.body.replace(/\s/g, '').length, 0);
   const part = {
     productId,
     mode: 'MOCK_SANDBOX' as const,
-    sections, evidence, metrics, years,
+    sections, evidence, metrics, years, concern,
     baseYear: productId === 'love_deep' ? baseYear : undefined,
     warnings: [...new Set([...facts.warnings, ...extraWarn])],
     versions: { rules: REPORT_RULES_VERSION, prompt: REPORT_PROMPT_VERSION, model: 'none(template)', engine: `${facts.computation.engine_name}@${facts.computation.engine_version}` },

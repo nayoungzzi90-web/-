@@ -9,7 +9,7 @@ import { CATEGORIES, CONTEXTS, CRISIS_LINES, Category, Line, SCENARIOS, buildRea
 import { fnv } from '../lib/hash';
 import { mutate, track } from '../lib/mock/db';
 import { useSession } from '../lib/mock/hooks';
-import { createChart } from '../lib/mock/service';
+import { createChart, setConcern } from '../lib/mock/service';
 import { calculator } from '../lib/saju/calculator';
 import { BirthInput, CalcError, Element, SajuFacts } from '../lib/saju/types';
 import { CATALOG, won } from '../lib/catalog';
@@ -140,14 +140,16 @@ export default function Chat() {
   async function sayAll(lines: Line[]) { for (const l of lines) await say(l.who, l.text); }
 
   /** 고민 → 분류 → 상황 → 사주 근거 + 조언. 자유 입력은 키워드 분류에만 쓰고 저장·전송하지 않는다. */
-  async function concern(facts: SajuFacts) {
+  async function concern(facts: SajuFacts, id: string) {
     await say(HOST, '고민을 말해 주면 그 부분을 더 깊이 볼게! 사주 전체를 훑는 것보다 훨씬 자세히 이야기할 수 있어.');
     await say(HOST, '적은 내용은 이 기기 밖으로 나가지 않아. 지금은 키워드로 어떤 고민인지 분류만 해. 말하기 어려우면 아래에서 골라도 돼!');
     const how = await choose([{ value: 'write', label: '✍️ 직접 적어볼게' }, ...CATEGORIES.map((c) => ({ value: c.id, label: `${c.emoji} ${c.label}` }))]);
     let cat: Category | null = null;
+    let written = '';
     if (how === 'write') {
       await say(HOST, '편하게 한 줄로 적어줘. 예: "요즘 이직할지 고민이야"');
       const t = await text('free', '고민을 한 줄로 적어줘');
+      written = t;
       if (isCrisis(t)) { await sayAll(CRISIS_LINES.map((x) => ({ who: HOST, text: x }))); return; }
       cat = classifyConcern(t);
       if (cat) {
@@ -164,6 +166,10 @@ export default function Chat() {
     await say(HOST, '좋아, 네 사주를 펼쳐 놓고 친구들이 같이 볼게…');
     await sayAll(buildReading(cat, ctx, facts));
     await say(HOST, '사주는 경향을 보는 도구일 뿐이야. 현실의 사정이 먼저고, 큰 결정은 믿을 만한 사람이나 전문가와 함께 해 줘!');
+    if (written) {
+      await say(HOST, '방금 적어 준 고민, 리포트에도 반영해 둘까? 리포트 맨 위에 "내가 입력한 고민"으로 들어가고 이 기기에만 저장돼.');
+      if ((await choose([{ value: 'y', label: '응, 반영해 줘' }, { value: 'n', label: '아니, 괜찮아' }])) === 'y') { setConcern(id, written); await say(HOST, '저장했어! 리포트를 열 때 이 고민에 맞춘 해설이 맨 위에 붙을 거야.'); }
+    }
     await say(HOST, '더 길고 꼼꼼한 풀이(올해 흐름까지)는 리포트에서 볼 수 있어. 보고 싶으면 "더 깊이 알아보기"를 눌러 줘.');
   }
 
@@ -198,7 +204,7 @@ export default function Chat() {
       ];
       const pick = await choose(opts);
       if (pick === 'concern') {
-        await concern(facts);
+        await concern(facts, id);
         if (!done.has('concern')) bump();
       } else if (pick === 'team') {
         for (const l of teamStory(facts)) await say(l.who, l.text);

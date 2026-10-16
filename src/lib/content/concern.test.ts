@@ -55,3 +55,26 @@ describe('팀 케미·상황극', () => {
     expect(styleVsChart(['wood', 'wood', 'metal'], facts.fiveElements).lines[0].text).toContain('3명');
   });
 });
+
+import { generateReport } from './report';
+describe('리포트에 고민 반영', () => {
+  const gen = (concern?: string) => generateReport({ productId: 'basic', facts, baseYear: 2026, concern });
+  it('고민이 없으면 고민 카드가 없고, 있으면 분류·풀이가 붙는다', () => {
+    expect(gen().concern).toBeUndefined();
+    const r = gen('이직할지 퇴사할지 고민이에요');
+    expect(r.concern?.category).toBe('career');
+    expect(r.concern?.lines.length).toBeGreaterThanOrEqual(3);
+    expect(r.concern?.text).toContain('이직');
+  });
+  it('분류할 수 없으면 솔직하게 알리고, 위기 표현이면 풀이 없이 도움 안내', () => {
+    expect(gen('그냥 이것저것').concern?.lines[0].text).toContain('나누기는 어려웠어요');
+    const c = gen('죽고 싶다는 생각이 들어요').concern!;
+    expect(c.crisis).toBe(true); expect(c.text).toBe(''); expect(c.lines.map((l) => l.text).join(' ')).toContain('109');
+  });
+  it('모든 해설 섹션에 카테고리 라벨과 한 줄 제목이 있고 목차 수는 그대로', () => {
+    const r = gen();
+    expect(r.sections).toHaveLength(6);
+    expect(r.sections.every((s) => s.tag && s.headline)).toBe(true);
+    expect(r.qa.find((q) => q.id === 'toc')?.status).toBe('pass');
+  });
+});

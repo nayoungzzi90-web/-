@@ -1,6 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ConfirmationDialog, ErrorState, LoadingState, MockNotice, ReportSection } from '../components/Common';
+import { ChartTable } from '../components/ChartTable';
+import { ConfirmationDialog, ErrorState, MockNotice, ReportSection } from '../components/Common';
+import { ReportLoading } from '../components/ReportLoading';
+import { FRIEND } from '../lib/content/chat';
+import { CHARACTERS } from '../lib/content/characters';
 import { CATALOG } from '../lib/catalog';
 import { mutate, track } from '../lib/mock/db';
 import { useSession } from '../lib/mock/hooks';
@@ -48,8 +52,7 @@ export default function ReportPage() {
       return (
         <div>
           <h1>리포트를 만들고 있어요</h1>
-          <LoadingState label={`생성 중 (시도 ${job?.attempts ?? 0}/3)`} />
-          <p className="muted">결제는 다시 하지 않아도 돼요. 이 화면을 닫아도 완료되면 ‘MY’에서 확인할 수 있어요.</p>
+          <ReportLoading attempts={job?.attempts ?? 0} max={3} />
         </div>
       );
     }
@@ -60,11 +63,38 @@ export default function ReportPage() {
   const { report, productId, expiresAt, generatedAt } = access.stored;
   const r = report!;
   const p = CATALOG[productId];
+  const subject = db.charts[access.stored.subjectId];
+  const who = (w: string) => (w === 'mine' ? (subject ? CHARACTERS[subject.facts.dayMaster].name : '내 친구') : FRIEND[w as keyof typeof FRIEND]?.short ?? '');
   return (
     <div>
       {r.mode === 'MOCK_SANDBOX' && <MockNotice>이 리포트는 <b>MOCK/SANDBOX 샘플</b>이에요. 실제 AI 해석이 아니며 판매용 품질 검수 전 상태예요.</MockNotice>}
       <p className="muted" style={{ marginBottom: 0 }}>{generatedAt.slice(0, 10)} 생성 · 저장된 리포트 (다시 열어도 같은 내용)</p>
-      <h1>{p.name}</h1>
+      <h1>{subject?.input.alias ? `${subject.input.alias}님의 ` : ''}{p.name}</h1>
+      {subject && (
+        <div className="tags" aria-label="입력한 출생 정보">
+          <span className="badge">{subject.input.year}년 {String(subject.input.month).padStart(2, '0')}월 {String(subject.input.day).padStart(2, '0')}일</span>
+          <span className="badge">{subject.input.calendar === 'lunar' ? `음력${subject.input.leapMonth ? '(윤달)' : ''}` : '양력'}</span>
+          <span className="badge">{subject.input.timeUnknown || subject.input.hour === undefined ? '시간 미상' : `${String(subject.input.hour).padStart(2, '0')}:${String(subject.input.minute ?? 0).padStart(2, '0')}`}</span>
+          {subject.input.gender && subject.input.gender !== 'X' && <span className="badge">{subject.input.gender === 'F' ? '여성' : '남성'}</span>}
+        </div>
+      )}
+      {r.concern && (
+        <section className="card quote" aria-labelledby="my-concern">
+          <p className="muted small" id="my-concern" style={{ margin: 0 }}>{r.concern.crisis ? '마음이 먼저예요' : '내가 입력한 고민'}</p>
+          {r.concern.text && <blockquote>{r.concern.text}</blockquote>}
+          {r.concern.label && <span className="badge">{r.concern.label} 고민으로 읽었어요</span>}
+          <div className="stack" style={{ marginTop: 10 }}>
+            {r.concern.lines.map((l, i) => <p key={i} style={{ margin: 0 }}><b>{who(l.who)}</b> · {l.text}</p>)}
+          </div>
+          {!r.concern.crisis && <p className="muted small" style={{ marginBottom: 0 }}>고민 풀이는 사주 속 경향과 생활 팁을 엮은 것이며 결과를 확정하지 않아요.</p>}
+        </section>
+      )}
+      {subject && productId !== 'compatibility' && (
+        <section className="card" aria-labelledby="mansae-h">
+          <h2 id="mansae-h">만세력</h2>
+          <ChartTable facts={subject.facts} />
+        </section>
+      )}
       {r.baseYear && <p className="badge ok">{r.years![0]}~{r.years![4]}년 분석</p>}
       {expiresAt && <div className="notice info">이 궁합 결과와 입력 정보는 <b>{expiresAt.slice(0, 10)}</b>까지 볼 수 있고, 이후 자동 삭제돼요.</div>}
       {r.warnings.includes('hour_pillar_unavailable') && <div className="notice">출생 시간을 몰라 시주 없이 분석했어요. 시간이 필요한 해석은 생략했어요.</div>}
@@ -80,7 +110,7 @@ export default function ReportPage() {
         </section>
       )}
       <nav className="toc" aria-label="목차">
-        {r.sections.map((s, i) => <a key={s.id} href={`#sec-${s.id}`} onClick={(e) => { e.preventDefault(); document.getElementById(`sec-${s.id}`)?.scrollIntoView({ behavior: 'smooth' }); }}>{i + 1}. {s.title}</a>)}
+        {r.sections.map((s, i) => <a key={s.id} href={`#sec-${s.id}`} onClick={(e) => { e.preventDefault(); const el = document.getElementById(`sec-${s.id}`); if (el instanceof HTMLDetailsElement) el.open = true; el?.scrollIntoView({ behavior: 'smooth' }); }}>{i + 1}. {s.title}</a>)}
       </nav>
       {r.sections.map((s, i) => <ReportSection key={s.id} section={s} evidence={r.evidence} index={i} />)}
 

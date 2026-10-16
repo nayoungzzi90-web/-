@@ -26,6 +26,11 @@ export function createChart(input: BirthInput): StoredChart {
   });
 }
 
+/** 리포트에 반영할 고민 저장(최대 300자). 빈 문자열이면 지운다. */
+export function setConcern(chartId: string, text: string) {
+  mutate((db) => { const c = db.charts[chartId]; if (c) c.concern = text.trim().slice(0, 300) || undefined; });
+}
+
 /** 샌드박스 로그인: 실제 서비스에서는 Supabase Auth(카카오·구글·이메일)가 이 자리를 대체한다. */
 export function signInMock(email: string, nickname?: string): { user: User; isNew: boolean; referral: ReferralOutcome } {
   return mutate((db) => {
@@ -106,7 +111,7 @@ export async function runJob(jobId: string): Promise<void> {
         } else {
           const chart = db.charts[ent.subjectId];
           if (!chart) throw new Error('CHART_MISSING');
-          report = generateReport({ productId: ent.productId, facts: chart.facts, baseYear });
+          report = generateReport({ productId: ent.productId, facts: chart.facts, baseYear, concern: chart.concern });
         }
         const rid = ent.reportId as string;
         const stored = db.reports[rid];

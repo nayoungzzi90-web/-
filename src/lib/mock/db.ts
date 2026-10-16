@@ -11,7 +11,7 @@ import { uid } from '../hash';
  * 여기 있는 비즈니스 규칙 함수(ledger/referral/payment)는 그 서버 로직의 참조 구현이자 테스트 대상이다.
  */
 export interface User { id: string; email: string; nickname: string; referralCode: string; createdAt: string; referredBy?: string }
-export interface StoredChart { id: string; guestId: string; ownerUserId?: string; input: BirthInput; facts: SajuFacts; character: CharacterResult; createdAt: string }
+export interface StoredChart { id: string; guestId: string; ownerUserId?: string; input: BirthInput; facts: SajuFacts; character: CharacterResult; createdAt: string; /** 리포트에 반영할 고민(선택, 이 기기에만 저장) */ concern?: string }
 export interface LedgerEntry { id: string; userId: string; delta: number; reason: string; sourceId: string; balanceAfter: number; idempotencyKey: string; createdAt: string }
 export interface Order { id: string; userId: string; productId: OrderItem; subjectId: string; amountKrw: number; coinCost: number; method: 'cash' | 'coin'; status: 'pending' | 'paid' | 'failed' | 'cancelled' | 'refund_requested'; idempotencyKey: string; createdAt: string }
 export interface Payment { id: string; orderId: string; provider: string; paymentKey: string; approvedAmount: number; status: 'approved'; createdAt: string }

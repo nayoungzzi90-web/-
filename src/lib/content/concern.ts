@@ -87,7 +87,7 @@ const CONTEXT_LINE: Record<Category, Record<string, string>> = {
 const lvl = (n: number) => (n >= 3 ? 'high' : n === 0 ? 'none' : 'mid') as 'high' | 'mid' | 'none';
 
 /** 사주 근거 + 상황별 조언을 친구들의 대사로 만든다. 모든 문장은 '경향'으로 쓰고 단정하지 않는다. */
-export function buildReading(cat: Category, ctx: string, f: SajuFacts): Line[] {
+export function buildReading(cat: Category, ctx: string | undefined, f: SajuFacts): Line[] {
   const A = analyzeChart(f);
   const g = A.groupScore;
   const lead = CATEGORIES.find((c) => c.id === cat)!.lead;
@@ -120,7 +120,7 @@ export function buildReading(cat: Category, ctx: string, f: SajuFacts): Line[] {
     out.push({ who: lead, text: { high: '배움·정서를 받쳐 주는 힘(인성)이 커서 공부의 바탕이 든든해. 다만 계획만 세우다 시작을 미룰 수 있으니 오늘 10분부터!', mid: '배움의 힘이 적당해. 꾸준한 루틴이 가장 잘 맞아.', none: '인성이 적어서 혼자 파고들기보다 함께 공부하거나 설명을 들을 때 효과가 클 수 있어.' }[lvl(g.인성)] });
     out.push({ who: 'fire', text: { high: '아는 것을 꺼내는 힘(식상)이 강해. 누군가에게 설명하며 공부해 보자.', mid: '입력과 출력이 균형 잡혀 있어.', none: '출력(식상)이 조용한 편이라 요약 노트·말로 정리하기를 습관으로 만들면 좋아.' }[lvl(g.식상)] });
   }
-  out.push({ who: 'mine', text: CONTEXT_LINE[cat][ctx] ?? '' });
+  out.push({ who: 'mine', text: (ctx && CONTEXT_LINE[cat][ctx]) || '' });
   return out.filter((l) => l.text);
 }
 

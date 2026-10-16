@@ -1,16 +1,15 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import { ChartTable } from '../components/ChartTable';
 import { CharacterCard, ShareCard, saveSvgAsPng, useSvgRef } from '../components/Character';
 import { ErrorState, ProductCard } from '../components/Common';
 import { CATALOG, won } from '../lib/catalog';
 import { CHARACTERS } from '../lib/content/characters';
-import { Branch, Element, ELEMENT_KO, STEM_KO, BRANCH_KO, STEMS, BRANCHES, Stem } from '../lib/saju/types';
-import { BRANCH_ELEMENT, STEM_ELEMENT, branchGod, tenGod } from '../lib/saju/rules';
+import { Element, ELEMENT_KO } from '../lib/saju/types';
 import { useSession } from '../lib/mock/hooks';
 import { mutate, track } from '../lib/mock/db';
 
 const EL_COLOR: Record<Element, string> = { wood: '#2F7068', fire: '#B83A26', earth: '#E4A04A', metal: '#B9B6AE', water: '#203E73' };
-const ELEMENT_CLASS: Record<Element, string> = { wood: 'wood', fire: 'fire', earth: 'earth', metal: 'metal', water: 'water' };
 const WARN_TEXT: Record<string, string> = {
   engine_unverified: '자체 만세력 엔진으로 계산했어요. 독립 계산과는 여러 번 대조했지만 한국천문연구원 공식 절입 시각과의 확인은 아직 끝나지 않았어요.',
   pillar_policy_dependent: '시간 보정(진태양시)·자시 기준을 어떻게 잡느냐에 따라 일주나 시주가 달라질 수 있어요. 아래 안내를 확인해 주세요.',
@@ -41,8 +40,6 @@ export default function CharacterResult() {
   const total = Object.values(facts.fiveElements).reduce((a, b) => a + b, 0) || 1;
   const code = user?.referralCode;
   const inviteUrl = `${location.origin}/share/${base.id}${code ? `?ref=${code}` : ''}`;
-  const cols = [facts.pillars.hour, facts.pillars.day, facts.pillars.month, facts.pillars.year];
-  const pk = (p: string | null) => (p ? STEM_KO[STEMS.indexOf(p[0] as never)] + BRANCH_KO[BRANCHES.indexOf(p[1] as never)] : '');
 
   async function copy() {
     mutate((d) => track(d, 'share_intent'));
@@ -88,19 +85,7 @@ export default function CharacterResult() {
       {tab === 'chart' && (
         <section className="card" id="panel-chart" role="tabpanel" aria-labelledby="tab-chart">
           <div className="row between"><h2 style={{ margin: 0 }}>내 사주 원국</h2><span className="badge mock">공식 확인 전</span></div>
-          <div className="chart-head" style={{ marginTop: 10 }}>{['시주', '일주', '월주', '연주'].map((l) => <span key={l}>{l}</span>)}</div>
-          <div className="chart-grid" role="table" aria-label="사주 원국표">
-            {cols.map((p, i) => (
-              <div key={i} className="chart-god-wrap">
-                <div className={`chart-god${i === 1 ? ' me' : ''}`}>{p ? (i === 1 ? '일간(나)' : tenGod(facts.dayMaster, p[0] as Stem)) : ''}</div>
-                <div className={`tile-el ${p ? ELEMENT_CLASS[STEM_ELEMENT[p[0] as Stem]] : 'none'}${i === 1 ? ' me' : ''}`}>{p ? p[0] : '—'}</div>
-                <div style={{ height: 8 }} />
-                <div className={`tile-el ${p ? ELEMENT_CLASS[BRANCH_ELEMENT[p[1] as Branch]] : 'none'}`}>{p ? p[1] : '—'}</div>
-                <div className="chart-god">{p ? branchGod(facts.dayMaster, p[1] as Branch) : '시간 미상'}</div>
-                <div className="muted small">{p ? pk(p) : ''}</div>
-              </div>
-            ))}
-          </div>
+          <div style={{ marginTop: 10 }}><ChartTable facts={facts} /></div>
           <p className="muted small" style={{ margin: '4px 0 12px' }}>지지의 십성은 본기(대표 천간) 기준의 단순 표시예요. 일간(나)은 붉은 테두리로 표시했어요.</p>
           {(Object.keys(EL_COLOR) as Element[]).map((e) => (
             <div key={e} className="el-row"><span>{ELEMENT_KO[e]}</span>

@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { ConcernCard } from '../components/ConcernCard';
 import { PurchasePanel } from '../components/PurchasePanel';
 import { MockNotice } from '../components/Common';
 import { CATALOG, ProductId } from '../lib/catalog';
@@ -36,6 +37,7 @@ export default function Product({ productId }: { productId: 'basic' | 'love_deep
       {chart ? (
         <>
           <p className="muted">분석 대상: <b>{chart.input.alias || '내 사주'}</b> ({chart.facts.pillars.day} 일주{chart.facts.pillars.hour ? '' : ' · 시간 미상'})</p>
+          {!ent?.reportId && <ConcernCard chartId={chart.id} initial={chart.concern} />}
           <PurchasePanel productId={productId as ProductId} getSubjectId={() => chart.id} existingReportId={ent?.reportId} nextPath={p.path} />
         </>
       ) : (

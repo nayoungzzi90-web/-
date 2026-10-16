@@ -85,13 +85,17 @@ export function EvidenceAccordion({ items }: { items: Evidence[] }) {
   );
 }
 
-export function ReportSection({ section, evidence, index }: { section: Sec; evidence: Evidence[]; index: number }) {
+export function ReportSection({ section, evidence, index, defaultOpen }: { section: Sec & { tag?: string; headline?: string }; evidence: Evidence[]; index: number; defaultOpen?: boolean }) {
+  const paras = section.body.split(/\n+/).filter(Boolean);
   return (
-    <section id={`sec-${section.id}`} className="card report-sec" aria-labelledby={`h-${section.id}`}>
-      <h2 id={`h-${section.id}`}>{index + 1}. {section.title}</h2>
-      <p className="body">{section.body}</p>
+    <details id={`sec-${section.id}`} className="card report-sec rs" open={defaultOpen ?? index < 2}>
+      <summary aria-labelledby={`h-${section.id}`}>
+        <span className="rs-tag">{index + 1}. {section.title}{section.tag ? <em> · {section.tag}</em> : null}</span>
+        <h2 id={`h-${section.id}`} className="rs-head">{section.headline ?? section.title}</h2>
+      </summary>
+      <div className="body">{paras.map((t, i) => <p key={i}>{t}</p>)}</div>
       <EvidenceAccordion items={evidence.filter((e) => section.evidenceIds.includes(e.id))} />
-    </section>
+    </details>
   );
 }
 
