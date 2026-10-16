@@ -1,9 +1,10 @@
 // ⚠️ 설계 구현 — 이 환경에는 Deno/Supabase 가 없어 실행·배포해 보지 못했다. 배포 전 `npm run sync:functions` 와 스테이징 검증이 필요하다.
 // 역할: 결제/엽전 교환으로 권한(entitlement)이 생긴 뒤, 서버에서만 AI 리포트를 생성해 reports 에 저장한다.
-// 비밀값(ANTHROPIC_API_KEY, SERVICE_ROLE_KEY)은 이 함수의 환경변수에만 존재한다 (브라우저로 나가지 않음).
+// 비밀값(OPENAI_API_KEY / ANTHROPIC_API_KEY, SERVICE_ROLE_KEY)은 이 함수의 환경변수에만 존재한다 (브라우저로 나가지 않음).
 import Anthropic from '@anthropic-ai/sdk';
 import { createClient } from '@supabase/supabase-js';
 import { AnthropicLlm } from '../_shared/lib/report/anthropicClient.ts';
+import { OpenAiLlm } from '../_shared/lib/report/openaiClient.ts';
 import { buildInterpretation } from '../_shared/lib/report/interpretation.ts';
 import { runReportPipeline } from '../_shared/lib/report/pipeline.ts';
 import { buildPlan } from '../_shared/lib/report/plan.ts';
@@ -71,8 +72,13 @@ async function generate(admin: ReturnType<typeof createClient>, userId: string, 
   const interp = buildInterpretation(product, facts, { approvedRuleIds, ...(product === 'love_deep' ? { years, yearPillar: (y: number) => calculator.yearPillar(y) } : {}) });
   const plan = buildPlan(product, interp);
 
-  const model = Deno.env.get('LLM_MODEL') ?? 'claude-opus-5-5';
-  const llm = new AnthropicLlm({ client: new Anthropic({ apiKey: Deno.env.get('ANTHROPIC_API_KEY')! }), model, effort: (Deno.env.get('LLM_EFFORT') as 'low' | 'medium' | 'high') ?? 'medium' });
+  // LLM_PROVIDER=openai | anthropic (기본 openai). 모델명은 LLM_MODEL 로 반드시 지정한다.
+  const provider = Deno.env.get('LLM_PROVIDER') ?? 'openai';
+  const model = Deno.env.get('LLM_MODEL') ?? (provider === 'anthropic' ? 'claude-opus-5-5' : '');
+  if (!model) return fail('CONFIG', 'LLM_MODEL 이 설정되지 않았어요.');
+  const llm = provider === 'anthropic'
+    ? new AnthropicLlm({ client: new Anthropic({ apiKey: Deno.env.get('ANTHROPIC_API_KEY')! }), model, effort: (Deno.env.get('LLM_EFFORT') as 'low' | 'medium' | 'high') ?? 'medium' })
+    : new OpenAiLlm({ apiKey: Deno.env.get('OPENAI_API_KEY')!, model });
   // 스테이징 전용 스위치: 승인 전 초안 명제로도 생성하되 결과는 NEEDS_REVIEW 로만 저장된다 (운영에서는 설정하지 않는다)
   const allowDraftClaims = Deno.env.get('ALLOW_DRAFT_CLAIMS') === 'true';
   const r = await runReportPipeline(plan, interp, { llm, model, allowDraftClaims });

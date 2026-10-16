@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { calculator } from '../saju/sampleCalculator';
 import type { BirthInput } from '../saju/types';
 import { AnthropicLlm } from './anthropicClient';
+import { OpenAiLlm } from './openaiClient';
 import { reportCacheKey } from './cache';
 import { applyApprovals, detectConflicts, RULES, usableClaims, validateClaimReferences } from './claims';
 import { analyzeChart } from './analysis';
@@ -473,3 +474,40 @@ describe('입력 패킷·캐시 키·문체·보안', () => {
   });
 });
 function applyApprovalsTo(f: InterpretationFacts): InterpretationFacts { return { ...f, claims: applyApprovals(f.claims, new Set(['R-CLM-POWER'])) }; }
+
+describe('OpenAiLlm 요청 형태 (가짜 fetch)', () => {
+  const req = { system: 'S', factsBlock: 'F', user: 'U', maxTokens: 321, schema: { type: 'object' } };
+  const ok = (over: Record<string, unknown> = {}) => ({ model: 'm-x', choices: [{ finish_reason: 'stop', message: { content: '{"body":"x"}' } }], usage: { prompt_tokens: 100, completion_tokens: 7, prompt_tokens_details: { cached_tokens: 40 } }, ...over });
+  const mk = (status: number, json: unknown) => {
+    const seen: { url: string; init: RequestInit }[] = [];
+    const fetchImpl = (async (url: string, init: RequestInit) => { seen.push({ url, init }); return new Response(JSON.stringify(json), { status }); }) as unknown as typeof fetch;
+    return { seen, llm: new OpenAiLlm({ apiKey: 'sk-test', model: 'm-x', fetchImpl }) };
+  };
+  it('모델·구조화 출력·키 헤더를 보내고 캐시 토큰을 분리해 기록', async () => {
+    const { seen, llm } = mk(200, ok());
+    const r = await llm.complete(req);
+    const body = JSON.parse(String(seen[0].init.body));
+    expect(seen[0].url).toBe('https://api.openai.com/v1/chat/completions');
+    expect((seen[0].init.headers as Record<string, string>).authorization).toBe('Bearer sk-test');
+    expect(body.model).toBe('m-x'); expect(body.max_completion_tokens).toBe(321);
+    expect(body.temperature).toBeUndefined();
+    expect(body.response_format).toEqual({ type: 'json_schema', json_schema: { name: 'section', strict: true, schema: { type: 'object' } } });
+    expect(body.messages.map((m: { content: string }) => m.content)).toEqual(['S', 'F', 'U']);
+    expect(r.usage).toEqual({ inputTokens: 60, outputTokens: 7, cacheReadTokens: 40, cacheWriteTokens: 0 });
+    expect(r.text).toBe('{"body":"x"}');
+  });
+  it('거절·잘림·HTTP 오류를 구분해 변환', async () => {
+    const run = (status: number, json: unknown) => mk(status, json).llm.complete(req).catch((e) => e as LlmError);
+    expect(await run(200, ok({ choices: [{ finish_reason: 'stop', message: { content: null, refusal: 'no' } }] }))).toMatchObject({ kind: 'refusal', retryable: false });
+    expect(await run(200, ok({ choices: [{ finish_reason: 'length', message: { content: '{' } }] }))).toMatchObject({ kind: 'truncated', retryable: true });
+    expect(await run(429, {})).toMatchObject({ kind: 'rate_limit', retryable: true });
+    expect(await run(401, {})).toMatchObject({ kind: 'auth', retryable: false });
+    expect(await run(400, { error: { message: 'bad' } })).toMatchObject({ kind: 'bad_request', retryable: false });
+    expect(await run(503, {})).toMatchObject({ kind: 'server', retryable: true });
+  });
+  it('연결 실패는 재시도 가능, 모델 미지정은 생성 시 오류', async () => {
+    const llm = new OpenAiLlm({ apiKey: 'k', model: 'm', fetchImpl: (async () => { throw new Error('down'); }) as unknown as typeof fetch });
+    expect(await llm.complete(req).catch((e) => e)).toMatchObject({ kind: 'connection', retryable: true });
+    expect(() => new OpenAiLlm({ apiKey: 'k', model: '' })).toThrow();
+  });
+});
