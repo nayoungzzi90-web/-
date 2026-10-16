@@ -1,10 +1,16 @@
-import { Link } from 'react-router-dom';
+import { useRef } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { BirthForm } from '../components/BirthForm';
 import { allCharacters, CharacterArt } from '../components/Character';
 import { MockNotice, ProductCard } from '../components/Common';
 import { HeroScene } from '../components/Scene';
 import { CATALOG } from '../lib/catalog';
 import { CHARACTERS } from '../lib/content/characters';
+import { mutate, track } from '../lib/mock/db';
 import { useSession } from '../lib/mock/hooks';
+import { createChart } from '../lib/mock/service';
+import { kstDate } from '../lib/kst';
+import { streak } from '../lib/metrics';
 
 const FIVE = [
   { stem: '甲', name: '솔이', el: '목(木) · 푸른 선비', role: '기본사주 안내', to: '/products/basic' },
@@ -15,7 +21,10 @@ const FIVE = [
 ] as const;
 
 export default function Home() {
-  const { chart } = useSession();
+  const { chart, db } = useSession();
+  const nav = useNavigate();
+  const started = useRef(false);
+  const days = streak(db.dailyDays, kstDate());
   const mine = chart ? CHARACTERS[chart.facts.dayMaster] : null;
   return (
     <div>
@@ -28,11 +37,13 @@ export default function Home() {
         </div>
         <HeroScene />
       </div>
-      <div className="hero-cta stack">
-        <Link className="btn block go" to="/chat">친구들과 대화하며 시작하기</Link>
-        <Link className="btn secondary block" to="/birth">빠르게 입력해서 보기</Link>
-        {chart && mine && <Link className="btn secondary block" to={`/character/result/${chart.id}`}>내 친구 {mine.name} 다시 보기</Link>}
-        <p className="muted small center" style={{ margin: 0 }}>가입 없이 무료 · 생년월일만 있으면 돼요</p>
+      <section className="card quick-start" aria-labelledby="qs-h" onFocusCapture={() => { if (!started.current) { started.current = true; mutate((d) => track(d, 'birth_start', { step: 'home' })); } }}>
+        <h2 id="qs-h">내 사주 속 친구 만나기 <span className="badge ok">무료 · 가입 없음</span></h2>
+        <BirthForm idPrefix="home" showAlias={false} showGender={false} submitLabel="내 캐릭터 만나기" onSubmit={(input) => nav(`/character/result/${createChart(input).id}`)} />
+      </section>
+      <div className="stack" style={{ marginTop: 12 }}>
+        <Link className="btn secondary block" to="/chat">🗨️ 친구들과 대화하며 시작하기</Link>
+        {chart && mine && <Link className="btn ghost block" to={`/character/result/${chart.id}`}>내 친구 {mine.name} 다시 보기{days > 0 ? ` · 🔥 연속 ${days}일째` : ''}</Link>}
       </div>
 
       <section className="tile-grid" aria-label="무료 서비스" style={{ marginTop: 18 }}>

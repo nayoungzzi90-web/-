@@ -3,6 +3,9 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ChartTable } from '../components/ChartTable';
 import { CharacterCard, ShareCard, saveSvgAsPng, useSvgRef } from '../components/Character';
 import { ErrorState, ProductCard } from '../components/Common';
+import { classifyConcern } from '../lib/content/concern';
+import { recommendNext } from '../lib/content/upsell';
+import { entitlementFor } from '../lib/mock/service';
 import { CATALOG, won } from '../lib/catalog';
 import { CHARACTERS } from '../lib/content/characters';
 import { Element, ELEMENT_KO } from '../lib/saju/types';
@@ -37,12 +40,14 @@ export default function CharacterResult() {
   }
   const base = CHARACTERS[chart.facts.dayMaster];
   const { facts, character } = chart;
+  const owned = (['basic', 'love_deep', 'compatibility'] as const).filter((p) => user && entitlementFor(db, user.id, p, chart.id));
+  const next = recommendNext(chart.concern ? classifyConcern(chart.concern) : null, [...owned]);
   const total = Object.values(facts.fiveElements).reduce((a, b) => a + b, 0) || 1;
   const code = user?.referralCode;
   const inviteUrl = `${location.origin}/share/${base.id}${code ? `?ref=${code}` : ''}`;
 
-  async function copy() {
-    mutate((d) => track(d, 'share_intent'));
+  async function copy(counted = false) {
+    if (!counted) mutate((d) => track(d, 'share_intent'));
     try { await navigator.clipboard.writeText(inviteUrl); setMsg('링크를 복사했어요. 친구가 가입하고 체험을 마치면 엽전이 적립돼요.'); mutate((d) => track(d, 'share_copy')); }
     catch { setMsg(`복사에 실패했어요. 직접 복사해 주세요: ${inviteUrl}`); }
   }
@@ -53,7 +58,7 @@ export default function CharacterResult() {
   async function share() {
     mutate((d) => track(d, 'share_intent'));
     if (navigator.share) { try { await navigator.share({ title: '오행 친구들', text: base.shareLine, url: inviteUrl }); } catch { /* 사용자가 취소 */ } }
-    else copy();
+    else copy(true);
   }
 
   const tabs = [['me', '내 친구'], ['chart', '사주 원국'], ['share', '공유하기']] as const;
@@ -63,6 +68,12 @@ export default function CharacterResult() {
       {facts.warnings.filter((w) => WARN_TEXT[w] && w !== 'luck_cycles_unavailable').map((w) => <div key={w} className="notice" role="note">{WARN_TEXT[w]}</div>)}
 
       {facts.review?.uncertainties.filter((u) => u.severity === 'REVIEW' || u.code === 'PILLAR_POLICY_DEPENDENT').map((u, i) => <div key={i} className="notice" role="note">{u.message}</div>)}
+
+      <div className="share-row" role="group" aria-label="공유하기">
+        <button className="btn block go" onClick={share}>친구에게 내 캐릭터 자랑하기</button>
+        <button className="btn secondary" onClick={() => { setTab('share'); void save(); }}>이미지 저장</button>
+      </div>
+      {msg && tab !== 'share' && <p role="status" className="muted small center">{msg}</p>}
 
       <div className="tabs" role="tablist" aria-label="결과 보기">
         {tabs.map(([k, l]) => (
@@ -102,7 +113,7 @@ export default function CharacterResult() {
           <div style={{ maxWidth: 300, margin: '0 auto 12px' }}><ShareCard base={base} result={character} alias={chart.input.alias} inviteUrl={inviteUrl.split('?')[0]} svgRef={svgRef} /></div>
           <div className="grid2">
             <button className="btn secondary" onClick={save}>이미지 저장</button>
-            <button className="btn secondary" onClick={copy}>링크 복사</button>
+            <button className="btn secondary" onClick={() => copy()}>링크 복사</button>
           </div>
           <button className="btn block" style={{ marginTop: 10 }} onClick={share}>공유하기</button>
           <p role="status" className="muted small" style={{ marginTop: 8 }}>{msg}</p>
@@ -114,8 +125,10 @@ export default function CharacterResult() {
       <section className="card next-step" aria-labelledby="next-h">
         <h2 id="next-h">다음으로 이렇게 해 보세요</h2>
         <div className="stack">
-          <Link className="btn secondary block go" to="/daily">오늘의 운세 보기 · 무료</Link>
-          <Link className="btn block go" to="/products/basic">기본사주 보기 · {won(CATALOG.basic.priceKrw)} 또는 엽전 {CATALOG.basic.coinCost}닢</Link>
+          <Link className="btn block go" to="/chat">🗨️ {base.name}와 대화하며 더 알아보기</Link>
+          <Link className="btn secondary block" to="/daily">오늘의 운세 보기 · 무료</Link>
+          <Link className="btn secondary block" to={next.to}>{next.productId ? `${CATALOG[next.productId].name} · ${won(CATALOG[next.productId].priceKrw)} 또는 엽전 ${CATALOG[next.productId].coinCost}닢` : next.cta}</Link>
+          <p className="muted small" style={{ margin: 0 }}>{next.title} — {next.reason}</p>
         </div>
         {!user && (
           <p className="muted small" style={{ margin: '12px 0 0' }}>

@@ -239,3 +239,11 @@ a.friend { text-decoration: none; color: var(--ink); display: block; }
 .loading-card .bob { animation: bob 1.4s ease-in-out infinite; display: inline-block; }
 @keyframes bob { 50% { transform: translateY(-8px); } }
 @media (prefers-reduced-motion: reduce) { .loading-card .bob { animation: none; } }
+
+/* ── 홈 빠른 시작·공유·출석 ── */
+.quick-start { margin-top: 14px; border-color: var(--red); }
+.quick-start h2 { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 1.1rem; }
+.share-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; margin: 4px 0 10px; }
+.stamps { display: flex; gap: 6px; margin: 10px 0; }
+.stamp { flex: 1; aspect-ratio: 1; max-width: 44px; display: grid; place-items: center; border-radius: 50%; border: 2px dashed var(--line); color: var(--line); font-weight: 900; }
+.stamp.on { border: 2px solid var(--red); background: var(--red-soft); color: var(--red); transform: rotate(-6deg); }

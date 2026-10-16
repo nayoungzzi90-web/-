@@ -4,6 +4,9 @@ import { ChartTable } from '../components/ChartTable';
 import { ConfirmationDialog, ErrorState, MockNotice, ReportSection } from '../components/Common';
 import { ReportLoading } from '../components/ReportLoading';
 import { FRIEND } from '../lib/content/chat';
+import { recommendNext } from '../lib/content/upsell';
+import { entitlementFor } from '../lib/mock/service';
+import { won } from '../lib/catalog';
 import { CHARACTERS } from '../lib/content/characters';
 import { CATALOG } from '../lib/catalog';
 import { mutate, track } from '../lib/mock/db';
@@ -113,6 +116,18 @@ export default function ReportPage() {
         {r.sections.map((s, i) => <a key={s.id} href={`#sec-${s.id}`} onClick={(e) => { e.preventDefault(); const el = document.getElementById(`sec-${s.id}`); if (el instanceof HTMLDetailsElement) el.open = true; el?.scrollIntoView({ behavior: 'smooth' }); }}>{i + 1}. {s.title}</a>)}
       </nav>
       {r.sections.map((s, i) => <ReportSection key={s.id} section={s} evidence={r.evidence} index={i} />)}
+
+      {subject && productId !== 'compatibility' && (() => {
+        const owned = (['basic', 'love_deep', 'compatibility'] as const).filter((x) => entitlementFor(db, user.id, x, subject.id));
+        const nx = recommendNext(r.concern?.category, [...owned]);
+        return (
+          <section className="card next-step" aria-labelledby="next-h">
+            <h2 id="next-h">{nx.title}</h2>
+            <p>{nx.reason}</p>
+            <Link className="btn block go" to={nx.to}>{nx.cta}{nx.productId ? ` · ${won(CATALOG[nx.productId].priceKrw)} 또는 엽전 ${CATALOG[nx.productId].coinCost}닢` : ''}</Link>
+          </section>
+        );
+      })()}
 
       <details className="acc">
         <summary>품질 검수 · 버전 정보 (샌드박스)</summary>

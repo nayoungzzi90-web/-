@@ -45,12 +45,14 @@ export interface Db {
   refunds: RefundRequest[];
   deletionJobs: DeletionJob[];
   events: AppEvent[];
+  /** 오늘의 운세를 본 KST 날짜(연속 출석 계산용, 최근 90일) */
+  dailyDays: string[];
 }
 
 export const emptyDb = (): Db => ({
   guestId: uid('guest_'), sessionUserId: null, activeChartId: null, pendingRefCode: null,
   users: {}, charts: {}, daily: {}, ledger: [], orders: {}, payments: {}, entitlements: {}, reports: {}, jobs: {},
-  attributions: [], rewards: [], compat: {}, refunds: [], deletionJobs: [], events: [],
+  attributions: [], rewards: [], compat: {}, refunds: [], deletionJobs: [], events: [], dailyDays: [],
 });
 
 const KEY = 'ohaeng.mock.db.v1';
@@ -94,5 +96,5 @@ export function track(db: Db, name: string, props: Record<string, string | numbe
   const safe: AppEvent['props'] = {};
   for (const [k, v] of Object.entries(props)) if (ALLOWED_PROP_KEYS.has(k)) safe[k] = v;
   db.events.push({ id: uid('ev_'), name, at: new Date().toISOString(), props: safe });
-  if (db.events.length > 300) db.events.splice(0, db.events.length - 300);
+  if (db.events.length > 3000) db.events.splice(0, db.events.length - 3000);
 }

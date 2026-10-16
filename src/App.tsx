@@ -14,6 +14,7 @@ import Home from './pages/Home';
 import Invite from './pages/Invite';
 import Lab from './pages/Lab';
 import Login from './pages/Login';
+import Ops, { OPS_PATH } from './pages/Ops';
 import Me from './pages/Me';
 import { Admin, Legal, NotFound } from './pages/Misc';
 import Product, { ComingSoon } from './pages/Product';
@@ -52,6 +53,7 @@ export default function App() {
         <Route path="/me" element={<Me />} />
         <Route path="/login" element={<Login />} />
         {import.meta.env.DEV && <Route path="/lab" element={<Lab />} />}
+        <Route path={`/${OPS_PATH}`} element={<Ops />} />
         <Route path="/admin/*" element={<Admin />} />
         <Route path="/legal/:kind" element={<Legal />} />
         <Route path="*" element={<NotFound />} />

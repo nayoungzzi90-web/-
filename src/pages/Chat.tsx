@@ -95,6 +95,7 @@ export default function Chat() {
         calculator.calculate(input);
         return input;
       } catch (e) {
+        mutate((d) => track(d, 'calc_error', { status: e instanceof CalcError ? e.code : 'UNEXPECTED' }));
         await say(HOST, `어라, 이 정보로는 계산이 안 돼… ${e instanceof CalcError ? e.message : '입력을 다시 확인해 줘.'} 처음부터 다시 해 볼까?`);
         await say(HOST, '먼저 양력인지 음력인지부터!');
       }

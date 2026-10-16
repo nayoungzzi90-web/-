@@ -1,4 +1,5 @@
 import { FormEvent, useState } from 'react';
+import { mutate, track } from '../lib/mock/db';
 import { calculator } from '../lib/saju/calculator';
 import { BirthInput, CalcError } from '../lib/saju/types';
 
@@ -51,6 +52,7 @@ export function BirthForm({ submitLabel, onSubmit, aliasLabel = '별칭 (선택)
     try {
       if (!errs.date) calculator.calculate(input); // 검증 겸 사전 계산 (결과는 저장하지 않음)
     } catch (err) {
+      mutate((d) => track(d, 'calc_error', { status: err instanceof CalcError ? err.code : 'UNEXPECTED' }));
       if (err instanceof CalcError) {
         if (err.code === 'INVALID_TIME') errs.time = '태어난 시간을 선택하거나 "시간을 몰라요"를 체크해 주세요.';
         else if (err.code === 'LUNAR_UNSUPPORTED') errs.calendar = err.message;
