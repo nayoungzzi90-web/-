@@ -29,7 +29,8 @@ export default function Home() {
         <HeroScene />
       </div>
       <div className="hero-cta stack">
-        <Link className="btn block go" to="/birth">무료로 내 사주 캐릭터 보기</Link>
+        <Link className="btn block go" to="/chat">친구들과 대화하며 시작하기</Link>
+        <Link className="btn secondary block" to="/birth">빠르게 입력해서 보기</Link>
         {chart && mine && <Link className="btn secondary block" to={`/character/result/${chart.id}`}>내 친구 {mine.name} 다시 보기</Link>}
         <p className="muted small center" style={{ margin: 0 }}>가입 없이 무료 · 생년월일만 있으면 돼요</p>
       </div>

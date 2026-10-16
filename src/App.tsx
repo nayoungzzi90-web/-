@@ -6,6 +6,7 @@ import { captureReferral } from './lib/mock/referral';
 import { purgeExpired } from './lib/mock/service';
 import Birth from './pages/Birth';
 import CharacterResult from './pages/CharacterResult';
+import Chat from './pages/Chat';
 import Checkout from './pages/Checkout';
 import Compatibility from './pages/Compatibility';
 import Daily from './pages/Daily';
@@ -34,6 +35,7 @@ export default function App() {
     <Routes>
       <Route element={<Shell />}>
         <Route path="/" element={<Home />} />
+        <Route path="/chat" element={<Chat />} />
         <Route path="/birth" element={<Birth />} />
         <Route path="/character/result/:id" element={<CharacterResult />} />
         <Route path="/share/:characterId" element={<SharePage />} />
