@@ -3,11 +3,11 @@ import { Db, emptyDb, StoredChart } from './db';
 import { appendLedger, balanceOf, CoinError, redeemCoins } from './ledger';
 import { captureReferral, completeReferral } from './referral';
 import { confirmPayment, createCoinOrder, createOrder, PayError, requestRefund } from './payment';
-import { COIN_PACKS } from '../catalog';
+import { CATALOG, COIN_PACKS } from '../catalog';
 import { accessReport, purgeExpired } from './service';
 import { calculator } from '../saju/sampleCalculator';
 import { buildCharacter } from '../content/characters';
-import { generateReport } from '../content/report';
+import { runQa, generateReport } from '../content/report';
 import { buildDaily } from '../content/daily';
 import { BirthInput } from '../saju/types';
 
@@ -184,10 +184,15 @@ describe('리포트·접근 제어·궁합 삭제', () => {
       expect(r.qa.find((c) => c.id === 'hour')?.status).toBe('pass');
     }
   });
-  it('샘플 리포트는 분량 미달을 숨기지 않고 FAIL 로 표시(자동 PASS 금지)', () => {
+  it('분량 검사는 실제 글자 수로 판정한다(자동 PASS 금지): 충분하면 PASS, 모자라거나 넘치면 FAIL', () => {
     const r = generateReport({ productId: 'basic', facts: calculator.calculate(input), baseYear: 2026 });
     expect(r.mode).toBe('MOCK_SANDBOX');
-    expect(r.qa.find((c) => c.id === 'length')?.status).toBe('fail');
+    const [lo, hi] = CATALOG.basic.sandboxLength!;
+    expect(r.qa.find((c) => c.id === 'length')?.status).toBe(r.chars >= lo && r.chars <= hi ? 'pass' : 'fail');
+    const short = runQa('basic', { sections: r.sections, chars: 300, mode: 'MOCK_SANDBOX' }, false);
+    expect(short.find((c) => c.id === 'length')?.status).toBe('fail');
+    const long = runQa('basic', { sections: r.sections, chars: 99999, mode: 'MOCK_SANDBOX' }, false);
+    expect(long.find((c) => c.id === 'length')?.status).toBe('fail');
   });
   it('타인 리포트 접근 거부 (AC-10)', () => {
     db.reports.r1 = { id: 'r1', userId: 'A', productId: 'basic', subjectId: 'c', report: generateReport({ productId: 'basic', facts: calculator.calculate(input), baseYear: 2026 }), generatedAt: '' };

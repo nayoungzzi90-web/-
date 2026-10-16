@@ -49,6 +49,8 @@ export interface SajuFacts {
     verified: boolean;
   };
   warnings: string[];
+  /** 양력 생년월일(만세력 엔진이 채움). 현재 대운·나이 계산에 쓴다 */
+  birth?: { year: number; month: number; day: number };
   /** 만세력 엔진이 채우는 검토 정보 (샘플 계산기에는 없음) */
   review?: { status: 'OK' | 'POLICY_DEPENDENT' | 'NEEDS_REVIEW'; uncertainties: { code: string; severity: 'INFO' | 'REVIEW'; message: string }[] };
 }

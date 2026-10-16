@@ -32,7 +32,7 @@ export default function Product({ productId }: { productId: 'basic' | 'love_deep
       <section className="card">
         <h2>목차 미리보기</h2>
         <ol style={{ margin: 0, paddingLeft: 20 }}>{p.toc.map((t) => <li key={t}>{t}</li>)}</ol>
-        {p.length && <p className="muted small" style={{ marginTop: 10 }}>목표 분량 약 {p.length[0].toLocaleString()}~{p.length[1].toLocaleString()}자 · 각 문단마다 ‘해석 근거 보기’ 제공</p>}
+        {(p.sandboxLength ?? p.length) && <p className="muted small" style={{ marginTop: 10 }}>분량 약 {(p.sandboxLength ?? p.length)![0].toLocaleString()}~{(p.sandboxLength ?? p.length)![1].toLocaleString()}자 · 각 문단마다 ‘해석 근거 보기’ 제공</p>}
       </section>
       {chart ? (
         <>

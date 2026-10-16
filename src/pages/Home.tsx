@@ -1,10 +1,10 @@
 import { useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { BirthForm } from '../components/BirthForm';
-import { allCharacters, CharacterArt } from '../components/Character';
-import { MockNotice, ProductCard } from '../components/Common';
+import { CharacterArt } from '../components/Character';
+import { MockNotice } from '../components/Common';
 import { HeroScene } from '../components/Scene';
-import { CATALOG } from '../lib/catalog';
+import { CATALOG, won } from '../lib/catalog';
 import { CHARACTERS } from '../lib/content/characters';
 import { mutate, track } from '../lib/mock/db';
 import { useSession } from '../lib/mock/hooks';
@@ -12,13 +12,17 @@ import { createChart } from '../lib/mock/service';
 import { kstDate } from '../lib/kst';
 import { streak } from '../lib/metrics';
 
-const FIVE = [
-  { stem: '甲', name: '솔이', el: '목(木) · 푸른 선비', role: '기본사주 안내', to: '/products/basic' },
-  { stem: '丙', name: '댕이', el: '화(火) · 열기미 소녀', role: '궁합·연애 안내', to: '/products/love' },
-  { stem: '戊', name: '호동이', el: '토(土) · 인기 호랑이', role: '든든한 조언', to: '/birth' },
-  { stem: '庚', name: '달토', el: '금(金) · 달토끼', role: '오늘의 운세', to: '/daily' },
-  { stem: '壬', name: '거북이', el: '수(水) · 아기 거북', role: '느긋한 큰 흐름', to: '/birth' },
-] as const;
+const price = (id: keyof typeof CATALOG) => (CATALOG[id].priceKrw ? `${won(CATALOG[id].priceKrw)} · ${CATALOG[id].coinCost}닢` : '무료');
+const MENU: { name: string; sub: string; to: string; stem: '甲' | '乙' | '丙' | '丁' | '戊' | '己' | '庚' | '辛' | '壬' | '癸'; soon?: boolean }[] = [
+  { name: '기본사주', sub: price('basic'), to: CATALOG.basic.path, stem: '甲' },
+  { name: '연애운', sub: price('love_deep'), to: CATALOG.love_deep.path, stem: '丙' },
+  { name: '궁합', sub: price('compatibility'), to: CATALOG.compatibility.path, stem: '乙' },
+  { name: '택일', sub: price('date_selection'), to: CATALOG.date_selection.path, stem: '己', soon: true },
+  { name: '심층사주', sub: price('saju_deep'), to: CATALOG.saju_deep.path, stem: '壬', soon: true },
+  { name: '오늘의 운세', sub: '무료 · 하루 한 번', to: '/daily', stem: '庚' },
+  { name: '친구와 대화', sub: '무료 · 고민 상담', to: '/chat', stem: '戊' },
+  { name: '친구 초대', sub: '엽전을 모아요', to: '/invite', stem: '癸' },
+];
 
 export default function Home() {
   const { chart, db } = useSession();
@@ -46,43 +50,17 @@ export default function Home() {
         {chart && mine && <Link className="btn ghost block" to={`/character/result/${chart.id}`}>내 친구 {mine.name} 다시 보기{days > 0 ? ` · 🔥 연속 ${days}일째` : ''}</Link>}
       </div>
 
-      <section className="tile-grid" aria-label="무료 서비스" style={{ marginTop: 18 }}>
-        <Link to="/daily" className="tile"><CharacterArt base={CHARACTERS['庚']} size={60} className="mini-art" /><b>오늘의 운세</b><span>무료 · 하루 한 번</span></Link>
-        <Link to="/invite" className="tile"><CharacterArt base={CHARACTERS['戊']} size={60} className="mini-art" /><b>친구 초대</b><span>엽전을 모아 열람해요</span></Link>
-      </section>
-
-      <section aria-labelledby="chars-h">
-        <h2 id="chars-h">다섯 친구를 소개해요</h2>
-        <div className="friends">
-          {FIVE.map((f) => (
-            <Link key={f.name} to={f.to} className="friend" aria-label={`${f.name} — ${f.role}`}>
-              <CharacterArt base={CHARACTERS[f.stem]} size={80} />
-              <b>{f.name}</b>
-              <small>{f.el}</small>
-              <em>{f.role}</em>
+      <section aria-labelledby="menu-h" style={{ marginTop: 18 }}>
+        <h2 id="menu-h">서비스</h2>
+        <div className="menu-grid">
+          {MENU.map((m) => (
+            <Link key={m.to} to={m.to} className="tile menu-tile" aria-label={`${m.name} — ${m.sub}`}>
+              <CharacterArt base={CHARACTERS[m.stem]} size={52} className="mini-art" />
+              <b>{m.name}{m.soon && <span className="badge soon">준비 중</span>}</b>
+              <span>{m.sub}</span>
             </Link>
           ))}
         </div>
-        <details className="acc">
-          <summary>일간별 열 친구 모두 보기</summary>
-          <div className="acc-body">
-            <div className="friends ten">
-              {allCharacters.map((c) => (
-                <div key={c.id} className="friend"><CharacterArt base={c} size={80} /><b>{c.name}</b><small>{c.stem}</small></div>
-              ))}
-            </div>
-            <p className="small" style={{ margin: '10px 0 0' }}>일간(甲乙丙丁戊己庚辛壬癸)에 따라 오행 친구의 양·음 모습이 정해지고, 표정·소품·칭호가 더해져요. 캐릭터는 창작 표현이며 심리 검사가 아니에요.</p>
-          </div>
-        </details>
-      </section>
-
-      <section aria-labelledby="paid-h">
-        <h2 id="paid-h" style={{ marginTop: 22 }}>더 깊이 보기</h2>
-        <ProductCard product={CATALOG.basic} />
-        <ProductCard product={CATALOG.compatibility} />
-        <ProductCard product={CATALOG.love_deep} />
-        <ProductCard product={CATALOG.date_selection} />
-        <ProductCard product={CATALOG.saju_deep} />
       </section>
 
       <section className="card flat">

@@ -2,6 +2,11 @@ import { CATALOG, ProductId } from '../catalog';
 import { CHARACTERS } from './characters';
 import { branchRelation, elementRelation, STEM_ELEMENT, tenGod } from '../saju/rules';
 import { calculator } from '../saju/calculator';
+import { DATE_STYLE, basicDrafts, loveDrafts } from './reading';
+import { STEM_IMAGE } from './readingBank';
+import { STEM_LIFE, STEM_LOVE } from './readingBank2';
+import { ELEMENT_MANY, GOD_DEEP } from './readingBank';
+import { CHECK_QUESTIONS, FIGHT_SCRIPT, LOVE_MOMENT } from './readingBank3';
 import { CATEGORIES, CRISIS_LINES, Category, Line, buildReading, classifyConcern, isCrisis } from './concern';
 import { Branch, BRANCH_KO, BRANCHES, Element, ELEMENT_KO, SajuFacts, Stem, STEM_KO, STEMS } from '../saju/types';
 
@@ -52,46 +57,26 @@ function baseEvidence(f: SajuFacts): Evidence[] {
   return list;
 }
 
-const timeNote = (f: SajuFacts) => (f.pillars.hour === null ? ' (출생 시간을 몰라 시주는 반영하지 않았어요.)' : '');
-
-function basic(f: SajuFacts) {
-  const c = CHARACTERS[f.dayMaster];
-  const dom = dominant(f), weak = weakest(f);
-  const main = f.tenGods[1].god;
-  const hourTxt = f.pillars.hour ? `${f.pillars.hour}(${pillarKo(f.pillars.hour)})` : '없음';
-  const sections: ReportSection[] = [
-    { id: 's1', title: '원국 핵심', evidenceIds: ['pillars', 'day_master', 'elements'], body: `사주 원국은 연주 ${f.pillars.year}(${pillarKo(f.pillars.year)}), 월주 ${f.pillars.month}(${pillarKo(f.pillars.month)}), 일주 ${f.pillars.day}(${pillarKo(f.pillars.day)}), 시주 ${hourTxt}이에요.${timeNote(f)} 나를 대표하는 일간은 ${f.dayMaster}으로 ${ELEMENT_KO[STEM_ELEMENT[f.dayMaster]]}의 기운이에요. 전체 오행에서는 ${ELEMENT_KO[dom]}이(가) 가장 두드러지고 ${ELEMENT_KO[weak]}이(가) 상대적으로 적게 보여요.` },
-    { id: 's2', title: '타고난 성격·기질', evidenceIds: ['day_master', 'god_month'], body: `${c.temperament} 월간에는 일간 기준 ${main}이(가) 놓여 ${GOD_TRAIT[main]}이(가) 사회적인 모습에서 자주 드러나요.` },
-    { id: 's3', title: '강점·재능', evidenceIds: ['day_master', 'elements'], body: `${c.strengths.join(', ')}이(가) 대표적인 강점이에요. 특히 ${ELEMENT_KO[dom]}의 기운이 많아 이 방향의 활동에서 힘을 얻기 쉬워요.` },
-    { id: 's4', title: '직업·재물 경향', evidenceIds: ['god_month', 'god_year'], body: `${GOD_TRAIT[main]}을(를) 살릴 수 있는 환경에서 만족도가 높아요. 재물은 한 번에 크게 얻기보다 자기 방식으로 꾸준히 쌓을 때 안정적일 가능성이 커요.` },
-    { id: 's5', title: '관계·연애 경향', evidenceIds: ['day_master', 'god_year'], body: `관계에서는 "${c.weaknesses[0]}"는 점을 기억해 두면 좋아요. 마음을 표현하는 작은 습관이 관계를 훨씬 편하게 만들어 줘요.` },
-    { id: 's6', title: '실천 조언', evidenceIds: ['elements'], body: `${ELEMENT_KO[weak]}의 기운을 보완하는 활동(색, 장소, 루틴)을 일상에 한 가지만 더해 보세요. 사주는 정해진 결론이 아니라 나를 이해하는 참고 지도예요.` },
-  ];
+function basic(f: SajuFacts, baseYear: number) {
+  const sections: ReportSection[] = basicDrafts(f, { baseYear }).map((d) => ({ id: d.id, title: d.title, body: d.paras.join('\n'), evidenceIds: d.evidenceIds }));
   return { sections, evidence: baseEvidence(f) };
 }
 
 function love(f: SajuFacts, baseYear: number) {
-  const c = CHARACTERS[f.dayMaster];
   const years = [0, 1, 2, 3, 4].map((i) => baseYear + i);
   const evidence = baseEvidence(f);
-  const yearRows = years.map((y) => {
+  years.forEach((y) => {
     const yp = calculator.yearPillar(y);
     const g = tenGod(f.dayMaster, yp[0] as Stem);
     evidence.push(ev(`year_${y}`, `${y}년 세운`, `${yp}(${pillarKo(yp)}) → 일간 ${f.dayMaster} 기준 ${g}. 연도 경계는 입춘 기준(샘플 엔진은 매년 2월 4일로 근사).`, 'R-YEARLY'));
-    return { y, yp, g };
   });
-  const sections: ReportSection[] = [
-    { id: 's1', title: '연애 기질', evidenceIds: ['day_master'], body: `${c.name}의 결을 가진 당신은 ${c.temperament}` },
-    { id: 's2', title: '원하는 관계·상대', evidenceIds: ['elements', 'god_month'], body: `편안함을 주는 상대를 선호할 가능성이 있어요. ${ELEMENT_KO[weakest(f)]}의 기운을 보완해 주는 사람에게 끌릴 수 있지만, 이는 경향일 뿐 사람마다 달라요.` },
-    { id: 's3', title: '반복될 수 있는 관계 패턴', evidenceIds: ['day_master'], body: `${c.weaknesses.join(' / ')} — 이런 습관이 관계에서 비슷한 장면을 만들 수 있어요. 패턴을 알아차리는 것만으로도 선택이 달라져요.` },
-    { id: 's4', title: '강점·어려움', evidenceIds: ['day_master'], body: `강점: ${c.strengths.join(', ')}. 어려움은 솔직한 감정 표현을 미루는 순간에 생기기 쉬워요.` },
-    { id: 's5', title: '현재 대운', evidenceIds: ['pillars'], body: f.luckCycles.length ? `대운은 ${f.luckCycles.slice(0, 4).map((c) => `${c.startAge}세 ${c.pillar}`).join(' → ')} 순으로 이어져요. 시작 나이는 절입 시각을 기준으로 환산한 값이라 공식 절입 자료 확인 전에는 참고용이에요.` : '성별이나 출생 시간이 없어 대운은 계산하지 않았어요.' },
-    { id: 's6', title: `${years[0]}~${years[4]}년 세운`, evidenceIds: years.map((y) => `year_${y}`), body: yearRows.map(({ y, yp, g }) => `${y}년(${yp}): 일간 기준 ${g}의 해로, ${GOD_TRAIT[g]}이(가) 관계 속에서 부각돼요.`).join('\n') },
-    { id: 's7', title: '조언', evidenceIds: ['elements'], body: '결과를 단정적인 예언으로 받아들이기보다, 관계에서 내가 편안한 방식을 점검하는 질문지로 활용해 보세요.' },
-  ];
+  const sections: ReportSection[] = loveDrafts(f, years, { baseYear }).map((d) => ({ id: d.id, title: d.title, body: d.paras.join('\n'), evidenceIds: d.evidenceIds }));
   return { sections, evidence, years };
 }
 
+const _b = (w: string) => { const c = w.charCodeAt(w.length - 1); return c >= 0xac00 && c <= 0xd7a3 && (c - 0xac00) % 28 !== 0; };
+const wa = (w: string) => w + (_b(w) ? '과' : '와');
+const ro = (w: string) => w + ((_b(w) && !/[ㄹ]/.test('') && (w.charCodeAt(w.length - 1) - 0xac00) % 28 !== 8) ? '으로' : '로');
 export function compatibilityParts(a: SajuFacts, b: SajuFacts) {
   const da = a.dayMaster, db = b.dayMaster;
   const ea = STEM_ELEMENT[da], eb = STEM_ELEMENT[db];
@@ -114,13 +99,28 @@ export function compatibilityParts(a: SajuFacts, b: SajuFacts) {
   ];
   const relType = rel === '같은 기운' ? '거울처럼 닮은 사이' : rel === '내가 도움' ? '내가 기운을 북돋아 주는 사이' : rel === '도움 받음' ? '서로 기대어 힘을 얻는 사이' : '서로 다른 결이 긴장과 자극을 주는 사이';
   const sections: ReportSection[] = [
-    { id: 's1', title: '관계 유형', evidenceIds: ['dm_rel'], body: `두 사람은 ${relType}로 볼 수 있어요. ${CHARACTERS[da].name}와(과) ${CHARACTERS[db].name}의 조합이에요.` },
+    { id: 's1', title: '관계 유형', evidenceIds: ['dm_rel'], body: `두 사람은 ${relType}로 볼 수 있어요. ${wa(CHARACTERS[da].name)} ${CHARACTERS[db].name}의 조합이에요.` },
     { id: 's2', title: '소통', evidenceIds: ['dm_rel'], body: `소통 지표는 '${metrics[0].level}'이에요. 한쪽이 설명하는 방식과 다른 쪽이 받아들이는 방식이 다를 수 있으니 결론 전에 요약해서 확인해 보세요.` },
     { id: 's3', title: '갈등·차이', evidenceIds: ['branch_rel'], body: `일지 관계는 ${br === '없음' ? '특별한 합충이 없고' : br + '이고'} 갈등 지표는 '${metrics[1].level}'이에요. 차이는 틀림이 아니라 속도의 문제일 때가 많아요.` },
     { id: 's4', title: '애정표현', evidenceIds: ['branch_rel'], body: `애정표현 지표는 '${metrics[2].level}'이에요. 상대가 편한 표현 방식(말, 행동, 시간)을 물어보는 것부터 시작해 보세요.` },
-    { id: 's5', title: '생활방식', evidenceIds: ['a_pillars', 'b_pillars'], body: `생활방식 지표는 '${metrics[3].level}'이에요. 주요 오행이 ${ELEMENT_KO[dominant(a)]}과(와) ${ELEMENT_KO[dominant(b)]}으로 달라, 휴식·소비·정리 습관은 미리 합의해 두면 좋아요.` },
+    { id: 's5', title: '생활방식', evidenceIds: ['a_pillars', 'b_pillars'], body: `생활방식 지표는 '${metrics[3].level}'이에요. 주요 오행이 ${ELEMENT_KO[dominant(a)]}과 ${ELEMENT_KO[dominant(b)]}${dominant(a) === dominant(b) ? '으로 같아 생활 리듬은 비슷하지만 같은 부분에서 함께 지치기 쉬우니' : '으로 달라'}, 휴식·소비·정리 습관은 미리 합의해 두면 좋아요.` },
     { id: 's6', title: '소통 조언', evidenceIds: ['dm_rel'], body: '점수나 확률로 관계를 판단하지 않아요. 이 결과는 대화를 시작하는 참고 자료로만 활용해 주세요.' },
   ];
+  const ca = CHARACTERS[da], cb = CHARACTERS[db];
+  const add = (id: string, text: string) => { const sec = sections.find((x) => x.id === id); if (sec) sec.body += '\n' + text; };
+  add('s1', `${ca.name}는 ${STEM_IMAGE[da].img}, ${cb.name}는 ${ro(STEM_IMAGE[db].img)} 그려 볼 수 있어요. ${rel === '같은 기운' ? '비슷한 결이라 서로의 마음을 쉽게 이해하지만, 같은 약점도 닮아 있어 함께 지치기 쉬워요.' : rel === '내가 도움' ? '내가 상대에게 힘을 보태는 방향의 관계예요. 베푸는 만큼 나도 채워질 수 있도록 받는 연습이 필요해요.' : rel === '도움 받음' ? '상대에게서 힘과 배움을 얻는 방향의 관계예요. 받은 만큼 고마움을 표현하면 관계가 더 단단해져요.' : rel === '내가 조절' ? '내가 상황을 정리하고 이끄는 방향의 관계예요. 상대의 속도를 존중하면 주도권이 부담이 아니라 신뢰가 돼요.' : '상대가 나를 자극하고 긴장시키는 방향의 관계예요. 부딪히는 만큼 서로를 성장시키니, 말투만 부드럽게 다듬어 보세요.'}`);
+  add('s1', `두 사람의 케미를 한 줄로 쓰면 "${ca.name}${ca.name.endsWith('이') ? '' : ''}와 ${cb.name}, ${rel === '같은 기운' ? '닮은 결로 서로를 비추는 사이' : rel === '내가 도움' ? '한쪽이 먼저 손을 내미는 사이' : rel === '도움 받음' ? '서로에게 기대어 힘을 얻는 사이' : rel === '내가 조절' ? '이끄는 쪽과 따르는 쪽이 번갈아 바뀌는 사이' : '다름이 자극이 되는 사이'}"예요.`);
+  add('s2', `${ca.name}는 ${STEM_LIFE[da].comfort} 마음이 편하고, ${STEM_LIFE[da].drain} 지쳐요. ${cb.name}는 ${STEM_LIFE[db].comfort} 마음이 편하고, ${STEM_LIFE[db].drain} 지쳐요. 대화할 때 서로의 편한 순간과 지치는 순간을 떠올리면 말이 훨씬 부드러워져요.`);
+  add('s2', `${ca.name}에게 힘이 되는 말은 ${STEM_LIFE[da].words}이고, ${cb.name}에게 힘이 되는 말은 ${STEM_LIFE[db].words}예요. 서로가 듣고 싶은 말을 한 번씩 건네 보세요. 일상 대화가 훨씬 따뜻해져요.`);
+  add('s3', `갈등이 생길 때 그대로 써도 좋은 말이에요.\n${FIGHT_SCRIPT.map((x) => `• ${x}`).join('\n')}`);
+  add('s4', `${ca.name}: ${STEM_LOVE[da]}\n${cb.name}: ${STEM_LOVE[db]}\n설레는 순간은 ${ca.name}가 ${LOVE_MOMENT[da].spark}, ${cb.name}는 ${LOVE_MOMENT[db].spark}예요. 서로의 설렘 포인트를 알고 챙겨 주세요.`);
+  add('s3', `${ca.name} 입장에서 ${cb.name}는 ${god}의 결이라 ${GOD_DEEP[god].love}. 반대로 ${cb.name} 입장에서 ${ca.name}는 ${tenGod(db, da)}의 결이라 ${GOD_DEEP[tenGod(db, da)].love}.`);
+  add('s5', `${ELEMENT_MANY[dominant(a)]} ${dominant(a) === dominant(b) ? '두 사람 모두 이 성향이 강하니 같은 지점에서 함께 지치지 않도록 쉬는 시간을 나눠 정하세요.' : ELEMENT_MANY[dominant(b)]}`);
+  add('s5', `마음이 식는 순간도 서로 달라요. ${ca.name}는 ${LOVE_MOMENT[da].cool}, ${cb.name}는 ${LOVE_MOMENT[db].cool} 마음이 식기 쉬워요. 이 순간을 피해 가는 것만으로도 갈등이 크게 줄어요.`);
+  add('s4', `둘에게 잘 맞는 데이트는 ${DATE_STYLE[god]}예요. 한 번씩 서로가 고르는 방식으로 번갈아 해 보면 서로의 취향이 선명해져요.`);
+  add('s6', `관계에서 가장 중요한 건 점수가 아니라 서로의 속도를 확인하는 습관이에요. 이 풀이에서 "맞아" 싶은 한 가지를 골라 이번 주에 상대와 이야기해 보세요. 같은 문장을 함께 읽는 것만으로도 대화가 시작돼요.`);
+  add('s6', `한 달 실험 세 가지예요.\n• 하루에 한 번 고마운 점 한 문장 나누기\n• 서운한 일은 그날 안에 "나는 ~해서 서운했어"로 말하기\n• 일주일에 한 번, 서로가 고른 방식으로 시간 보내기`);
+  add('s6', `둘이 함께 해 볼 점검 질문이에요.\n${CHECK_QUESTIONS.slice(0, 3).map((x, k) => `${k + 1}. ${x}`).join('\n')}`);
   const warnings = [...new Set([...a.warnings, ...b.warnings])].filter((w) => w === 'hour_pillar_unavailable' || w === 'engine_unverified');
   return { sections, evidence, metrics, warnings };
 }
@@ -129,8 +129,9 @@ export function runQa(productId: ProductId, r: Pick<Report, 'sections' | 'chars'
   const p = CATALOG[productId];
   const checks: QaCheck[] = [];
   checks.push({ id: 'toc', label: '필수 목차', status: r.sections.length === p.toc.length ? 'pass' : 'fail', detail: `${r.sections.length}/${p.toc.length}` });
-  if (p.length) {
-    const [lo, hi] = p.length;
+  const range = r.mode === 'MOCK_SANDBOX' ? (p.sandboxLength ?? p.length) : p.length;
+  if (range) {
+    const [lo, hi] = range;
     checks.push({
       id: 'length',
       label: `분량 ${lo.toLocaleString()}~${hi.toLocaleString()}자`,
@@ -191,7 +192,7 @@ export function generateReport({ productId, facts, factsB, baseYear, concern: co
   let metrics: MetricLabel[] | undefined;
   let years: number[] | undefined;
   let extraWarn: string[] = [];
-  if (productId === 'basic') ({ sections, evidence } = basic(facts));
+  if (productId === 'basic') ({ sections, evidence } = basic(facts, baseYear));
   else if (productId === 'love_deep') ({ sections, evidence, years } = love(facts, baseYear));
   else if (productId === 'compatibility' && factsB) {
     const r = compatibilityParts(facts, factsB);

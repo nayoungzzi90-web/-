@@ -247,3 +247,9 @@ a.friend { text-decoration: none; color: var(--ink); display: block; }
 .stamps { display: flex; gap: 6px; margin: 10px 0; }
 .stamp { flex: 1; aspect-ratio: 1; max-width: 44px; display: grid; place-items: center; border-radius: 50%; border: 2px dashed var(--line); color: var(--line); font-weight: 900; }
 .stamp.on { border: 2px solid var(--red); background: var(--red-soft); color: var(--red); transform: rotate(-6deg); }
+
+/* 서비스 메뉴: 두 개씩 네 줄 */
+.menu-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.menu-tile { align-items: flex-start; min-height: 112px; padding: 12px; }
+.menu-tile .mini-art { width: 52px; height: 52px; margin-bottom: 2px; }
+.menu-tile b { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
