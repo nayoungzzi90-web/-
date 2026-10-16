@@ -1,18 +1,17 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter, MemoryRouter } from 'react-router-dom';
 import App from './App';
-import '@fontsource/noto-sans-kr/400.css';
-import '@fontsource/noto-sans-kr/500.css';
-import '@fontsource/noto-sans-kr/700.css';
-import '@fontsource/noto-sans-kr/900.css';
-import '@fontsource/yeon-sung/400.css';
 import './styles.css';
+
+// 일반 배포는 번들된 폰트를 쓴다. 공유용 단일 페이지 빌드(VITE_ARTIFACT)는 폰트를 외부 링크로 받고 주소 대신 메모리 라우터를 쓴다.
+if (!import.meta.env.VITE_ARTIFACT) void import('./fonts');
+const Router = import.meta.env.VITE_ARTIFACT ? MemoryRouter : BrowserRouter;
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <BrowserRouter>
+    <Router>
       <App />
-    </BrowserRouter>
+    </Router>
   </React.StrictMode>,
 );
