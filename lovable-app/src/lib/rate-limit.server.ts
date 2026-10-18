@@ -136,11 +136,15 @@ export async function createSupabaseRateRpc(): Promise<RateRpc | null> {
   return {
     async hit(scope, identityHash, max, windowSec) {
       // 함수 시그니처는 리뷰 SQL 기준. 미적용 상태면 오류 → production fail-closed
-      const rpc = supabaseAdmin.rpc as unknown as (
-        fn: string,
-        args: Record<string, unknown>,
-      ) => Promise<{ data: unknown; error: unknown }>;
-      const { data, error } = await rpc("saju_rate_limit_hit", {
+      // 주의: rpc 를 변수로 떼어 호출하면 this 가 사라져 TypeError(reading 'rest') → 항상 fail-closed 가 된다.
+      //       반드시 admin.rpc(...) 형태의 메서드 호출로 부른다(회귀 테스트: rate-limit-rpc.test.ts).
+      const admin = supabaseAdmin as unknown as {
+        rpc: (
+          fn: string,
+          args: Record<string, unknown>,
+        ) => Promise<{ data: unknown; error: unknown }>;
+      };
+      const { data, error } = await admin.rpc("saju_rate_limit_hit", {
         p_scope: scope,
         p_identity_hash: identityHash,
       });
