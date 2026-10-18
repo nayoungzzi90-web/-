@@ -57,17 +57,18 @@ describe("R-001 음력/윤달 → 양력 변환", () => {
     expect(convertLunarToSolar(20250601, false).ok).toBe(false);
   });
 
-  it("월경계·월말 및 1900/2026 지원 범위", () => {
+  it("월경계·월말 및 1900/2050 지원 범위", () => {
     expect(conv("2025-06-29", true)).toBe("2025-08-22");
     expect(conv("1899-12-01", false)).toBe("1900-01-01");
     expect(conv("1899-11-30", false) ?? conv("1899-11-29", false)).toBeNull(); // 1899년 양력 → 범위 밖
-    // 양력 2026-12-31에 해당하는 음력은 허용, 그 다음 날(양력 2027-01-01)은 거부
-    const l = toLunar(2026, 12, 31),
-      n = toLunar(2027, 1, 1);
-    expect(conv(`${l.year}-${pad(l.month)}-${pad(l.day)}`, l.isLeapMonth)).toBe("2026-12-31");
-    expect(conv(`${n.year}-${pad(n.month)}-${pad(n.day)}`, n.isLeapMonth)).toBeNull();
-    // 음 2026-12월 후반은 양력 2027 → 거부
-    expect(conv("2026-12-29", false)).toBeNull();
+    // 양력 2050-12-31에 해당하는 음력은 허용, 그 다음 날(양력 2051-01-01 = 음력 2050-11-19)은 거부
+    const l = toLunar(2050, 12, 31);
+    expect(conv(`${l.year}-${pad(l.month)}-${pad(l.day)}`, l.isLeapMonth)).toBe("2050-12-31");
+    expect(conv("2050-11-19", false)).toBeNull();
+    // 음 2050-12월은 모두 양력 2051 → 거부
+    expect(conv("2050-12-01", false)).toBeNull();
+    // 2027~2050 신규 구간: 2027 설날(음 1/1)=양 2027-02-07 (합삭이 KST 02-07 00:56 — 중국 설 02-06 과 하루 다름)
+    expect(conv("2027-01-01", false)).toBe("2027-02-07");
     expect(conv("1898-12-01", false)).toBeNull();
   });
 
@@ -115,14 +116,14 @@ describe("R-001 음력/윤달 → 양력 변환", () => {
     ).toBe("甲子");
   });
 
-  it("독립 패키지(kor-lunar) 전수 비교 + 왕복: 1899~2026 모든 음력 일자 및 모든 윤달 1일", () => {
+  it("독립 패키지(kor-lunar) 전수 비교 + 왕복: 1899~2050 모든 음력 일자 및 모든 윤달 1일", () => {
     let compared = 0,
       mismatch = 0,
       leapStarts = 0,
       rejectedOutOfRange = 0,
       invalidRejected = 0;
     const mism: string[] = [];
-    for (let y = 1899; y <= 2026; y++) {
+    for (let y = 1899; y <= 2050; y++) {
       const lm = LunarTable.getLeapMonth(y);
       for (let m = 1; m <= 12; m++) {
         for (const leap of lm === m ? [false, true] : [false]) {
@@ -138,9 +139,14 @@ describe("R-001 음력/윤달 → 양력 변환", () => {
               }
               continue;
             }
-            const k = toSolar(y, m, d, leap);
-            const ks = `${k.year}-${pad(k.month)}-${pad(k.day)}`;
-            if (ks < "1900-01-01" || ks > "2026-12-31") {
+            let ks: string;
+            try {
+              const k = toSolar(y, m, d, leap);
+              ks = `${k.year}-${pad(k.month)}-${pad(k.day)}`;
+            } catch {
+              ks = "9999-99-99"; // kor-lunar 는 자기 범위(양력 2050-12-31) 밖이면 던진다 → 범위 밖으로 취급
+            }
+            if (ks < "1900-01-01" || ks > "2050-12-31") {
               if (ours === null) rejectedOutOfRange++;
               else mismatch++;
               continue;

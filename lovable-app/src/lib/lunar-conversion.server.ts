@@ -4,12 +4,18 @@
 // - 이 모듈은 '날짜'만 변환한다. 연/월주는 절입 태양황경, 일주는 변환된 법정 양력 날짜로 기존 엔진이 계산.
 //   음력 달력의 간지(세차·월건·일진)를 사주 4주로 사용하지 않는다.
 import KoreanLunarCalendar from "korean-lunar-calendar";
+import {
+  SOLAR_MAX,
+  SOLAR_MIN,
+  SUPPORT_MAX_YEAR,
+  SUPPORT_MIN_YEAR,
+  SUPPORT_RANGE_LABEL,
+} from "./support-range";
 
 export const CONVERSION_VERSION = "r001-lunar-0.1";
 export const CONVERSION_SOURCE =
   "korean-lunar-calendar 0.4.0 (MIT, KASI 기반 내장 표; KASI 공식 API 실호출 아님)";
-export const SOLAR_MIN = "1900-01-01";
-export const SOLAR_MAX = "2026-12-31";
+export { SOLAR_MAX, SOLAR_MIN };
 
 export interface CalendarConversion {
   originalCalendar: "lunar";
@@ -36,8 +42,9 @@ export function convertLunarToSolar(date: unknown, leap: unknown): LunarResult {
   const y = Number(m[1]),
     mo = Number(m[2]),
     d = Number(m[3]);
-  // 음력 연도는 1899(양력 1900년 1~2월에 해당) ~ 2026만 후보. 최종 판단은 변환된 양력 날짜 기준.
-  if (y < 1899 || y > 2026) return { ok: false, error: "지원 범위는 양력 환산 1900~2026년이에요." };
+  // 음력 연도는 1899(양력 1900년 1~2월에 해당) ~ 상한 연도만 후보. 최종 판단은 변환된 양력 날짜 기준.
+  if (y < SUPPORT_MIN_YEAR - 1 || y > SUPPORT_MAX_YEAR)
+    return { ok: false, error: `지원 범위는 양력 환산 ${SUPPORT_RANGE_LABEL}년이에요.` };
   if (mo < 1 || mo > 12 || d < 1 || d > 30)
     return { ok: false, error: "음력 월은 1~12, 일은 1~30 범위로 입력해 주세요." };
 
@@ -66,7 +73,10 @@ export function convertLunarToSolar(date: unknown, leap: unknown): LunarResult {
   const s = cal.getSolarCalendar();
   const solar = `${pad(s.year, 4)}-${pad(s.month)}-${pad(s.day)}`;
   if (solar < SOLAR_MIN || solar > SOLAR_MAX) {
-    return { ok: false, error: "양력으로 환산하면 지원 범위(1900~2026년)를 벗어나요." };
+    return {
+      ok: false,
+      error: `양력으로 환산하면 지원 범위(${SUPPORT_RANGE_LABEL}년)를 벗어나요.`,
+    };
   }
   // 왕복(round-trip) 검증: 양력 → 음력 재변환이 입력과 정확히 일치해야 함
   const back = new KoreanLunarCalendar();

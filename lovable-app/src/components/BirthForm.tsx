@@ -1,9 +1,14 @@
 import { useState } from "react";
-import { isLunarDateFormat, isValidDate, type BirthInput } from "@/lib/saju";
+import { isLunarDateFormat, isValidDate, kstToday, type BirthInput } from "@/lib/saju";
+import { SUPPORT_MIN_YEAR, SUPPORT_RANGE_LABEL } from "@/lib/support-range";
 
 const field = "mt-1 w-full rounded-xl border border-input bg-card px-3 py-2.5 text-base";
 const pad = (n: number) => String(n).padStart(2, "0");
-const YEARS = Array.from({ length: 2026 - 1899 + 1 }, (_, i) => 2026 - i);
+const THIS_YEAR = Number(kstToday().slice(0, 4));
+const YEARS = Array.from(
+  { length: THIS_YEAR - (SUPPORT_MIN_YEAR - 1) + 1 },
+  (_, i) => THIS_YEAR - i,
+);
 const MONTHS = Array.from({ length: 12 }, (_, i) => i + 1);
 const DAYS = Array.from({ length: 30 }, (_, i) => i + 1);
 
@@ -37,7 +42,7 @@ export function BirthForm({
         e.preventDefault();
         if (!b.name.trim()) return setErr("이름(별명)을 입력해 주세요.");
         if (b.calendar === "solar" && !isValidDate(b.date))
-          return setErr("올바른 생년월일을 입력해 주세요 (1900~2026).");
+          return setErr(`올바른 생년월일을 입력해 주세요 (${SUPPORT_RANGE_LABEL}).`);
         if (b.calendar === "lunar" && !isLunarDateFormat(b.date))
           return setErr("음력 연·월·일을 모두 선택해 주세요.");
         if (!unknown && !b.time)
@@ -86,8 +91,8 @@ export function BirthForm({
             type="date"
             className={field}
             value={b.date}
-            min="1900-01-01"
-            max="2026-12-31"
+            min={`${SUPPORT_MIN_YEAR}-01-01`}
+            max={kstToday()}
             onChange={(e) => setB({ ...b, date: e.target.value })}
           />
         </label>

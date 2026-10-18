@@ -4,7 +4,8 @@
 // - 결정론적 계산만 사용. 난수/해시/추정치로 사주를 만들지 않음.
 import * as Astronomy from "astronomy-engine";
 import type { Element, Pillar, SajuPreview } from "./saju";
-import { isValidDate } from "./saju";
+import { isValidDate, kstToday } from "./saju";
+import { SUPPORT_MAX_YEAR, SUPPORT_MIN_YEAR, SUPPORT_RANGE_LABEL } from "./support-range";
 import { convertLunarToSolar, type CalendarConversion } from "./lunar-conversion.server";
 
 export const ENGINE_VERSION = "r001-0.1";
@@ -16,8 +17,7 @@ export const CLOCK_POLICY =
 export type DayBoundaryPolicy = "midnight" | "zi23";
 export const DAY_BOUNDARY_POLICY =
   "r001-dayboundary-v1 (기본 midnight: 자정 00:00 일주 교체; zi23: 23:00 익일 일주 전환, 명시 선택 전용)";
-export const ACCURACY_NOTE =
-  "지원 범위: 양력 환산 1900~2026년, 한국(Asia/Seoul) 출생만. 음력/윤달 입력은 서버에서 양력 날짜로만 변환한 뒤 계산합니다(연/월주=절입 태양황경, 일주=환산된 법정 양력 날짜; 음력 달력 간지는 사용하지 않음). 절입 시각은 KASI 공개 기준과 분 단위 비교 검증 중이며, 절입 경계 ±120초 이내는 '검토 필요'로 표시합니다. 해외 출생, 진태양시 보정은 아직 지원하지 않습니다.";
+export const ACCURACY_NOTE = `지원 범위: 양력 환산 ${SUPPORT_RANGE_LABEL}년, 한국(Asia/Seoul) 출생만. 음력/윤달 입력은 서버에서 양력 날짜로만 변환한 뒤 계산합니다(연/월주=절입 태양황경, 일주=환산된 법정 양력 날짜; 음력 달력 간지는 사용하지 않음). 절입 시각은 KASI 공개 기준(2025~2027)과 분 단위로 비교했고 2027~2050년은 독립 구현과의 교차 검증만 마쳤으며, 절입 경계 ±120초 이내는 '검토 필요'로 표시합니다. 해외 출생, 진태양시 보정은 아직 지원하지 않습니다.`;
 
 export const STEMS = ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"];
 export const STEM_KO = ["갑", "을", "병", "정", "무", "기", "경", "신", "임", "계"];
@@ -184,7 +184,7 @@ export type ParsedBirth =
 
 // 서버 파서: 형식을 엄격히 검사하고, 음력이면 서버에서 양력 날짜로 변환(왕복 검증)한 뒤 EngineInput을 만든다.
 // 반환되는 parsed.year/month/day는 항상 '양력 법정 날짜'이다. name·gender는 천문 계산에 쓰지 않는다.
-export function parseBirthInput(data: unknown): ParsedBirth {
+export function parseBirthInput(data: unknown, opts: { today?: string } = {}): ParsedBirth {
   if (typeof data !== "object" || data === null || Array.isArray(data)) {
     return { ok: false, error: "입력 형식이 올바르지 않아요." };
   }
@@ -199,14 +199,20 @@ export function parseBirthInput(data: unknown): ParsedBirth {
   }
   const date = d["date"];
   if (typeof date !== "string" || date.length !== 10 || !DATE_RE.test(date)) {
-    return { ok: false, error: "올바른 생년월일을 입력해 주세요 (YYYY-MM-DD, 1900~2026)." };
+    return {
+      ok: false,
+      error: `올바른 생년월일을 입력해 주세요 (YYYY-MM-DD, ${SUPPORT_RANGE_LABEL}).`,
+    };
   }
   let conversion: CalendarConversion | null = null;
   let solarDate = date;
   if (calendar === "solar") {
     if (d["leap"] === true) return { ok: false, error: "양력 입력에는 윤달을 선택할 수 없어요." };
     if (!isValidDate(date))
-      return { ok: false, error: "올바른 생년월일을 입력해 주세요 (YYYY-MM-DD, 1900~2026)." };
+      return {
+        ok: false,
+        error: `올바른 생년월일을 입력해 주세요 (YYYY-MM-DD, ${SUPPORT_RANGE_LABEL}).`,
+      };
   } else {
     if (typeof d["leap"] !== "boolean")
       return { ok: false, error: "음력 입력은 윤달 여부(예/아니오)가 필요해요." };
@@ -215,8 +221,14 @@ export function parseBirthInput(data: unknown): ParsedBirth {
     conversion = c.conversion;
     solarDate = c.conversion.convertedSolarDate;
     if (!isValidDate(solarDate))
-      return { ok: false, error: "양력으로 환산하면 지원 범위(1900~2026년)를 벗어나요." };
+      return {
+        ok: false,
+        error: `양력으로 환산하면 지원 범위(${SUPPORT_RANGE_LABEL}년)를 벗어나요.`,
+      };
   }
+  // 아직 오지 않은 날짜는 출생일이 될 수 없다(KST 기준 오늘까지). 상한 연도까지 계산 자체는 가능하지만 입력은 막는다.
+  if (solarDate > (opts.today ?? kstToday()))
+    return { ok: false, error: "아직 태어나지 않은 날짜예요. 생년월일을 확인해 주세요." };
   const [y, m, dd] = solarDate.split("-").map(Number) as [number, number, number];
   let hour: number | null = null;
   let minute = 0;
@@ -267,10 +279,10 @@ export function computeSaju(
   dayBoundary: DayBoundaryPolicy = "midnight",
 ): SajuPreview {
   const { year, month, day, hour, minute } = input;
-  if (year < 1900 || year > 2026) {
+  if (year < SUPPORT_MIN_YEAR || year > SUPPORT_MAX_YEAR) {
     return {
       ok: false,
-      error: "지원 범위는 1900~2026년이에요.",
+      error: `지원 범위는 ${SUPPORT_RANGE_LABEL}년이에요.`,
       finalApproved: false,
       engineVersion: ENGINE_VERSION,
       source: ENGINE_SOURCE,

@@ -1,3 +1,4 @@
+import { SUPPORT_MAX_YEAR, SUPPORT_MIN_YEAR } from "./support-range";
 // 클라이언트/서버 공용 타입·유틸. 사주 계산은 서버(saju-engine.server.ts)에서만 수행한다.
 // MOCK 해시 계산은 제거됨 — 실제 계산 전 결과를 사주로 표시하지 않는다.
 export type Element = "목" | "화" | "토" | "금" | "수";
@@ -52,13 +53,15 @@ export function isLunarDateFormat(date: string) {
   const y = Number(m[1]),
     mo = Number(m[2]),
     d = Number(m[3]);
-  return y >= 1899 && y <= 2026 && mo >= 1 && mo <= 12 && d >= 1 && d <= 30;
+  return (
+    y >= SUPPORT_MIN_YEAR - 1 && y <= SUPPORT_MAX_YEAR && mo >= 1 && mo <= 12 && d >= 1 && d <= 30
+  );
 }
 
 export function isValidDate(date: string) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return false;
   const [y, m, d] = date.split("-").map(Number) as [number, number, number];
-  if (!y || y < 1900 || y > 2026) return false;
+  if (!y || y < SUPPORT_MIN_YEAR || y > SUPPORT_MAX_YEAR) return false;
   const dt = new Date(Date.UTC(y, m - 1, d));
   return dt.getUTCMonth() === m - 1 && dt.getUTCDate() === d;
 }

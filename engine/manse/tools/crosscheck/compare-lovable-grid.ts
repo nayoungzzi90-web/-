@@ -5,7 +5,8 @@ const stride = Number(process.argv[3] ?? 3);
 const times: [number, number][] = [[3, 30], [15, 30], [23, 30]];
 let n = 0, skip = 0; const diffs: Record<string, number> = {}; const ex: string[] = [];
 const t0 = Date.now();
-for (let y = 1900; y <= 2026; y++) {
+const [Y0, Y1] = [Number(process.argv[4] ?? 1900), Number(process.argv[5] ?? 2050)];
+for (let y = Y0; y <= Y1; y++) {
   const start = Date.UTC(y, 0, 1), end = Date.UTC(y, 11, 31);
   for (let t = start, i = 0; t <= end; t += 86400000 * stride, i++) {
     const d = new Date(t); const mo = d.getUTCMonth() + 1, da = d.getUTCDate();
@@ -24,5 +25,5 @@ for (let y = 1900; y <= 2026; y++) {
     }
   }
 }
-console.log(JSON.stringify({ basis, stride, compared: n, skipped: skip, diffs, ms: Date.now() - t0 }));
+console.log(JSON.stringify({ basis, stride, Y0, Y1, compared: n, skipped: skip, diffs, ms: Date.now() - t0 }));
 console.log(ex.join('\n'));

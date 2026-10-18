@@ -155,7 +155,8 @@ describe("출생정보 저장/불러오기", () => {
       solar({ name: "가".repeat(13) }),
       solar({ calendar: "x" }),
       solar({ date: "1899-12-31" }),
-      solar({ date: "2027-01-01" }),
+      solar({ date: "2051-01-01" }), // 지원 범위 밖
+      solar({ date: new Date(Date.now() + 9 * 3600000 + 2 * 86400000).toISOString().slice(0, 10) }), // 아직 오지 않은 날짜(KST 모레)
       solar({ date: "1988-10-09", time: "02:30" }), // DST 중복
       solar({ date: "2026-02-04", time: null }), // 시간 미상 절입일
       null,
