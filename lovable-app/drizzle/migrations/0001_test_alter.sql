@@ -1,0 +1,1 @@
+alter table public.birth_profiles add column calendar text not null default 'solar';
