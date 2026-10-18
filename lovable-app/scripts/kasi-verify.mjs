@@ -9,7 +9,7 @@ if (!key) {
   console.error("KASI_KEY 환경변수가 없어요. 사용법은 파일 맨 위 주석을 보세요.");
   process.exit(1);
 }
-const [Y0, Y1] = [Number(process.argv[2] ?? 1990), Number(process.argv[3] ?? 2027)];
+const [Y0, Y1] = [Number(process.argv[2] ?? 2000), Number(process.argv[3] ?? 2027)];
 const ref = JSON.parse(
   readFileSync(new URL("./term-reference.json", import.meta.url), "utf8"),
 ).years;
@@ -57,6 +57,7 @@ let n = 0,
 const diffs = [];
 let shownSample = false;
 const issues = [];
+const noDataYears = [];
 for (let y = Y0; y <= Y1; y++) {
   const r = await fetchYear(y);
   if (r.error) {
@@ -66,7 +67,7 @@ for (let y = Y0; y <= Y1; y++) {
   }
   if (!r.items.length) {
     noData++;
-    issues.push(`${y}: 데이터 없음`);
+    noDataYears.push(y);
     continue;
   }
   if (!shownSample) {
@@ -77,14 +78,18 @@ for (let y = Y0; y <= Y1; y++) {
     if (!JIE.has(it.dateName)) continue;
     const loc = String(it.locdate); // YYYYMMDD
     const date = `${loc.slice(0, 4)}-${loc.slice(4, 6)}-${loc.slice(6, 8)}`;
-    const mine =
-      ref[y]?.find((t) => t.name === it.dateName) ??
-      ref[y - 1]?.find((t) => t.name === it.dateName && t.kst.startsWith(date)) ??
-      ref[y + 1]?.find((t) => t.name === it.dateName && t.kst.startsWith(date));
-    if (!mine) {
-      issues.push(`${y} ${it.dateName}: 우리 기준표에 없음 (${date})`);
+    // 같은 이름의 절기 중 KASI 날짜와 가장 가까운 것 (소한은 1월이라 앞뒤 연도 표에 들어 있음)
+    const dayNum = (d) => Date.parse(`${d}T00:00:00Z`) / 86400000;
+    const near = [y - 1, y, y + 1]
+      .flatMap((yy) => ref[yy] ?? [])
+      .filter((t) => t.name === it.dateName)
+      .map((t) => ({ t, gap: Math.abs(dayNum(t.kst.slice(0, 10)) - dayNum(date)) }))
+      .sort((p, q) => p.gap - q.gap)[0];
+    if (!near || near.gap > 1) {
+      issues.push(`${date} ${it.dateName}: 우리 기준표에서 같은 날짜의 절기를 못 찾음`);
       continue;
     }
+    const mine = near.t;
     n++;
     const kstStr = it.kst != null ? String(it.kst).trim() : "";
     if (/^\d{1,4}$/.test(kstStr)) {
@@ -97,7 +102,7 @@ for (let y = Y0; y <= Y1; y++) {
       if (Math.abs(dMin) > 1) {
         bad++;
         issues.push(
-          `${date} ${it.dateName}: KASI ${hhmm} 우리 ${mine.kst.slice(11)} (차이 ${dMin}분)`,
+          `${date} ${it.dateName}: KASI ${hhmm} 우리 ${mine.kst.slice(11)} (차이 ${dMin}분, KASI 황경 ${it.sunLongitude})`,
         );
       }
     } else {
@@ -110,6 +115,11 @@ for (let y = Y0; y <= Y1; y++) {
   }
   await sleep(150);
 }
+if (noDataYears.length)
+  console.log(
+    `데이터 없는 연도: ${noDataYears[0]}~${noDataYears.at(-1)} (${noDataYears.length}개)`,
+  );
+if (issues.length) console.log(issues.slice(0, 30).join("\n"));
 const abs = diffs.map(Math.abs).sort((a, b) => a - b);
 console.log(
   JSON.stringify({
@@ -123,4 +133,3 @@ console.log(
     medianAbsMin: abs.length ? abs[Math.floor(abs.length / 2)] : null,
   }),
 );
-if (issues.length) console.log(issues.slice(0, 30).join("\n"));
