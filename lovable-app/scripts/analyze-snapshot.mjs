@@ -6,13 +6,60 @@ import { fileURLToPath } from "node:url";
 
 const WRITE = new Set(["INSERT", "UPDATE", "DELETE", "TRUNCATE", "REFERENCES", "TRIGGER"]);
 const FUNCS = ["spend_coins", "ensure_user_setup", "apply_invite"];
+const ACL_LETTER = {
+  a: "INSERT",
+  r: "SELECT",
+  w: "UPDATE",
+  d: "DELETE",
+  D: "TRUNCATE",
+  x: "REFERENCES",
+  t: "TRIGGER",
+  m: "MAINTAIN",
+};
+const KNOWN_ROLES = new Set([
+  "postgres",
+  "anon",
+  "authenticated",
+  "service_role",
+  "supabase_admin",
+]);
+
+/** pg ACL 문자열 {role=arwd/grantor,...} → [{grantee, privilege}] (grantee 가 비면 PUBLIC) */
+export function parseAcl(acl) {
+  if (!acl) return [];
+  const out = [];
+  for (const item of acl.replace(/^\{|\}$/g, "").split(",")) {
+    const m = /^([^=]*)=([^/]*)\//.exec(item.trim());
+    if (!m) continue;
+    for (const ch of m[2].replace(/\*/g, ""))
+      if (ACL_LETTER[ch]) out.push({ grantee: m[1] || "PUBLIC", privilege: ACL_LETTER[ch] });
+  }
+  return out;
+}
 
 export function analyze(s) {
   const out = [];
   const add = (level, msg) => out.push({ level, msg });
 
-  // 1) 권한
-  const g = s.grants ?? [];
+  // 1) 권한 — 조회 계정이 읽기 전용이면 information_schema.role_table_grants 가 비어 나온다(자기 관련 권한만 보임). 그 경우 pg_class.relacl 을 쓴다.
+  let g = s.grants ?? [];
+  if (g.length === 0 && (s.tables ?? []).some((t) => t.acl)) {
+    g = (s.tables ?? []).flatMap((t) => parseAcl(t.acl).map((x) => ({ table: t.table, ...x })));
+    add("INFO", "grants 가 비어 있어 표의 ACL(relacl)에서 권한을 복원함(조회 계정 권한 때문)");
+  }
+  const unknown = {};
+  for (const x of g) {
+    if (!KNOWN_ROLES.has(x.grantee) && x.grantee !== "PUBLIC")
+      (unknown[x.grantee] ??= new Set()).add(`${x.table}:${x.privilege}`);
+  }
+  for (const [role, set] of Object.entries(unknown)) {
+    const writes = [...set].filter((v) => !v.endsWith(":SELECT"));
+    if (writes.length)
+      add(
+        "WARN",
+        `알 수 없는 역할 ${role} 이 쓰기성 권한 보유(${writes.length}건, 예: ${writes.slice(0, 2).join(", ")}) — 플랫폼(Lovable) 관리 역할인지 확인`,
+      );
+  }
   for (const role of ["anon", "authenticated", "PUBLIC"]) {
     const byTable = {};
     for (const x of g.filter((x) => x.grantee === role))
@@ -85,6 +132,24 @@ export function analyze(s) {
   if (an.duplicate_invite_codes > 0) add("FAIL", `중복 초대 코드 ${an.duplicate_invite_codes}개`);
   if (an.users_with_multiple_invite_codes > 0)
     add("WARN", `초대 코드를 여러 개 가진 사용자 ${an.users_with_multiple_invite_codes}명`);
+  // 5-1) 기본 권한/확장/제약
+  for (const d of s.default_acl ?? []) {
+    if (d.schema === "public" && d.objtype === "r" && /anon=/.test(d.acl ?? ""))
+      add(
+        "WARN",
+        `public 새 표 기본 권한이 anon 에게 열려 있음(${d.role}) — 새 표를 만들면 자동으로 과다 권한`,
+      );
+  }
+  if (!(s.extensions ?? []).some((e) => e.name === "pg_cron"))
+    add(
+      "INFO",
+      "pg_cron 미설치 — 요청 제한 정리 스케줄을 쓰려면 확장 활성화가 필요하거나, 함수 안의 기회적 정리로 대체",
+    );
+  if (!(s.constraints ?? []).some((c) => c.type === "f"))
+    add(
+      "INFO",
+      "외래키(FK) 없음 — auth 사용자를 지워도 public 의 출생정보·지갑 등이 남음(회원 삭제·개인정보 파기 설계 필요)",
+    );
   // 6) 유료 상품
   for (const p of s.price_catalog ?? [])
     if (p.active)
