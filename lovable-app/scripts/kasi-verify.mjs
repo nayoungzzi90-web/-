@@ -9,7 +9,7 @@ if (!key) {
   console.error("KASI_KEY 환경변수가 없어요. 사용법은 파일 맨 위 주석을 보세요.");
   process.exit(1);
 }
-const [Y0, Y1] = [Number(process.argv[2] ?? 2025), Number(process.argv[3] ?? 2050)];
+const [Y0, Y1] = [Number(process.argv[2] ?? 1990), Number(process.argv[3] ?? 2027)];
 const ref = JSON.parse(
   readFileSync(new URL("./term-reference.json", import.meta.url), "utf8"),
 ).years;
@@ -34,7 +34,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const toArr = (x) => (x == null ? [] : Array.isArray(x) ? x : [x]);
 
 async function fetchYear(y) {
-  const url = `${BASE}?serviceKey=${encodeURIComponent(key)}&solYear=${y}&numOfRows=50&pageNo=1&_type=json`;
+  const url = `${BASE}?ServiceKey=${encodeURIComponent(key)}&solYear=${y}&numOfRows=50&pageNo=1&_type=json`;
   const res = await fetch(url);
   const text = await res.text();
   let j;
