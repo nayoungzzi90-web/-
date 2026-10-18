@@ -20,7 +20,12 @@ export type RateDecision =
   | { allowed: false; reason: "limited" | "unavailable" };
 
 export interface RateRpc {
-  hit(scope: string, identityHash: string, max: number, windowSec: number): Promise<{ allowed: boolean }>;
+  hit(
+    scope: string,
+    identityHash: string,
+    max: number,
+    windowSec: number,
+  ): Promise<{ allowed: boolean }>;
 }
 
 export interface RateEnv {
@@ -45,7 +50,8 @@ export function resolveClientIdentity(
   trustedHeader: string | undefined,
 ): { key: string; shared: boolean } {
   const h = trustedHeader?.trim().toLowerCase();
-  if (!h || !(ALLOWED_TRUSTED_HEADERS as readonly string[]).includes(h)) return { key: "unknown", shared: true };
+  if (!h || !(ALLOWED_TRUSTED_HEADERS as readonly string[]).includes(h))
+    return { key: "unknown", shared: true };
   const v = getHeader(h)?.trim();
   if (!v || v.length > 45 || !/^[0-9a-fA-F:.]+$/.test(v)) return { key: "unknown", shared: true };
   return { key: v, shared: false };
@@ -53,22 +59,38 @@ export function resolveClientIdentity(
 
 export async function hmacIdentity(pepper: string, raw: string): Promise<string> {
   const enc = new TextEncoder();
-  const k = await crypto.subtle.importKey("raw", enc.encode(pepper), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
-  const sig = new Uint8Array(await crypto.subtle.sign("HMAC", k, enc.encode(`${RATE_SCOPE}|${raw}`)));
+  const k = await crypto.subtle.importKey(
+    "raw",
+    enc.encode(pepper),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"],
+  );
+  const sig = new Uint8Array(
+    await crypto.subtle.sign("HMAC", k, enc.encode(`${RATE_SCOPE}|${raw}`)),
+  );
   return Array.from(sig, (b) => b.toString(16).padStart(2, "0")).join("");
 }
 
 // 미리보기 전용 메모리 한도 (인스턴스별·휘발성, 보안 아님)
 const mem = new Map<string, { start: number; n: number }>();
 export function previewMemoryHit(key: string, max: number, now = Date.now()): boolean {
-  if (mem.size > 5000) for (const [k, v] of mem) if (now - v.start > RATE_LIMIT_WINDOW_SEC * 1000) mem.delete(k);
+  if (mem.size > 5000)
+    for (const [k, v] of mem) if (now - v.start > RATE_LIMIT_WINDOW_SEC * 1000) mem.delete(k);
   const h = mem.get(key);
-  if (!h || now - h.start > RATE_LIMIT_WINDOW_SEC * 1000) { mem.set(key, { start: now, n: 1 }); return 1 <= max; }
+  if (!h || now - h.start > RATE_LIMIT_WINDOW_SEC * 1000) {
+    mem.set(key, { start: now, n: 1 });
+    return 1 <= max;
+  }
   h.n++;
   return h.n <= max;
 }
-export function _resetPreviewMemory() { mem.clear(); }
-export function _previewMemoryKeys(): string[] { return [...mem.keys()]; }
+export function _resetPreviewMemory() {
+  mem.clear();
+}
+export function _previewMemoryKeys(): string[] {
+  return [...mem.keys()];
+}
 
 export async function checkRateLimit(opts: {
   env: RateEnv;
@@ -89,8 +111,15 @@ export async function checkRateLimit(opts: {
 
   const hash = await hmacIdentity(env.pepper, id.key);
   try {
-    const r = await opts.rpc.hit(id.shared ? `${RATE_SCOPE}_unknown` : RATE_SCOPE, hash, max, RATE_LIMIT_WINDOW_SEC);
-    return r.allowed ? { allowed: true, backend: "persistent" } : { allowed: false, reason: "limited" };
+    const r = await opts.rpc.hit(
+      id.shared ? `${RATE_SCOPE}_unknown` : RATE_SCOPE,
+      hash,
+      max,
+      RATE_LIMIT_WINDOW_SEC,
+    );
+    return r.allowed
+      ? { allowed: true, backend: "persistent" }
+      : { allowed: false, reason: "limited" };
   } catch {
     if (env.mode === "production") return { allowed: false, reason: "unavailable" };
     const memKey = id.shared ? "unknown" : `h:${hash}`;
@@ -108,13 +137,16 @@ export async function createSupabaseRateRpc(): Promise<RateRpc | null> {
     async hit(scope, identityHash, max, windowSec) {
       // 함수 시그니처는 리뷰 SQL 기준. 미적용 상태면 오류 → production fail-closed
       const rpc = supabaseAdmin.rpc as unknown as (
-        fn: string, args: Record<string, unknown>,
+        fn: string,
+        args: Record<string, unknown>,
       ) => Promise<{ data: unknown; error: unknown }>;
       const { data, error } = await rpc("saju_rate_limit_hit", {
-        p_scope: scope, p_identity_hash: identityHash,
+        p_scope: scope,
+        p_identity_hash: identityHash,
       });
       if (error) throw new Error("rate rpc failed");
-      void max; void windowSec; // 한도·창은 DB 함수에 고정(클라이언트·앱 값 비신뢰)
+      void max;
+      void windowSec; // 한도·창은 DB 함수에 고정(클라이언트·앱 값 비신뢰)
       if (typeof data !== "boolean") throw new Error("rate rpc bad shape");
       return { allowed: data };
     },

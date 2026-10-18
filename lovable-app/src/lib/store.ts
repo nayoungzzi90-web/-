@@ -11,9 +11,28 @@ interface State {
   coins: number;
   unlocked: string[];
 }
-let state: State = { loaded: false, signedIn: false, email: null, inviteCode: null, me: null, partner: null, coins: 0, unlocked: [] };
+let state: State = {
+  loaded: false,
+  signedIn: false,
+  email: null,
+  inviteCode: null,
+  me: null,
+  partner: null,
+  coins: 0,
+  unlocked: [],
+};
 const subs = new Set<() => void>();
 export const getState = () => state;
-export const setStore = (p: Partial<State>) => { state = { ...state, ...p }; subs.forEach((s) => s()); };
+export const setStore = (p: Partial<State>) => {
+  state = { ...state, ...p };
+  subs.forEach((s) => s());
+};
 export const useStore = () =>
-  useSyncExternalStore((cb) => { subs.add(cb); return () => subs.delete(cb); }, () => state, () => state);
+  useSyncExternalStore(
+    (cb) => {
+      subs.add(cb);
+      return () => subs.delete(cb);
+    },
+    () => state,
+    () => state,
+  );

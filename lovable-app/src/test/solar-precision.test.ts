@@ -4,7 +4,12 @@ import { describe, expect, it } from "vitest";
 import { computeSaju, solarTermsUtc, utcToSeoulWall } from "@/lib/saju-engine.server";
 import { KASI_12JEOL, engineTermFor } from "./fixtures/kasi_12jeol_2025_2027";
 
-interface Diff { year: number; name: string; signedSec: number; absSec: number }
+interface Diff {
+  year: number;
+  name: string;
+  signedSec: number;
+  absSec: number;
+}
 
 function allDiffs(): Diff[] {
   const out: Diff[] = [];
@@ -32,7 +37,12 @@ describe("R-001 정밀 절입 검증 (KASI 2025~2027, 36개)", () => {
     console.log("=== KASI 36개 대조 요약 ===");
     console.log(`max=${max.toFixed(1)}s median=${median.toFixed(1)}s p95=${p95.toFixed(1)}s`);
     console.log(`≤60s: ${within(60)}/36, ≤90s: ${within(90)}/36, ≤120s: ${within(120)}/36`);
-    console.log("최대 불일치 상위 10:", worst.map((w) => `${w.year} ${w.name} ${w.signedSec >= 0 ? "+" : ""}${w.signedSec.toFixed(1)}s`).join(" | "));
+    console.log(
+      "최대 불일치 상위 10:",
+      worst
+        .map((w) => `${w.year} ${w.name} ${w.signedSec >= 0 ? "+" : ""}${w.signedSec.toFixed(1)}s`)
+        .join(" | "),
+    );
     expect(diffs.length).toBe(36);
     expect(max).toBeLessThanOrEqual(120);
   });
@@ -48,9 +58,13 @@ describe("R-001 정밀 절입 검증 (KASI 2025~2027, 36개)", () => {
 
   it("절입 경계 ±120초 이내는 검토 필요, ±1초는 UTC 계산 결과를 그대로 사용한다", () => {
     const w = utcToSeoulWall(solarTermsUtc(2026)[0]!); // 2026 입춘 정확한 순간
-    expect(computeSaju({ year: w.y, month: w.mo, day: w.d, hour: w.h, minute: w.mi }).needsReview).toBe(true);
+    expect(
+      computeSaju({ year: w.y, month: w.mo, day: w.d, hour: w.h, minute: w.mi }).needsReview,
+    ).toBe(true);
     // 경계에서 충분히 먼 날은 검토 불필요
-    expect(computeSaju({ year: 2026, month: 6, day: 15, hour: 12, minute: 0 }).needsReview).toBe(false);
+    expect(computeSaju({ year: 2026, month: 6, day: 15, hour: 12, minute: 0 }).needsReview).toBe(
+      false,
+    );
   });
 });
 
@@ -82,8 +96,13 @@ describe("년주·월주 회귀 (소한 연말연초 매핑 포함)", () => {
   });
 
   it("자정 기본 정책과 zi23 선택 정책, 서머타임 모호 시각 차단이 유지된다", () => {
-    expect(computeSaju({ year: 2000, month: 1, day: 7, hour: 23, minute: 30 }).pillars?.day.hanja).toBe("甲子");
-    expect(computeSaju({ year: 2000, month: 1, day: 7, hour: 23, minute: 30 }, "zi23").pillars?.day.hanja).toBe("乙丑");
+    expect(
+      computeSaju({ year: 2000, month: 1, day: 7, hour: 23, minute: 30 }).pillars?.day.hanja,
+    ).toBe("甲子");
+    expect(
+      computeSaju({ year: 2000, month: 1, day: 7, hour: 23, minute: 30 }, "zi23").pillars?.day
+        .hanja,
+    ).toBe("乙丑");
     expect(computeSaju({ year: 1988, month: 10, day: 9, hour: 2, minute: 30 }).ok).toBe(false);
   });
 });

@@ -1,39 +1,74 @@
 import { describe, expect, it } from "vitest";
-import { computeSaju, parseBirthInput, seoulWallToUtc, solarTermsUtc, utcToSeoulWall } from "@/lib/saju-engine.server";
+import {
+  computeSaju,
+  parseBirthInput,
+  seoulWallToUtc,
+  solarTermsUtc,
+  utcToSeoulWall,
+} from "@/lib/saju-engine.server";
 import * as saju from "@/lib/saju";
 
 const KST = 9 * 3600_000;
-const kst = (utc: Date) => new Date(utc.getTime() + KST).toISOString().slice(0, 16).replace("T", " ");
-const birth = (over: Record<string, unknown>) => ({ name: "테스트", calendar: "solar", leap: false, date: "1995-03-21", time: "07:30", gender: "f", ...over });
+const kst = (utc: Date) =>
+  new Date(utc.getTime() + KST).toISOString().slice(0, 16).replace("T", " ");
+const birth = (over: Record<string, unknown>) => ({
+  name: "테스트",
+  calendar: "solar",
+  leap: false,
+  date: "1995-03-21",
+  time: "07:30",
+  gender: "f",
+  ...over,
+});
 
 describe("R-001 만세력 엔진", () => {
   it("2026 입춘·경칩이 KASI 공개 기준과 90초 이내로 일치한다", () => {
     const terms = solarTermsUtc(2026);
     // KASI: 입춘 2026-02-04 05:02 KST, 경칩 2026-03-05 22:59 KST
     expect(Math.abs(terms[0]!.getTime() - Date.UTC(2026, 1, 3, 20, 2))).toBeLessThanOrEqual(90_000);
-    expect(Math.abs(terms[1]!.getTime() - Date.UTC(2026, 2, 5, 13, 59))).toBeLessThanOrEqual(90_000);
+    expect(Math.abs(terms[1]!.getTime() - Date.UTC(2026, 2, 5, 13, 59))).toBeLessThanOrEqual(
+      90_000,
+    );
   });
 
   it("입춘 전후로 연주가 바뀐다 (2025 乙巳 → 2026 丙午)", () => {
-    expect(computeSaju({ year: 2026, month: 2, day: 4, hour: 4, minute: 0 }).pillars?.year.hanja).toBe("乙巳");
-    expect(computeSaju({ year: 2026, month: 2, day: 4, hour: 6, minute: 0 }).pillars?.year.hanja).toBe("丙午");
+    expect(
+      computeSaju({ year: 2026, month: 2, day: 4, hour: 4, minute: 0 }).pillars?.year.hanja,
+    ).toBe("乙巳");
+    expect(
+      computeSaju({ year: 2026, month: 2, day: 4, hour: 6, minute: 0 }).pillars?.year.hanja,
+    ).toBe("丙午");
   });
 
   it("입춘 정확한 순간 ±120초 이내는 검토 필요로 표시한다", () => {
     const w = utcToSeoulWall(solarTermsUtc(2026)[0]!);
-    expect(computeSaju({ year: w.y, month: w.mo, day: w.d, hour: w.h, minute: w.mi }).needsReview).toBe(true);
-    expect(computeSaju({ year: 2026, month: 2, day: 10, hour: 12, minute: 0 }).needsReview).toBe(false);
+    expect(
+      computeSaju({ year: w.y, month: w.mo, day: w.d, hour: w.h, minute: w.mi }).needsReview,
+    ).toBe(true);
+    expect(computeSaju({ year: 2026, month: 2, day: 10, hour: 12, minute: 0 }).needsReview).toBe(
+      false,
+    );
   });
 
   it("일주 벤치마크: 2000-01-07 甲子, 1995-03-21 辛亥, 1990-04-19 甲寅, 60일 순환", () => {
-    expect(computeSaju({ year: 2000, month: 1, day: 7, hour: 12, minute: 0 }).pillars?.day.hanja).toBe("甲子");
-    expect(computeSaju({ year: 2000, month: 3, day: 7, hour: 12, minute: 0 }).pillars?.day.hanja).toBe("甲子");
-    expect(computeSaju({ year: 1995, month: 3, day: 21, hour: 7, minute: 30 }).pillars?.day.hanja).toBe("辛亥");
-    expect(computeSaju({ year: 1990, month: 4, day: 19, hour: 12, minute: 0 }).pillars?.day.hanja).toBe("甲寅");
+    expect(
+      computeSaju({ year: 2000, month: 1, day: 7, hour: 12, minute: 0 }).pillars?.day.hanja,
+    ).toBe("甲子");
+    expect(
+      computeSaju({ year: 2000, month: 3, day: 7, hour: 12, minute: 0 }).pillars?.day.hanja,
+    ).toBe("甲子");
+    expect(
+      computeSaju({ year: 1995, month: 3, day: 21, hour: 7, minute: 30 }).pillars?.day.hanja,
+    ).toBe("辛亥");
+    expect(
+      computeSaju({ year: 1990, month: 4, day: 19, hour: 12, minute: 0 }).pillars?.day.hanja,
+    ).toBe("甲寅");
   });
 
   it("시주: 甲/己일 子시는 甲子, 자시는 23:00~00:59다", () => {
-    expect(computeSaju({ year: 2000, month: 1, day: 7, hour: 0, minute: 30 }).pillars?.hour?.hanja).toBe("甲子");
+    expect(
+      computeSaju({ year: 2000, month: 1, day: 7, hour: 0, minute: 30 }).pillars?.hour?.hanja,
+    ).toBe("甲子");
     const q = computeSaju({ year: 2000, month: 1, day: 8, hour: 0, minute: 30 });
     expect(q.pillars?.day.hanja).toBe("乙丑");
     expect(q.pillars?.hour?.hanja).toBe("丙子");
@@ -111,7 +146,16 @@ describe("R-001 만세력 엔진", () => {
   });
 
   it("잘못된 JSON·타입 입력을 예외 없이 거부한다", () => {
-    for (const bad of [null, undefined, "str", 42, [], { calendar: "solar" }, birth({ date: 123 }), birth({ time: 7 })]) {
+    for (const bad of [
+      null,
+      undefined,
+      "str",
+      42,
+      [],
+      { calendar: "solar" },
+      birth({ date: 123 }),
+      birth({ time: 7 }),
+    ]) {
       const r = parseBirthInput(bad);
       expect(r.ok, JSON.stringify(bad)).toBe(false);
       if (!r.ok) expect(typeof r.error).toBe("string");
@@ -119,7 +163,14 @@ describe("R-001 만세력 엔진", () => {
   });
 
   it("날짜는 엄격한 YYYY-MM-DD + 실존 날짜만 허용한다", () => {
-    for (const d of ["1995-3-21", "1995/03/21", "1995-02-30", "1899-01-01", "abcd-ef-gh", "1995-03-21 "]) {
+    for (const d of [
+      "1995-3-21",
+      "1995/03/21",
+      "1995-02-30",
+      "1899-01-01",
+      "abcd-ef-gh",
+      "1995-03-21 ",
+    ]) {
       expect(parseBirthInput(birth({ date: d })).ok, d).toBe(false);
     }
   });

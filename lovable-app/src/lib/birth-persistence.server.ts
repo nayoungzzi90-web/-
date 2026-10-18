@@ -28,15 +28,20 @@ export interface BirthRowRead {
 const fail = (error: string) => ({ ok: false as const, error });
 
 /** 사용자 입력 → DB 행. 실패 시 DB write를 하면 안 된다. */
-export function serializeBirth(input: unknown): { ok: true; row: BirthRowWrite } | { ok: false; error: string } {
-  if (typeof input !== "object" || input === null || Array.isArray(input)) return fail("입력 형식이 올바르지 않아요.");
+export function serializeBirth(
+  input: unknown,
+): { ok: true; row: BirthRowWrite } | { ok: false; error: string } {
+  if (typeof input !== "object" || input === null || Array.isArray(input))
+    return fail("입력 형식이 올바르지 않아요.");
   const d = input as Record<string, unknown>;
   const { calendar, leap, date, time, gender } = d;
-  if (calendar !== "solar" && calendar !== "lunar") return fail("양력/음력 구분이 올바르지 않아요.");
+  if (calendar !== "solar" && calendar !== "lunar")
+    return fail("양력/음력 구분이 올바르지 않아요.");
   if (typeof leap !== "boolean") return fail("윤달 값이 올바르지 않아요.");
   if (calendar === "solar" && leap) return fail("양력에는 윤달을 선택할 수 없어요.");
   if (typeof date !== "string" || !DATE_RE.test(date)) return fail("날짜 형식이 올바르지 않아요.");
-  if (time !== null && (typeof time !== "string" || !TIME_RE.test(time))) return fail("출생 시간 형식이 올바르지 않아요.");
+  if (time !== null && (typeof time !== "string" || !TIME_RE.test(time)))
+    return fail("출생 시간 형식이 올바르지 않아요.");
   if (gender !== "f" && gender !== "m") return fail("성별 값이 올바르지 않아요.");
   if (typeof d["name"] !== "string") return fail("이름을 입력해 주세요.");
   const name = d["name"].trim();
@@ -51,24 +56,56 @@ export function serializeBirth(input: unknown): { ok: true; row: BirthRowWrite }
 
   if (calendar === "lunar") {
     if (!p.conversion) return fail("음력 변환에 실패했어요.");
-    return { ok: true, row: { name, calendar, leap, birth_date: p.conversion.convertedSolarDate, birth_input_original: date, birth_time: time, gender } };
+    return {
+      ok: true,
+      row: {
+        name,
+        calendar,
+        leap,
+        birth_date: p.conversion.convertedSolarDate,
+        birth_input_original: date,
+        birth_time: time,
+        gender,
+      },
+    };
   }
-  return { ok: true, row: { name, calendar, leap: false, birth_date: date, birth_input_original: null, birth_time: time, gender } };
+  return {
+    ok: true,
+    row: {
+      name,
+      calendar,
+      leap: false,
+      birth_date: date,
+      birth_input_original: null,
+      birth_time: time,
+      gender,
+    },
+  };
 }
 
 /** DB 행 → 화면 입력값. legacy 음력(original=null)은 birth_date를 원래 음력 입력으로 그대로 사용(재변환 금지). */
-export function deserializeBirth(r: BirthRowRead): { ok: true; me: BirthInput } | { ok: false; error: string } {
+export function deserializeBirth(
+  r: BirthRowRead,
+): { ok: true; me: BirthInput } | { ok: false; error: string } {
   const calendar = r.calendar === "lunar" ? "lunar" : r.calendar === "solar" ? "solar" : null;
   if (!calendar) return fail("저장된 출생정보 형식이 올바르지 않아요.");
   let date: string;
   if (calendar === "lunar" && r.birth_input_original !== null) {
-    if (!DATE_RE.test(r.birth_input_original)) return fail("저장된 음력 원본 날짜 형식이 올바르지 않아요. 다시 입력해 주세요.");
+    if (!DATE_RE.test(r.birth_input_original))
+      return fail("저장된 음력 원본 날짜 형식이 올바르지 않아요. 다시 입력해 주세요.");
     date = r.birth_input_original;
   } else {
     date = r.birth_date;
   }
   return {
     ok: true,
-    me: { name: r.name, calendar, leap: calendar === "lunar" ? r.leap : false, date, time: r.birth_time, gender: r.gender === "m" ? "m" : "f" },
+    me: {
+      name: r.name,
+      calendar,
+      leap: calendar === "lunar" ? r.leap : false,
+      date,
+      time: r.birth_time,
+      gender: r.gender === "m" ? "m" : "f",
+    },
   };
 }

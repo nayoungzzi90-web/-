@@ -24,7 +24,7 @@ export function useAuthSync() {
           const r = await applyInvite({ data: { code: ref } });
           if (r.granted) {
             setStore({ coins: r.coins });
-            toast("친구 초대 보너스 2냥이 지급됐어요! 🪙");
+            toast("친구 초대 보너스 2닢이 지급됐어요! 🪙");
           }
         }
       } catch {
@@ -32,15 +32,32 @@ export function useAuthSync() {
       }
     }
 
-    supabase.auth.getSession().then(async ({ data }) => {
-      if (!data.session) { if (!cancelled) setStore({ loaded: true }); return; }
-      await loadProfile(data.session.user.email ?? null);
-    }).catch(() => { if (!cancelled) setStore({ loaded: true }); });
+    supabase.auth
+      .getSession()
+      .then(async ({ data }) => {
+        if (!data.session) {
+          if (!cancelled) setStore({ loaded: true });
+          return;
+        }
+        await loadProfile(data.session.user.email ?? null);
+      })
+      .catch(() => {
+        if (!cancelled) setStore({ loaded: true });
+      });
 
     const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
       if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
       if (event === "SIGNED_OUT") {
-        setStore({ loaded: true, signedIn: false, email: null, inviteCode: null, me: null, partner: null, coins: 0, unlocked: [] });
+        setStore({
+          loaded: true,
+          signedIn: false,
+          email: null,
+          inviteCode: null,
+          me: null,
+          partner: null,
+          coins: 0,
+          unlocked: [],
+        });
         router.invalidate();
         return;
       }

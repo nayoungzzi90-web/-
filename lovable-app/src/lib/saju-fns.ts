@@ -25,15 +25,22 @@ export const getSajuPreview = createServerFn({ method: "POST" })
       const rl = await import("./rate-limit.server");
       const decision = await rl.checkRateLimit({
         env: rl.readRateEnv(import.meta.env.DEV),
-        getHeader: (n) => { try { return getRequestHeader(n) ?? undefined; } catch { return undefined; } },
+        getHeader: (n) => {
+          try {
+            return getRequestHeader(n) ?? undefined;
+          } catch {
+            return undefined;
+          }
+        },
         rpc: await rl.createSupabaseRateRpc().catch(() => null),
       });
       if (!decision.allowed) {
         return {
           ok: false,
-          error: decision.reason === "limited"
-            ? "요청이 너무 많아요. 잠시 후 다시 시도해 주세요."
-            : "지금은 계산을 이용할 수 없어요. 잠시 후 다시 시도해 주세요.",
+          error:
+            decision.reason === "limited"
+              ? "요청이 너무 많아요. 잠시 후 다시 시도해 주세요."
+              : "지금은 계산을 이용할 수 없어요. 잠시 후 다시 시도해 주세요.",
           ...base,
         };
       }

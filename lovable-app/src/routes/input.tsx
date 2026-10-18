@@ -7,7 +7,14 @@ import { saveBirth } from "@/lib/user-fns";
 import type { BirthInput } from "@/lib/saju";
 
 export const Route = createFileRoute("/input")({
-  head: () => ({ meta: [{ title: "출생정보 입력 — 오행 친구들" }, { name: "description", content: "양력·음력, 출생 시간으로 나의 오행 캐릭터를 찾아요." }, { property: "og:title", content: "출생정보 입력 — 오행 친구들" }, { property: "og:description", content: "나의 오행 캐릭터 찾기" }] }),
+  head: () => ({
+    meta: [
+      { title: "출생정보 입력 — 오행 친구들" },
+      { name: "description", content: "양력·음력, 출생 시간으로 나의 오행 캐릭터를 찾아요." },
+      { property: "og:title", content: "출생정보 입력 — 오행 친구들" },
+      { property: "og:description", content: "나의 오행 캐릭터 찾기" },
+    ],
+  }),
   component: InputPage,
 });
 
@@ -39,7 +46,10 @@ function InputPage() {
       />
       {!signedIn && (
         <p className="mt-3 text-center text-xs text-muted-foreground">
-          지금은 임시 미리보기예요. 로그인하면 입력 정보가 저장돼요. <a href="/auth" className="underline text-primary">로그인하기</a>
+          지금은 임시 미리보기예요. 로그인하면 입력 정보가 저장돼요.{" "}
+          <a href="/auth" className="underline text-primary">
+            로그인하기
+          </a>
         </p>
       )}
     </Shell>

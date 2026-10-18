@@ -49,7 +49,9 @@ export interface SajuPreview {
 export function isLunarDateFormat(date: string) {
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date);
   if (!m) return false;
-  const y = Number(m[1]), mo = Number(m[2]), d = Number(m[3]);
+  const y = Number(m[1]),
+    mo = Number(m[2]),
+    d = Number(m[3]);
   return y >= 1899 && y <= 2026 && mo >= 1 && mo <= 12 && d >= 1 && d <= 30;
 }
 
