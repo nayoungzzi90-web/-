@@ -116,3 +116,25 @@ export const applyInvite = createServerFn({ method: "POST" })
       .maybeSingle();
     return { granted: true as const, coins: w?.coins ?? 0 };
   });
+
+// 엽전 충전(결제). PAYMENTS_MODE 가 꺼져 있으면(기본) 아래 두 함수는 PAYMENTS_DISABLED 로 거부된다.
+// 금액은 서버가 정하고, 결제 확정은 PG 승인 금액 확인 후 DB 한 트랜잭션에서 충전한다(payments.server.ts).
+export const createCoinOrder = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({ coins: z.number().int().min(1).max(4) }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { buildPaymentsService } = await import("./payments.server");
+    return (await buildPaymentsService()).createOrder(context.userId, data.coins);
+  });
+
+export const confirmCoinOrder = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({ orderId: z.string().uuid(), paymentKey: z.string().min(1).max(200) }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { buildPaymentsService } = await import("./payments.server");
+    return (await buildPaymentsService()).confirm(context.userId, data.orderId, data.paymentKey);
+  });

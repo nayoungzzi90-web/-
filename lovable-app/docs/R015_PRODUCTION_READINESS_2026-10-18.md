@@ -37,16 +37,13 @@
 - 운영 DB 읽기 전용 스냅샷을 받았다. **원본과 상세 검토 결과는 보안 정보(권한·함수 본문)를 담고 있어 공개 저장소에 올리지 않는다.**
 - 반영된 변경: (1) 분석기가 `information_schema` 권한 조회가 비어 나오는 읽기 전용 계정을 처리(표 ACL 복원), (2) 운영에 `pg_cron` 이 없어 F3 의 정리 스케줄을 대체하는 **요청 제한 SQL v2**(`R015_SAJU_RATE_LIMIT_REVIEW_ONLY_v2.sql`, 함수 안 기회적 정리) 추가 — PGlite 로 한도·권한·정리 확인, **staging 재검증 전까지 미적용**.
 
-## 6. 엽전 정책 변경 SQL (2026-10-21, 검토용·미적용)
-- 결정: 초대 보상 1엽전, 하루·월 한도는 한국 시간(Asia/Seoul) 달력 기준, 가입 보너스 없음.
-- `docs/migrations/REVIEW_ONLY/INVITE_COINS_KST_REVIEW_ONLY.sql`: `ensure_user_setup`·`apply_invite` 본문만 교체(표·권한·데이터 불변, 기존 잔액 불변). 앱 문구는 `src/lib/coins.ts` 상수와 맞춤(초대 안내·가입 문구·토스트).
-- 적용 순서에서의 위치: 승인 ②(최소 권한 SQL) 뒤, 승인 ③(앱 게시) 전. 적용 후 함수 ACL 재조회 필수(CREATE OR REPLACE 는 ACL 유지).
-- 단일 연결(PGlite) 시험으로는 **동시 요청 직렬화를 검증하지 못한다** → staging 에서 확인 필요.
-- 앱 토스트 수정: 초대 링크를 적용한 사람에게 "보너스가 지급됐다"고 보여 주던 문구는 사실과 달랐다(보상은 초대한 사람에게 간다) → 문구 정정.
-
-## 7. 가격표·초대 조건 갱신 (2026-10-21, 검토용·미적용)
-- 결정: 1닢 = 900원. 기본 사주 1닢, 궁합 1닢, 심층 연애운 2닢, 택일 2닢, 심층 사주 3닢. 초대 보상은 **초대한 사람이 1닢 이상 결제(환불 제외)했을 때만** 지급, 한도는 한국 시간 하루 3명·월 10명(보수적 시작).
-- `PRICING_900_COIN_REVIEW_ONLY.sql`(가격표 확장·`spend_coins` id 확장·`coin_purchases` 결제 기록 표) → `INVITE_COINS_KST_REVIEW_ONLY.sql` 순서로 적용(후자가 전자의 표를 읽음). 둘 다 PGlite 로 시험(`src/lib/lovable-invite-sql.test.ts`).
-- 지금 DB 가격표는 옛 값(기본 4닢, 궁합 4닢)이고 상품 5종 중 `love`·`taekil`·`deep` 은 허용 목록에도 없다 → 위 SQL 적용 전까지 화면 가격(새 값)과 DB 가격이 다르다. 유료 열람은 비활성이라 실제 결제 경로는 막혀 있다.
-- 결제 연동(4단계)이 `coin_purchases` 에 기록하고 같은 트랜잭션에서 지갑을 충전해야 한다. 그 전에는 초대 보상이 사실상 발생하지 않는다(결제한 초대자가 없으므로).
+## 6. 엽전 가격·결제·원장·초대 보상 (2026-10-21, 검토용·미적용 — 4단계)
+- 결정: 1닢 = 900원. 기본 사주 1닢, 궁합 1닢, 심층 연애운 2닢, 택일 2닢, 심층 사주 3닢. 가입 보너스 없음. 초대 보상 1닢은 **초대받은 친구가 처음 결제했을 때**, 그리고 **초대한 사람이 먼저 1닢 이상 결제(환불 제외)한 적이 있을 때만** 지급. 한도는 한국 시간 하루 3명·월 10명(보수적 시작).
+- 적용 순서: `PRICING_900_COIN_REVIEW_ONLY.sql`(가격표·허용 상품 확장) → `COINS_PAYMENTS_REFERRAL_REVIEW_ONLY.sql`(주문·결제·원장·초대 연결 표, `create_coin_order`·`credit_purchase`·`refund_purchase`, `apply_invite`·`spend_coins`·`ensure_user_setup` 교체). 둘 다 PGlite 로 시험(`src/lib/lovable-coins-sql.test.ts`, 변이 시험으로 주요 검증이 실제로 잡히는지 확인).
+- 지금 DB 가격표는 옛 값(기본·궁합 4닢)이고 `love`·`taekil`·`deep` 은 허용 목록에도 없다 → SQL 적용 전까지 화면 가격(새 값)과 DB 가격이 다르다. 유료 열람은 비활성이라 실제 결제 경로는 막혀 있다.
+- 적용 순서에서의 위치: 승인 ②(최소 권한 SQL) 뒤, 승인 ③(앱 게시) 전. 적용 후 함수 ACL 재조회 필수(CREATE OR REPLACE 는 ACL 유지, 새 함수는 SQL 안에서 anon/authenticated 권한 회수).
+- 단일 연결(PGlite) 시험으로는 **동시 요청 직렬화(행 잠금)를 검증하지 못한다** → staging 에서 확인 필요.
+- 앱 서버 모듈 `src/lib/payments.server.ts`: 결제 모드 기본 꺼짐(`PAYMENTS_MODE`), sandbox 는 가짜 승인, live 는 실제 PG 구현이 없어 NOT_CONFIGURED. 금액은 서버가 정하고 PG 승인 금액이 주문 금액과 같을 때만 충전.
+- 앱 토스트 수정: 초대 링크를 적용한 사람에게 "보너스가 지급됐다"고 보여 주던 문구는 사실과 달랐다 → "초대 링크가 적용됐어요" 로 정정(보상은 친구의 첫 결제 때 초대한 사람에게).
 - 택일(`taekil:YYYY-MM-DD`) id 형식은 예약값이며 상품 설계 시 확정한다.
+- 로그인 후 이동 경로(`?next=`)는 같은 사이트 안의 경로만 허용하도록 정리(`safe-next.ts`).

@@ -3,6 +3,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { Shell } from "@/components/Shell";
+import { safeNext } from "@/lib/safe-next";
 
 export const Route = createFileRoute("/auth")({
   validateSearch: (s: Record<string, unknown>): { ref?: string; next?: string } => ({
@@ -67,7 +68,7 @@ function AuthPage() {
         setSent(true);
         return;
       }
-      nav({ to: next && next.startsWith("/") ? next : "/" });
+      nav({ to: safeNext(next) });
     } catch {
       setErr("로그인에 문제가 생겼어요. 다시 시도해 주세요.");
     } finally {
