@@ -138,3 +138,63 @@ export const confirmCoinOrder = createServerFn({ method: "POST" })
     const { buildPaymentsService } = await import("./payments.server");
     return (await buildPaymentsService()).confirm(context.userId, data.orderId, data.paymentKey);
   });
+
+// 결제 화면이 "지금 충전할 수 있는지"를 알기 위한 공개 상태(비밀값 없음). live 는 실제 PG 구현이 없어 available=false.
+export const getPaymentsStatus = createServerFn({ method: "GET" }).handler(async () => {
+  const { readPaymentsMode } = await import("./payments.server");
+  const mode = readPaymentsMode();
+  return { mode, available: mode === "sandbox" };
+});
+
+// 엽전 내역(원장). 표가 아직 없으면(SQL 미적용) unavailable 로 알린다. RLS 로 본인 행만 읽힌다.
+export const getMyLedger = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const sb = context.supabase as unknown as {
+      from(t: string): {
+        select(c: string): {
+          eq(
+            c: string,
+            v: string,
+          ): {
+            order(
+              c: string,
+              o: { ascending: boolean },
+            ): {
+              limit(n: number): PromiseLike<{
+                data:
+                  | {
+                      id: number;
+                      delta: number;
+                      reason: string;
+                      ref: string | null;
+                      balance_after: number;
+                      created_at: string;
+                    }[]
+                  | null;
+                error: unknown;
+              }>;
+            };
+          };
+        };
+      };
+    };
+    const { data, error } = await sb
+      .from("coin_ledger")
+      .select("id, delta, reason, ref, balance_after, created_at")
+      .eq("user_id", context.userId)
+      .order("id", { ascending: false })
+      .limit(100);
+    if (error) return { unavailable: true as const, rows: [] as never[] };
+    return {
+      unavailable: false as const,
+      rows: (data ?? []).map((r) => ({
+        id: r.id,
+        delta: r.delta,
+        reason: r.reason,
+        ref: r.ref,
+        balanceAfter: r.balance_after,
+        createdAt: r.created_at,
+      })),
+    };
+  });

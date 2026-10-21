@@ -71,6 +71,20 @@ function InvitePage() {
           )}
         </Section>
       )}
+      <div className="mt-4 flex gap-2">
+        <Link
+          to="/charge"
+          className="flex-1 rounded-full bg-primary py-3 text-center font-bold text-primary-foreground"
+        >
+          엽전 충전
+        </Link>
+        <Link
+          to="/ledger"
+          className="flex-1 rounded-full border border-primary py-3 text-center font-bold text-primary"
+        >
+          엽전 내역
+        </Link>
+      </div>
       <Section title="엽전 교환표">
         <ul className="space-y-1">
           <li>

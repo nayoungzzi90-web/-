@@ -37,6 +37,18 @@ function MyPage() {
             >
               출생정보 {me ? "수정" : "입력"}
             </Link>
+            <Link
+              to="/charge"
+              className="inline-block rounded-full border border-primary px-4 py-2 text-sm font-bold text-primary"
+            >
+              엽전 충전
+            </Link>
+            <Link
+              to="/ledger"
+              className="inline-block rounded-full border border-input bg-card px-4 py-2 text-sm"
+            >
+              엽전 내역
+            </Link>
             <button
               className="rounded-full border border-input bg-card px-4 py-2 text-sm"
               onClick={async () => {
