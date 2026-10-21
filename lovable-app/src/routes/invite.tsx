@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { Shell, Section } from "@/components/Shell";
 import { useStore } from "@/lib/store";
+import { INVITE_DAILY_CAP, INVITE_MONTHLY_CAP, INVITE_REWARD } from "@/lib/coins";
 
 export const Route = createFileRoute("/invite")({
   head: () => ({
@@ -35,8 +36,9 @@ function InvitePage() {
           </Link>
         </div>
       ) : (
-        <Section title="친구 초대하면 2닢">
-          초대 링크로 들어온 친구가 가입하면 2닢을 드려요. (하루 5명·한 달 30명까지)
+        <Section title={`친구 초대하면 ${INVITE_REWARD}닢`}>
+          초대 링크로 들어온 친구가 가입하면 {INVITE_REWARD}닢을 드려요. (한국 시간 기준 하루{" "}
+          {INVITE_DAILY_CAP}명·한 달 {INVITE_MONTHLY_CAP}명까지)
           <button
             className="mt-3 w-full rounded-full bg-primary py-3 font-bold text-primary-foreground"
             onClick={async () => {

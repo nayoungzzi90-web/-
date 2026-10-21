@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { getState, setStore } from "./store";
 import { applyInvite, getMyData } from "./user-fns";
+import { INVITE_REWARD } from "./coins";
 
 // 로그인 상태와 회원 데이터를 화면 상태와 동기화한다.
 export function useAuthSync() {
@@ -24,7 +25,9 @@ export function useAuthSync() {
           const r = await applyInvite({ data: { code: ref } });
           if (r.granted) {
             setStore({ coins: r.coins });
-            toast("친구 초대 보너스 2닢이 지급됐어요! 🪙");
+            toast(
+              `초대 링크가 적용됐어요. 초대한 친구에게 엽전 ${INVITE_REWARD}닢이 지급됐어요! 🪙`,
+            );
           }
         }
       } catch {

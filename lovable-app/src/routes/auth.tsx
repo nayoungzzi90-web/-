@@ -79,7 +79,7 @@ function AuthPage() {
     <Shell title="로그인">
       <h1 className="mb-1 font-serif text-xl font-bold">환영해요 🏮</h1>
       <p className="mb-4 text-sm text-muted-foreground">
-        로그인하면 출생정보와 풀이 기록이 저장돼요. 가입하면 엽전 4닢을 드려요.
+        로그인하면 출생정보와 풀이 기록이 저장돼요.
       </p>
       {sent ? (
         <div className="card-hanji p-6 text-center">
@@ -138,7 +138,7 @@ function AuthPage() {
             disabled={busy}
             className="w-full rounded-full bg-primary py-3 font-bold text-primary-foreground disabled:opacity-50"
           >
-            {mode === "signup" ? "가입하고 4닢 받기" : "로그인"}
+            {mode === "signup" ? "가입하기" : "로그인"}
           </button>
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <span className="h-px flex-1 bg-border" />
