@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect } from "react";
 import hero from "@/assets/hero.jpg";
 import { Shell } from "@/components/Shell";
+import { PRODUCTS, won } from "@/lib/coins";
 
 export const Route = createFileRoute("/")({
   validateSearch: (s: Record<string, unknown>): { ref?: string } =>
@@ -23,9 +24,24 @@ export const Route = createFileRoute("/")({
 const SERVICES = [
   { to: "/character", t: "나의 오행 캐릭터", d: "무료 · 회원가입 없이", e: "🐯" },
   { to: "/today", t: "오늘의 운세", d: "무료 · 매일 새로", e: "☀️" },
-  { to: "/basic", t: "기본 사주 풀이", d: "990원 · 4닢", e: "📜" },
-  { to: "/compatibility", t: "궁합", d: "990원 · 4닢", e: "💞" },
-  { to: "/love", t: "심층 연애운", d: "3,900원 · 12닢", e: "🌸" },
+  {
+    to: "/basic",
+    t: "기본 사주 풀이",
+    d: `${won(PRODUCTS.basic.coins)} · ${PRODUCTS.basic.coins}닢`,
+    e: "📜",
+  },
+  {
+    to: "/compatibility",
+    t: "궁합",
+    d: `${won(PRODUCTS.compat.coins)} · ${PRODUCTS.compat.coins}닢`,
+    e: "💞",
+  },
+  {
+    to: "/love",
+    t: "심층 연애운",
+    d: `${won(PRODUCTS.love.coins)} · ${PRODUCTS.love.coins}닢`,
+    e: "🌸",
+  },
 ] as const;
 
 function Index() {

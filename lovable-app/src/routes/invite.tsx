@@ -2,7 +2,14 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { Shell, Section } from "@/components/Shell";
 import { useStore } from "@/lib/store";
-import { INVITE_DAILY_CAP, INVITE_MONTHLY_CAP, INVITE_REWARD } from "@/lib/coins";
+import {
+  INVITE_DAILY_CAP,
+  INVITE_MONTHLY_CAP,
+  INVITE_REWARD,
+  INVITER_MIN_PAID_COINS,
+  PRODUCTS,
+  won,
+} from "@/lib/coins";
 
 export const Route = createFileRoute("/invite")({
   head: () => ({
@@ -38,7 +45,8 @@ function InvitePage() {
       ) : (
         <Section title={`친구 초대하면 ${INVITE_REWARD}닢`}>
           초대 링크로 들어온 친구가 가입하면 {INVITE_REWARD}닢을 드려요. (한국 시간 기준 하루{" "}
-          {INVITE_DAILY_CAP}명·한 달 {INVITE_MONTHLY_CAP}명까지)
+          {INVITE_DAILY_CAP}명·한 달 {INVITE_MONTHLY_CAP}명까지) 초대 보상은 엽전을{" "}
+          {INVITER_MIN_PAID_COINS}닢 이상 결제한 분께 드려요.
           <button
             className="mt-3 w-full rounded-full bg-primary py-3 font-bold text-primary-foreground"
             onClick={async () => {
@@ -65,11 +73,21 @@ function InvitePage() {
       )}
       <Section title="엽전 교환표">
         <ul className="space-y-1">
-          <li>기본 사주 · 4닢</li>
-          <li>궁합 · 4닢</li>
-          <li>심층 연애운 · 12닢</li>
-          <li className="text-muted-foreground">택일 · 15닢 (준비 중)</li>
-          <li className="text-muted-foreground">심층 사주 · 18닢 (준비 중)</li>
+          <li>
+            기본 사주 · {PRODUCTS.basic.coins}닢 ({won(PRODUCTS.basic.coins)})
+          </li>
+          <li>
+            궁합 · {PRODUCTS.compat.coins}닢 ({won(PRODUCTS.compat.coins)})
+          </li>
+          <li>
+            심층 연애운 · {PRODUCTS.love.coins}닢 ({won(PRODUCTS.love.coins)})
+          </li>
+          <li className="text-muted-foreground">
+            택일 · {PRODUCTS.taekil.coins}닢 ({won(PRODUCTS.taekil.coins)}) (준비 중)
+          </li>
+          <li className="text-muted-foreground">
+            심층 사주 · {PRODUCTS.deep.coins}닢 ({won(PRODUCTS.deep.coins)}) (준비 중)
+          </li>
         </ul>
       </Section>
     </Shell>

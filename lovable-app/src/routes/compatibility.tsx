@@ -7,6 +7,7 @@ import { setStore, useStore } from "@/lib/store";
 import { getSajuPreview } from "@/lib/saju-fns";
 import { characterFor } from "@/lib/characters";
 import type { Element } from "@/lib/saju";
+import { PRODUCTS, won } from "@/lib/coins";
 
 export const Route = createFileRoute("/compatibility")({
   head: () => ({
@@ -102,7 +103,12 @@ function CompatPage() {
         </p>
       </div>
       <Section title="한 줄 궁합">{r.d}</Section>
-      <Paywall id={`compat:${partner.date}`} label="궁합" price="990원" coins={4}>
+      <Paywall
+        id={`compat:${partner.date}`}
+        label={PRODUCTS.compat.label}
+        price={won(PRODUCTS.compat.coins)}
+        coins={PRODUCTS.compat.coins}
+      >
         <Section title="궁합 점수">{r.s}점</Section>
         <Section title="함께하면 좋은 것">
           {a.strengths[0]}과 {b.strengths[0]}을 합치면 무엇이든 해낼 수 있어요.

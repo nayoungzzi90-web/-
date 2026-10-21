@@ -1,5 +1,7 @@
 -- 엽전 정책 변경 — REVIEW ONLY. 실행 금지(미적용). 사용자 결정(2026-10-21):
 --   1) 초대 보상 2 → 1 엽전   2) 하루·월 한도를 한국 시간(Asia/Seoul) 달력 기준으로 고정   3) 가입 보너스 없음(4 → 0)
+--   4) 초대 보상은 **초대한 사람이 엽전을 1닢 이상 결제(환불 제외)한 경우에만** 지급   5) 한도 하루 3명·월 10명(보수적 시작, 지표를 보고 조정)
+-- 적용 순서: PRICING_900_COIN_REVIEW_ONLY.sql(coin_purchases 표 포함)을 먼저 적용해야 한다 — apply_invite 가 그 표를 읽는다.
 -- 범위: 함수 두 개의 본문만 교체(CREATE OR REPLACE). 표·권한·정책·데이터는 건드리지 않는다.
 --   · CREATE OR REPLACE 는 기존 함수의 소유자·EXECUTE 권한(ACL)을 그대로 유지한다. 적용 후 권한을 다시 조회해 확인할 것.
 --   · 기존 회원의 지갑 잔액·초대 기록은 바뀌지 않는다(이미 받은 엽전은 그대로).
@@ -32,8 +34,8 @@ SET search_path = ''
 AS $$
 DECLARE
   c_reward      constant integer := 1;    -- 초대한 사람이 받는 엽전
-  c_daily_cap   constant integer := 5;    -- 한국 시간 하루
-  c_monthly_cap constant integer := 30;   -- 한국 시간 한 달
+  c_daily_cap   constant integer := 3;    -- 한국 시간 하루
+  c_monthly_cap constant integer := 10;   -- 한국 시간 한 달
   v_user    uuid := auth.uid();
   v_inviter uuid;
   v_created timestamptz;
@@ -52,6 +54,11 @@ BEGIN
   -- 초대자 행을 잠가 같은 초대자에 대한 동시 요청을 한 줄로 세운다(한도 확인 → 삽입 사이의 경쟁 방지).
   SELECT user_id INTO v_inviter FROM public.invite_codes WHERE code = upper(trim(p_code)) FOR UPDATE;
   IF v_inviter IS NULL OR v_inviter = v_user THEN RETURN false; END IF;
+
+  -- 초대한 사람이 엽전을 1닢 이상 실제 결제(환불 제외)한 적이 있어야 보상한다. 없으면 보상 없이 false(초대 기록도 남기지 않음).
+  IF NOT EXISTS (
+    SELECT 1 FROM public.coin_purchases WHERE user_id = v_inviter AND status = 'paid' AND coins >= 1
+  ) THEN RETURN false; END IF;
 
   SELECT count(*) INTO v_daily FROM public.invite_rewards
     WHERE inviter_id = v_inviter AND created_at >= v_day_start;
