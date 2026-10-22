@@ -198,3 +198,19 @@ export const getMyLedger = createServerFn({ method: "GET" })
       })),
     };
   });
+
+// 회원 탈퇴. ACCOUNT_DELETION_ENABLED 가 꺼져 있으면(기본) 거부된다 — 보관 기간·잔여 엽전 정책 승인 전까지 실제 삭제는 일어나지 않는다.
+export const getAccountDeletionStatus = createServerFn({ method: "GET" }).handler(async () => {
+  const { readAccountDeletionEnabled } = await import("./account.server");
+  return { enabled: readAccountDeletionEnabled() };
+});
+
+export const deleteMyAccount = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({ confirm: z.string().max(20), forfeit: z.boolean() }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { buildAccountService } = await import("./account.server");
+    return (await buildAccountService()).deleteAccount(context.userId, data);
+  });

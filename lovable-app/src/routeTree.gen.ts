@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AccountDeleteRouteImport } from './routes/account-delete'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as BasicRouteImport } from './routes/basic'
 import { Route as CharacterRouteImport } from './routes/character'
@@ -25,6 +26,11 @@ import { Route as TodayRouteImport } from './routes/today'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountDeleteRoute = AccountDeleteRouteImport.update({
+  id: '/account-delete',
+  path: '/account-delete',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -85,6 +91,7 @@ const TodayRoute = TodayRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/account-delete': typeof AccountDeleteRoute
   '/auth': typeof AuthRoute
   '/basic': typeof BasicRoute
   '/character': typeof CharacterRoute
@@ -99,6 +106,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/account-delete': typeof AccountDeleteRoute
   '/auth': typeof AuthRoute
   '/basic': typeof BasicRoute
   '/character': typeof CharacterRoute
@@ -114,6 +122,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/account-delete': typeof AccountDeleteRoute
   '/auth': typeof AuthRoute
   '/basic': typeof BasicRoute
   '/character': typeof CharacterRoute
@@ -130,6 +139,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/account-delete'
     | '/auth'
     | '/basic'
     | '/character'
@@ -144,6 +154,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/account-delete'
     | '/auth'
     | '/basic'
     | '/character'
@@ -158,6 +169,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/account-delete'
     | '/auth'
     | '/basic'
     | '/character'
@@ -173,6 +185,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AccountDeleteRoute: typeof AccountDeleteRoute
   AuthRoute: typeof AuthRoute
   BasicRoute: typeof BasicRoute
   CharacterRoute: typeof CharacterRoute
@@ -193,6 +206,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/account-delete': {
+      id: '/account-delete'
+      path: '/account-delete'
+      fullPath: '/account-delete'
+      preLoaderRoute: typeof AccountDeleteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -277,6 +297,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AccountDeleteRoute: AccountDeleteRoute,
   AuthRoute: AuthRoute,
   BasicRoute: BasicRoute,
   CharacterRoute: CharacterRoute,

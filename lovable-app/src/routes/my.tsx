@@ -59,6 +59,11 @@ function MyPage() {
               로그아웃
             </button>
           </div>
+          <p className="mt-4 text-xs text-muted-foreground">
+            <Link to="/account-delete" className="underline">
+              회원 탈퇴
+            </Link>
+          </p>
         </div>
       ) : (
         <div className="card-hanji p-6 text-center">
