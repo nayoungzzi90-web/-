@@ -13,7 +13,7 @@ import { cleanConcern, fillName, runReportPipeline } from './pipeline';
 import { hasHanja, toHangul } from './hangul';
 import { buildPlan } from './plan';
 import { buildFactsBlock, buildInputPacket, buildSectionPrompt, buildSystemPrompt } from './prompt';
-import { checkReport, checkSection, countChars } from './qa';
+import { checkReport, checkSection, countChars, JARGON } from './qa';
 import type { Claim, InterpretationFacts, ReportPlan, SectionPlan } from './types';
 
 const input: BirthInput = { calendar: 'solar', leapMonth: false, year: 1995, month: 5, day: 17, hour: 14, minute: 0, timeUnknown: false, country: 'KR', alias: '나영' };
@@ -42,6 +42,8 @@ function goodBody(f: InterpretationFacts, plan: ReportPlan, section: SectionPlan
   while (countChars(body) < section.targetChars) body += ` ${Array.from({ length: 6 }, () => WORDS[Math.floor(r() * WORDS.length)]).join(' ')} 같은 장면으로 떠올려 보면 쉬워요.`;
   const seenSen = new Set<string>();
   body = body.split(/(?<=[.!?])\s+/).filter((x) => { const k = x.replace(/\s/g, ''); if (seenSen.has(k)) return false; seenSen.add(k); return true; }).join(' ');
+  if (!extra) body = body.replace(new RegExp(JARGON.source, 'g'), '기운');
+  if (countChars(body) > section.maxChars) body = body.slice(0, Math.floor(section.maxChars * 0.7)).replace(/\s+\S*$/, '') + '.' + (plan.years && section.focusTags.includes('yearly') ? ' ' + plan.years.map((y) => `${y}년 이야기예요.`).join(' ') : ''); // 가짜 작가가 상한을 넘지 않게 자른다 // 가짜 작가의 문장에서 전문용어를 뺀다(제품 규칙)
   return { status: 'READY', headline: '푸른 나무가 바위틈에서 피어나는 이야기', body, claim_ids: primary.map((c) => c.id) };
 }
 const sectionOf = (req: { user: string }, plan: ReportPlan) => plan.sections.find((s) => req.user.includes(`지금 쓸 섹션: ${s.title}`))!;
@@ -154,13 +156,13 @@ describe('생성 파이프라인 (가짜 LLM)', () => {
     expect(r.usage.inputTokens).toBe(6000);
     expect(r.costUsd).toBeGreaterThan(0);
   });
-  it('심층 연애운: 4,000~5,000자, 5개 연도 포함', async () => {
+  it('심층 연애운: 목표 분량 범위(담백한 글 기준), 5개 연도 포함', async () => {
     const llm = new ScriptedLlm(good(loveF, lovePlan));
     const r = await runReportPipeline(lovePlan, loveF, opts(llm));
     expect(r.status).toBe('ok');
     const total = r.sections.reduce((n, s) => n + countChars(s.body), 0);
-    expect(total).toBeGreaterThanOrEqual(4000);
-    expect(total).toBeLessThanOrEqual(5000);
+    expect(total).toBeGreaterThanOrEqual(lovePlan.totalRange[0]);
+    expect(total).toBeLessThanOrEqual(lovePlan.totalRange[1]);
     const yearly = r.sections.find((s) => s.title.includes('세운'))!;
     years.forEach((y) => expect(yearly.body).toContain(`${y}년`));
   });
@@ -546,7 +548,7 @@ describe('한글 전용·제목·고민 입력·이름 토큰', () => {
       seen.push(req.user);
       const sec = plan.sections.find((s) => req.user.includes(`id: ${s.id})`))!;
       const g = goodBody(basicF, plan, sec);
-      return JSON.stringify({ ...g, headline: '{{이름}}님의 푸른 나무와 바위 이야기', body: g.body.replace('요.', `요. {{이름}}님은 ${basicF.allowedGanji[0]} 일주예요.`) });
+      return JSON.stringify({ ...g, headline: '{{이름}}님의 푸른 나무와 바위 이야기', body: g.body.replace('요.', `요. {{이름}}님은 ${basicF.allowedGanji[0]}예요.`) });
     });
     const r = await runReportPipeline(plan, basicF, { llm, model: 'm', allowDraftClaims: true, concern: '부업으로 사주 사이트를 만들고 싶어요', displayName: '나영' });
     expect(r.status).toBe('ok');
@@ -554,12 +556,32 @@ describe('한글 전용·제목·고민 입력·이름 토큰', () => {
     expect(seen[0]).toContain('부업으로 사주 사이트');
     expect(r.sections[0]!.headline).toBe('나영님의 푸른 나무와 바위 이야기');
     const all = r.sections.map((s) => s.body).join('\n');
-    expect(all).toContain(`나영님은 ${toHangul(basicF.allowedGanji[0]!)} 일주예요`);
+    expect(all).toContain(`나영님은 ${toHangul(basicF.allowedGanji[0]!)}예요`);
     expect(hasHanja(all)).toBe(false);
     expect(all).not.toContain('{{');
   });
-  it('시스템 프롬프트에 한글 전용·이름 토큰·비유·고민 지침이 들어 있다', () => {
+  it('시스템 프롬프트에 한글 전용·이름 토큰·고민 지침이 들어 있다', () => {
     const sys = buildSystemPrompt(buildPlan('basic', basicF));
-    for (const k of ['한자는 한 글자도 쓰지 않는다', '{{이름}}', '비유', '고객이 적은 고민']) expect(sys).toContain(k);
+    for (const k of ['한자도 쓰지 않는다', '{{이름}}', '고객이 적은 고민']) expect(sys).toContain(k);
+  });
+});
+
+describe('사주 전문용어 금지·담백한 글쓰기 지침', () => {
+  it('QA: 전문용어가 본문이나 제목에 있으면 반려하고, 쉬운 말이면 통과한다', () => {
+    const plan = buildPlan('basic', basicF);
+    const sec = plan.sections[0]!;
+    const ctx = { facts: basicF, plan, allowDraft: true };
+    const g = goodBody(basicF, plan, sec);
+    const codes = (body: string, h = g.headline) => checkSection(body, g.claim_ids, sec, ctx, h).map((i) => i.code);
+    for (const w of ['일간', '월지', '편관', '식신', '용신', '대운', '세운', '합충', '십성', '원국', '시주'])
+      expect(codes(g.body + ` ${w}이 보여요.`), w).toContain('JARGON');
+    expect(codes(g.body, '편관이 센 한 해의 이야기를 해요')).toContain('JARGON');
+    expect(codes(g.body + ' 나무 기운이 많고 물 기운은 적어요.')).not.toContain('JARGON');
+  });
+  it('시스템 프롬프트: 담백·용어 금지·정확성 지침이 있고, 친근한 비유 위주 문구는 없다', () => {
+    const sys = buildSystemPrompt(buildPlan('basic', basicF));
+    for (const k of ['담백한 해요체', '필요한 말만', '전문용어를 쓰지 않는다', '정확성이 가장 중요하다', '근거 없는 말로 채우지 않는다']) expect(sys).toContain(k);
+    expect(sys).not.toContain('쓴소리');
+    expect(sys).not.toContain('친구 같은 전문가');
   });
 });

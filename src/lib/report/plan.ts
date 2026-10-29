@@ -1,15 +1,19 @@
 import { CATALOG } from '../catalog';
 import type { InterpretationFacts, ProductKey, ReportPlan, SectionPlan } from './types';
 
-export const PLAN_VERSION = 'plan-2.0';
+export const PLAN_VERSION = 'plan-3.4';
 
 /** PRD 2.1 의 목차·글자 수. min/max 는 목표의 70%~150% (제품 전체 범위는 totalRange 로 따로 검사). */
-const sec = (id: string, title: string, purpose: string, target: number, focusTags: string[]): SectionPlan => ({
-  id, title, purpose, targetChars: target, minChars: Math.round(target * 0.7), maxChars: Math.round(target * 1.5), focusTags,
-});
+/** 담백한 글(필요한 말만, 전문용어 없음)은 군더더기가 없어 PRD 분량(3,000자대)보다 짧게 나온다. 근거 없는 말로 채우지 않도록 목표를 이 비율로 줄인다. */
+export const PLAIN_LENGTH_SCALE = 0.33;
+const scaled = (n: number) => Math.round((n * PLAIN_LENGTH_SCALE) / 10) * 10;
+const sec = (id: string, title: string, purpose: string, target: number, focusTags: string[]): SectionPlan => {
+  const t = scaled(target);
+  return { id, title, purpose, targetChars: t, minChars: Math.round(t * 0.6), maxChars: Math.round(t * 1.5), focusTags };
+};
 
 const BASIC: SectionPlan[] = [
-  sec('s1', '원국 핵심', '사주 원국(네 기둥)과 일간, 오행 분포의 큰 그림을 쉬운 말로 요약한다. 네 기둥의 간지를 정확히 언급한다.', 700, ['core', 'balance']),
+  sec('s1', '원국 핵심', '타고난 중심 성향과 오행(나무·불·흙·쇠·물) 기운의 많고 적음, 태어난 계절의 영향을 사주를 모르는 사람도 이해하게 쉬운 말로 요약한다. 전문용어와 간지 이름은 쓰지 않는다.', 700, ['core', 'balance']),
   sec('s2', '타고난 성격·기질', '핵심 구조를 먼저 설명하고, 일간·월간 십성·계절·자기 힘/바깥 힘 명제로 타고난 성격과 기질을 설명한다. 상반된 성향이 있으면 어떤 상황에서 각각 드러나는지 풀어 쓴다.', 650, ['personality', 'season', 'balance']),
   sec('s3', '강점·재능', '십성 비중 명제에서 읽히는 강점과 재능, 그것이 잘 쓰이는 조건을 설명한다.', 450, ['strength', 'balance']),
   sec('s4', '직업·재물 경향', '식상·재성·관성 명제를 근거로 일하는 방식, 어울리는 환경, 재물을 다루는 경향을 설명한다. 재물 규모를 예언하지 않는다.', 700, ['career', 'money']),
@@ -54,7 +58,7 @@ export const RULE_GROUPS = {
   ],
   personalize: [
     '같은 일간이라고 같은 결과를 쓰지 않는다. 고객을 구별하는 핵심 구조, 그것이 의미를 갖는 이유, 구체적인 행동 경향, 장점이 발휘되는 조건, 취약성이 나타나는 조건을 포함한다. 단, 근거가 허용하는 범위에서만 개인화한다.',
-    '일반론(누구에게나 맞는 말)으로 채우지 않는다. 각 문단은 사용한 명제의 고유한 표지(십성명, 간지, 오행, 연도 등)를 2개 이상 직접 언급한다.',
+    '일반론(누구에게나 맞는 말)으로 채우지 않는다. 각 문단은 사용한 명제의 고유한 특징(어떤 기운이 많고 적은지, 태어난 계절, 해당 연도 등)을 쉬운 말로 구체적으로 짚는다. 전문용어는 쓰지 않는다.',
     '같은 설명이나 문장을 반복하지 않는다. 이전 섹션에서 한 말은 다시 풀어 쓰지 말고 새로운 관점만 더한다.',
   ],
   safety: [
@@ -65,7 +69,7 @@ export const RULE_GROUPS = {
   ],
 } as const;
 export const STYLE: Record<Tone, string> = {
-  haeyo: '쉬운 상담사 말투(해요체)로 쓴다. 전문용어는 처음 나올 때 괄호로 쉬운 뜻을 붙이고 한자는 쓰지 않는다. 공포감이나 불안을 부추기지 않는다.',
+  haeyo: '담백한 해요체로 필요한 말만 쓴다. 전문용어는 처음 나올 때 괄호로 쉬운 뜻을 붙이고 한자는 쓰지 않는다. 공포감이나 불안을 부추기지 않는다.',
   hamnida: '경력 있는 상담사가 직접 설명하듯 명료한 존댓말(합니다체)로 쓴다. 전문용어는 처음 나올 때 괄호로 쉬운 뜻을 붙이고 한자는 쓰지 않는다. 공포감이나 불안을 부추기지 않는다.',
 };
 export const ADDENDUM: Record<ProductKey, string> = {
@@ -82,7 +86,7 @@ export function buildPlan(product: ProductKey, facts: InterpretationFacts, opts:
   const tone = opts.tone ?? 'haeyo';
   return {
     product, productName: meta.name, sections: sections.map((s) => ({ ...s })),
-    totalRange: meta.length ?? [0, 99999], years: facts.years, hourKnown,
+    totalRange: meta.length ? [scaled(meta.length[0]), Math.max(scaled(meta.length[1]), Math.round(sections.reduce((n, x) => n + x.targetChars, 0) * 1.3))] : [0, 99999], years: facts.years, hourKnown,
     rules: [...COMMON_RULES, STYLE[tone]], tone, addendum: ADDENDUM[product],
   };
 }

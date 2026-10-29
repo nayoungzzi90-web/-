@@ -8,7 +8,7 @@ import { runReportPipeline } from './pipeline';
 import { buildPlan } from './plan';
 import { usableClaims } from './claims';
 import type { Claim, InterpretationFacts, ReportPlan, SectionPlan } from './types';
-import { countChars } from './qa';
+import { countChars, JARGON } from './qa';
 
 const ENV = { LLM_PRICE_IN_PER_M: '2', LLM_PRICE_OUT_PER_M: '10', LLM_REPORT_BUDGET_USD: '0.5', LLM_DAILY_BUDGET_USD: '5' };
 const cfg = (over: Partial<BudgetConfig> = {}): BudgetConfig => ({ pricing: { inPerM: 2, outPerM: 10 }, maxReportUsd: 0.5, dailyBudgetUsd: 5, maxInputTokensPerCall: 40000, maxOutputTokensPerCall: 4000, tokensPerChar: 1.5, ...over });
@@ -132,6 +132,8 @@ function goodBody(f: InterpretationFacts, plan: ReportPlan, section: SectionPlan
   while (countChars(body) < section.targetChars) body += ` ${Array.from({ length: 6 }, () => WORDS[Math.floor(r() * WORDS.length)]).join(' ')} 같은 장면으로 떠올려 보면 쉬워요.`;
   const seenSen = new Set<string>();
   body = body.split(/(?<=[.!?])\s+/).filter((x) => { const k = x.replace(/\s/g, ''); if (seenSen.has(k)) return false; seenSen.add(k); return true; }).join(' ');
+  if (!extra) body = body.replace(new RegExp(JARGON.source, 'g'), '기운');
+  if (countChars(body) > section.maxChars) body = body.slice(0, Math.floor(section.maxChars * 0.7)).replace(/\s+\S*$/, '') + '.' + (plan.years && section.focusTags.includes('yearly') ? ' ' + plan.years.map((y) => `${y}년 이야기예요.`).join(' ') : ''); // 가짜 작가가 상한을 넘지 않게 자른다 // 가짜 작가의 문장에서 전문용어를 뺀다(제품 규칙)
   return { status: 'READY', headline: '푸른 나무가 바위틈에서 피어나는 이야기', body, claim_ids: primary.map((c) => c.id) };
 }
 const sectionOf = (r: { user: string }) => basicPlan.sections.find((s) => r.user.includes(`지금 쓸 섹션: ${s.title}`))!;

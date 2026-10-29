@@ -18,6 +18,8 @@ const PROPHECY = [
   /(결혼|이별|재회|이혼|사망|사고|파산|합격)[을를이가]?\s*(하게\s*(될|됩니다|돼요)|할\s*것(입니다|이에요|이다)|할\s*거(예요|야))/,
 ];
 const MEDICAL = /우울증|조울|불안\s*장애|공황|ADHD|자폐|치매|암\b|질병|정신과|진단|처방|치료/;
+/** 일반인이 모르는 사주 전문용어(제품 규칙: 쓰지 않는다). 본문·제목에서 발견되면 반려한다. */
+export const JARGON = /일간|일지|월지|연지|시지|천간|지지|원국|일주|월주|연주|시주|십성|비견|겁재|식신|상관|편재|정재|편관|정관|편인|정인|비겁|식상|재성|관성|인성|지장간|신살|용신|격국|대운|세운|간지|합충/;
 const SCORE = /\d+\s*(%|퍼센트|점\b)|\d+\s*\/\s*100|점수/;
 const HOUR_NEG = /모르|없|미상|제외|반영하지|알 수 없|계산하지|해석하지|생략/;
 
@@ -31,6 +33,9 @@ export function checkSection(body: string, claimIds: string[], section: SectionP
   const n = countChars(body);
 
   if (!body.trim()) { add('EMPTY', '본문이 비어 있어요.'); return out; }
+  // 사주 전문용어 금지(제품 규칙): 일반인이 읽고 이해할 수 있어야 한다
+  const jg = body.match(JARGON) ?? (headline ? headline.match(JARGON) : null);
+  if (jg) add('JARGON', `사주 전문용어가 있어요(${jg[0]}). 일반인이 아는 쉬운 말로 풀어 써요.`);
   // 한자 금지(제품 규칙): 간지·오행 한자는 한글로 바꾸고 그 밖의 한자가 남으면 반려
   if (hasHanja(toHangul(body))) add('HANJA', `한자가 있어요(${(toHangul(body).match(/\p{Script=Han}+/u) ?? [''])[0]}). 한글로만 써요.`);
   if (headline !== undefined) {
@@ -89,7 +94,7 @@ export function checkSection(body: string, claimIds: string[], section: SectionP
   const nbody = toHangul(body);
   const hits = [...anchors].filter((a) => a && (body.includes(a) || nbody.includes(toHangul(a))));
   const need = section.focusTags.includes('limits') ? 1 : 2;
-  if (anchors.size && hits.length < need) add('TOO_GENERIC', `명제의 고유한 표지(예: ${[...anchors].slice(0, 5).join(', ')})를 ${need}개 이상 직접 언급해야 해요. 지금은 ${hits.length}개예요.`);
+  if (anchors.size && hits.length < need) add('TOO_GENERIC', `명제의 고유한 표지(예: ${[...anchors].slice(0, 5).join(', ')})를 ${need}개 이상 직접 언급해야 해요. 지금은 ${hits.length}개예요.`, 'warn');
 
   // 말투 (경고): 선택한 문체와 맞는지
   const ss = sentences(body);
