@@ -89,7 +89,7 @@ export async function runReportPipeline(plan: ReportPlan, facts: InterpretationF
       calls++;
       let res;
       try {
-        res = await opts.llm.complete({ system, factsBlock, user: buildSectionPrompt(plan, section, facts, prior, issues, allowDraft), maxTokens: opts.maxTokensPerCall ?? 8000, schema: SECTION_SCHEMA });
+        res = await opts.llm.complete({ system, factsBlock, user: buildSectionPrompt(plan, section, facts, prior, issues, allowDraft), maxTokens: opts.maxTokensPerCall ?? Math.min(8000, Math.ceil(section.maxChars * 2 + 600)), schema: SECTION_SCHEMA });
       } catch (e) {
         const err = e instanceof LlmError ? e : new LlmError('unknown', String(e), false);
         if (err.kind === 'truncated') { issues = [{ code: 'TRUNCATED', severity: 'fail', message: '출력이 길어서 잘렸어요. 목표 분량 안으로 더 간결하게 써요.', sectionId: section.id }]; continue; }

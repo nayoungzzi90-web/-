@@ -7,6 +7,7 @@ import { AnthropicLlm } from '../_shared/lib/report/anthropicClient.ts';
 import { OpenAiLlm } from '../_shared/lib/report/openaiClient.ts';
 import { buildInterpretation } from '../_shared/lib/report/interpretation.ts';
 import { runReportPipeline } from '../_shared/lib/report/pipeline.ts';
+import { BudgetedLlm, costFromUsage, readBudgetConfig } from '../_shared/lib/report/budget.ts';
 import { buildPlan } from '../_shared/lib/report/plan.ts';
 import { kstParts } from '../_shared/lib/kst.ts';
 import { calculator } from '../_shared/lib/saju/sampleCalculator.ts';
@@ -72,6 +73,16 @@ async function generate(admin: ReturnType<typeof createClient>, userId: string, 
   const interp = buildInterpretation(product, facts, { approvedRuleIds, ...(product === 'love_deep' ? { years, yearPillar: (y: number) => calculator.yearPillar(y) } : {}) });
   const plan = buildPlan(product, interp);
 
+  // 비용 안전장치: 가격·상한 환경변수가 없거나 킬 스위치가 켜져 있으면 LLM 을 호출하지 않는다(fail-closed). 설명은 src/lib/report/budget.ts.
+  const budget = readBudgetConfig(Deno.env.toObject(), product);
+  if (!budget.ok) return fail(budget.error.split(':')[0]!, budget.error);
+  // 오늘(한국 시간) 이미 쓴 원가 + 지금 실행 중인 다른 작업이 쓸 수 있는 최대치(리포트 상한 × 개수)를 하루 상한에서 미리 뺀다.
+  const k = kstParts();
+  const dayStartIso = new Date(Date.UTC(k.year, k.month - 1, k.day) - 9 * 3600_000).toISOString();
+  const { data: todayJobs } = await admin.from('generation_jobs').select('estimated_cost').gte('created_at', dayStartIso);
+  const { data: running } = await admin.from('generation_jobs').select('id').eq('status', 'running').neq('id', jobId);
+  const spentToday = (todayJobs ?? []).reduce((a: number, r: { estimated_cost: number | null }) => a + Number(r.estimated_cost ?? 0), 0) + (running?.length ?? 0) * budget.config.maxReportUsd;
+
   // LLM_PROVIDER=openai | anthropic (기본 openai). 모델명은 LLM_MODEL 로 반드시 지정한다.
   const provider = Deno.env.get('LLM_PROVIDER') ?? 'openai';
   const model = Deno.env.get('LLM_MODEL') ?? (provider === 'anthropic' ? 'claude-opus-5-5' : '');
@@ -81,10 +92,11 @@ async function generate(admin: ReturnType<typeof createClient>, userId: string, 
     : new OpenAiLlm({ apiKey: Deno.env.get('OPENAI_API_KEY')!, model });
   // 스테이징 전용 스위치: 승인 전 초안 명제로도 생성하되 결과는 NEEDS_REVIEW 로만 저장된다 (운영에서는 설정하지 않는다)
   const allowDraftClaims = Deno.env.get('ALLOW_DRAFT_CLAIMS') === 'true';
-  const r = await runReportPipeline(plan, interp, { llm, model, allowDraftClaims });
+  const guarded = new BudgetedLlm(llm, budget.config, spentToday);
+  const r = await runReportPipeline(plan, interp, { llm: guarded, model, allowDraftClaims });
 
   // 원가·토큰·시도 기록 (성공/실패 모두)
-  const metrics = { tokens_in: r.usage.inputTokens, tokens_out: r.usage.outputTokens, estimated_cost: r.costUsd, model, calls: r.calls, cache_read_tokens: r.usage.cacheReadTokens, cache_write_tokens: r.usage.cacheWriteTokens };
+  const metrics = { tokens_in: r.usage.inputTokens, tokens_out: r.usage.outputTokens, estimated_cost: costFromUsage(r.usage, budget.config.pricing), model, calls: r.calls, cache_read_tokens: r.usage.cacheReadTokens, cache_write_tokens: r.usage.cacheWriteTokens };
   if (r.status !== 'ok') {
     await admin.from('generation_jobs').update({ ...metrics, status: 'failed', last_error: `${r.failure?.code}:${r.failure?.message}`.slice(0, 300) }).eq('id', jobId);
     return;

@@ -3,7 +3,7 @@ import type { LlmUsage } from './types';
 export interface LlmRequest { system: string; factsBlock: string; user: string; maxTokens: number; schema: object }
 export interface LlmResponse { text: string; usage: LlmUsage; model: string; stopReason: string }
 
-export type LlmErrorKind = 'rate_limit' | 'auth' | 'bad_request' | 'server' | 'connection' | 'refusal' | 'truncated' | 'unknown';
+export type LlmErrorKind = 'rate_limit' | 'auth' | 'bad_request' | 'server' | 'connection' | 'refusal' | 'truncated' | 'budget' | 'unknown';
 export class LlmError extends Error {
   constructor(public kind: LlmErrorKind, message: string, public retryable: boolean, public detail?: string) { super(message); }
 }
