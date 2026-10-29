@@ -3,6 +3,7 @@
 //   · 앱의 R001 엔진(saju-engine.server.ts, astronomy-engine)  — 화면의 4주를 정한다
 //   · 풀이 작성기가 쓰는 엔진(reading-core, DE421 표)           — 십성·대운 등 풍부한 사실을 만든다
 // 두 엔진의 4주가 다르면 풀이를 내지 않는다(fail-closed). 일치만 확인했을 뿐 KASI 공식 확인은 아니다.
+import { toHangul } from "./reading-core/src/lib/report/hangul";
 import { unlockId } from "./unlock-id";
 import { calculate } from "./reading-core/engine/manse/src/engine";
 import { toSajuFacts } from "./reading-core/engine/manse/src/adapter";
@@ -131,12 +132,13 @@ export function buildReading(
   return {
     ok: true,
     product: input.product,
+    // 제품 규칙: 화면에는 한자를 쓰지 않는다(간지·오행 한자는 한글로 바꾼다)
     sections: report.sections.map((s) => ({
       id: s.id,
-      title: s.title,
-      ...(s.tag ? { tag: s.tag } : {}),
-      ...(s.headline ? { headline: s.headline } : {}),
-      body: s.body,
+      title: toHangul(s.title),
+      ...(s.tag ? { tag: toHangul(s.tag) } : {}),
+      ...(s.headline ? { headline: toHangul(s.headline) } : {}),
+      body: toHangul(s.body),
     })),
     chars: report.chars,
     needsReview: a.chart.needsReview || !!b?.needsReview,

@@ -9,7 +9,11 @@ export function shareUrl(origin: string, inviteCode?: string | null): string {
     : `${base}/`;
 }
 
-export function shareText(c: { name: string; epithet?: string | undefined; personality: string }): string {
+export function shareText(c: {
+  name: string;
+  epithet?: string | undefined;
+  personality: string;
+}): string {
   const who = c.epithet ? `${c.epithet} ${c.name}` : c.name;
   return `나는 ${who}! ${c.personality}. 너의 오행 친구는?`;
 }

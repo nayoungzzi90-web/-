@@ -70,7 +70,7 @@ function BasicPage() {
       <MockBadge />
       <h1 className="mt-3 font-serif text-xl font-bold">{me.name}님의 기본 사주</h1>
       <Section title="일간">
-        {p.pillars.day.hanja}({p.pillars.day.ko}) · {c.element} — {c.personality}{" "}
+        {p.pillars.day.ko} · {c.element} — {c.personality}{" "}
         <span className="text-[11px] text-muted-foreground">(성격 설명은 창작 표현)</span>
       </Section>
       <ReadingBlock product="basic" />

@@ -75,7 +75,7 @@ export function SajuResult({ p, me }: { p: SajuPreview; me: { name: string } }) 
         </div>
         <div className="p-5">
           <p className="text-xs text-muted-foreground">
-            일간 {pillars.day.hanja}({pillars.day.ko}) · {c.element}의 기운
+            일주 {pillars.day.ko} · {c.element}의 기운
           </p>
           <h1 className="mt-1 font-serif text-2xl font-bold">
             {c.epithet} <span className="text-primary">{c.name}</span>
@@ -91,8 +91,8 @@ export function SajuResult({ p, me }: { p: SajuPreview; me: { name: string } }) 
           {PILLAR_LABEL.map(([label, pl]) => (
             <div key={label} className="rounded-xl border border-border bg-card py-3">
               <p className="text-[11px] text-muted-foreground">{label}</p>
-              <p className="mt-1 font-serif text-lg font-bold">{pl ? pl.hanja : "미상"}</p>
-              <p className="text-[11px] text-muted-foreground">{pl ? pl.ko : "시간 모름"}</p>
+              <p className="mt-1 font-serif text-lg font-bold">{pl ? pl.ko : "미상"}</p>
+              <p className="text-[11px] text-muted-foreground">{pl ? "\u00a0" : "시간 모름"}</p>
             </div>
           ))}
         </div>

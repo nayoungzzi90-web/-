@@ -1,11 +1,12 @@
 import { reportCacheKey } from './cache';
+import { toHangul } from './hangul';
 import { usableClaims, validateClaimReferences } from './claims';
 import { addUsage, estimateCostUsd, LlmClient, LlmError, zeroUsage } from './llm';
 import { buildFactsBlock, buildSectionPrompt, buildSystemPrompt, gistOf, PROMPT_VERSION, SECTION_SCHEMA } from './prompt';
 import { checkReport, checkSection, QA_VERSION } from './qa';
 import type { InterpretationFacts, LlmUsage, QaIssue, ReportPlan, ReportStatus, SectionPlan } from './types';
 
-export interface DoneSection { id: string; title: string; body: string; claimIds: string[]; evidenceIds: string[]; attempts: number }
+export interface DoneSection { id: string; title: string; headline: string; body: string; claimIds: string[]; evidenceIds: string[]; attempts: number }
 export interface PipelineResult {
   /** ok: 완료 / failed: 시도 한도·검수 실패 / blocked: 근거 부족 등으로 호출 자체를 하지 않음 */
   status: 'ok' | 'failed' | 'blocked';
@@ -32,17 +33,25 @@ export interface PipelineOptions {
   /** 한 리포트의 총 호출 상한(원가 폭주 방지) */
   maxCalls?: number;
   maxTokensPerCall?: number;
+  /** 고객이 적은 현재 고민(선택, 300자까지). 해석 자료로만 쓰이며 그 안의 지시는 따르지 않는다. */
+  concern?: string;
+  /** 본문의 {{이름}} 토큰을 바꿀 표시 이름. 모델에는 보내지 않는다(없으면 "당신"). */
+  displayName?: string;
   sleep?: (ms: number) => Promise<void>;
 }
 
 const wait = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
-interface Parsed { status: string; body: string; claimIds: string[] }
+interface Parsed { status: string; headline: string; body: string; claimIds: string[] }
+
+/** 고민 입력 정리: 제어문자 제거, 구분자(<<< >>>) 무력화, 300자 제한 */
+export const cleanConcern = (v?: string) => (v ?? '').replace(/[\u0000-\u001f\u007f]+/g, ' ').replace(/<<<|>>>/g, ' ').trim().slice(0, 300);
+export const fillName = (t: string, name?: string) => t.replace(/\{\{\s*이름\s*\}\}님?/g, (m) => (name ? name + (m.endsWith('님') ? '님' : '') : '당신')).replace(/\{\{\s*이름\s*\}\}/g, name || '당신');
 function parseSection(text: string): Parsed | null {
   try {
     const j = JSON.parse(text);
     if (typeof j?.status !== 'string' || typeof j?.body !== 'string' || !Array.isArray(j.claim_ids)) return null;
-    return { status: j.status, body: j.body.trim(), claimIds: j.claim_ids.map(String) };
+    return { status: j.status, headline: typeof j.headline === 'string' ? j.headline.trim() : '', body: j.body.trim(), claimIds: j.claim_ids.map(String) };
   } catch { return null; }
 }
 
@@ -61,7 +70,8 @@ export async function runReportPipeline(plan: ReportPlan, facts: InterpretationF
   let calls = 0;
   const done: DoneSection[] = [];
   const allIssues: QaIssue[] = [];
-  const cacheKey = reportCacheKey(facts, { model: opts.model, allowDraft, tone: plan.tone });
+  const concern = cleanConcern(opts.concern);
+  const cacheKey = reportCacheKey(facts, { model: opts.model, allowDraft, tone: plan.tone, concern });
 
   const finish = (status: PipelineResult['status'], reportStatus: ReportStatus, failure?: PipelineResult['failure'], reviewReasons: string[] = []): PipelineResult => ({
     status, reportStatus, reviewReasons, sections: done, issues: allIssues, usage, calls, costUsd: estimateCostUsd(usage, opts.model), model: opts.model, cacheKey,
@@ -89,7 +99,7 @@ export async function runReportPipeline(plan: ReportPlan, facts: InterpretationF
       calls++;
       let res;
       try {
-        res = await opts.llm.complete({ system, factsBlock, user: buildSectionPrompt(plan, section, facts, prior, issues, allowDraft), maxTokens: opts.maxTokensPerCall ?? Math.min(8000, Math.ceil(section.maxChars * 2 + 600)), schema: SECTION_SCHEMA });
+        res = await opts.llm.complete({ system, factsBlock, user: buildSectionPrompt(plan, section, facts, prior, issues, allowDraft, concern || undefined), maxTokens: opts.maxTokensPerCall ?? Math.min(8000, Math.ceil(section.maxChars * 2 + 600)), schema: SECTION_SCHEMA });
       } catch (e) {
         const err = e instanceof LlmError ? e : new LlmError('unknown', String(e), false);
         if (err.kind === 'truncated') { issues = [{ code: 'TRUNCATED', severity: 'fail', message: '출력이 길어서 잘렸어요. 목표 분량 안으로 더 간결하게 써요.', sectionId: section.id }]; continue; }
@@ -107,10 +117,10 @@ export async function runReportPipeline(plan: ReportPlan, facts: InterpretationF
         allIssues.push({ ...issues[0], message: `[시도 ${attempt}] ${issues[0].message}` });
         continue;
       }
-      issues = checkSection(parsed.body, parsed.claimIds, section, ctx);
+      issues = checkSection(parsed.body, parsed.claimIds, section, ctx, parsed.headline);
       const fails = issues.filter((i) => i.severity === 'fail');
       allIssues.push(...issues.map((i) => ({ ...i, message: `[시도 ${attempt}] ${i.message}` })));
-      if (!fails.length) return { ok: true, sec: { id: section.id, title: section.title, body: parsed.body, claimIds: parsed.claimIds, evidenceIds: evidenceOf(parsed.claimIds), attempts: attempt } };
+      if (!fails.length) return { ok: true, sec: { id: section.id, title: section.title, headline: fillName(toHangul(parsed.headline), opts.displayName), body: fillName(toHangul(parsed.body), opts.displayName), claimIds: parsed.claimIds, evidenceIds: evidenceOf(parsed.claimIds), attempts: attempt } };
       issues = fails;
     }
     if (lastModelStatus === 'INSUFFICIENT_EVIDENCE') return { ok: false, failure: { code: 'INSUFFICIENT_EVIDENCE', message: `"${section.title}" 섹션은 제공된 근거만으로 쓸 수 없다고 모델이 판단했어요.`, sectionId: section.id } };

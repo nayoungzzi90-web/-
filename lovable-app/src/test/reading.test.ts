@@ -39,8 +39,9 @@ describe("풀이 생성(규칙형, 이중 엔진 확인)", () => {
     expect(r.sections).toHaveLength(6);
     expect(r.chars).toBeGreaterThanOrEqual(3000);
     const all = r.sections.map((s) => s.body).join("\n");
-    expect(all).toContain("庚午");
-    expect(all).toContain("甲寅");
+    expect(all).toContain("경오");
+    expect(all).toContain("갑인");
+    expect(all).not.toMatch(/\p{Script=Han}/u); // 제품 규칙: 한자 없음
     expect(all).toContain("2026년은");
     expect(all).not.toMatch(/반드시|무조건|100%|틀림없이|운명이 정해/);
     expect(r.meta).toMatchObject({ mode: "template", crossCheck: "match" });
@@ -57,6 +58,25 @@ describe("풀이 생성(규칙형, 이중 엔진 확인)", () => {
     expect(buildReading({ product: "compat", me }, { today: TODAY })).toMatchObject({ ok: false });
     const r = ok(buildReading({ product: "compat", me, partner }, { today: TODAY }));
     expect(r.chars).toBeGreaterThan(1500);
+  });
+
+  it("모든 상품·여러 출생정보에서 제목·소제목·본문에 한자가 없다", () => {
+    const births = [
+      me,
+      { ...me, date: "1984-09-03", time: "09:00" },
+      { ...me, date: "2001-12-25", time: null },
+      partner,
+    ];
+    for (const b of births)
+      for (const product of ["basic", "love"] as const) {
+        const r = ok(buildReading({ product, me: b }, { today: TODAY }));
+        const text = r.sections
+          .map((s) => [s.title, s.tag ?? "", s.headline ?? "", s.body].join("\n"))
+          .join("\n");
+        expect(text, `${product} ${b.date}`).not.toMatch(/\p{Script=Han}/u);
+      }
+    const c = ok(buildReading({ product: "compat", me, partner }, { today: TODAY }));
+    expect(c.sections.map((s) => s.body + s.title).join("")).not.toMatch(/\p{Script=Han}/u);
   });
 
   it("같은 입력이면 같은 글, 다른 사주면 다른 글(결정론)", () => {

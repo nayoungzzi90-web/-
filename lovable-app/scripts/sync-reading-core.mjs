@@ -46,6 +46,7 @@ export const FILES = [
     "report",
   ].map((f) => `src/lib/content/${f}.ts`),
   "src/lib/report/analysis.ts",
+  "src/lib/report/hangul.ts",
   ...["calculator", "rules", "types"].map((f) => `src/lib/saju/${f}.ts`),
 ];
 export const HEADER =

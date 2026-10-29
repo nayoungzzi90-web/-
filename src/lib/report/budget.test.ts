@@ -117,7 +117,7 @@ const basicPlan = buildPlan('basic', basicF);
 /** QA 를 통과하는 "좋은 작가" 흉내: 섹션의 우선 사실 줄을 풀어 쓰고, 부족분은 서로 겹치지 않는 문장으로 채운다 */
 const WORDS = '바람 구름 호수 마당 아침 저녁 계절 골목 시냇물 나무 등불 지붕 대문 언덕 노을 새벽 이슬 햇살 달빛 들판 돌담 장독 우물 다리 오솔길 처마 기와 솥뚜껑 풍경 버드나무 감나무 매화 국화 난초 대나무 소나무 연못 징검다리 서까래 마루 아궁이 부뚜막 항아리 베개 이불 창호지 문고리 댓돌'.split(' ');
 function rng(seed: string) { let h = 2166136261; for (const c of seed) h = Math.imul(h ^ c.charCodeAt(0), 16777619); return () => ((h = Math.imul(h ^ (h >>> 15), 2246289909) >>> 0) / 4294967296); }
-function goodBody(f: InterpretationFacts, plan: ReportPlan, section: SectionPlan, extra = ''): { status: 'READY'; body: string; claim_ids: string[] } {
+function goodBody(f: InterpretationFacts, plan: ReportPlan, section: SectionPlan, extra = ''): { status: 'READY'; headline: string; body: string; claim_ids: string[] } {
   // 실제 모델은 풀어 쓰지만, 가짜 작가는 같은 명제를 여러 섹션에 복사하지 않도록 "처음 맡은 섹션"에서만 쓴다
   const usable = usableClaims(f.claims, true);
   const owner = (c: Claim) => plan.sections.findIndex((p) => p.focusTags.some((t) => c.tags.includes(t)));
@@ -132,7 +132,7 @@ function goodBody(f: InterpretationFacts, plan: ReportPlan, section: SectionPlan
   while (countChars(body) < section.targetChars) body += ` ${Array.from({ length: 6 }, () => WORDS[Math.floor(r() * WORDS.length)]).join(' ')} 같은 장면으로 떠올려 보면 쉬워요.`;
   const seenSen = new Set<string>();
   body = body.split(/(?<=[.!?])\s+/).filter((x) => { const k = x.replace(/\s/g, ''); if (seenSen.has(k)) return false; seenSen.add(k); return true; }).join(' ');
-  return { status: 'READY', body, claim_ids: primary.map((c) => c.id) };
+  return { status: 'READY', headline: '푸른 나무가 바위틈에서 피어나는 이야기', body, claim_ids: primary.map((c) => c.id) };
 }
 const sectionOf = (r: { user: string }) => basicPlan.sections.find((s) => r.user.includes(`지금 쓸 섹션: ${s.title}`))!;
 const mk = () => new ScriptedLlm((r) => ({ text: JSON.stringify(goodBody(basicF, basicPlan, sectionOf(r))), usage: { inputTokens: 12_000, outputTokens: 1_500 } }));

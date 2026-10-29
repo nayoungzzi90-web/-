@@ -27,12 +27,12 @@ for (let i = 0; i < n; i++) {
     pricing, maxReportUsd: 0.5, dailyBudgetUsd: 3, maxInputTokensPerCall: 40000, maxOutputTokensPerCall: 4000, tokensPerChar: 1.5,
   } as never);
   const t0 = Date.now();
-  const r = await runReportPipeline(plan, interp, { llm: budget, model, allowDraftClaims: true });
+  const r = await runReportPipeline(plan, interp, { llm: budget, model, allowDraftClaims: true, ...(process.env.CONCERN ? { concern: process.env.CONCERN } : {}), displayName: process.env.NAME_FOR_TEST ?? '나영' });
   const cost = costFromUsage(r.usage, pricing);
   total += cost;
   const chars = r.sections.reduce((a, s) => a + s.body.replace(/\s/g, '').length, 0);
   console.log(JSON.stringify({ sample: `${y}-${m}-${d} ${h}시`, status: r.status, report: r.reportStatus, calls: r.calls, in: r.usage.inputTokens, out: r.usage.outputTokens, chars, usd: +cost.toFixed(4), krw: Math.round(cost * 1400), sec: Math.round((Date.now() - t0) / 1000), issues: r.issues.length, failure: r.failure?.code }));
-  if (process.env.OUT_DIR) { const { writeFileSync } = await import('node:fs'); writeFileSync(`${process.env.OUT_DIR}/${product}-${y}${m}${d}.md`, r.sections.map((x) => `## ${x.title}\n\n${x.body}\n`).join('\n')); }
+  if (process.env.OUT_DIR) { const { writeFileSync } = await import('node:fs'); writeFileSync(`${process.env.OUT_DIR}/${product}-${y}${m}${d}.md`, r.sections.map((x) => `## ${x.title}\n### ${x.headline}\n\n${x.body}\n`).join('\n')); }
   if (r.issues.length) console.log('QA 사유:', JSON.stringify(r.issues, null, 1).slice(0, 1500));
   if (i === 0 && r.sections[0]) console.log('--- 첫 섹션 ---\n' + r.sections[0].body.slice(0, 600));
 }

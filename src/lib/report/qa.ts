@@ -1,3 +1,4 @@
+import { hasHanja, toHangul } from './hangul';
 import { usableClaims } from './claims';
 import type { InterpretationFacts, QaIssue, ReportPlan, SectionPlan } from './types';
 
@@ -23,13 +24,20 @@ const HOUR_NEG = /모르|없|미상|제외|반영하지|알 수 없|계산하지
 export interface QaContext { facts: InterpretationFacts; plan: ReportPlan; /** 샌드박스·검수 화면에서만 true: 승인 전(DRAFT) 명제도 허용 */ allowDraft?: boolean }
 
 /** 한 섹션만 검사 (재시도 판단용) */
-export function checkSection(body: string, claimIds: string[], section: SectionPlan, ctx: QaContext): QaIssue[] {
+export function checkSection(body: string, claimIds: string[], section: SectionPlan, ctx: QaContext, headline?: string): QaIssue[] {
   const { facts, plan } = ctx;
   const out: QaIssue[] = [];
   const add = (code: string, message: string, severity: QaIssue['severity'] = 'fail') => out.push({ code, message, severity, sectionId: section.id });
   const n = countChars(body);
 
   if (!body.trim()) { add('EMPTY', '본문이 비어 있어요.'); return out; }
+  // 한자 금지(제품 규칙): 간지·오행 한자는 한글로 바꾸고 그 밖의 한자가 남으면 반려
+  if (hasHanja(toHangul(body))) add('HANJA', `한자가 있어요(${(toHangul(body).match(/\p{Script=Han}+/u) ?? [''])[0]}). 한글로만 써요.`);
+  if (headline !== undefined) {
+    const h = headline.trim();
+    if (h.length < 8 || h.length > 50) add('HEADLINE', `제목(headline)은 12~32자 안팎으로 써요(지금 ${h.length}자).`);
+    else if (hasHanja(toHangul(h)) || SCORE.test(h) || /[\p{Extended_Pictographic}]/u.test(h)) add('HEADLINE', '제목에는 한자·이모지·점수를 쓰지 않아요.');
+  }
   // 분량: 섹션 단위
   if (n < section.minChars) add('LENGTH_SHORT', `분량이 부족해요(${n}자). 목표 ${section.targetChars}자, 최소 ${section.minChars}자를 채워요. 지금 글에 약 ${Math.max(1, section.targetChars - n)}자(문단 1~2개)를 더 풀어 써요.`);
   if (n > section.maxChars) add('LENGTH_LONG', `분량이 너무 길어요(${n}자). 최대 ${section.maxChars}자 안으로 줄여요.`);
@@ -78,7 +86,8 @@ export function checkSection(body: string, claimIds: string[], section: SectionP
   // 일반론: 사용한(또는 우선) 명제의 고유 표지 2개 이상
   const anchors = new Set<string>();
   (claimIds.length ? usable.filter((c) => claimIds.includes(c.id)).concat(primary) : primary).forEach((c) => c.anchors.forEach((a) => anchors.add(a)));
-  const hits = [...anchors].filter((a) => a && body.includes(a));
+  const nbody = toHangul(body);
+  const hits = [...anchors].filter((a) => a && (body.includes(a) || nbody.includes(toHangul(a))));
   const need = section.focusTags.includes('limits') ? 1 : 2;
   if (anchors.size && hits.length < need) add('TOO_GENERIC', `명제의 고유한 표지(예: ${[...anchors].slice(0, 5).join(', ')})를 ${need}개 이상 직접 언급해야 해요. 지금은 ${hits.length}개예요.`);
 

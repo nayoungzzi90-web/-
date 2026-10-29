@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Paywall } from "@/components/Paywall";
+import { ReadingWaiting } from "@/components/ReadingWaiting";
 import { ReadingView } from "@/components/ReadingView";
 import { PRODUCTS, won } from "@/lib/coins";
 import { getReadingFull, getReadingPreview } from "@/lib/reading-fns";
@@ -31,7 +32,7 @@ export function ReadingBlock({
   });
   const data = isUnlocked && full.data?.ok ? full.data : preview.data;
   if (preview.isLoading || (isUnlocked && full.isLoading && !preview.data))
-    return <p className="mt-4 text-center text-sm text-muted-foreground">풀이를 만들고 있어요…</p>;
+    return <ReadingWaiting />;
   if (!data)
     return (
       <p className="mt-4 text-center text-sm text-muted-foreground">풀이를 불러오지 못했어요.</p>
