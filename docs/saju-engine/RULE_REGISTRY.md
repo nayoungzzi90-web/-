@@ -6,10 +6,10 @@
 | 규칙 | 이름 | 원문 | 참조코드(제공 여부) | 저장소 구현 | 전문가 검증 |
 |---|---|---|---|---|---|
 | R-001 | 만세력·절입 정확도 | ✅ `R-001_implementation_spec.md` (+검증 자료) | `reference/R001_operational_candidate/oheng_r001/oheng_r001.ts`, 25개 테스트 그룹(로그상 통과) — 제공됨, **이 저장소 코드와 미통합** | ✅ 별도 구현 `engine/manse`(DE421)와 `lovable-app`(astronomy-engine), 이중 엔진 대조 | ❌ |
-| R-002 | 월령·계절 세력 | ✅ `source/R-002_spec_pasted.md` (전문가 검토·승인 대기) | 없음 | 🔶 계절 4분류 근사 | ❌ |
-| R-003 | 지장간·사령 분일 | ✅ `source/R-003_spec_pasted.md` (DRAFT-1, 검토 중) | 없음 | 🔶 `engine/manse/src/hidden.ts`에 표·사령 계산 (복원 정책의 출처와 일치하는지 **미확인**) | ❌ |
-| R-004 | 통근·득지 | ✅ `source/R-004_spec_pasted.md` (DRAFT-1, 검토 중) | 없음 | ❌ | ❌ |
-| R-005 | 천간 생극·합화·구조 후보 | ✅ `source/R-005_spec_pasted.md` (DRAFT-1, 승인 대기) | 없음 | 🔶 간합·충 쌍 감지만 | ❌ |
+| R-002 | 월령·계절 세력 | ✅ `source/R-002_spec_pasted.md` (전문가 검토·승인 대기) | 없음 | ✅ `engine/saju-rules/src/r002.ts` (왕상휴수사·협의/광의 득령·토월 잠정, 120조합 시험) | ❌ |
+| R-003 | 지장간·사령 분일 | ✅ `source/R-003_spec_pasted.md` (DRAFT-1, 검토 중) | 없음 | ✅ `engine/saju-rules/src/r003.ts` (연해자평 정적표·normalized_30_v1 사령, 삼명통회는 SOURCE_MISSING) | ❌ |
+| R-004 | 통근·득지 | ✅ `source/R-004_spec_pasted.md` (DRAFT-1, 검토 중) | 없음 | ✅ `engine/saju-rules/src/r004.ts` (통근 탐색·원천 ID, 확장 근기·합충 영향 not_evaluated) | ❌ |
+| R-005 | 천간 생극·합화·구조 후보 | ✅ `source/R-005_spec_pasted.md` (DRAFT-1, 승인 대기) | 없음 | ✅ `engine/saju-rules/src/r005.ts` (십성·6쌍·구조 후보·간합 기록, 득세 not_evaluated) | ❌ |
 | R-006 | 신강·신약·중화 | ✅ `source/R-006_spec_pasted.md` (DRAFT-1, 채택·검증 대기) | 없음 | 🔶 점수 비율 근사(정책과 다름) | ❌ |
 | R-007 | 기본 격국 후보 | ✅ `source/R-007_spec_pasted.md` (DRAFT-1) | 없음 | ❌ | ❌ |
 | R-008 | 투간·회합·잡기 후보 | ✅ `source/R-008_spec_pasted.md` (DRAFT-1) | `reference/R015_full_audit_bundle/UPSTREAM_R008_R014/oheng_r008.ts` + 테스트(13개 통과 로그) — 제공됨, 미통합 | ❌ | ❌ |
@@ -54,3 +54,6 @@ R-006↔R-009는 순환 호출이 아니라 "1차 후보 → 특수격 후보 �
 
 ## R-002 왕상휴수사 대조
 R-002 원문의 계절 구분(寅卯 봄 木, 巳午 여름 火, 申酉 가을 金, 亥子 겨울 水, 辰未戌丑 토)은 이 저장소 `analysis.ts` 의 `SEASON` 매핑과 같은 방향이다(단, 저장소는 旺相休囚死 5단계 값을 만들지 않고 "계절이 일간을 돕는가" 이진 판정만 한다). 협의·광의 득령 두 값 저장도 없다.
+
+## 2026-10-29 구현: R-002~R-005 결정론 엔진
+`engine/saju-rules/` (설명 `engine/saju-rules/README.md`). 시험 20개 통과, 일부러 버그를 넣으면 시험이 실패하는 것 확인(변이 시험), 십성 100조합은 만세력 엔진의 별도 구현과 일치. **AI 풀이에는 아직 연결하지 않았다**(다음 단계: 이 결과로 판단 카드 만들기). 전문가 검증 전.
