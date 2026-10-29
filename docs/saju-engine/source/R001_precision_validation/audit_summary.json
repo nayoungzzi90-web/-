@@ -1,0 +1,77 @@
+{
+  "auditDate": "2026-10-16",
+  "sourceReference": "KASI reference minute resolution, annual calendarData 2025..2027 (not the legally promulgated almanac)",
+  "independentMethod": "Swiss Ephemeris 2.10.03 Moshier built-in analytic ephemeris, solcross_ut geocentric apparent tropical solar longitude",
+  "runtimeIntegration": "never use Swiss Ephemeris in the commercial runtime without legal/license review",
+  "kasiCrosscheck": {
+    "n": 36,
+    "maxAbsSeconds": 30.017,
+    "medianAbsSeconds": 14.1495,
+    "within60Seconds": 36,
+    "worst": [
+      {
+        "year": "2027",
+        "name": "청명",
+        "kasi_kst_minute": "2027-04-05 09:17",
+        "swiss_kst": "2027-04-05T09:17:30.017+09:00",
+        "signed_error_seconds": 30.017,
+        "abs_error_seconds": 30.017
+      },
+      {
+        "year": "2025",
+        "name": "입춘",
+        "kasi_kst_minute": "2025-02-03 23:10",
+        "swiss_kst": "2025-02-03T23:10:28.922+09:00",
+        "signed_error_seconds": 28.922,
+        "abs_error_seconds": 28.922
+      },
+      {
+        "year": "2025",
+        "name": "망종",
+        "kasi_kst_minute": "2025-06-05 18:57",
+        "swiss_kst": "2025-06-05T18:56:31.446+09:00",
+        "signed_error_seconds": -28.554,
+        "abs_error_seconds": 28.554
+      },
+      {
+        "year": "2027",
+        "name": "경칩",
+        "kasi_kst_minute": "2027-03-06 04:40",
+        "swiss_kst": "2027-03-06T04:39:32.042+09:00",
+        "signed_error_seconds": -27.958,
+        "abs_error_seconds": 27.958
+      },
+      {
+        "year": "2026",
+        "name": "대설",
+        "kasi_kst_minute": "2026-12-07 11:53",
+        "swiss_kst": "2026-12-07T11:52:32.429+09:00",
+        "signed_error_seconds": -27.571,
+        "abs_error_seconds": 27.571
+      },
+      {
+        "year": "2027",
+        "name": "백로",
+        "kasi_kst_minute": "2027-09-08 05:28",
+        "swiss_kst": "2027-09-08T05:28:26.440+09:00",
+        "signed_error_seconds": 26.44,
+        "abs_error_seconds": 26.44
+      }
+    ]
+  },
+  "fixtureCoverage": {
+    "years": 128,
+    "yearFrom": 1900,
+    "yearTo": 2027,
+    "monthBoundaries": 1536,
+    "order": "立春,驚蟄,...,大雪,次年小寒",
+    "referenceFileSha256": "6eea1ade26d028715af72e87ce2e282f732b41b8f5028346741bf559643c4956"
+  },
+  "limitations": [
+    "Swiss Moshier independent of astronomy-engine but not NASA JPL DE440s",
+    "1900..2027 values have not all been verified against KASI official releases",
+    "KASI minute reference cannot certify a second-level precision",
+    "Differences near 23:00 day-pillar boundary and historical IANA rules need end-to-end validation"
+  ],
+  "releaseStatus": "NO-GO until browser and real-user route E2E and high-precision independent validation pass"
+}
