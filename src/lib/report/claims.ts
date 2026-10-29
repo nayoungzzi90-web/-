@@ -117,7 +117,12 @@ export function applyApprovals(claims: Claim[], approvedRuleIds: ReadonlySet<str
   return claims.map((c) => (approvedRuleIds.has(c.ruleId) ? { ...c, status: 'APPROVED' as const } : c));
 }
 /** 서비스에서 써도 되는 명제: 승인된 것만. (샌드박스/검수 화면에서만 allowDraft) */
-export const usableClaims = (claims: Claim[], allowDraft = false) => claims.filter((c) => c.status === 'APPROVED' || (allowDraft && c.status === 'DRAFT'));
+/**
+ * 기준서(R-006)가 "임의 점수 합산 금지, 승인된 강약 규칙 통과 전에는 확정 금지"라고 정한 근사 규칙.
+ * 승인 전에는 승인(APPROVED) 상태여도 AI 입력에서 제외한다(루브릭이 정한 신강·신약을 점수 비율로 흉내 내지 않기 위해).
+ */
+export const HELD_RULE_IDS: ReadonlySet<string> = new Set(['R-CLM-POWER']);
+export const usableClaims = (claims: Claim[], allowDraft = false) => claims.filter((c) => !HELD_RULE_IDS.has(c.ruleId) && (c.status === 'APPROVED' || (allowDraft && c.status === 'DRAFT')));
 
 const OPPOSED: Record<ClaimStance, ClaimStance[]> = { HIGH: ['LOW'], LOW: ['HIGH'], MIXED: [], CONTEXTUAL: [], NONE: [] };
 /** 같은 의미 키에 상반된 입장이 동시에 있으면 충돌 후보. 상황 차이(CONTEXTUAL)로 설명되는 것은 충돌로 보지 않는다. */

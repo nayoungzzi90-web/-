@@ -2,7 +2,9 @@ import { usableClaims } from './claims';
 import { RULE_GROUPS, STYLE } from './plan';
 import type { Claim, InterpretationFacts, QaIssue, ReportPlan, SectionPlan } from './types';
 
-export const PROMPT_VERSION = 'prompt-4.0';
+/** 승인 전 보류 규칙(R-006 근사)이 만든 사실 줄은 모델에게 보여 주지 않는다(claims.ts HELD_RULE_IDS 와 짝). */
+const HELD_FACT_LINE = /power$/;
+export const PROMPT_VERSION = 'prompt-5.0';
 export const PACKET_SCHEMA_VERSION = '1.0.0';
 
 /** 모델이 반환해야 하는 JSON (output_config.format 에 그대로 사용). status 로 "근거 부족"을 정직하게 알릴 수 있다. */
@@ -13,8 +15,9 @@ export const SECTION_SCHEMA = {
     headline: { type: 'string', description: '이 섹션의 핵심을 한 줄로 담은 담백한 제목. 한글만, 사주 용어 없이, 12~32자, 이모지·한자·점수 금지.' },
     body: { type: 'string', description: '섹션 본문. 한글만(한자 금지). 마크다운 제목·목록·이모지 없이 문단만.' },
     claim_ids: { type: 'array', items: { type: 'string' }, description: '본문에 실제로 사용한 명제 ID(제공된 approvedClaims 의 id 만).' },
+    fact_ids: { type: 'array', items: { type: 'string' }, description: '본문이 근거로 삼은 사실 줄 ID(제공된 facts 의 id 만).' },
   },
-  required: ['status', 'headline', 'body', 'claim_ids'],
+  required: ['status', 'headline', 'body', 'claim_ids', 'fact_ids'],
   additionalProperties: false,
 } as const;
 
@@ -85,7 +88,7 @@ export function buildInputPacket(plan: ReportPlan, facts: InterpretationFacts, a
     chartStatus: facts.calculation.verified ? 'READY' : 'NEEDS_REVIEW',
     interpretationFacts: {
       subjects: facts.subjects.map((s) => ({ key: s.key, dayMaster: s.dayMaster, pillars: s.pillars })),
-      facts: facts.lines.map((l) => ({ id: l.id, text: l.text, evidenceIds: l.evidenceIds, origin: 'RULE_ENGINE' })),
+      facts: facts.lines.filter((l) => !HELD_FACT_LINE.test(l.id)).map((l) => ({ id: l.id, text: l.text, evidenceIds: l.evidenceIds, origin: 'RULE_ENGINE' })),
       approvedClaims: claims.map(claimView),
       conflicts: facts.conflicts,
       calculationWarnings: facts.limits,

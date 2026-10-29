@@ -52,6 +52,9 @@ export interface Subject {
   element: Element;
   pillars: { year: string; month: string; day: string; hour: string | null };
   hourKnown: boolean;
+  /** 겉글자 기준 오행 분포에서 가장 많은/없는 오행(본문 사실 검수용) */
+  dominant: Element[];
+  missing: Element[];
 }
 
 export interface InterpretationFacts {

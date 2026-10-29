@@ -12,8 +12,8 @@ import { estimateCostUsd, LlmError, ScriptedLlm } from './llm';
 import { cleanConcern, fillName, runReportPipeline } from './pipeline';
 import { hasHanja, toHangul } from './hangul';
 import { buildPlan } from './plan';
-import { buildFactsBlock, buildInputPacket, buildSectionPrompt, buildSystemPrompt } from './prompt';
-import { checkReport, checkSection, countChars, JARGON } from './qa';
+import { buildFactsBlock, buildInputPacket, buildSectionPrompt, buildSystemPrompt, SECTION_SCHEMA } from './prompt';
+import { checkReport, checkSection, countChars, elementMismatches, JARGON } from './qa';
 import type { Claim, InterpretationFacts, ReportPlan, SectionPlan } from './types';
 
 const input: BirthInput = { calendar: 'solar', leapMonth: false, year: 1995, month: 5, day: 17, hour: 14, minute: 0, timeUnknown: false, country: 'KR', alias: '나영' };
@@ -476,7 +476,7 @@ describe('입력 패킷·캐시 키·문체·보안', () => {
     expect(sys).toContain('2026, 2027, 2028, 2029, 2030');
   });
 });
-function applyApprovalsTo(f: InterpretationFacts): InterpretationFacts { return { ...f, claims: applyApprovals(f.claims, new Set(['R-CLM-POWER'])) }; }
+function applyApprovalsTo(f: InterpretationFacts): InterpretationFacts { return { ...f, claims: applyApprovals(f.claims, new Set(['R-CLM-AUTONOMY'])) }; }
 
 describe('OpenAiLlm 요청 형태 (가짜 fetch)', () => {
   const req = { system: 'S', factsBlock: 'F', user: 'U', maxTokens: 321, schema: { type: 'object' } };
@@ -583,5 +583,56 @@ describe('사주 전문용어 금지·담백한 글쓰기 지침', () => {
     for (const k of ['담백한 해요체', '필요한 말만', '전문용어를 쓰지 않는다', '정확성이 가장 중요하다', '근거 없는 말로 채우지 않는다']) expect(sys).toContain(k);
     expect(sys).not.toContain('쓴소리');
     expect(sys).not.toContain('친구 같은 전문가');
+  });
+});
+
+describe('사실 정합 검수(오행 분포·사실 ID)와 규칙 기반 지침', () => {
+  it('elementMismatches: 없다/가장 많다는 문장이 계산값과 다르면 잡고, 맞으면 통과', () => {
+    const dominant = ['earth'] as never[];
+    const missing = ['water'] as never[];
+    expect(elementMismatches('흙 기운이 가장 두드러지고 물 기운은 없어요.', dominant, missing)).toEqual([]);
+    expect(elementMismatches('나무·불 기운이 가장 많고 물 기운이 없어요.', dominant, missing)[0]).toContain('불'); // 불이 가장 많다는 말은 계산값과 다름
+    expect(elementMismatches('나무 기운이 가장 두드러져요.', dominant, missing)[0]).toContain('나무');
+    expect(elementMismatches('불 기운은 없어요.', dominant, missing)[0]).toContain('불');
+    expect(elementMismatches('나무·불 기운은 없고 물 기운도 없어요.', dominant, missing).length).toBe(2);
+    expect(elementMismatches('물 마시기 같은 습관이 없을 땐 쉬어요.', dominant, missing)).toEqual([]); // 기운 표현이 아니면 무시
+  });
+  it('checkSection: 오행 사실이 틀리거나 모르는 사실 ID, 새 전문용어는 반려', () => {
+    const plan = buildPlan('basic', basicF);
+    const sec = plan.sections[0]!;
+    const ctx = { facts: basicF, plan, allowDraft: true };
+    const g = goodBody(basicF, plan, sec);
+    const subj = basicF.subjects[0]!;
+    const wrong = (['wood', 'fire', 'earth', 'metal', 'water'] as const).find((e) => !subj.missing.includes(e))!;
+    const wrongKo = { wood: '나무', fire: '불', earth: '흙', metal: '쇠', water: '물' }[wrong];
+    const codes = (body: string, facts: string[] = []) => checkSection(body, g.claim_ids, sec, ctx, g.headline, facts).map((i) => i.code);
+    expect(codes(g.body + ` ${wrongKo} 기운은 없어요.`)).toContain('FACT_MISMATCH');
+    expect(codes(g.body, ['nope-id'])).toContain('FACT_UNKNOWN');
+    expect(codes(g.body, [basicF.lines[0]!.id])).not.toContain('FACT_UNKNOWN');
+    for (const w of ['신강', '신약', '득령', '통근', '투출', '사령', '월령']) expect(codes(g.body + ` ${w}해요.`), w).toContain('JARGON');
+  });
+  it('시스템 프롬프트에 계산 사실/해석 구분, 계절≠강함, 확정 금지, 개수 단정 금지 규칙이 있다', () => {
+    const sys = buildSystemPrompt(buildPlan('basic', basicF));
+    for (const k of ['계산 사실과 해석을 구분', '계절과 힘을 구분', '확정하지 않는 것', '개수로 단정 금지', 'fact_ids']) expect(sys + JSON.stringify(SECTION_SCHEMA)).toContain(k);
+  });
+});
+
+describe('승인 전 보류 규칙(R-006 근사)', () => {
+  it('R-CLM-POWER 는 승인되어도 AI 입력 명제에서 제외된다', () => {
+    const approved = { ...basicF, claims: applyApprovals(basicF.claims, new Set(['R-CLM-POWER', 'R-CLM-AUTONOMY'])) };
+    const ids = usableClaims(approved.claims, true).map((c) => c.ruleId);
+    expect(ids).not.toContain('R-CLM-POWER');
+    expect(ids).toContain('R-CLM-AUTONOMY');
+  });
+});
+
+describe('입력 패킷: 보류 규칙 사실 줄 제외', () => {
+  it('자기 힘 vs 바깥 힘(신강·신약 근사) 사실 줄은 모델 입력에 없다', () => {
+    const plan = buildPlan('basic', basicF);
+    const packet = JSON.stringify(buildInputPacket(plan, basicF, true));
+    expect(basicF.lines.some((l) => /power$/.test(l.id))).toBe(true);
+    expect(packet).not.toContain('신강·신약');
+    expect(packet).not.toContain('자기 힘 vs');
+    expect(JSON.stringify(buildInputPacket(plan, basicF, true).interpretationFacts.facts.map((f) => f.id))).not.toContain('power');
   });
 });

@@ -42,7 +42,7 @@ export interface PipelineOptions {
 
 const wait = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
-interface Parsed { status: string; headline: string; body: string; claimIds: string[] }
+interface Parsed { status: string; headline: string; body: string; claimIds: string[]; factIds: string[] }
 
 /** 고민 입력 정리: 제어문자 제거, 구분자(<<< >>>) 무력화, 300자 제한 */
 export const cleanConcern = (v?: string) => (v ?? '').replace(/[\u0000-\u001f\u007f]+/g, ' ').replace(/<<<|>>>/g, ' ').trim().slice(0, 300);
@@ -51,7 +51,7 @@ function parseSection(text: string): Parsed | null {
   try {
     const j = JSON.parse(text);
     if (typeof j?.status !== 'string' || typeof j?.body !== 'string' || !Array.isArray(j.claim_ids)) return null;
-    return { status: j.status, headline: typeof j.headline === 'string' ? j.headline.trim() : '', body: j.body.trim(), claimIds: j.claim_ids.map(String) };
+    return { status: j.status, headline: typeof j.headline === 'string' ? j.headline.trim() : '', body: j.body.trim(), claimIds: j.claim_ids.map(String), factIds: Array.isArray(j.fact_ids) ? j.fact_ids.map(String) : [] };
   } catch { return null; }
 }
 
@@ -117,7 +117,7 @@ export async function runReportPipeline(plan: ReportPlan, facts: InterpretationF
         allIssues.push({ ...issues[0], message: `[시도 ${attempt}] ${issues[0].message}` });
         continue;
       }
-      issues = checkSection(parsed.body, parsed.claimIds, section, ctx, parsed.headline);
+      issues = checkSection(parsed.body, parsed.claimIds, section, ctx, parsed.headline, parsed.factIds);
       const fails = issues.filter((i) => i.severity === 'fail');
       allIssues.push(...issues.map((i) => ({ ...i, message: `[시도 ${attempt}] ${i.message}` })));
       if (!fails.length) return { ok: true, sec: { id: section.id, title: section.title, headline: fillName(toHangul(parsed.headline), opts.displayName), body: fillName(toHangul(parsed.body), opts.displayName), claimIds: parsed.claimIds, evidenceIds: evidenceOf(parsed.claimIds), attempts: attempt } };

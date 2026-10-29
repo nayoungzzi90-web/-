@@ -6,6 +6,8 @@ import { runReportPipeline } from '../src/lib/report/pipeline';
 import { OpenAiLlm } from '../src/lib/report/openaiClient';
 import { BudgetedLlm, costFromUsage } from '../src/lib/report/budget';
 import { calculator } from '../src/lib/saju/sampleCalculator';
+import { calculate } from '../engine/manse/src/engine';
+import { toSajuFacts } from '../engine/manse/src/adapter';
 
 const n = Number(process.argv[2] ?? 1);
 const product = (process.argv[3] ?? 'basic') as 'basic' | 'love_deep';
@@ -20,7 +22,14 @@ const years = [2026, 2027, 2028, 2029, 2030];
 let total = 0;
 for (let i = 0; i < n; i++) {
   const [y, m, d, h] = samples[i % samples.length]!;
-  const facts = calculator.calculate({ calendar: 'solar', leapMonth: false, year: y, month: m, day: d, hour: h, minute: 0, timeUnknown: false, country: 'KR' });
+  // 검증된 만세력 엔진(engine/manse, DE421)으로 원국 계산. USE_SAMPLE_CALC=1 이면 옛 샘플 계산기(검증 전, 입춘 근사)를 쓴다.
+  let facts;
+  if (process.env.USE_SAMPLE_CALC === '1') facts = calculator.calculate({ calendar: 'solar', leapMonth: false, year: y, month: m, day: d, hour: h, minute: 0, timeUnknown: false, country: 'KR' });
+  else {
+    const mr = calculate({ calendar: 'solar', year: y, month: m, day: d, hour: h, minute: 0, gender: 'F' }, { ziHour: 'MIDNIGHT', timeBasis: 'ERA_WALL_CLOCK' } as never);
+    if (!mr.ok) throw new Error('manse engine error');
+    facts = toSajuFacts(mr.value);
+  }
   const interp = buildInterpretation(product, facts, product === 'love_deep' ? { years, yearPillar: (yr) => calculator.yearPillar(yr) } : {});
   const plan = buildPlan(product, interp);
   const budget = new BudgetedLlm(new OpenAiLlm({ apiKey: process.env.OPENAI_API_KEY ?? 'proxy-injected', model }), {

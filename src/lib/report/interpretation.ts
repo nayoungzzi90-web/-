@@ -16,7 +16,8 @@ export const INTERPRETATION_VERSION = 'interp-3.0';
 const topic = (who: string) => `${who}는`;
 
 export function subjectOf(f: SajuFacts, key: Subject['key']): Subject {
-  return { key, dayMaster: f.dayMaster, dayMasterKo: ko(f.dayMaster), element: STEM_ELEMENT[f.dayMaster], pillars: f.pillars, hourKnown: f.pillars.hour !== null };
+  const a = analyzeChart(f);
+  return { key, dominant: a.dominant, missing: a.missing, dayMaster: f.dayMaster, dayMasterKo: ko(f.dayMaster), element: STEM_ELEMENT[f.dayMaster], pillars: f.pillars, hourKnown: f.pillars.hour !== null };
 }
 
 class Builder {

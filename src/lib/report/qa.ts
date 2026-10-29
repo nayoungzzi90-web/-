@@ -1,5 +1,6 @@
 import { hasHanja, toHangul } from './hangul';
 import { usableClaims } from './claims';
+import type { Element } from '../saju/types';
 import type { InterpretationFacts, QaIssue, ReportPlan, SectionPlan } from './types';
 
 /**
@@ -19,14 +20,28 @@ const PROPHECY = [
 ];
 const MEDICAL = /우울증|조울|불안\s*장애|공황|ADHD|자폐|치매|암\b|질병|정신과|진단|처방|치료/;
 /** 일반인이 모르는 사주 전문용어(제품 규칙: 쓰지 않는다). 본문·제목에서 발견되면 반려한다. */
-export const JARGON = /일간|일지|월지|연지|시지|천간|지지|원국|일주|월주|연주|시주|십성|비견|겁재|식신|상관|편재|정재|편관|정관|편인|정인|비겁|식상|재성|관성|인성|지장간|신살|용신|격국|대운|세운|간지|합충/;
+export const JARGON = /일간|일지|월지|연지|시지|천간|지지|원국|일주|월주|연주|시주|십성|비견|겁재|식신|상관|편재|정재|편관|정관|편인|정인|비겁|식상|재성|관성|인성|지장간|신살|용신|희신|기신|격국|대운|세운|간지|합충|신강|신약|득령|통근|투출|사령|월령|합화/;
 const SCORE = /\d+\s*(%|퍼센트|점\b)|\d+\s*\/\s*100|점수/;
 const HOUR_NEG = /모르|없|미상|제외|반영하지|알 수 없|계산하지|해석하지|생략/;
+
+const EL_WORDS: Record<string, Element> = { 나무: 'wood', 목: 'wood', 불: 'fire', 화: 'fire', 흙: 'earth', 토: 'earth', 쇠: 'metal', 금: 'metal', 물: 'water', 수: 'water' };
+const EL_NAME: Record<Element, string> = { wood: '나무', fire: '불', earth: '흙', metal: '쇠', water: '물' };
+const EL_LIST = '(?:나무|불|흙|쇠|물)(?:\\([목화토금수]\\))?';
+const NONE_RE = new RegExp(`((?:${EL_LIST}[·,\\s및와과]*)+)\\s*기운(?:이|은|도|만)?\\s*(?:전혀\\s*)?(?:없|드러나지 않|비어)`, 'g');
+const MOST_RE = new RegExp(`(${EL_LIST})\\s*기운(?:이|은)?\\s*(?:전체에서\\s*|원국에서\\s*)?가장\\s*(?:많|두드러|강)`, 'g');
+const elementsIn = (t: string) => [...t.matchAll(/나무|불|흙|쇠|물/g)].map((m) => EL_WORDS[m[0]]!);
+/** "X 기운이 없다/가장 많다" 같은 문장이 계산된 오행 분포와 어긋나는지 검사한다(어긋난 문장 설명을 돌려준다). */
+export function elementMismatches(body: string, dominant: Element[], missing: Element[]): string[] {
+  const out: string[] = [];
+  for (const m of body.matchAll(NONE_RE)) for (const e of elementsIn(m[1]!)) if (!missing.includes(e)) out.push(`"${EL_NAME[e]} 기운이 없다"고 썼지만 실제로는 있어요. 없는 기운은 ${missing.map((x) => EL_NAME[x]).join('·') || '없음'} 뿐이에요.`);
+  for (const m of body.matchAll(MOST_RE)) for (const e of elementsIn(m[1]!)) if (!dominant.includes(e)) out.push(`"${EL_NAME[e]} 기운이 가장 많다"고 썼지만 가장 많은 기운은 ${dominant.map((x) => EL_NAME[x]).join('·')} 이에요.`);
+  return [...new Set(out)];
+}
 
 export interface QaContext { facts: InterpretationFacts; plan: ReportPlan; /** 샌드박스·검수 화면에서만 true: 승인 전(DRAFT) 명제도 허용 */ allowDraft?: boolean }
 
 /** 한 섹션만 검사 (재시도 판단용) */
-export function checkSection(body: string, claimIds: string[], section: SectionPlan, ctx: QaContext, headline?: string): QaIssue[] {
+export function checkSection(body: string, claimIds: string[], section: SectionPlan, ctx: QaContext, headline?: string, factIds: string[] = []): QaIssue[] {
   const { facts, plan } = ctx;
   const out: QaIssue[] = [];
   const add = (code: string, message: string, severity: QaIssue['severity'] = 'fail') => out.push({ code, message, severity, sectionId: section.id });
@@ -42,6 +57,17 @@ export function checkSection(body: string, claimIds: string[], section: SectionP
     const h = headline.trim();
     if (h.length < 8 || h.length > 50) add('HEADLINE', `제목(headline)은 12~32자 안팎으로 써요(지금 ${h.length}자).`);
     else if (hasHanja(toHangul(h)) || SCORE.test(h) || /[\p{Extended_Pictographic}]/u.test(h)) add('HEADLINE', '제목에는 한자·이모지·점수를 쓰지 않아요.');
+  }
+  // 사실 정합: 오행 분포를 본문이 잘못 말하면 반려(계산값을 바꾸지 못한다)
+  const subj = facts.subjects.length === 1 ? facts.subjects[0] : undefined;
+  if (subj) {
+    for (const m of elementMismatches(body, subj.dominant, subj.missing)) add('FACT_MISMATCH', m);
+  }
+  // 사실 줄 ID: 제공되지 않은 사실을 근거로 댔으면 반려
+  if (factIds.length) {
+    const known = new Set(facts.lines.map((l) => l.id));
+    const unknownFacts = factIds.filter((id) => !known.has(id));
+    if (unknownFacts.length) add('FACT_UNKNOWN', `제공되지 않은 사실 ID를 썼어요: ${unknownFacts.join(', ')}. 제공된 facts 의 id 만 써요.`);
   }
   // 분량: 섹션 단위
   if (n < section.minChars) add('LENGTH_SHORT', `분량이 부족해요(${n}자). 목표 ${section.targetChars}자, 최소 ${section.minChars}자를 채워요. 지금 글에 약 ${Math.max(1, section.targetChars - n)}자(문단 1~2개)를 더 풀어 써요.`);
