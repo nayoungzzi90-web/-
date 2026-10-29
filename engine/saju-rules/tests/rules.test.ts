@@ -198,3 +198,25 @@ describe('교차 검증: 만세력 엔진의 십성 구현과 100개 조합 일�
     for (let d = 0; d < 10; d++) for (let s = 0; s < 10; s++) expect(tenGodOf(STEMS[d]!, STEMS[s]!), `${STEMS[d]}${STEMS[s]}`).toBe(tenGod(d, s));
   });
 });
+
+describe('R-005 구조 후보 방향(회귀)', () => {
+  it('뒤 천간이 앞 천간을 극하는 경우도 잡는다: 辛(상관, 월간)이 乙(정관, 연간)을 극 → 상관-관 후보', () => {
+    const r = runR005(chart('乙亥', '辛巳', '戊申', '己未'));
+    expect(r.structures).toEqual([{ kind: 'output_controls_officer', from: 'month', to: 'year', status: 'candidate' }]);
+  });
+  it('다섯 구조를 양쪽 방향에서 모두 탐지한다', () => {
+    // 일간 甲: 재성(戊己土)·인성(壬癸水)·관살(庚辛金)·식상(丙丁火)·비겁(甲乙木)
+    const cases: Array<[string, string, string]> = [
+      ['癸亥', '戊辰', 'wealth_controls_resource'], // 월간 戊(재)가 연간 癸(인)를 극
+      ['壬子', '庚申', 'officer_generates_resource'], // 월간 庚(관)이 연간 壬(인)을 생
+      ['庚申', '丙寅', 'output_controls_officer'], // 월간 丙(식)이 연간 庚(관)을 극
+      ['戊辰', '丙寅', 'output_generates_wealth'], // 월간 丙(식)이 연간 戊(재)를 생
+      ['戊辰', '乙卯', 'peer_controls_wealth'], // 월간 乙(겁)이 연간 戊(재)를 극
+    ];
+    for (const [y, m, kind] of cases) {
+      const r = runR005(chart(y, m, '甲子', null));
+      expect(r.structures.map((s) => s.kind), `${y}${m}`).toEqual([kind]);
+      expect(r.structures[0]).toMatchObject({ from: 'month', to: 'year' });
+    }
+  });
+});

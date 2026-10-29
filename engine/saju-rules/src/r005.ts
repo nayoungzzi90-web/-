@@ -108,15 +108,18 @@ export function runR005(chart: Chart, r004?: R004Result): R005Result {
     pairs.push({ a, b, stemA: stemAt(a), stemB: stemAt(b), adjacent: adjacent(a, b), elementRelation: rel });
     // 구조 후보는 일간을 뺀 천간끼리(제8조)
     if (a === 'day' || b === 'day') continue;
-    for (const [from, to, kind] of [[a, b, rel.startsWith('a_') ? rel.slice(2) : null], [b, a, rel.startsWith('b_') ? rel.slice(2) : null]] as const) {
-      if (!kind) continue;
+    // 방향을 가진 관계만 본다: a→b 또는 b→a 의 '생'/'극'
+    const verb = rel === 'same' ? null : rel.includes('generates') ? 'generates' : 'controls';
+    const dir: [Position, Position] | null = rel === 'same' ? null : rel.startsWith('a_') ? [a, b] : [b, a];
+    if (verb && dir) {
+      const [from, to] = dir;
       const gf = groupAt(from), gt = groupAt(to);
       const k: StructureKind | null =
-        kind === 'controls_b' && gf === '재성' && gt === '인성' ? 'wealth_controls_resource'
-          : kind === 'generates_b' && gf === '관살' && gt === '인성' ? 'officer_generates_resource'
-            : kind === 'controls_b' && gf === '식상' && gt === '관살' ? 'output_controls_officer'
-              : kind === 'generates_b' && gf === '식상' && gt === '재성' ? 'output_generates_wealth'
-                : kind === 'controls_b' && gf === '비겁' && gt === '재성' ? 'peer_controls_wealth' : null;
+        verb === 'controls' && gf === '재성' && gt === '인성' ? 'wealth_controls_resource'
+          : verb === 'generates' && gf === '관살' && gt === '인성' ? 'officer_generates_resource'
+            : verb === 'controls' && gf === '식상' && gt === '관살' ? 'output_controls_officer'
+              : verb === 'generates' && gf === '식상' && gt === '재성' ? 'output_generates_wealth'
+                : verb === 'controls' && gf === '비겁' && gt === '재성' ? 'peer_controls_wealth' : null;
       if (k) structures.push({ kind: k, from, to, status: 'candidate' });
     }
   }
