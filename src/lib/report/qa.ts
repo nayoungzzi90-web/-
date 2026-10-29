@@ -31,7 +31,7 @@ export function checkSection(body: string, claimIds: string[], section: SectionP
 
   if (!body.trim()) { add('EMPTY', '본문이 비어 있어요.'); return out; }
   // 분량: 섹션 단위
-  if (n < section.minChars) add('LENGTH_SHORT', `분량이 부족해요(${n}자). 목표 ${section.targetChars}자, 최소 ${section.minChars}자를 채워요.`);
+  if (n < section.minChars) add('LENGTH_SHORT', `분량이 부족해요(${n}자). 목표 ${section.targetChars}자, 최소 ${section.minChars}자를 채워요. 지금 글에 약 ${Math.max(1, section.targetChars - n)}자(문단 1~2개)를 더 풀어 써요.`);
   if (n > section.maxChars) add('LENGTH_LONG', `분량이 너무 길어요(${n}자). 최대 ${section.maxChars}자 안으로 줄여요.`);
 
   // 숫자/간지 불일치: 제공되지 않은 간지 검출

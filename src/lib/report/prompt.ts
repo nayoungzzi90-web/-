@@ -90,7 +90,7 @@ export function buildSectionPrompt(plan: ReportPlan, section: SectionPlan, facts
   const parts = [
     `## 지금 쓸 섹션: ${section.title} (id: ${section.id})`,
     `목적: ${section.purpose}`,
-    `분량: 공백 제외 약 ${section.targetChars}자 (${section.minChars}~${section.maxChars}자 사이).`,
+    `분량: 공백 제외 약 ${section.targetChars}자 (${section.minChars}~${section.maxChars}자 사이). 최소 미달도, 최대 초과도 자동 반려돼요. 문단 약 ${Math.max(2, Math.round(section.targetChars / 200))}개로, 명제마다 (1) 어떤 모습으로 나타나는지 (2) 일상의 구체적인 장면 예 (3) 강점으로 쓰는 법 (4) 조심할 점을 풀어서 목표 글자 수의 105~110%를 노려 쓰면 안전해요(대체로 모델이 짧게 써요). '무조건·반드시·100%·틀림없이' 같은 단어는 부정문에서도 쓰지 않아요. 새 사실을 만들지 말고 같은 명제를 구체적으로 풀어 써요. 명제의 고유 표지(십성·오행 이름 등)를 2개 이상 직접 언급해요.`,
     `우선 사용할 명제: ${ids.join(', ') || '(없음 → INSUFFICIENT_EVIDENCE 로 반환)'}. 필요하면 다른 승인 명제도 쓸 수 있어요. 가능하면 2개 이상을 종합해요.`,
     prior.length ? `\n이미 쓴 섹션(내용을 반복하지 말고 새로운 관점만 더해요):\n${prior.map((p) => `- ${p.title}: ${p.gist}`).join('\n')}` : '',
   ];
