@@ -235,6 +235,10 @@ BEGIN
   IF NOT FOUND THEN RAISE EXCEPTION 'PURCHASE_NOT_FOUND'; END IF;
   IF v_p.status = 'refunded' THEN RETURN jsonb_build_object('refunded', false, 'already_refunded', true); END IF;
   SELECT coins INTO v_balance FROM public.wallets WHERE user_id = v_p.user_id FOR UPDATE;
+  -- 엽전은 종류 구분 없이 한 잔액이라 "잔액이 충분한가"만으로는 유상분 사용 여부를 알 수 없다(보상으로 받은 엽전이 섞이면 이미 쓴 결제도 환불될 수 있음).
+  -- 그래서 이 결제 이후 풀이 열람(spend)이 한 번이라도 있으면 사용 시작으로 보고 자동 환불하지 않는다(수동 처리). 환불 기간(예: 7일)은 정책 확정 후 추가.
+  IF EXISTS (SELECT 1 FROM public.coin_ledger WHERE user_id = v_p.user_id AND reason = 'spend' AND created_at >= v_p.created_at)
+    THEN RAISE EXCEPTION 'COINS_ALREADY_USED'; END IF;
   IF v_balance IS NULL OR v_balance < v_p.coins THEN RAISE EXCEPTION 'COINS_ALREADY_USED'; END IF;
   UPDATE public.wallets SET coins = coins - v_p.coins, updated_at = now() WHERE user_id = v_p.user_id;
   INSERT INTO public.coin_ledger (user_id, delta, reason, ref, balance_after) VALUES (v_p.user_id, -v_p.coins, 'refund', v_p.id::text, v_balance - v_p.coins);

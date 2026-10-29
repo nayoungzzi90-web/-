@@ -256,23 +256,52 @@ describe('초대 보상: 친구의 첫 결제 + 초대자 결제 이력 + 한국
 });
 
 describe('환불(refund_purchase)', () => {
-  it('남은 엽전만큼 차감·원장 기록·멱등, 이미 쓴 엽전이면 거부(수동 처리)', async () => {
+  it('사용 전 환불: 충전한 만큼 차감·원장 기록·멱등. 풀이를 한 번이라도 열었으면 거부(수동 처리)', async () => {
     const db = await setup();
     await setupUser(db, 1);
     await buy(db, 1, 2);
     const pid = (await one<{ p: string }>(db, 'SELECT provider_payment_id AS p FROM public.coin_purchases'))[0]!.p;
-    await db.exec(`UPDATE public.reading_price_catalog SET active = true WHERE reading_type = 'basic'`);
-    await as(db, 1);
-    await spend(db, 'basic', 1); // 1닢 사용 → 잔액 1 < 2
-    await expect(db.query(`SELECT public.refund_purchase('test', $1)`, [pid])).rejects.toThrow(/COINS_ALREADY_USED/);
-    await buy(db, 1, 3); // 충전해 잔액 4
     const r = (await one<{ r: Record<string, unknown> }>(db, `SELECT public.refund_purchase('test', $1) AS r`, [pid]))[0]!.r;
-    expect(r).toMatchObject({ refunded: true, balance: 2 });
-    expect(await coins(db, 1)).toBe(2);
+    expect(r).toMatchObject({ refunded: true, balance: 0 });
+    expect(await coins(db, 1)).toBe(0);
     expect((await one<{ r: Record<string, unknown> }>(db, `SELECT public.refund_purchase('test', $1) AS r`, [pid]))[0]!.r).toEqual({ refunded: false, already_refunded: true });
-    expect(await coins(db, 1)).toBe(2);
+    expect(await coins(db, 1)).toBe(0);
     expect((await one<{ s: string }>(db, 'SELECT status AS s FROM public.coin_purchases WHERE provider_payment_id=$1', [pid]))[0]!.s).toBe('refunded');
     await expect(db.query(`SELECT public.refund_purchase('test', 'nope')`)).rejects.toThrow(/PURCHASE_NOT_FOUND/);
+    await db.close();
+  });
+
+  it('풀이를 연 뒤에는 잔액이 남아 있어도(다른 결제로 채워도) 이전 결제를 환불할 수 없다', async () => {
+    const db = await setup();
+    await setupUser(db, 1);
+    await buy(db, 1, 1);
+    const pid = (await one<{ p: string }>(db, 'SELECT provider_payment_id AS p FROM public.coin_purchases'))[0]!.p;
+    await db.exec(`UPDATE public.reading_price_catalog SET active = true WHERE reading_type = 'basic'`);
+    await as(db, 1);
+    await spend(db, 'basic', 1); // 사용 시작
+    await buy(db, 1, 3); // 잔액 3
+    await expect(db.query(`SELECT public.refund_purchase('test', $1)`, [pid])).rejects.toThrow(/COINS_ALREADY_USED/);
+    expect(await coins(db, 1)).toBe(3);
+    await db.close();
+  });
+
+  it('사용 후 환불 우회(보상 엽전으로 잔액 채우기)도 막힌다', async () => {
+    const db = await setup();
+    await setupUser(db, 100, '10 days'); await buy(db, 100, 1);
+    const code = await codeOf(db, 100);
+    await setupUser(db, 1); await link(db, 1, code);
+    await buy(db, 1, 1); // 1 → 초대자(100)에게 보상 발생
+    await setupUser(db, 2, '10 days'); await buy(db, 2, 1);
+    const code2 = await codeOf(db, 2);
+    await db.exec(`UPDATE public.reading_price_catalog SET active = true WHERE reading_type = 'basic'`);
+    await as(db, 2);
+    await spend(db, 'basic', 1); // 2번이 유상 1닢을 사용 → 잔액 0
+    await setupUser(db, 3); await link(db, 3, code2);
+    await buy(db, 3, 1); // 2번에게 보상 1닢 → 잔액 1(= 환불 대상 결제의 코인 수와 같음)
+    expect(await coins(db, 2)).toBe(1);
+    const pid = (await one<{ p: string }>(db, 'SELECT provider_payment_id AS p FROM public.coin_purchases WHERE user_id=$1', [U(2)]))[0]!.p;
+    await expect(db.query(`SELECT public.refund_purchase('test', $1)`, [pid])).rejects.toThrow(/COINS_ALREADY_USED/);
+    expect(await coins(db, 2)).toBe(1);
     await db.close();
   });
 
