@@ -12,3 +12,4 @@ docs/
 AGENTS.md
 *.md
 scripts/term-reference.json
+src/lib/reading-core/

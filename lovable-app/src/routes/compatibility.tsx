@@ -2,12 +2,11 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Shell, NeedBirth, MockBadge, Section } from "@/components/Shell";
 import { BirthForm } from "@/components/BirthForm";
-import { Paywall } from "@/components/Paywall";
+import { ReadingBlock } from "@/components/ReadingBlock";
 import { setStore, useStore } from "@/lib/store";
 import { getSajuPreview } from "@/lib/saju-fns";
 import { characterFor } from "@/lib/characters";
 import type { Element } from "@/lib/saju";
-import { PRODUCTS, won } from "@/lib/coins";
 
 export const Route = createFileRoute("/compatibility")({
   head: () => ({
@@ -103,20 +102,7 @@ function CompatPage() {
         </p>
       </div>
       <Section title="한 줄 궁합">{r.d}</Section>
-      <Paywall
-        id={`compat:${partner.date}`}
-        label={PRODUCTS.compat.label}
-        price={won(PRODUCTS.compat.coins)}
-        coins={PRODUCTS.compat.coins}
-      >
-        <Section title="궁합 점수">{r.s}점</Section>
-        <Section title="함께하면 좋은 것">
-          {a.strengths[0]}과 {b.strengths[0]}을 합치면 무엇이든 해낼 수 있어요.
-        </Section>
-        <Section title="조심할 점">
-          {a.weaknesses[0]} vs {b.weaknesses[0]} — 서운함은 그날 바로 풀어요.
-        </Section>
-      </Paywall>
+      <ReadingBlock product="compat" partner={partner} />
       <button
         className="mt-4 w-full text-sm text-muted-foreground underline"
         onClick={() => setStore({ partner: null })}

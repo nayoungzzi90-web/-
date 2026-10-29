@@ -1,12 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Shell, NeedBirth, MockBadge, Section } from "@/components/Shell";
-import { Paywall } from "@/components/Paywall";
+import { ReadingBlock } from "@/components/ReadingBlock";
 import { useStore } from "@/lib/store";
 import { getSajuPreview } from "@/lib/saju-fns";
 import { characterFor } from "@/lib/characters";
 import type { Element } from "@/lib/saju";
-import { PRODUCTS, won } from "@/lib/coins";
 
 export const Route = createFileRoute("/basic")({
   head: () => ({
@@ -74,23 +73,7 @@ function BasicPage() {
         {p.pillars.day.hanja}({p.pillars.day.ko}) · {c.element} — {c.personality}{" "}
         <span className="text-[11px] text-muted-foreground">(성격 설명은 창작 표현)</span>
       </Section>
-      <Paywall
-        id="basic"
-        label={PRODUCTS.basic.label}
-        price={won(PRODUCTS.basic.coins)}
-        coins={PRODUCTS.basic.coins}
-      >
-        <Section title="가장 강한 기운">
-          {strong}의 기운이 두드러져요. 이 힘을 장점으로 쓰면 주변의 신뢰를 얻어요.
-        </Section>
-        <Section title="채우면 좋은 기운">
-          {weak}의 기운이 상대적으로 약해요. {ADVICE[weak]}
-        </Section>
-        <Section title="근거">
-          일간 {p.pillars.day.hanja} 및 오행 개수 분포({p.charCount}글자)를 바탕으로 한 규칙형
-          풀이입니다. 엔진 {p.engineVersion}, 검증 진행 중.
-        </Section>
-      </Paywall>
+      <ReadingBlock product="basic" />
     </Shell>
   );
 }

@@ -1,5 +1,4 @@
 import { createServerFn } from "@tanstack/react-start";
-import { getRequestHeader } from "@tanstack/react-start/server";
 import type { SajuPreview } from "./saju";
 
 // R-001 시범/검토용 사주 미리보기. 공개(비로그인) 호출 가능 — 회원 데이터를 읽지 않고 계산만 수행.
@@ -22,28 +21,9 @@ export const getSajuPreview = createServerFn({ method: "POST" })
   .handler(async ({ data }): Promise<SajuPreview> => {
     const base = { finalApproved: false as const };
     try {
-      const rl = await import("./rate-limit.server");
-      const decision = await rl.checkRateLimit({
-        env: rl.readRateEnv(import.meta.env.DEV),
-        getHeader: (n) => {
-          try {
-            return getRequestHeader(n) ?? undefined;
-          } catch {
-            return undefined;
-          }
-        },
-        rpc: await rl.createSupabaseRateRpc().catch(() => null),
-      });
-      if (!decision.allowed) {
-        return {
-          ok: false,
-          error:
-            decision.reason === "limited"
-              ? "요청이 너무 많아요. 잠시 후 다시 시도해 주세요."
-              : "지금은 계산을 이용할 수 없어요. 잠시 후 다시 시도해 주세요.",
-          ...base,
-        };
-      }
+      const { rateGate } = await import("./rate-gate.server");
+      const gate = await rateGate();
+      if (!gate.allowed) return { ok: false, error: gate.error, ...base };
       const { previewFromBirthInput } = await import("./saju-engine.server");
       return previewFromBirthInput(data);
     } catch {

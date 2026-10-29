@@ -54,3 +54,17 @@ describe('궁합 본문', () => {
     expect(generateReport({ productId: 'love_deep', facts: mk(), baseYear: 2026 }).qa.find((q) => q.id === 'length')?.status).toBe('pass');
   });
 });
+
+describe('분량 보장(무작위 사주 표본)', () => {
+  const rng = (() => { let x = 20261029; return () => ((x = (Math.imul(x, 1664525) + 1013904223) >>> 0) / 4294967296); })();
+  const sample = Array.from({ length: 150 }, () => ({ year: 1920 + Math.floor(rng() * 100), month: 1 + Math.floor(rng() * 12), day: 1 + Math.floor(rng() * 28), hour: Math.floor(rng() * 24), unknown: rng() < 0.3, gender: rng() < 0.5 ? 'F' : 'M' }) as const);
+  it('기본사주는 시간이 있든 없든 3,000자 이상, 연애운은 4,000자 이상, 궁합은 1,500자 이상', () => {
+    for (const s of sample) {
+      const f = mk({ year: s.year, month: s.month, day: s.day, hour: s.unknown ? undefined : s.hour, timeUnknown: s.unknown, gender: s.gender });
+      const tag = JSON.stringify(s);
+      expect(generateReport({ productId: 'basic', facts: f, baseYear: 2026 }).chars, `basic ${tag}`).toBeGreaterThanOrEqual(3000);
+      expect(generateReport({ productId: 'love_deep', facts: f, baseYear: 2026 }).chars, `love ${tag}`).toBeGreaterThanOrEqual(4000);
+      expect(generateReport({ productId: 'compatibility', facts: f, factsB: mk({ year: 1993, month: 3, day: 9 }), baseYear: 2026 }).chars, `compat ${tag}`).toBeGreaterThanOrEqual(1500);
+    }
+  });
+});

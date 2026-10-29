@@ -93,6 +93,19 @@ const stemSub = (s: Stem) => `${stemRef(s)}${batchim(ko(s)) ? '은' : '는'}`;
 const branchSub = (b: Branch) => `${branchRef(b)}${batchim(bko(b)) ? '은' : '는'}`;
 void kb; void ka; void eu; void jong;
 
+
+/** 출생 시간을 모를 때만 덧붙이는 안내. 시주를 지어내지 않고, 빠진 것과 그대로인 것, 시간을 찾는 방법을 알려 준다. */
+const TIME_UNKNOWN_BASIC = [
+  '출생 시간을 모르면 시간의 기둥인 시주를 빼고 여섯 글자로 풀이해요. 시주는 마음속 바람, 나이 들어서의 분위기, 자녀와의 인연 같은 결을 더해 주는 자리라서, 시간을 알게 되면 이 글에서 "나이가 들수록"이나 "마무리"를 말하는 부분이 조금 더 또렷해져요. 반대로 지금 읽은 성격과 재능, 관계의 큰 줄기는 일주와 월주가 중심이라 시간이 없어도 대부분 그대로 유지돼요.',
+  '시간을 찾아보는 방법도 있어요. 출생증명서나 산모수첩, 가족의 기억, 오래된 사진첩 메모가 가장 믿을 만해요. 정확한 시각이 아니어도 "새벽쯤", "해 질 무렵"처럼 대략의 시간대만 알면 후보를 좁힐 수 있어요. 시주는 두 시간 단위로 바뀌니, 경계에 가까운 시각이라면 한 번 더 확인해 보세요.',
+  '그때까지는 이 풀이를 시간 미상 버전으로 가볍게 참고해 주세요. 마음에 와닿는 문장만 골라 담아도 충분하고, 시간이 정해지면 같은 방식으로 다시 풀어 볼 수 있어요.',
+];
+const TIME_UNKNOWN_LOVE = [
+  '출생 시간을 모를 때는 연애 풀이에서도 시주를 빼고 읽어요. 시주는 연애에서 마음속 바람과 관계가 깊어진 뒤의 모습에 해당하는 자리라서, 시간을 알게 되면 "오래 만났을 때"나 "관계의 후반부"를 말하는 부분이 더 세밀해질 수 있어요. 처음 끌리는 방식, 다툼의 패턴, 올해부터의 흐름은 일주와 월주, 해마다의 기운으로 읽기 때문에 지금 내용 그대로 참고할 수 있어요.',
+  '연애에서는 특히 "누가 먼저 다가가는가"나 "관계가 깊어진 뒤의 변화" 같은 질문이 시간의 영향을 받는 편이에요. 그래서 시간을 알게 된 뒤에 이 부분만 다시 읽어 보면 새로 보이는 문장이 있을 거예요.',
+  '시간을 알아내고 싶다면 출생증명서나 산모수첩, 가족에게 들은 이야기를 먼저 살펴보세요. 대략의 시간대만 알아도 도움이 되고, 모르는 채로 두어도 괜찮아요. 이 풀이는 시간 미상 버전이라고 생각하고, 내 이야기 같은 문장만 가볍게 골라 보세요.',
+];
+
 export function basicDrafts(f: SajuFacts, ctx: ReadingCtx): Draft[] {
   const A = analyzeChart(f), L = analyzeLove(f);
   const c = CHARACTERS[f.dayMaster];
@@ -110,7 +123,7 @@ export function basicDrafts(f: SajuFacts, ctx: ReadingCtx): Draft[] {
 
   const s1: string[] = [
     `사주 원국은 연주 ${pk(f.pillars.year)}, 월주 ${pk(f.pillars.month)}, 일주 ${pk(f.pillars.day)}, 시주 ${f.pillars.hour ? pk(f.pillars.hour) : '없음(출생 시간을 몰라 계산하지 않았어요)'}로 이루어져 있어요. 연주는 뿌리와 어린 시절의 배경, 월주는 일터와 사회적인 모습, 일주는 나 자신, 시주는 꿈과 마무리의 결을 보여 주는 자리예요.`,
-    `나를 뜻하는 일주는 ${pk(f.pillars.day)}예요. ${dmImg.img}(${dm})${batchim(dmImg.img) ? '이' : '가'} ${dbScene.scene}(${db}) 곁에 서 있는 모습으로 그려 볼 수 있어요. 일간 ${stemSub(dm)} ${dmImg.nature}이고, 일지 ${branchSub(db)} ${dbScene.trait}을 더해 줘요. 그래서 이 사주의 첫인상은 "${c.name}", 곧 ${c.summary}${summaryEnd}.`,
+    `나를 뜻하는 일주는 ${pk(f.pillars.day)}${batchim(bko(f.pillars.day[1] as Branch)) ? '이에요' : '예요'}. ${dmImg.img}(${dm})${batchim(dmImg.img) ? '이' : '가'} ${dbScene.scene}(${db}) 곁에 서 있는 모습으로 그려 볼 수 있어요. 일간 ${stemSub(dm)} ${dmImg.nature}이고, 일지 ${branchSub(db)} ${dbScene.trait}을 더해 줘요. 그래서 이 사주의 첫인상은 "${c.name}", 곧 ${c.summary}${summaryEnd}.`,
     `${eun(c.name)} 주변에서 ${life.heard} 같은 말을 자주 듣는 편이에요. ${life.comfort} 마음이 가장 편하고, ${life.drain} 쉽게 지쳐요. ${life.env}에서 힘이 나고, 힘들 때는 ${life.words} 같은 말이 가장 큰 위로가 돼요.`,
     `태어난 달의 지지는 ${branchRef(A.monthBranch)}, 계절로는 ${A.season.name}이에요. ${SEASON_REL[rel]} ${A.seasonSupported ? '월령의 도움을 받는 구조라 바탕이 안정적이에요.' : '월령의 도움을 직접 받는 구조는 아니라서, 스스로 힘을 모으는 과정이 성장의 열쇠가 돼요.'}`,
     `오행 분포는 ${counts}이에요(천간·지지 글자 기준). ${dom ? `${eun(EL_NAME[dom])} 가장 많아 ${ELEMENT_KO[dom]}의 성향이 전체 분위기를 이끌고` : '오행이 고르게 퍼져 있어'}${A.missing.length ? `, ${A.missing.map((e) => eun(EL_NAME[e])).join(' ')} 원국에 보이지 않아요` : ''}. 오행은 좋고 나쁨이 아니라 내가 자주 쓰는 에너지와 덜 쓰는 에너지를 알려 주는 지도예요.`,
@@ -118,6 +131,7 @@ export function basicDrafts(f: SajuFacts, ctx: ReadingCtx): Draft[] {
   ];
   if (A.relations.length) s1.push(`원국 안의 관계도 눈에 띄어요. ${A.relations.slice(0, 3).join(', ')}. 합은 끌어당기고 힘을 모으는 모양, 충은 부딪히며 변화를 만드는 모양이에요. 실제로 어떻게 작용하는지는 세력과 시기에 따라 달라지니 경향으로 봐 주세요.`);
 
+  if (!f.pillars.hour) s1.push(...TIME_UNKNOWN_BASIC);
   const s2: string[] = [
     c.temperament,
     `겉과 속을 나눠 보면, 사회에서 보이는 모습(월간 ${f.pillars.month[0]})은 ${monthG}의 결이라 ${GOD_DEEP[monthG].self}. 반면 가장 편한 사람 앞에서 나오는 속마음(일지 ${db})은 ${pg}의 결이라 ${GOD_DEEP[pg].self}. 둘이 다르다면 "겉으론 이런데 속은 달라"라는 말을 들어 본 적이 있을 거예요.`,
@@ -150,7 +164,7 @@ export function basicDrafts(f: SajuFacts, ctx: ReadingCtx): Draft[] {
   const nowGod = analyzeYear(f, ctx.baseYear, calculator.yearPillar(ctx.baseYear)).stemGod;
   const s5: string[] = [
     `관계에서의 나는 이래요. ${STEM_LOVE[dm]}`,
-    `속마음의 자리인 일지 ${branchRef(db)}는 ${pg}의 결이에요. ${BRANCH_LOVE[db]} 그래서 ${GOD_DEEP[pg].love}.`,
+    `속마음의 자리인 일지 ${branchSub(db)} ${pg}의 결이에요. ${BRANCH_LOVE[db]} 그래서 ${GOD_DEEP[pg].love}.`,
     `인연의 별(재성·관성)은 ${star >= 3 ? '풍성한 편이에요. 마음 가는 곳이 여럿일 수 있어서 선택 기준을 먼저 적어 두면 편해요' : star === 0 ? '원국에서 조용한 편이에요. 기다리기보다 활동 반경을 넓힐 때 인연의 문이 열리는 타입에 가까워요' : '적당히 있어요. 천천히 알아가며 깊어지는 관계가 잘 맞아요'}.`,
     ...(L.palaceRelations.length ? [L.palaceRelations.map(([pos, r]) => (r === '충' ? `일지가 ${POS_BRANCH[pos]}와 부딪히는 모양이라 가까운 사이에서 의견이 엇갈리기 쉬워요. 감정이 올라올 땐 하루 묵혀서 말하는 규칙을 정해 두면 좋아요.` : `일지가 ${POS_BRANCH[pos]}와 손을 잡는 모양이라 마음을 열면 깊이 이어지는 편이에요.`)).join(' ')] : []),
     `관계에서 조심할 패턴은 이거예요. ${sent(c.weaknesses[0])} ${sent(GOD_DEEP[pg].caution)}`,
@@ -197,12 +211,13 @@ export function loveDrafts(f: SajuFacts, years: number[], ctx: ReadingCtx): Draf
   const s1 = [
     `${dmImg.img}의 결을 가진 ${c.name}. 사랑 앞에서는 이런 사람이에요. ${c.temperament}`,
     STEM_LOVE[dm],
-    `연애의 핵심 자리인 일지 ${branchRef(db)}는 ${pg}의 결이에요. ${BRANCH_LOVE[db]} 그래서 ${GOD_DEEP[pg].love}.`,
+    `연애의 핵심 자리인 일지 ${branchSub(db)} ${pg}의 결이에요. ${BRANCH_LOVE[db]} 그래서 ${GOD_DEEP[pg].love}.`,
     `마음이 설레는 순간은 ${LOVE_MOMENT[dm].spark}이에요. 반대로 마음이 식는 순간은 ${LOVE_MOMENT[dm].cool}이에요. 이 두 장면을 알아 두면 관계에서 무엇을 요청해야 할지 분명해져요.`,
     `사회에서 보이는 모습(월간)은 ${monthG}이라 ${GOD_DEEP[monthG].self}. ${FIRST_IMPRESSION[monthG]}. 처음 만났을 때의 인상과 가까워진 뒤의 모습이 다를 수 있다는 뜻이에요.`,
     `전체 성향으로는 ${GROUP_LEVEL[top][lv(A.groupScore[top])]}`,
     `연애 한 줄 요약 카드: "${c.name}, ${pg}의 속마음을 가진 사람 — ${GOD_TRAIT_OF(pg)}이 사랑의 열쇠". 이 문장을 기억해 두고 관계가 흔들릴 때 꺼내 보세요.`,
   ];
+  if (!f.pillars.hour) s1.push(...TIME_UNKNOWN_LOVE);
   const s2 = [
     `끌리는 관계의 기준은 ${GOD_LOVE[pg]}. 잘 맞는 데이트 방식은 ${DATE_STYLE[pg]}예요.`,
     miss ? `사주에 ${EL_NAME[miss]} 기운이 ${A.missing.includes(miss) ? '없어서' : '약해서'} 무의식적으로 ${ELEMENT_PARTNER[miss]}에게 끌릴 수 있어요. 나에게 없는 결을 채워 주는 사람이라 편하게 느껴질 수 있지만, 그 차이가 가끔 답답함으로 바뀌기도 하니 서로의 속도를 확인해 보세요.` : '오행이 고르게 모여 있어 특정한 결에 치우치지 않고 다양한 사람과 어울릴 수 있어요.',
@@ -245,6 +260,11 @@ export function loveDrafts(f: SajuFacts, years: number[], ctx: ReadingCtx): Draf
     `마음이 힘들 때 듣고 싶은 말은 ${life.words}일 거예요. 가까운 사람에게 이렇게 말해 달라고 먼저 부탁해도 괜찮아요.`,
     '결과를 결혼이나 이별 같은 사건의 예언으로 받아들이지 마세요. 사주는 내가 사랑을 대하는 방식과 흐름을 비춰 주는 거울이에요. 읽은 문장 가운데 가장 마음에 남은 한 가지를 실제 대화에서 써 보는 것이 풀이를 내 것으로 만드는 방법이에요.',
   ];
+  s7.push(
+    `마지막으로 올해 안에 해 볼 연애 계획을 세 가지로 정리해 볼게요. 첫째는 만남의 폭을 넓히는 일이에요. ${c.name}에게는 ${keywords} 같은 결이 잘 맞으니, 새로운 모임이나 취미 자리에서 그런 사람을 눈여겨보세요. 둘째는 마음을 말로 옮기는 연습이에요. 좋아하는 마음도 서운한 마음도 하루 안에 한 문장으로 전해 보면 오해가 훨씬 줄어요. 셋째는 나를 돌보는 시간이에요. 연애가 잘 풀리는 시기에도 혼자 있는 시간이 마음의 중심을 잡아 줘요. 세 가지를 모두 하지 않아도 괜찮고, 하나만 꾸준히 해도 흐름이 달라져요.`,
+    '한 달에 한 번, 스스로에게 이런 질문을 던져 보세요. 요즘 나는 상대의 말을 끝까지 듣고 있는지, 내 마음을 숨기느라 에너지를 쓰고 있지는 않은지, 연애가 아닌 시간에도 웃을 일이 있는지예요. 답이 하나라도 마음에 걸린다면 그 부분부터 천천히 고쳐 가면 돼요.',
+  );
+
   return [
     { id: 's1', title: '연애 기질', paras: s1, evidenceIds: ['day_master'] },
     { id: 's2', title: '원하는 관계·상대', paras: s2, evidenceIds: ['elements', 'god_month'] },

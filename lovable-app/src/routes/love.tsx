@@ -1,11 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Shell, NeedBirth, MockBadge, Section } from "@/components/Shell";
-import { Paywall } from "@/components/Paywall";
+import { ReadingBlock } from "@/components/ReadingBlock";
 import { useStore } from "@/lib/store";
 import { getSajuPreview } from "@/lib/saju-fns";
 import { characterFor } from "@/lib/characters";
-import { PRODUCTS, won } from "@/lib/coins";
 
 export const Route = createFileRoute("/love")({
   head: () => ({
@@ -71,17 +70,7 @@ function LovePage() {
       <Section title="연애 스타일">
         {style} <span className="text-[11px] text-muted-foreground">(창작 표현)</span>
       </Section>
-      <Paywall
-        id="love"
-        label={PRODUCTS.love.label}
-        price={won(PRODUCTS.love.coins)}
-        coins={PRODUCTS.love.coins}
-      >
-        <Section title="끌리는 인연">{match}에게 마음이 열려요.</Section>
-        <Section title="연애 조언">
-          나의 강점인 '{c.strengths[1]}'을 보여주고, '{c.weaknesses[0]}'은 조금 내려놓아 보세요.
-        </Section>
-      </Paywall>
+      <ReadingBlock product="love" />
     </Shell>
   );
 }
