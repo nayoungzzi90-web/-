@@ -1,3 +1,4 @@
+import { cleanRef } from "@/lib/share";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect } from "react";
 import hero from "@/assets/hero.jpg";
@@ -47,7 +48,14 @@ const SERVICES = [
 function Index() {
   const { ref } = Route.useSearch();
   useEffect(() => {
-    if (ref) sessionStorage.setItem("ref", ref);
+    const clean = cleanRef(ref);
+    if (!clean) return;
+    try {
+      // 가입 도중 다른 탭·창으로 넘어가도 남도록 localStorage 에 둔다(없으면 sessionStorage)
+      localStorage.setItem("ref", clean);
+    } catch {
+      sessionStorage.setItem("ref", clean);
+    }
   }, [ref]);
   return (
     <Shell>

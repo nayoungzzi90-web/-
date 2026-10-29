@@ -1,9 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { Shell, Section } from "@/components/Shell";
+import { shareUrl } from "@/lib/share";
 import { useStore } from "@/lib/store";
 import {
   INVITE_DAILY_CAP,
+  INVITE_HOLD_DAYS,
   INVITE_MONTHLY_CAP,
   INVITE_REWARD,
   INVITER_MIN_PAID_COINS,
@@ -44,9 +46,10 @@ function InvitePage() {
         </div>
       ) : (
         <Section title={`친구 초대하면 ${INVITE_REWARD}닢`}>
-          초대 링크로 들어온 친구가 가입하면 {INVITE_REWARD}닢을 드려요. (한국 시간 기준 하루{" "}
-          {INVITE_DAILY_CAP}명·한 달 {INVITE_MONTHLY_CAP}명까지) 초대 보상은 엽전을{" "}
-          {INVITER_MIN_PAID_COINS}닢 이상 결제한 분께 드려요.
+          초대 링크로 들어온 친구가 <b>처음 엽전을 결제</b>하고 {INVITE_HOLD_DAYS}일 안에 환불하지
+          않으면 {INVITE_REWARD}닢을 드려요. (가입만으로는 지급되지 않아요.) 한국 시간 기준 하루{" "}
+          {INVITE_DAILY_CAP}명·한 달 {INVITE_MONTHLY_CAP}명까지, 초대하는 분이 엽전을{" "}
+          {INVITER_MIN_PAID_COINS}닢 이상 결제한 적이 있어야 해요.
           <button
             className="mt-3 w-full rounded-full bg-primary py-3 font-bold text-primary-foreground"
             onClick={async () => {
@@ -55,7 +58,7 @@ function InvitePage() {
                 return;
               }
               try {
-                await navigator.clipboard.writeText(`${location.origin}/?ref=${inviteCode}`);
+                await navigator.clipboard.writeText(shareUrl(location.origin, inviteCode));
                 toast("초대 링크를 복사했어요");
               } catch {
                 toast("복사하지 못했어요");
@@ -64,6 +67,26 @@ function InvitePage() {
           >
             초대 링크 복사
           </button>
+          {inviteCode && (
+            <button
+              className="mt-2 w-full rounded-full border border-primary py-3 font-bold text-primary"
+              onClick={async () => {
+                const url = shareUrl(location.origin, inviteCode);
+                try {
+                  if (navigator.share)
+                    await navigator.share({ text: "나의 오행 친구를 만나봐요!", url });
+                  else {
+                    await navigator.clipboard.writeText(url);
+                    toast("초대 링크를 복사했어요");
+                  }
+                } catch {
+                  /* 공유 창을 닫은 경우 */
+                }
+              }}
+            >
+              카카오톡 등으로 공유하기
+            </button>
+          )}
           {inviteCode && (
             <p className="mt-2 text-center text-xs text-muted-foreground">
               내 초대 코드: {inviteCode}

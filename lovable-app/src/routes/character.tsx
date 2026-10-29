@@ -5,6 +5,8 @@ import { Shell, NeedBirth, MockBadge, Section } from "@/components/Shell";
 import { useStore } from "@/lib/store";
 import { getSajuPreview } from "@/lib/saju-fns";
 import { characterFor } from "@/lib/characters";
+import { shareText, shareUrl } from "@/lib/share";
+import { renderShareCard } from "@/lib/share-card";
 import type { Element, SajuPreview } from "@/lib/saju";
 
 export const Route = createFileRoute("/character")({
@@ -39,7 +41,8 @@ export function SajuResult({ p, me }: { p: SajuPreview; me: { name: string } }) 
   const elements = p.elements!;
   const c = characterFor(pillars.day.stem, elements);
   const total = Object.values(elements).reduce((a, b) => a + b, 0);
-  const share = `나는 ${c.epithet} ${c.name}! 너의 오행 친구는?`;
+  const { inviteCode } = useStore();
+  const text = shareText(c);
   const PILLAR_LABEL: [string, { hanja: string; ko: string } | null][] = [
     ["연주", pillars.year],
     ["월주", pillars.month],
@@ -122,14 +125,22 @@ export function SajuResult({ p, me }: { p: SajuPreview; me: { name: string } }) 
         <button
           className="rounded-full border border-primary py-3 font-bold text-primary"
           onClick={async () => {
+            const url = shareUrl(location.origin, inviteCode);
             try {
-              if (navigator.share) await navigator.share({ text: share, url: location.origin });
+              // 카드 이미지를 파일로 공유할 수 있으면 이미지와 함께, 아니면 문구+링크만
+              const blob = await renderShareCard(c).catch(() => null);
+              const file = blob
+                ? new File([blob], "ohaeng-friend.png", { type: "image/png" })
+                : null;
+              if (file && navigator.canShare?.({ files: [file] }))
+                await navigator.share({ files: [file], text: `${text} ${url}` });
+              else if (navigator.share) await navigator.share({ text, url });
               else {
-                await navigator.clipboard.writeText(`${share} ${location.origin}`);
-                toast("링크를 복사했어요");
+                await navigator.clipboard.writeText(`${text} ${url}`);
+                toast("문구와 링크를 복사했어요");
               }
             } catch {
-              /* 공유 시도만 측정 */
+              /* 사용자가 공유를 닫은 경우 등 */
             }
           }}
         >

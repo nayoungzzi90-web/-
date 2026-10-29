@@ -4,7 +4,6 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { getState, setStore } from "./store";
 import { applyInvite, getMyData } from "./user-fns";
-import { INVITE_REWARD } from "./coins";
 
 // 로그인 상태와 회원 데이터를 화면 상태와 동기화한다.
 export function useAuthSync() {
@@ -18,17 +17,18 @@ export function useAuthSync() {
         if (cancelled) return;
         setStore({ loaded: true, signedIn: true, email, ...d });
         if (meError) toast("저장된 출생정보를 불러오지 못했어요.", { description: meError });
-        // 초대 링크로 들어온 방문자에게 1회 보너스 지급
-        const ref = sessionStorage.getItem("ref");
-        if (ref) {
+        // 초대 링크로 들어온 방문자는 연결만 한다. 보상은 이 친구가 처음 결제하고 환불 기간이 지난 뒤 초대한 분께 간다.
+        let ref: string | null = null;
+        try {
+          ref = localStorage.getItem("ref") ?? sessionStorage.getItem("ref");
+          localStorage.removeItem("ref");
           sessionStorage.removeItem("ref");
+        } catch {
+          /* 저장소를 못 쓰는 환경 */
+        }
+        if (ref) {
           const r = await applyInvite({ data: { code: ref } });
-          if (r.granted) {
-            setStore({ coins: r.coins });
-            toast(
-              `초대 링크가 적용됐어요. 초대한 친구에게 엽전 ${INVITE_REWARD}닢이 지급됐어요! 🪙`,
-            );
-          }
+          if (r.granted) toast("초대 링크가 연결됐어요. 친구의 초대 덕분에 만났어요 🪙");
         }
       } catch {
         if (!cancelled) setStore({ loaded: true });

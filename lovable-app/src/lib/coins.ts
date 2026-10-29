@@ -22,6 +22,8 @@ export const INVITE_REWARD = 1;
 export const INVITE_DAILY_CAP = 3;
 /** 초대자 한 명이 한국 시간 한 달에 받을 수 있는 보상 횟수 */
 export const INVITE_MONTHLY_CAP = 10;
+/** 보상은 친구의 첫 결제 후 이 기간(일) 동안 환불되지 않아야 지급된다(SQL release_referral_rewards 와 같은 값, 정책 확정 전 제안값) */
+export const INVITE_HOLD_DAYS = 7;
 /** 보상을 받으려면 초대한 사람이 엽전을 이만큼 이상 결제(환불 제외)한 적이 있어야 한다 */
 export const INVITER_MIN_PAID_COINS = 1;
 /** 가입 보너스 없음(2026-10-21 결정) */
