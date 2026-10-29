@@ -1,0 +1,14 @@
+R008
+Tests passed: 13
+R009
+17 TEST GROUPS PASSED
+R010
+TOTAL: 24 groups passed
+R011
+TOTAL 25 test groups passed
+R012
+ALL PASS: 28 groups; 50 relation mappings + 20 strength scenarios inside tests.
+R013
+R-013: 29 test groups passed; 120 reference combinations indexed; no automatic yongshen approvals
+R014
+R-014 31 groups passed. No final yongshen approvals (by design).

@@ -1,0 +1,1 @@
+{"compilerOptions":{"target":"ES2022","module":"CommonJS","strict":true,"esModuleInterop":true,"skipLibCheck":true,"outDir":"dist","declaration":true},"include":["oheng_r001.ts","oheng_r001_tests.ts"]}

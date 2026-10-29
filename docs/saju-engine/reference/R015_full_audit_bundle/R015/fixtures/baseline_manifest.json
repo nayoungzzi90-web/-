@@ -1,0 +1,17 @@
+{
+  "schema_version": "R015-evidence-1",
+  "policy_adopted": "R001..R014",
+  "integration_status": "NO_GO",
+  "reason": "Policy adoption is not production verification; ephemeris and final interpretation rules remain unverified",
+  "known_reference_implementations": ["R008","R009","R010","R011","R012","R013","R014"],
+  "r001_to_r007_production_integrated": false,
+  "astronomical_instants_verified": false,
+  "r003_modern_B_expert_verified": false,
+  "r006_final_strength_validated": false,
+  "r009_follow_patterns_approved": false,
+  "r010_final_pattern_approved": false,
+  "r013_all_120_monthly_rules_approved": false,
+  "supabase_real_rls_e2e_tested": false,
+  "paid_readiness": false,
+  "free_readiness": false
+}

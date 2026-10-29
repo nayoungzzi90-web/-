@@ -1,0 +1,13 @@
+# Example GitHub Actions workflow; review environment and CLI versions before enabling.
+name: oheng-r015-checks
+on: [pull_request]
+jobs:
+  r015-unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '22' }
+      - run: npx --yes --package typescript@5.8.3 tsc --strict --target es2022 --module commonjs --outDir build src/release_gate.ts tests/release_gate_tests.ts
+      - run: node build/tests/release_gate_tests.js
+  # Add a separate test job with Docker + Supabase CLI: supabase start && supabase test db

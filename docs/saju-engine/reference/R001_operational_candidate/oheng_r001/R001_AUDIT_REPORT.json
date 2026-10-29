@@ -1,0 +1,36 @@
+{
+  "status": "CALCULATED_REVIEW_REQUIRED_NOT_OPERATIONALLY_APPROVED",
+  "time": "2026-10-16",
+  "scope": "1900-2100 Asia/Seoul Gregorian legal civil only",
+  "solar_term_calculated_count": 4872,
+  "KASI_independent_minute_crosschecks": 72,
+  "KASI_max_abs_seconds": 30.017,
+  "KASI_mean_abs_seconds": 14.455666666666666,
+  "independent_ganji_day_samples": 7200,
+  "KASI_2026_day_anchors": 12,
+  "test_groups_passed": 25,
+  "typescript_compile": "PASS",
+  "timezone_provider_runtime": "{\"node\":\"v22.16.0\",\"tzdb\":\"2025b\",\"icu\":\"77.1\"}",
+  "outstanding": [
+    "official high-precision solar term cross-check >3 years",
+    "legal historical timezone source approval",
+    "time-zone version pinned in deployed runtime",
+    "Supabase Edge and RLS tests",
+    "full operating gate signoff"
+  ],
+  "files": {
+    "oheng_r001.ts": {
+      "sha256": "453cde065591a84283647d29659c3a997baedb5b4bbca7d1bd88691c726c9681"
+    },
+    "solar_terms_1899_2101.json": {
+      "sha256": "0e0168a61ad5a12df962c411213992348c76de5ab17c45e990df2c3b18370dab"
+    },
+    "R001_implementation_spec.md": {
+      "sha256": "cfdc4144b80a6619f62aa3353e0a72132587b37ef8781cfce97241ed9c30709a"
+    },
+    "kasi_reference_minutes_2025_2027.json": {
+      "sha256": "463b6ae0dfb4bcf170e0c9e659234e0b2dc787f1475eb8d5097055356ce2ef91"
+    }
+  },
+  "licensing_note": "generation tool pyswisseph/Swiss Ephemeris AGPL/professional dual licensing; production pipeline and numerical table rights require review"
+}

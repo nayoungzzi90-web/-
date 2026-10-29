@@ -16,6 +16,7 @@
 | `source/00_MASTER_INTRO_AND_R002_R009_RESTORED_POLICY.md` | 마스터의 머리말(최우선 지시, 의존 그래프)과 R-002~R-009 복원 정책 |
 | `source/R-001_implementation_spec.md` | R-001 만세력 계산 엔진 구현·검증 보고서 |
 | `source/R-010~R-015_*.md` | 격국 성패, 격국용신·상신, 억부용신, 조후·통관·병약, 종합·충돌, 통합 감사·출시 게이트 |
+| `reference/` | 참조 전용 코드·자료: `R001_operational_candidate`(R-001 계산 코어·데이터·25개 테스트), `R015_full_audit_bundle`(R-015 게이트 + `UPSTREAM_R008_R014` R-008~R-014 참조 구현), `R015_two_process_test_ready_v2`(요청 제한 2프로세스 시험 대기본). **앱에 병합하지 않는다** |
 | `source/R001_precision_validation/` | 절입 시각 독립 교차검증 자료(KASI 36개 + 1,536개 절기표). **개발 전용** |
 
 ## 라이선스 주의 (`R001_precision_validation`)

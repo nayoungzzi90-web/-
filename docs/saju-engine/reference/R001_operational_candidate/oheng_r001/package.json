@@ -1,0 +1,6 @@
+{
+ "name":"oheng-friends-r001","version":"0.1.0","private":true,
+ "description":"R-001 Korean legal-civil solar term manse reference kernel; must pass R-015 release gate",
+ "scripts":{"build":"tsc -p tsconfig.json","test":"tsc -p tsconfig.json && node oheng_r001_tests.js"},
+ "devDependencies":{"typescript":"5.8.3"}
+}

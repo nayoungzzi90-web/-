@@ -1,0 +1,138 @@
+{
+  "as_of": "2026-10-16",
+  "scope": "local working artifact inventory and synthetic TS unit tests",
+  "baseline": "NO_GO",
+  "rules": [
+    {
+      "rule": "R-001",
+      "policy_accepted": true,
+      "reference_source_present": false,
+      "reference_test_present": false,
+      "source_sha256": null,
+      "expert_approved": false,
+      "production_integration_approved": false
+    },
+    {
+      "rule": "R-002",
+      "policy_accepted": true,
+      "reference_source_present": false,
+      "reference_test_present": false,
+      "source_sha256": null,
+      "expert_approved": false,
+      "production_integration_approved": false
+    },
+    {
+      "rule": "R-003",
+      "policy_accepted": true,
+      "reference_source_present": false,
+      "reference_test_present": false,
+      "source_sha256": null,
+      "expert_approved": false,
+      "production_integration_approved": false
+    },
+    {
+      "rule": "R-004",
+      "policy_accepted": true,
+      "reference_source_present": false,
+      "reference_test_present": false,
+      "source_sha256": null,
+      "expert_approved": false,
+      "production_integration_approved": false
+    },
+    {
+      "rule": "R-005",
+      "policy_accepted": true,
+      "reference_source_present": false,
+      "reference_test_present": false,
+      "source_sha256": null,
+      "expert_approved": false,
+      "production_integration_approved": false
+    },
+    {
+      "rule": "R-006",
+      "policy_accepted": true,
+      "reference_source_present": false,
+      "reference_test_present": false,
+      "source_sha256": null,
+      "expert_approved": false,
+      "production_integration_approved": false
+    },
+    {
+      "rule": "R-007",
+      "policy_accepted": true,
+      "reference_source_present": false,
+      "reference_test_present": false,
+      "source_sha256": null,
+      "expert_approved": false,
+      "production_integration_approved": false
+    },
+    {
+      "rule": "R-008",
+      "policy_accepted": true,
+      "reference_source_present": true,
+      "reference_test_present": true,
+      "source_sha256": "d6f7ac35bc58b14968c55d208bd17f4354e6c8e373fcf1fa4ffb54ff20f2bf36",
+      "expert_approved": false,
+      "production_integration_approved": false
+    },
+    {
+      "rule": "R-009",
+      "policy_accepted": true,
+      "reference_source_present": true,
+      "reference_test_present": true,
+      "source_sha256": "2c8c0b16f5e46c1bd6ef1051a7548439bbea842561a1dba0f9c13ccc208dadd5",
+      "expert_approved": false,
+      "production_integration_approved": false
+    },
+    {
+      "rule": "R-010",
+      "policy_accepted": true,
+      "reference_source_present": true,
+      "reference_test_present": true,
+      "source_sha256": "81df240b8a1c78aa000aabca2039c2c98276da30cab7c4506a64213a1134404c",
+      "expert_approved": false,
+      "production_integration_approved": false
+    },
+    {
+      "rule": "R-011",
+      "policy_accepted": true,
+      "reference_source_present": true,
+      "reference_test_present": true,
+      "source_sha256": "01258bbcabf83cdbb1b65cd69a6352fc948187e1d3105de8bb91d7c62c50c8e0",
+      "expert_approved": false,
+      "production_integration_approved": false
+    },
+    {
+      "rule": "R-012",
+      "policy_accepted": true,
+      "reference_source_present": true,
+      "reference_test_present": true,
+      "source_sha256": "de6c11384718671f486bf79223bbdca753b784e15f607caac2a8ecd2e1fd5d10",
+      "expert_approved": false,
+      "production_integration_approved": false
+    },
+    {
+      "rule": "R-013",
+      "policy_accepted": true,
+      "reference_source_present": true,
+      "reference_test_present": true,
+      "source_sha256": "930101389150c57bfb5d2fbd0e635a913dd9084911bbf3a68724603220df6b92",
+      "expert_approved": false,
+      "production_integration_approved": false
+    },
+    {
+      "rule": "R-014",
+      "policy_accepted": true,
+      "reference_source_present": true,
+      "reference_test_present": true,
+      "source_sha256": "17a21b50d7376705f6053912d54f7a7ba824e65beba1782540dd0a65cd5b3f2f",
+      "expert_approved": false,
+      "production_integration_approved": false
+    }
+  ],
+  "existing_test_groups_total": 167,
+  "r015_gate_test_groups": 25,
+  "astronomical_reference_approved": false,
+  "supabase_db_tests_executed": false,
+  "note": "prior unit tests passed with synthetic data; NOT expert validation or real deployment"
+}

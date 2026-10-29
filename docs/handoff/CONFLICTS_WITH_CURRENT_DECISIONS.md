@@ -32,7 +32,7 @@
 - Lovable 쪽에서 "staging 웹사이트가 공개 상태였을 수 있으니 확인하고 필요하면 비공개화"하라고 적혀 있다 → 사용자가 Lovable에서 직접 확인할 항목.
 
 ## 4. 원문이 가리키지만 제공되지 않은 파일
-`handoff/reference_specs/` (복원 마스터와 oheng_r010~015_spec은 이미 `docs/saju-engine/source/`에 있음, **오행친구들_PRD_v1.0.md**, `oheng_r015_spec.md` 단독 파일), `handoff/reference_prototypes/` (R001·R008~R014 TypeScript 참조 코드·ZIP), 앱의 최신 `AGENTS.md`·`roadmap.md`·`docs/`·`supabase/config.toml`, Lovable 앱의 최신 Git 소스.
+`handoff/reference_specs/`의 **PRD v1.0**과 Lovable 12단계 프롬프트(공개 저장소라 보류, `README.md` 참고). 복원 마스터·oheng_r010~015_spec은 `docs/saju-engine/source/`에, R-001·R-008~R-014·R-015 참조 코드는 `docs/saju-engine/reference/`에 들어왔다. 아직 없는 것: 앱의 최신 `AGENTS.md`·`roadmap.md`·`docs/`·`supabase/config.toml`, Lovable 앱의 최신 Git 소스.
 
 ## 5. 결정이 필요한 것
 1. 가격·재화·추천 정책: 현재 결정(900원/닢/1닢 보상)을 정답으로 두고 원문을 이력으로만 둘지 확인.

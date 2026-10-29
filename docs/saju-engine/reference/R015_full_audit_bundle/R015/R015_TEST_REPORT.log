@@ -1,0 +1,26 @@
+PASS 01 paid passes only with complete synthetic evidence
+PASS 02 free becomes scoped limited go
+PASS 03 no trust -> no go
+PASS 04 reference code cannot be released
+PASS 05 no expert -> no go
+PASS 06 draft solar term date API is insufficient
+PASS 07 IANA historic timezone untested blocks
+PASS 08 manifest checksum required
+PASS 09 duplicate rule id rejected
+PASS 10 missing rule metadata rejected
+PASS 11 free has narrower dependencies
+PASS 12 free mapping must be reviewed
+PASS 13 unprotected RLS blocks payment
+PASS 14 service secret client exposure blocks
+PASS 15 payment idempotency blocks
+PASS 16 unverified AI claim whitelist blocks
+PASS 17 rollback missing blocks
+PASS 18 non-client approval safeguard
+PASS 19 final yongshen not automatically approved even on go
+PASS 20 product metadata contradiction blocks
+PASS 21 per-rule blocker stops release
+PASS 22 free fails core R-002 even when paid-only modules pass
+PASS 23 paid five-year love cannot launch without transit rules
+PASS 24 paid five-year love cannot masquerade as general natal reading
+PASS 25 missing transitive rule dependency blocks even if owner ignores it
+25 R015 gate tests passed (synthetic evidence only).

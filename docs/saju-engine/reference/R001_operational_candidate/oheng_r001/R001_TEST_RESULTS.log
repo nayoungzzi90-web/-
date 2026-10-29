@@ -1,0 +1,30 @@
+
+> oheng-friends-r001@0.1.0 test
+> tsc -p tsconfig.json && node oheng_r001_tests.js
+
+PASS terms data 203 years x 24 terms integrity
+PASS 2026 24 terms versus independent KASI KST minute table
+PASS sexagenary sequence day 2000-01-07 甲子 and 2000-01-01 戊午
+PASS canonical 2000-01-07 year month day 己卯 丁丑 甲子
+PASS 2026 입춘 boundary before/during/after second 甲? correct solar year
+PASS boundary at another Jie before exact change of month only
+PASS zhongqi 雨水 does not change month
+PASS all 60 sexagenary indices internally consistent
+PASS 12 hour branches from civil local hours
+PASS 甲子 day 子 hour = 甲子, 丑 hour = 乙丑
+PASS late-zi day and hour shift only when explicit
+PASS DST gap 1988-05-08 02:30 invalid
+PASS DST fold 1988-10-09 02:30 requests disambiguation
+PASS 1954 legal +08:30; 1955 DST +09:30; 1988 DST +10
+PASS year boundary December and January cross not using Gregorian Jan 1
+PASS no Gregorian date overflow; only Gregorian year supported
+PASS review flags: 1955 historical; exact 2026 boundary near
+PASS independent ganji-day cross-check 1900-2049 via korean-lunar-calendar
+PASS official KASI 2026 12 lunar-month first-day day-ganzhi anchors
+PASS independent KASI 2025-2027: 72 solar terms within minute precision
+PASS all 2025-2027 36 Jie boundaries exactly step years/months
+PASS all 2025-2027 36 Zhongqi boundaries do NOT change years/months
+PASS 1948 DST missing hour and 1954 30-minute fold
+PASS historical Asia/Seoul zone: 1909 +08:30 and 1915 +09:00
+PASS leap-year 2000 accepted and nonleap 2100 rejected
+RESULT 25 tests passed; exitCode=0
