@@ -43,6 +43,8 @@ describe("결제 모드", () => {
     expect(readPaymentsMode({})).toBe("disabled");
     expect(readPaymentsMode({ PAYMENTS_MODE: "yes" })).toBe("disabled");
     expect(readPaymentsMode({ PAYMENTS_MODE: "sandbox" })).toBe("sandbox");
+    expect(readPaymentsMode({ PAYMENTS_MODE: "sandbox", NODE_ENV: "production" })).toBe("disabled");
+    expect(readPaymentsMode({ PAYMENTS_MODE: "sandbox" })).toBe("sandbox");
     expect(readPaymentsMode({ PAYMENTS_MODE: "live" })).toBe("live");
   });
 

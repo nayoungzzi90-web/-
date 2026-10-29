@@ -65,9 +65,7 @@ export const getReadingFull = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => readingInputSchema.parse(input))
   .handler(async ({ data, context }): Promise<ReadingResponse> => {
     try {
-      const { rateGate } = await import("./rate-gate.server");
-      const gate = await rateGate();
-      if (!gate.allowed) return FAIL(gate.error);
+      // 로그인한 사용자의 풀이 요청에는 공용 IP 한도를 걸지 않는다(공용 'unknown' 버킷 하나로 결제 회원까지 막히는 것 방지).
       const { buildReading, isUnlocked, shapeSections, unlockIdFor } =
         await import("./reading.server");
       const r = buildReading(data);

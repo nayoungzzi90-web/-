@@ -4,11 +4,13 @@ import { birthObjectSchema, inviteInputSchema, unlockInputSchema } from "@/lib/u
 describe("서버 함수 입력 검증", () => {
   it("열람: 정상 값 통과, 이상한 값 거부", () => {
     expect(unlockInputSchema.safeParse({ id: "basic", cost: 4 }).success).toBe(true);
+    expect(unlockInputSchema.safeParse({ id: "compat:1993-03-09", cost: 1 }).success).toBe(true);
     for (const bad of [
       null,
       undefined,
       "x",
       {},
+      { id: "compat:x", cost: 1 },
       { id: "", cost: 4 },
       { id: "basic", cost: -1 },
       { id: "basic", cost: 1.5 },

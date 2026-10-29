@@ -13,9 +13,9 @@ ALTER TABLE public.reading_price_catalog
   ADD CONSTRAINT reading_price_catalog_reading_type_check
   CHECK (reading_type = ANY (ARRAY['basic'::text, 'compat'::text, 'love'::text, 'taekil'::text, 'deep'::text]));
 
--- 2) 가격(닢). active 는 갱신하지 않는다(기존 행은 그대로, 신규는 기본값 false)
-INSERT INTO public.reading_price_catalog (reading_type, price_coins) VALUES
-  ('basic', 1), ('compat', 1), ('love', 2), ('taekil', 2), ('deep', 3)
+-- 2) 가격(닢). active 는 갱신하지 않는다(신규 행은 명시적으로 false, 충돌 시 갱신 목록에 active 가 없어 기존 값 유지)
+INSERT INTO public.reading_price_catalog (reading_type, price_coins, active) VALUES
+  ('basic', 1, false), ('compat', 1, false), ('love', 2, false), ('taekil', 2, false), ('deep', 3, false)
 ON CONFLICT (reading_type) DO UPDATE SET price_coins = EXCLUDED.price_coins, updated_at = now();
 
 -- 적용 후 검증(읽기 전용):

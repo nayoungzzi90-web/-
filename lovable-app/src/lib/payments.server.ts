@@ -30,6 +30,8 @@ export function readPaymentsMode(
   env: Record<string, string | undefined> = process.env,
 ): PaymentsMode {
   const m = env["PAYMENTS_MODE"];
+  // 실서비스(production)에서는 샌드박스를 켜도 무시한다 — 가짜 결제로 엽전이 생기는 것을 막는다.
+  if (m === "sandbox" && env["NODE_ENV"] === "production") return "disabled";
   return m === "sandbox" || m === "live" ? m : "disabled";
 }
 
