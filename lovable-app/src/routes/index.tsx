@@ -25,6 +25,7 @@ export const Route = createFileRoute("/")({
 const SERVICES = [
   { to: "/character", t: "나의 오행 캐릭터", d: "무료 · 회원가입 없이", e: "🐯" },
   { to: "/today", t: "오늘의 운세", d: "무료 · 매일 새로", e: "☀️" },
+  { to: "/sample", t: "예시 풀이 미리보기", d: "무료 · 풀이가 이렇게 나와요", e: "👀" },
   {
     to: "/basic",
     t: "기본 사주 풀이",

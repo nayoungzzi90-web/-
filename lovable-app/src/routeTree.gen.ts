@@ -23,6 +23,7 @@ import { Route as LoveRouteImport } from './routes/love'
 import { Route as MyRouteImport } from './routes/my'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as RefundRouteImport } from './routes/refund'
+import { Route as SampleRouteImport } from './routes/sample'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as TodayRouteImport } from './routes/today'
 
@@ -96,6 +97,11 @@ const RefundRoute = RefundRouteImport.update({
   path: '/refund',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SampleRoute = SampleRouteImport.update({
+  id: '/sample',
+  path: '/sample',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
@@ -122,6 +128,7 @@ export interface FileRoutesByFullPath {
   '/my': typeof MyRoute
   '/privacy': typeof PrivacyRoute
   '/refund': typeof RefundRoute
+  '/sample': typeof SampleRoute
   '/terms': typeof TermsRoute
   '/today': typeof TodayRoute
 }
@@ -140,6 +147,7 @@ export interface FileRoutesByTo {
   '/my': typeof MyRoute
   '/privacy': typeof PrivacyRoute
   '/refund': typeof RefundRoute
+  '/sample': typeof SampleRoute
   '/terms': typeof TermsRoute
   '/today': typeof TodayRoute
 }
@@ -159,6 +167,7 @@ export interface FileRoutesById {
   '/my': typeof MyRoute
   '/privacy': typeof PrivacyRoute
   '/refund': typeof RefundRoute
+  '/sample': typeof SampleRoute
   '/terms': typeof TermsRoute
   '/today': typeof TodayRoute
 }
@@ -179,6 +188,7 @@ export interface FileRouteTypes {
     | '/my'
     | '/privacy'
     | '/refund'
+    | '/sample'
     | '/terms'
     | '/today'
   fileRoutesByTo: FileRoutesByTo
@@ -197,6 +207,7 @@ export interface FileRouteTypes {
     | '/my'
     | '/privacy'
     | '/refund'
+    | '/sample'
     | '/terms'
     | '/today'
   id:
@@ -215,6 +226,7 @@ export interface FileRouteTypes {
     | '/my'
     | '/privacy'
     | '/refund'
+    | '/sample'
     | '/terms'
     | '/today'
   fileRoutesById: FileRoutesById
@@ -234,6 +246,7 @@ export interface RootRouteChildren {
   MyRoute: typeof MyRoute
   PrivacyRoute: typeof PrivacyRoute
   RefundRoute: typeof RefundRoute
+  SampleRoute: typeof SampleRoute
   TermsRoute: typeof TermsRoute
   TodayRoute: typeof TodayRoute
 }
@@ -338,6 +351,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RefundRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sample': {
+      id: '/sample'
+      path: '/sample'
+      fullPath: '/sample'
+      preLoaderRoute: typeof SampleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/terms': {
       id: '/terms'
       path: '/terms'
@@ -370,6 +390,7 @@ const rootRouteChildren: RootRouteChildren = {
   MyRoute: MyRoute,
   PrivacyRoute: PrivacyRoute,
   RefundRoute: RefundRoute,
+  SampleRoute: SampleRoute,
   TermsRoute: TermsRoute,
   TodayRoute: TodayRoute,
 }
