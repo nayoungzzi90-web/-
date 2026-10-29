@@ -86,7 +86,7 @@ function MyPage() {
         ) : (
           <ul>
             {unlocked.map((u) => (
-              <li key={u}>· {LABEL[u] ?? "궁합"}</li>
+              <li key={u}>· {LABEL[u.split(":")[0] ?? ""] ?? "궁합"}</li>
             ))}
           </ul>
         )}

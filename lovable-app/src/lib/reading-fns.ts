@@ -74,7 +74,7 @@ export const getReadingFull = createServerFn({ method: "POST" })
       const unlocked = await isUnlocked(
         context.supabase as unknown as UnlockClient,
         context.userId,
-        unlockIdFor(data.product, data.partner),
+        unlockIdFor(data.product, data.me, data.partner),
       );
       return {
         ok: true,

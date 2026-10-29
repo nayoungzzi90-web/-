@@ -166,12 +166,29 @@ describe("잠금(권한 없는 사용자에게는 본문을 보내지 않는다)
     expect(out.every((s) => !s.locked)).toBe(true);
     expect(out.map((s) => (s as { body: string }).body)).toEqual(full.sections.map((s) => s.body));
   });
-  it("열람 id 는 화면의 Paywall id 와 같다", () => {
-    expect(unlockIdFor("basic", undefined)).toBe("basic");
-    expect(unlockIdFor("love", undefined)).toBe("love");
-    expect(unlockIdFor("compat", partner)).toBe("compat:1993-03-09");
-    expect(unlockIdFor("compat", { date: "x" })).toBeNull();
-    expect(unlockIdFor("compat", undefined)).toBeNull();
+  it("열람 id 는 상품+출생정보 해시: 같은 입력은 같은 id, 다른 사람·다른 상품은 다른 id (한 번 결제로 남의 풀이가 열리지 않는다)", () => {
+    const a = unlockIdFor("basic", me, undefined)!;
+    expect(a).toMatch(/^basic:[0-9a-f]{14}$/);
+    expect(unlockIdFor("basic", { ...me, name: "다른이름" }, undefined)).toBe(a); // 이름은 풀이에 영향 없음
+    expect(unlockIdFor("love", me, undefined)).not.toBe(a);
+    for (const diff of [
+      { date: "1990-04-20" },
+      { time: "01:11" },
+      { time: null },
+      { gender: "m" },
+      { calendar: "lunar" },
+      { leap: true },
+    ])
+      expect(unlockIdFor("basic", { ...me, ...diff }, undefined), JSON.stringify(diff)).not.toBe(a);
+    const c = unlockIdFor("compat", me, partner)!;
+    expect(c).toMatch(/^compat:[0-9a-f]{14}$/);
+    expect(unlockIdFor("compat", me, { ...partner, time: "14:31" })).not.toBe(c);
+    expect(unlockIdFor("compat", { ...me, date: "1991-04-19" }, partner)).not.toBe(c);
+    expect(unlockIdFor("compat", partner, me)).not.toBe(c); // 순서도 구분
+    expect(unlockIdFor("compat", me, { date: "x" })).toBeNull();
+    expect(unlockIdFor("compat", me, undefined)).toBeNull();
+    expect(unlockIdFor("basic", null, undefined)).toBeNull();
+    expect(unlockIdFor("basic", { ...me, date: "bad" }, undefined)).toBeNull();
   });
 });
 

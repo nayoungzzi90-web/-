@@ -54,7 +54,7 @@ describe('delete_member_data', () => {
     await member(db, 100); await buy(db, 100, 1);
     await member(db, 1); await buy(db, 1, 2);
     await db.exec(`UPDATE public.reading_price_catalog SET active = true WHERE reading_type = 'basic'`);
-    await as(db, 1); await db.query(`SELECT public.spend_coins('basic', 1)`); // 지갑 1 남김
+    await as(db, 1); await db.query(`SELECT public.spend_coins('basic:0123456789abcd', 1)`); // 지갑 1 남김
     await db.query(`INSERT INTO public.invite_rewards (invitee_id, inviter_id) VALUES ($1, $2)`, [U(1), U(100)]);
 
     const r = await del(db, 1, true);

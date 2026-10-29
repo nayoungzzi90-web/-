@@ -9,7 +9,7 @@ export const unlockInputSchema = z.object({
     .string()
     .min(1)
     .max(64)
-    .regex(/^[a-z0-9_-]+(:[0-9]{4}-[0-9]{2}-[0-9]{2})?$/i),
+    .regex(/^(basic|love|deep|compat|taekil):[0-9a-f]{14}$/),
   cost: z.number().int().min(0).max(10000),
 });
 export const inviteInputSchema = z.object({

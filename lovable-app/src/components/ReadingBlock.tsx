@@ -4,6 +4,7 @@ import { ReadingView } from "@/components/ReadingView";
 import { PRODUCTS, won } from "@/lib/coins";
 import { getReadingFull, getReadingPreview } from "@/lib/reading-fns";
 import type { BirthInput } from "@/lib/saju";
+import { unlockId } from "@/lib/unlock-id";
 import { useStore } from "@/lib/store";
 
 /** 기본 사주·연애운·궁합 풀이 블록. 미열람이면 무료 섹션 + 잠금 목록 + 결제 안내, 열람했으면 전체 본문. */
@@ -15,8 +16,8 @@ export function ReadingBlock({
   partner?: BirthInput;
 }) {
   const { me, signedIn, unlocked } = useStore();
-  const id = product === "compat" ? `compat:${partner?.date ?? ""}` : product;
-  const isUnlocked = signedIn && unlocked.includes(id);
+  const id = unlockId(product, me, partner) ?? "";
+  const isUnlocked = signedIn && id !== "" && unlocked.includes(id);
   const input = { product, me: me!, ...(partner ? { partner } : {}) };
   const preview = useQuery({
     queryKey: ["reading", product, me, partner ?? null],

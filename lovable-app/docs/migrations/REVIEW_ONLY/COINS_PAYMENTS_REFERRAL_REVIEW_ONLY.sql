@@ -1,7 +1,8 @@
 -- 엽전 결제·원장·초대 보상 — REVIEW ONLY. 실행 금지(미적용). 적용 순서: PRICING_900_COIN_REVIEW_ONLY.sql → 이 파일.
 -- 사용자 결정(2026-10-21)
 --   · 1닢 = 900원, 가입 보너스 없음
---   · 초대 보상 1닢은 "초대받은 친구가 **처음 결제**했을 때" 지급(가입만으로는 지급 안 함) — 단, 초대한 사람이 먼저 1닢 이상 결제한 적이 있어야 한다
+--   · 초대 보상 1닢은 "초대받은 친구가 **처음 결제**했고 환불 가능 기간(7일, 정책 확정 전 제안값)이 지나도 환불되지 않았을 때" 지급 — 단, 초대한 사람이 1닢 이상 결제한 적이 있어야 한다
+--     (보안 검토 2026-10-29: 즉시 지급은 '친구 결제→보상 사용→친구 환불' 반복으로 무료 열람이 가능해 보류 지급으로 변경)
 --   · 한도: 한국 시간(Asia/Seoul) 달력 기준 하루 3명·월 10명(보수적 시작)
 -- 돈 안전 원칙
 --   · 금액은 서버가 정한다(coin_orders.amount_krw = coins × 900, CHECK 로 고정). 클라이언트가 보낸 금액은 신뢰하지 않는다.
@@ -58,8 +59,9 @@ CREATE INDEX IF NOT EXISTS coin_ledger_user_idx ON public.coin_ledger (user_id, 
 CREATE TABLE IF NOT EXISTS public.referrals (
   invitee_id  uuid        PRIMARY KEY,
   inviter_id  uuid        NOT NULL,
-  status      text        NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'rewarded', 'skipped')),
+  status      text        NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'held', 'rewarded', 'skipped', 'canceled')),
   reason      text,
+  purchase_id uuid,                       -- 보상 보류 중인 첫 결제
   created_at  timestamptz NOT NULL DEFAULT now(),
   resolved_at timestamptz
 );
@@ -85,6 +87,8 @@ RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path = '' AS $$
 DECLARE v_user uuid := auth.uid();
 BEGIN
   IF v_user IS NULL THEN RAISE EXCEPTION 'NOT_SIGNED_IN'; END IF;
+  -- 탈퇴한 계정의 만료 전 토큰으로 지갑·초대코드가 다시 생기지 않게 한다(보안 검토)
+  IF NOT EXISTS (SELECT 1 FROM auth.users WHERE id = v_user) THEN RAISE EXCEPTION 'USER_NOT_FOUND'; END IF;
   INSERT INTO public.wallets (user_id, coins) VALUES (v_user, 0) ON CONFLICT (user_id) DO NOTHING;   -- 가입 보너스 없음
   INSERT INTO public.invite_codes (code, user_id)
   SELECT upper(substring(replace(gen_random_uuid()::text, '-', ''), 1, 8)), v_user
@@ -125,9 +129,8 @@ DECLARE
 BEGIN
   IF v_user IS NULL THEN RAISE EXCEPTION 'NOT_SIGNED_IN'; END IF;
   IF p_reading_id IS NULL OR length(p_reading_id) > 50 THEN RAISE EXCEPTION 'UNKNOWN_READING'; END IF;
-  IF p_reading_id IN ('basic', 'love', 'deep') THEN v_type := p_reading_id;
-  ELSIF p_reading_id ~ '^compat:[0-9]{4}-[0-9]{2}-[0-9]{2}$' THEN v_type := 'compat';
-  ELSIF p_reading_id ~ '^taekil:[0-9]{4}-[0-9]{2}-[0-9]{2}$' THEN v_type := 'taekil';  -- 택일 id 형식은 예약(상품 설계 시 확정)
+  -- 열람 id = 상품 + ':' + 출생정보 해시(14자리 16진수). 한 번 결제로 다른 사람의 풀이까지 열리는 것을 막는다(보안 검토).
+  IF p_reading_id ~ '^(basic|love|deep|compat|taekil):[0-9a-f]{14}$' THEN v_type := split_part(p_reading_id, ':', 1);
   ELSE RAISE EXCEPTION 'UNKNOWN_READING'; END IF;
   IF p_cost IS NULL OR p_cost <= 0 THEN RAISE EXCEPTION 'INVALID_PURCHASE_PRICE'; END IF;
   SELECT price_coins INTO v_expected FROM public.reading_price_catalog WHERE reading_type = v_type AND active;
@@ -166,18 +169,11 @@ $$;
 CREATE OR REPLACE FUNCTION public.credit_purchase(p_order_id uuid, p_provider text, p_provider_payment_id text, p_amount_krw integer)
 RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path = '' AS $$
 DECLARE
-  c_reward      constant integer := 1;
-  c_daily_cap   constant integer := 3;
-  c_monthly_cap constant integer := 10;
-  v_day_start   timestamptz := date_trunc('day',   now() AT TIME ZONE 'Asia/Seoul') AT TIME ZONE 'Asia/Seoul';
-  v_month_start timestamptz := date_trunc('month', now() AT TIME ZONE 'Asia/Seoul') AT TIME ZONE 'Asia/Seoul';
   v_order public.coin_orders%ROWTYPE;
   v_purchase uuid;
   v_balance integer;
   v_inviter uuid;
-  v_ibalance integer;
   v_referral text := 'none';
-  v_reason text;
 BEGIN
   IF p_provider IS NULL OR p_provider_payment_id IS NULL OR length(p_provider_payment_id) < 1 THEN RAISE EXCEPTION 'INVALID_PAYMENT'; END IF;
   SELECT * INTO v_order FROM public.coin_orders WHERE id = p_order_id FOR UPDATE;
@@ -198,27 +194,13 @@ BEGIN
   ON CONFLICT (user_id) DO UPDATE SET coins = public.wallets.coins + EXCLUDED.coins, updated_at = now() RETURNING coins INTO v_balance;
   INSERT INTO public.coin_ledger (user_id, delta, reason, ref, balance_after) VALUES (v_order.user_id, v_order.coins, 'purchase', v_purchase::text, v_balance);
 
-  -- 초대 보상: 이 사람의 첫 결제이고 보류 중인 초대 연결이 있을 때만
+  -- 초대 보상: 이 사람의 첫 결제이고 보류 중인 초대 연결이 있으면 "보류"로 표시만 한다. 지급은 release_referral_rewards() 가 환불 가능 기간이 지난 뒤에 한다.
   SELECT inviter_id INTO v_inviter FROM public.referrals WHERE invitee_id = v_order.user_id AND status = 'pending' FOR UPDATE;
   IF v_inviter IS NOT NULL AND NOT EXISTS (
     SELECT 1 FROM public.coin_purchases WHERE user_id = v_order.user_id AND status = 'paid' AND id <> v_purchase
   ) THEN
-    PERFORM 1 FROM public.invite_codes WHERE user_id = v_inviter FOR UPDATE;   -- 같은 초대자의 동시 보상 직렬화
-    IF NOT EXISTS (SELECT 1 FROM public.coin_purchases WHERE user_id = v_inviter AND status = 'paid' AND coins >= 1) THEN v_reason := 'inviter_not_paid';
-    ELSIF (SELECT count(*) FROM public.invite_rewards WHERE inviter_id = v_inviter AND created_at >= v_day_start) >= c_daily_cap THEN v_reason := 'daily_cap';
-    ELSIF (SELECT count(*) FROM public.invite_rewards WHERE inviter_id = v_inviter AND created_at >= v_month_start) >= c_monthly_cap THEN v_reason := 'monthly_cap';
-    END IF;
-    IF v_reason IS NULL THEN
-      INSERT INTO public.invite_rewards (invitee_id, inviter_id, purchase_id) VALUES (v_order.user_id, v_inviter, v_purchase);
-      INSERT INTO public.wallets (user_id, coins) VALUES (v_inviter, c_reward)
-      ON CONFLICT (user_id) DO UPDATE SET coins = public.wallets.coins + c_reward, updated_at = now() RETURNING coins INTO v_ibalance;
-      INSERT INTO public.coin_ledger (user_id, delta, reason, ref, balance_after) VALUES (v_inviter, c_reward, 'referral_reward', v_purchase::text, v_ibalance);
-      UPDATE public.referrals SET status = 'rewarded', resolved_at = now() WHERE invitee_id = v_order.user_id;
-      v_referral := 'rewarded';
-    ELSE
-      UPDATE public.referrals SET status = 'skipped', reason = v_reason, resolved_at = now() WHERE invitee_id = v_order.user_id;
-      v_referral := 'skipped:' || v_reason;
-    END IF;
+    UPDATE public.referrals SET status = 'held', purchase_id = v_purchase WHERE invitee_id = v_order.user_id;
+    v_referral := 'held';
   END IF;
   RETURN jsonb_build_object('credited', true, 'balance', v_balance, 'purchase_id', v_purchase, 'referral', v_referral);
 END;
@@ -238,6 +220,8 @@ BEGIN
   SELECT * INTO v_p FROM public.coin_purchases WHERE provider = p_provider AND provider_payment_id = p_provider_payment_id FOR UPDATE;
   IF NOT FOUND THEN RAISE EXCEPTION 'PURCHASE_NOT_FOUND'; END IF;
   IF v_p.status = 'refunded' THEN RETURN jsonb_build_object('refunded', false, 'already_refunded', true); END IF;
+  -- 자동 환불은 결제 후 7일 이내만(정책 확정 전 제안값; 법무 확인 필요). 이후는 수동 처리.
+  IF v_p.created_at < now() - interval '7 days' THEN RAISE EXCEPTION 'REFUND_WINDOW_PASSED'; END IF;
   SELECT coins INTO v_balance FROM public.wallets WHERE user_id = v_p.user_id FOR UPDATE;
   -- 엽전은 종류 구분 없이 한 잔액이라 "잔액이 충분한가"만으로는 유상분 사용 여부를 알 수 없다(보상으로 받은 엽전이 섞이면 이미 쓴 결제도 환불될 수 있음).
   -- 그래서 이 결제 이후 풀이 열람(spend)이 한 번이라도 있으면 사용 시작으로 보고 자동 환불하지 않는다(수동 처리). 환불 기간(예: 7일)은 정책 확정 후 추가.
@@ -248,6 +232,8 @@ BEGIN
   INSERT INTO public.coin_ledger (user_id, delta, reason, ref, balance_after) VALUES (v_p.user_id, -v_p.coins, 'refund', v_p.id::text, v_balance - v_p.coins);
   UPDATE public.coin_purchases SET status = 'refunded', refunded_at = now() WHERE id = v_p.id;
   UPDATE public.coin_orders SET status = 'canceled' WHERE id = v_p.order_id;
+  -- 보류 중이던 초대 보상은 취소(지급 전이므로 회수할 것이 없다)
+  UPDATE public.referrals SET status = 'canceled', reason = 'refunded', resolved_at = now() WHERE purchase_id = v_p.id AND status = 'held';
 
   SELECT * INTO v_rw FROM public.invite_rewards WHERE purchase_id = v_p.id AND clawed_back_at IS NULL FOR UPDATE;
   IF FOUND THEN
@@ -264,9 +250,53 @@ END;
 $$;
 
 -- ───────────── 권한 ─────────────
-REVOKE ALL ON FUNCTION public.create_coin_order(uuid, integer, text), public.credit_purchase(uuid, text, text, integer), public.refund_purchase(text, text)
+-- 초대 보상 지급(서버/스케줄러 전용): 환불 가능 기간(7일)이 지나도 환불되지 않은 첫 결제만. 조건·한도는 지급 시점 기준(한국 시간 하루 3·월 10).
+CREATE OR REPLACE FUNCTION public.release_referral_rewards()
+RETURNS integer LANGUAGE plpgsql SECURITY DEFINER SET search_path = '' AS $$
+DECLARE
+  c_reward      constant integer := 1;
+  c_daily_cap   constant integer := 3;
+  c_monthly_cap constant integer := 10;
+  v_day_start   timestamptz := date_trunc('day',   now() AT TIME ZONE 'Asia/Seoul') AT TIME ZONE 'Asia/Seoul';
+  v_month_start timestamptz := date_trunc('month', now() AT TIME ZONE 'Asia/Seoul') AT TIME ZONE 'Asia/Seoul';
+  r record;
+  v_reason text;
+  v_ibalance integer;
+  v_done integer := 0;
+BEGIN
+  FOR r IN
+    SELECT f.invitee_id, f.inviter_id, f.purchase_id
+    FROM public.referrals f
+    JOIN public.coin_purchases p ON p.id = f.purchase_id
+    WHERE f.status = 'held' AND p.status = 'paid' AND p.created_at <= now() - interval '7 days'
+    ORDER BY p.created_at
+  LOOP
+    PERFORM 1 FROM public.invite_codes WHERE user_id = r.inviter_id FOR UPDATE;   -- 같은 초대자의 동시 지급 직렬화
+    PERFORM 1 FROM public.referrals WHERE invitee_id = r.invitee_id AND status = 'held' FOR UPDATE;
+    CONTINUE WHEN NOT FOUND;
+    v_reason := NULL;
+    IF NOT EXISTS (SELECT 1 FROM public.coin_purchases WHERE user_id = r.inviter_id AND status = 'paid' AND coins >= 1) THEN v_reason := 'inviter_not_paid';
+    ELSIF (SELECT count(*) FROM public.invite_rewards WHERE inviter_id = r.inviter_id AND created_at >= v_day_start) >= c_daily_cap THEN v_reason := 'daily_cap';
+    ELSIF (SELECT count(*) FROM public.invite_rewards WHERE inviter_id = r.inviter_id AND created_at >= v_month_start) >= c_monthly_cap THEN v_reason := 'monthly_cap';
+    END IF;
+    IF v_reason IS NULL THEN
+      INSERT INTO public.invite_rewards (invitee_id, inviter_id, purchase_id) VALUES (r.invitee_id, r.inviter_id, r.purchase_id);
+      INSERT INTO public.wallets (user_id, coins) VALUES (r.inviter_id, c_reward)
+      ON CONFLICT (user_id) DO UPDATE SET coins = public.wallets.coins + c_reward, updated_at = now() RETURNING coins INTO v_ibalance;
+      INSERT INTO public.coin_ledger (user_id, delta, reason, ref, balance_after) VALUES (r.inviter_id, c_reward, 'referral_reward', r.purchase_id::text, v_ibalance);
+      UPDATE public.referrals SET status = 'rewarded', resolved_at = now() WHERE invitee_id = r.invitee_id;
+      v_done := v_done + 1;
+    ELSE
+      UPDATE public.referrals SET status = 'skipped', reason = v_reason, resolved_at = now() WHERE invitee_id = r.invitee_id;
+    END IF;
+  END LOOP;
+  RETURN v_done;
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.create_coin_order(uuid, integer, text), public.credit_purchase(uuid, text, text, integer), public.refund_purchase(text, text), public.release_referral_rewards()
   FROM PUBLIC, anon, authenticated;
-GRANT EXECUTE ON FUNCTION public.create_coin_order(uuid, integer, text), public.credit_purchase(uuid, text, text, integer), public.refund_purchase(text, text)
+GRANT EXECUTE ON FUNCTION public.create_coin_order(uuid, integer, text), public.credit_purchase(uuid, text, text, integer), public.refund_purchase(text, text), public.release_referral_rewards()
   TO service_role;
 -- 아래 세 함수는 CREATE OR REPLACE 로 교체했으므로 기존 ACL 이 유지된다(적용 후 재조회로 확인):
 --   ensure_user_setup(), apply_invite(text), spend_coins(text, integer) → authenticated·service_role 실행 가능, anon 불가

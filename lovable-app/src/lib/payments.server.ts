@@ -5,6 +5,7 @@
 //   · PG 가 돌려준 승인 금액이 주문 금액과 같을 때만 충전(credit_purchase)한다. 충전은 DB 한 트랜잭션·멱등.
 //   · 주문은 요청한 로그인 사용자의 것만 확정할 수 있다.
 import { COIN_KRW } from "./coins";
+import { LEGAL_VERSION } from "./legal";
 
 export type PaymentsMode = "disabled" | "sandbox" | "live";
 export type PaymentErrorCode =
@@ -91,6 +92,8 @@ export function paymentsService(opts: {
   mode: PaymentsMode;
   provider: PaymentProvider | null;
   api: OrdersApi;
+  /** 현재 약관·환불정책 버전. 주어지면 동의 버전이 이것과 같아야 하고, 초안(draft-) 버전이면 실결제(live)는 막는다. */
+  legalVersion?: string;
 }) {
   const guard = () => {
     if (opts.mode === "disabled") throw new PaymentError("PAYMENTS_DISABLED");
@@ -101,6 +104,11 @@ export function paymentsService(opts: {
       guard();
       if (!/^[A-Za-z0-9._-]{1,40}$/.test(consentVersion ?? ""))
         throw new PaymentError("CONSENT_REQUIRED");
+      if (opts.legalVersion !== undefined) {
+        if (consentVersion !== opts.legalVersion) throw new PaymentError("CONSENT_REQUIRED");
+        if (opts.mode === "live" && opts.legalVersion.startsWith("draft-"))
+          throw new PaymentError("NOT_CONFIGURED");
+      }
       if (!Number.isInteger(coins) || coins < 1 || coins > 4)
         throw new PaymentError("INVALID_PACK");
       const orderId = await opts.api.createOrder(userId, coins, consentVersion);
@@ -201,5 +209,6 @@ export async function buildPaymentsService() {
     mode,
     provider,
     api: supabaseOrdersApi(supabaseAdmin as unknown as AdminLike),
+    legalVersion: LEGAL_VERSION,
   });
 }

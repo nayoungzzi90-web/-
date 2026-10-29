@@ -102,6 +102,27 @@ describe("주문·확정 흐름(sandbox)", () => {
     ]);
   });
 
+  it("현재 약관 버전과 다른 동의 버전은 거부하고, 초안 약관 상태에서는 실결제(live)를 막는다", async () => {
+    const { api } = fakeApi();
+    const sb = paymentsService({
+      mode: "sandbox",
+      provider: new SandboxProvider(),
+      api,
+      legalVersion: "v2",
+    });
+    await expect(sb.createOrder("u1", 1, "v1")).rejects.toMatchObject({ code: "CONSENT_REQUIRED" });
+    await expect(sb.createOrder("u1", 1, "v2")).resolves.toMatchObject({ coins: 1 });
+    const live = paymentsService({
+      mode: "live",
+      provider: new SandboxProvider(),
+      api,
+      legalVersion: "draft-2026-10-29",
+    });
+    await expect(live.createOrder("u1", 1, "draft-2026-10-29")).rejects.toMatchObject({
+      code: "NOT_CONFIGURED",
+    });
+  });
+
   it("약관 동의 버전이 없거나 이상하면 주문을 만들지 않는다(CONSENT_REQUIRED)", async () => {
     const f = fakeApi();
     const svc = paymentsService({ mode: "sandbox", provider: new SandboxProvider(), api: f.api });

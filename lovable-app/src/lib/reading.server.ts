@@ -3,6 +3,7 @@
 //   · 앱의 R001 엔진(saju-engine.server.ts, astronomy-engine)  — 화면의 4주를 정한다
 //   · 풀이 작성기가 쓰는 엔진(reading-core, DE421 표)           — 십성·대운 등 풍부한 사실을 만든다
 // 두 엔진의 4주가 다르면 풀이를 내지 않는다(fail-closed). 일치만 확인했을 뿐 KASI 공식 확인은 아니다.
+import { unlockId } from "./unlock-id";
 import { calculate } from "./reading-core/engine/manse/src/engine";
 import { toSajuFacts } from "./reading-core/engine/manse/src/adapter";
 import { generateReport } from "./reading-core/src/lib/content/report";
@@ -173,15 +174,9 @@ export function shapeSections(sections: FullSection[], unlocked: boolean): OutSe
   });
 }
 
-/** 열람 id: 화면의 Paywall id 와 같아야 한다 (basic / love / compat:<상대 날짜>) */
-export function unlockIdFor(product: ReadingProduct, partner: unknown): string | null {
-  if (product === "basic") return "basic";
-  if (product === "love") return "love";
-  const date =
-    typeof partner === "object" && partner !== null
-      ? (partner as { date?: unknown }).date
-      : undefined;
-  return typeof date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(date) ? `compat:${date}` : null;
+/** 열람 id: 화면의 Paywall id 와 같아야 한다 (상품:출생정보 해시, unlock-id.ts) */
+export function unlockIdFor(product: ReadingProduct, me: unknown, partner: unknown): string | null {
+  return unlockId(product, me, partner);
 }
 
 /** supabase 클라이언트 중 열람 기록 조회에 쓰는 부분(시험에서 가짜를 넣는다) */

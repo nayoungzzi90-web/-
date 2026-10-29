@@ -9,6 +9,7 @@ const read = (f: string) => readFileSync(new URL(`../../lovable-app/docs/migrati
 const PRICING = read('PRICING_900_COIN_REVIEW_ONLY.sql');
 const COINS = read('COINS_PAYMENTS_REFERRAL_REVIEW_ONLY.sql');
 
+const H = '0123456789abcd'; // 출생정보 해시 자리(14자리 16진수)
 const U = (n: number) => `00000000-0000-4000-8000-${n.toString(16).padStart(12, '0')}`;
 
 async function setup() {
@@ -61,6 +62,13 @@ const buy = async (db: PGlite, n: number, c = 1) => {
   const amt = (await db.query<{ a: number }>('SELECT amount_krw AS a FROM public.coin_orders WHERE id=$1', [id])).rows[0]!.a;
   return credit(db, id, amt);
 };
+/** 첫 결제를 8일 전으로 돌리고 보상 지급 함수를 돌린 뒤, 그 친구의 초대 연결 최종 상태를 돌려준다 */
+const settled = async (db: PGlite, n: number) => {
+  await db.query(`UPDATE public.coin_purchases SET created_at = now() - interval '8 days' WHERE user_id = $1`, [U(n)]);
+  await db.exec('SELECT public.release_referral_rewards()');
+  const r = (await db.query<{ status: string; reason: string | null }>('SELECT status, reason FROM public.referrals WHERE invitee_id = $1', [U(n)])).rows[0]!;
+  return r.status === 'skipped' ? `skipped:${r.reason}` : r.status;
+};
 const one = async <T>(db: PGlite, sql: string, p: unknown[] = []) => (await db.query<T>(sql, p)).rows;
 const KST_DAY = `(date_trunc('day', now() AT TIME ZONE 'Asia/Seoul') AT TIME ZONE 'Asia/Seoul')`;
 const KST_MONTH = `(date_trunc('month', now() AT TIME ZONE 'Asia/Seoul') AT TIME ZONE 'Asia/Seoul')`;
@@ -91,6 +99,9 @@ describe('ensure_user_setup / spend_coins', () => {
     expect(await coins(db, 2)).toBe(4); // 이미 4닢을 가진 기존 회원은 그대로
     await as(db, null);
     await expect(db.exec('SELECT public.ensure_user_setup()')).rejects.toThrow(/NOT_SIGNED_IN/);
+    await as(db, 99); // auth.users 에 없는(탈퇴한) 계정의 토큰
+    await expect(db.exec('SELECT public.ensure_user_setup()')).rejects.toThrow(/USER_NOT_FOUND/);
+    expect(await coins(db, 99)).toBeUndefined();
     await db.close();
   });
 
@@ -99,15 +110,16 @@ describe('ensure_user_setup / spend_coins', () => {
     await setupUser(db, 1);
     await buy(db, 1, 4); // 4닢 충전
     await as(db, 1);
-    await expect(spend(db, 'basic', 1)).rejects.toThrow(/READING_DISABLED/);
+    await expect(spend(db, `basic:${H}`, 1)).rejects.toThrow(/READING_DISABLED/);
     await db.exec(`UPDATE public.reading_price_catalog SET active = true WHERE reading_type IN ('basic','love','deep','compat')`);
-    await expect(spend(db, 'basic', 4)).rejects.toThrow(/PRICE_MISMATCH/); // 옛 가격
-    expect(await spend(db, 'basic', 1)).toBe(3);
-    expect(await spend(db, 'basic', 1)).toBe(3); // 이미 연 풀이는 재차감 없음
-    expect(await spend(db, 'love', 2)).toBe(1);
-    await expect(spend(db, 'deep', 3)).rejects.toThrow(/INSUFFICIENT_COINS/);
+    await expect(spend(db, `basic:${H}`, 4)).rejects.toThrow(/PRICE_MISMATCH/); // 옛 가격
+    expect(await spend(db, `basic:${H}`, 1)).toBe(3);
+    expect(await spend(db, `basic:${H}`, 1)).toBe(3); // 이미 연 풀이는 재차감 없음
+    expect(await spend(db, `love:${H}`, 2)).toBe(1);
+    await expect(spend(db, `deep:${H}`, 3)).rejects.toThrow(/INSUFFICIENT_COINS/);
     await expect(spend(db, 'nope', 1)).rejects.toThrow(/UNKNOWN_READING/);
-    await expect(spend(db, 'taekil:2026-03-01', 2)).rejects.toThrow(/READING_DISABLED/);
+    for (const bad of ['basic', 'compat:1993-03-09', `basic:${H.toUpperCase()}`, `basic:${H}0`, `x:${H}`]) await expect(spend(db, bad, 1), bad).rejects.toThrow(/UNKNOWN_READING/); // 출생정보에 묶이지 않은 옛 형식은 거부
+    await expect(spend(db, `taekil:${H}`, 2)).rejects.toThrow(/READING_DISABLED/);
     const led = await one<{ delta: number; reason: string; balance_after: number }>(db, `SELECT delta, reason, balance_after FROM public.coin_ledger WHERE user_id=$1 ORDER BY id`, [U(1)]);
     expect(led).toEqual([{ delta: 4, reason: 'purchase', balance_after: 4 }, { delta: -1, reason: 'spend', balance_after: 3 }, { delta: -2, reason: 'spend', balance_after: 1 }]);
     await db.close();
@@ -181,7 +193,9 @@ describe('초대 보상: 친구의 첫 결제 + 초대자 결제 이력 + 한국
     expect(await coins(db, 100)).toBe(before); // 연결만으로는 보상 없음
     expect(await coins(db, 1)).toBe(0);
     const r = await buy(db, 1, 1);
-    expect(r['referral']).toBe('rewarded');
+    expect(r['referral']).toBe('held'); // 결제 즉시는 보류
+    expect(await coins(db, 100)).toBe(before);
+    expect(await settled(db, 1)).toBe('rewarded'); // 환불 기간(7일) 뒤 지급
     expect(await coins(db, 100)).toBe(before! + 1);
     expect(await coins(db, 1)).toBe(1); // 친구는 산 만큼만
     const rw = await one<{ purchase_id: string | null }>(db, 'SELECT purchase_id FROM public.invite_rewards WHERE invitee_id=$1', [U(1)]);
@@ -197,13 +211,15 @@ describe('초대 보상: 친구의 첫 결제 + 초대자 결제 이력 + 한국
     const db = await setup();
     const code = await inviterWithCode(db, false);
     await invitee(db, 1, code);
-    expect((await buy(db, 1))['referral']).toBe('skipped:inviter_not_paid');
+    await buy(db, 1);
+    expect(await settled(db, 1)).toBe('skipped:inviter_not_paid');
     expect(await coins(db, 100)).toBe(0);
     expect((await one<{ status: string; reason: string }>(db, 'SELECT status, reason FROM public.referrals WHERE invitee_id=$1', [U(1)]))[0]).toEqual({ status: 'skipped', reason: 'inviter_not_paid' });
     // 환불만 있는 초대자
     const code2 = await (async () => { await setupUser(db, 101, '10 days'); await buy(db, 101, 1); await db.query(`SELECT public.refund_purchase('test', (SELECT provider_payment_id FROM public.coin_purchases WHERE user_id=$1))`, [U(101)]); return codeOf(db, 101); })();
     await invitee(db, 2, code2);
-    expect((await buy(db, 2))['referral']).toBe('skipped:inviter_not_paid');
+    await buy(db, 2);
+    expect(await settled(db, 2)).toBe('skipped:inviter_not_paid');
     await db.close();
   });
 
@@ -211,9 +227,10 @@ describe('초대 보상: 친구의 첫 결제 + 초대자 결제 이력 + 한국
     const db = await setup();
     const code = await inviterWithCode(db);
     for (let i = 0; i < 2; i++) await db.query(`INSERT INTO public.invite_rewards (invitee_id, inviter_id, created_at) VALUES ($1, $2, ${KST_DAY} - interval '1 minute')`, [U(500 + i), U(100)]);
-    for (let i = 0; i < 3; i++) { await invitee(db, 10 + i, code); expect((await buy(db, 10 + i))['referral'], `오늘 ${i + 1}번째`).toBe('rewarded'); }
+    for (let i = 0; i < 3; i++) { await invitee(db, 10 + i, code); await buy(db, 10 + i); expect(await settled(db, 10 + i), `오늘 ${i + 1}번째`).toBe('rewarded'); }
     await invitee(db, 20, code);
-    expect((await buy(db, 20))['referral']).toBe('skipped:daily_cap');
+    await buy(db, 20);
+    expect(await settled(db, 20)).toBe('skipped:daily_cap');
     await db.close();
   });
 
@@ -222,7 +239,8 @@ describe('초대 보상: 친구의 첫 결제 + 초대자 결제 이력 + 한국
     const code = await inviterWithCode(db);
     for (let i = 0; i < 3; i++) await db.query(`INSERT INTO public.invite_rewards (invitee_id, inviter_id, created_at) VALUES ($1, $2, ${KST_DAY} + interval '1 minute')`, [U(800 + i), U(100)]);
     await invitee(db, 1, code);
-    expect((await buy(db, 1))['referral']).toBe('skipped:daily_cap');
+    await buy(db, 1);
+    expect(await settled(db, 1)).toBe('skipped:daily_cap');
     await db.close();
   });
 
@@ -243,10 +261,12 @@ describe('초대 보상: 친구의 첫 결제 + 초대자 결제 이력 + 한국
     const code = await inviterWithCode(db);
     for (let i = 0; i < 10; i++) await db.query(`INSERT INTO public.invite_rewards (invitee_id, inviter_id, created_at) VALUES ($1, $2, ${KST_MONTH} - interval '1 minute')`, [U(600 + i), U(100)]);
     await invitee(db, 1, code);
-    expect((await buy(db, 1))['referral']).toBe('rewarded'); // 지난달 10건은 이번 달에 안 셈
+    await buy(db, 1);
+    expect(await settled(db, 1)).toBe('rewarded'); // 지난달 10건은 이번 달에 안 셈
     for (let i = 0; i < 9; i++) await db.query(`INSERT INTO public.invite_rewards (invitee_id, inviter_id, created_at) VALUES ($1, $2, ${KST_MONTH})`, [U(700 + i), U(100)]);
     await invitee(db, 2, code);
-    expect(['skipped:daily_cap', 'skipped:monthly_cap']).toContain((await buy(db, 2))['referral']);
+    await buy(db, 2);
+    expect(['skipped:daily_cap', 'skipped:monthly_cap']).toContain(await settled(db, 2));
     await db.close();
   });
 
@@ -290,7 +310,7 @@ describe('환불(refund_purchase)', () => {
     const pid = (await one<{ p: string }>(db, 'SELECT provider_payment_id AS p FROM public.coin_purchases'))[0]!.p;
     await db.exec(`UPDATE public.reading_price_catalog SET active = true WHERE reading_type = 'basic'`);
     await as(db, 1);
-    await spend(db, 'basic', 1); // 사용 시작
+    await spend(db, `basic:${H}`, 1); // 사용 시작
     await buy(db, 1, 3); // 잔액 3
     await expect(db.query(`SELECT public.refund_purchase('test', $1)`, [pid])).rejects.toThrow(/COINS_ALREADY_USED/);
     expect(await coins(db, 1)).toBe(3);
@@ -302,14 +322,14 @@ describe('환불(refund_purchase)', () => {
     await setupUser(db, 100, '10 days'); await buy(db, 100, 1);
     const code = await codeOf(db, 100);
     await setupUser(db, 1); await link(db, 1, code);
-    await buy(db, 1, 1); // 1 → 초대자(100)에게 보상 발생
+    await buy(db, 1, 1); await settled(db, 1); // 1 → 초대자(100)에게 보상 발생
     await setupUser(db, 2, '10 days'); await buy(db, 2, 1);
     const code2 = await codeOf(db, 2);
     await db.exec(`UPDATE public.reading_price_catalog SET active = true WHERE reading_type = 'basic'`);
     await as(db, 2);
-    await spend(db, 'basic', 1); // 2번이 유상 1닢을 사용 → 잔액 0
+    await spend(db, `basic:${H}`, 1); // 2번이 유상 1닢을 사용 → 잔액 0
     await setupUser(db, 3); await link(db, 3, code2);
-    await buy(db, 3, 1); // 2번에게 보상 1닢 → 잔액 1(= 환불 대상 결제의 코인 수와 같음)
+    await buy(db, 3, 1); await settled(db, 3); // 2번에게 보상 1닢 → 잔액 1(= 환불 대상 결제의 코인 수와 같음)
     expect(await coins(db, 2)).toBe(1);
     const pid = (await one<{ p: string }>(db, 'SELECT provider_payment_id AS p FROM public.coin_purchases WHERE user_id=$1', [U(2)]))[0]!.p;
     await expect(db.query(`SELECT public.refund_purchase('test', $1)`, [pid])).rejects.toThrow(/COINS_ALREADY_USED/);
@@ -317,7 +337,7 @@ describe('환불(refund_purchase)', () => {
     await db.close();
   });
 
-  it('보상을 만든 결제를 환불하면 초대자의 보상 1닢도 회수(보상 후 환불 반복 방지)', async () => {
+  it('보류 중에 친구가 환불하면 보상은 취소되고 초대자는 아무것도 받지 않는다(환불 반복 방지)', async () => {
     const db = await setup();
     await setupUser(db, 100, '10 days');
     await buy(db, 100, 1);
@@ -325,14 +345,44 @@ describe('환불(refund_purchase)', () => {
     await setupUser(db, 1);
     await link(db, 1, code);
     await buy(db, 1, 1);
-    const before = await coins(db, 100); // 1(자기 결제) + 1(보상)
-    expect(before).toBe(2);
     const pid = (await one<{ p: string }>(db, 'SELECT provider_payment_id AS p FROM public.coin_purchases WHERE user_id=$1', [U(1)]))[0]!.p;
-    const r = (await one<{ r: Record<string, unknown> }>(db, `SELECT public.refund_purchase('test', $1) AS r`, [pid]))[0]!.r;
-    expect(r).toMatchObject({ refunded: true, reward_clawed_back: true });
+    await db.query(`SELECT public.refund_purchase('test', $1)`, [pid]);
+    expect(await settled(db, 1)).toBe('canceled');
+    expect(await coins(db, 100)).toBe(1); // 자기 결제 1닢뿐
+    expect((await one(db, `SELECT 1 FROM public.invite_rewards WHERE invitee_id=$1`, [U(1)])).length).toBe(0);
+    await db.exec('SELECT public.release_referral_rewards()'); // 다시 돌려도 지급 없음
     expect(await coins(db, 100)).toBe(1);
-    expect((await one<{ c: string | null }>(db, 'SELECT clawed_back_at::text AS c FROM public.invite_rewards WHERE invitee_id=$1', [U(1)]))[0]!.c).not.toBeNull();
-    expect((await one<{ reason: string }>(db, `SELECT reason FROM public.coin_ledger WHERE user_id=$1 AND reason='reward_clawback'`, [U(100)])).length).toBe(1);
+    await db.close();
+  });
+
+  it('환불 기간(7일)이 지나면 자동 환불 불가 — 지급된 보상을 환불로 되돌리는 길이 닫혀 있다', async () => {
+    const db = await setup();
+    await setupUser(db, 100, '10 days');
+    await buy(db, 100, 1);
+    const code = await codeOf(db, 100);
+    await setupUser(db, 1);
+    await link(db, 1, code);
+    await buy(db, 1, 1);
+    expect(await settled(db, 1)).toBe('rewarded');
+    const pid = (await one<{ p: string }>(db, 'SELECT provider_payment_id AS p FROM public.coin_purchases WHERE user_id=$1', [U(1)]))[0]!.p;
+    await expect(db.query(`SELECT public.refund_purchase('test', $1)`, [pid])).rejects.toThrow(/REFUND_WINDOW_PASSED/);
+    expect(await coins(db, 100)).toBe(2);
+    await db.close();
+  });
+
+  it('release_referral_rewards: 7일 안의 결제는 지급 안 하고, 같은 결제를 두 번 돌려도 한 번만 지급', async () => {
+    const db = await setup();
+    await setupUser(db, 100, '10 days');
+    await buy(db, 100, 1);
+    const code = await codeOf(db, 100);
+    await setupUser(db, 1);
+    await link(db, 1, code);
+    await buy(db, 1, 1);
+    await db.exec('SELECT public.release_referral_rewards()');
+    expect(await coins(db, 100)).toBe(1); // 아직 보류
+    await settled(db, 1);
+    await db.exec('SELECT public.release_referral_rewards()');
+    expect(await coins(db, 100)).toBe(2);
     await db.close();
   });
 });
@@ -346,7 +396,7 @@ describe('권한과 함수 설정', () => {
     await buy(db, 2, 2);
     for (const role of ['anon', 'authenticated']) {
       await db.exec(`SET ROLE ${role}`);
-      for (const q of [`SELECT public.create_coin_order('${U(1)}', 1, 'x')`, `SELECT public.credit_purchase('${U(1)}', 'x', 'y', 900)`, `SELECT public.refund_purchase('x', 'y')`,
+      for (const q of [`SELECT public.create_coin_order('${U(1)}', 1, 'x')`, `SELECT public.credit_purchase('${U(1)}', 'x', 'y', 900)`, `SELECT public.refund_purchase('x', 'y')`, 'SELECT public.release_referral_rewards()',
         'SELECT * FROM public.coin_orders', 'SELECT * FROM public.coin_purchases', 'SELECT * FROM public.referrals'])
         await expect(db.query(q), `${role}: ${q}`).rejects.toThrow(/permission denied/);
       await db.exec('RESET ROLE');
@@ -366,10 +416,10 @@ describe('권한과 함수 설정', () => {
 
   it('모든 새·교체 함수는 search_path 고정, 서버 전용 함수는 service_role 만 실행 가능', async () => {
     const db = await setup();
-    const fns = await one<{ proname: string; cfg: string[]; secdef: boolean }>(db, `SELECT p.proname, p.proconfig AS cfg, p.prosecdef AS secdef FROM pg_proc p WHERE p.pronamespace='public'::regnamespace AND p.proname IN ('ensure_user_setup','apply_invite','spend_coins','create_coin_order','credit_purchase','refund_purchase')`);
-    expect(fns).toHaveLength(6);
+    const fns = await one<{ proname: string; cfg: string[]; secdef: boolean }>(db, `SELECT p.proname, p.proconfig AS cfg, p.prosecdef AS secdef FROM pg_proc p WHERE p.pronamespace='public'::regnamespace AND p.proname IN ('ensure_user_setup','apply_invite','spend_coins','create_coin_order','credit_purchase','refund_purchase','release_referral_rewards')`);
+    expect(fns).toHaveLength(7);
     for (const f of fns) { expect(f.secdef, f.proname).toBe(true); expect(f.cfg, f.proname).toContain('search_path=""'); }
-    for (const sig of ['public.create_coin_order(uuid,integer,text)', 'public.credit_purchase(uuid,text,text,integer)', 'public.refund_purchase(text,text)']) {
+    for (const sig of ['public.create_coin_order(uuid,integer,text)', 'public.credit_purchase(uuid,text,text,integer)', 'public.refund_purchase(text,text)', 'public.release_referral_rewards()']) {
       const p = (await one<{ a: boolean; u: boolean; s: boolean }>(db, `SELECT has_function_privilege('anon', '${sig}', 'EXECUTE') AS a, has_function_privilege('authenticated', '${sig}', 'EXECUTE') AS u, has_function_privilege('service_role', '${sig}', 'EXECUTE') AS s`))[0]!;
       expect(p, sig).toEqual({ a: false, u: false, s: true });
     }
