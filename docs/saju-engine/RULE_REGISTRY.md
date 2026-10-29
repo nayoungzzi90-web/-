@@ -57,3 +57,9 @@ R-002 원문의 계절 구분(寅卯 봄 木, 巳午 여름 火, 申酉 가을 �
 
 ## 2026-10-29 구현: R-002~R-005 결정론 엔진
 `engine/saju-rules/` (설명 `engine/saju-rules/README.md`). 시험 22개 통과(구조 후보 방향 버그를 실제 원국 점검에서 찾아 고치고 회귀 시험 추가), 일부러 버그를 넣으면 시험이 실패하는 것 확인(변이 시험), 십성 100조합은 만세력 엔진의 별도 구현과 일치. **AI 풀이에는 아직 연결하지 않았다**(다음 단계: 이 결과로 판단 카드 만들기). 전문가 검증 전.
+
+## 2026-10-29 연결: 판단 카드 → AI 풀이
+`src/lib/report/cards.ts` 가 R-002~R-005 결과를 "사실 줄 + 해석 명제(초안)"로 바꾼다. `buildInterpretation(..., { rules })` 를 주면 십성 개수 근사 명제(R-CLM-AUTONOMY·EXPRESSION·PRACTICALITY·STRUCTURE·SUPPORT·TENSION·POWER·SEASON)와 그 사실 줄을 빼고 카드로 바꾼다. 지지 합충 명제는 쉬운 말("부딪히는 짝/묶이는 짝", 작용 미판단)로 다시 썼다.
+- 카드 명제 규칙 ID: `SJ-R002-SEASON`, `SJ-R004-ROOT`, `SJ-R005-ROLE-*`, `SJ-R005-STRUCT-*`, `SJ-R005-COMBINE`, `SJ-R005-WORK-ABSENT`, `SJ-BRANCH-PAIRS-DRAFT`. **해석 문장은 전부 초안(DRAFT)이며 전문가 검토 대상**이다.
+- 시험: 무작위 원국 500개에서 명제 문장에 한자·전문용어 없음, 기본사주 모든 섹션에 쓸 명제 존재, 모든 명제의 근거 사실 줄 존재.
+- 아직 연결 안 된 곳: 서버 Edge Function(`supabase/functions/generate-report`)은 옛 샘플 계산기·옛 명제를 쓴다(배포 변경이라 승인 후). 연애운의 연애·세운 명제는 옛 규칙 그대로.

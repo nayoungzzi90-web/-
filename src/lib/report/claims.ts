@@ -7,6 +7,8 @@ import type { Claim, ClaimConflict, ClaimStance } from './types';
  * ⚠️ 여기의 모든 명제는 "규칙 엔진이 제안한 초안(DRAFT)"이다. 상담사가 규칙 ID 단위로 승인(APPROVED)하기 전에는
  *    서비스 결과(READY)로 쓰지 않는다. 임계값(≥3 등)과 문구는 전문가가 조정할 대상이다. → docs/CLAIM_RULES.md
  */
+/** 명제 문장은 쉬운 말만(한자 없이): 나무·불·흙·쇠·물 */
+const PLAIN_EL: Record<string, string> = { wood: '나무', fire: '불', earth: '흙', metal: '쇠', water: '물' };
 export const CLAIM_RULES_VERSION = 'claim-rules-1.0';
 
 export interface RuleDef { id: string; title: string; domain: string; logic: string }
@@ -67,8 +69,8 @@ export function buildPersonClaims(A: ChartAnalysis, p = '', who = '나'): Claim[
   const out: Claim[] = [];
   const id = (k: string) => `C-${p ? p.replace('_', '-') : ''}${k}`;
   const fact = (k: string) => `${p}${k}`;
-  const domStr = A.dominant.map((e) => ELEMENT_KO[e]).join('·'), weakStr = A.weak.map((e) => ELEMENT_KO[e]).join('·');
-  out.push(mk({ id: id('core'), domain: 'balance', semanticKey: `${p}core_structure`, stance: 'CONTEXTUAL', thesis: `${who}의 원국은 ${domStr} 기운이 가장 두드러지고 ${weakStr} 기운이 상대적으로 적은 구조예요`, factIds: [fact('core'), fact('balance')], counterFactIds: [], ruleId: R_CORE, condition: '원국 전체를 큰 그림으로 볼 때', limitation: '오행 개수는 겉글자 기준이며 실제 세력(통근·지장간)은 아직 반영하지 않아요', salience: 5, tags: ['core', 'balance'], anchors: [A.dm, ...A.dominant.map((e) => ELEMENT_KO[e].slice(0, 1))] }));
+  const domStr = A.dominant.map((e) => PLAIN_EL[e]).join('·'), weakStr = A.weak.map((e) => PLAIN_EL[e]).join('·');
+  out.push(mk({ id: id('core'), domain: 'balance', semanticKey: `${p}core_structure`, stance: 'CONTEXTUAL', thesis: `${who}의 사주는 ${domStr} 기운이 가장 두드러지고 ${weakStr} 기운이 상대적으로 적은 구조예요`, factIds: [fact('core'), fact('balance')], counterFactIds: [], ruleId: R_CORE, condition: '사주 전체를 큰 그림으로 볼 때', limitation: '오행 개수는 드러난 글자 기준이며, 땅 속 글자와 실제 힘의 크기는 반영하지 않았어요', salience: 5, tags: ['core', 'balance'], anchors: [A.dm, ...A.dominant.map((e) => ELEMENT_KO[e].slice(0, 1))] }));
   for (const g of GROUPS) {
     const spec = GROUP_SPEC[g], sc = A.groupScore[g], st = stance3(sc);
     const present = [...new Set(A.gods.filter((x) => GROUP[x.god] === g).map((x) => x.god))];
@@ -81,7 +83,7 @@ export function buildPersonClaims(A: ChartAnalysis, p = '', who = '나'): Claim[
   out.push(mk({ id: id('self-power'), domain: 'personality', semanticKey: `${p}self_power`, stance: pw === 'SELF' ? 'HIGH' : pw === 'OTHER' ? 'LOW' : 'MIXED', thesis: pw === 'SELF' ? '자기 힘이 센 편이라 스스로 중심을 잡고 버티는 힘이 있는 한편, 도움 요청이나 방향 전환이 늦어질 수 있어요' : pw === 'OTHER' ? '바깥 힘(표현·재물·책임)이 센 편이라 환경과 요구에 민감하고, 에너지를 쓰는 만큼 회복 시간이 필요할 수 있어요' : '자기 힘과 바깥 힘이 비교적 균형을 이뤄 상황에 따라 앞에 서기도 하고 맞추기도 하는 편이에요', factIds: [fact('power')], counterFactIds: [], ruleId: R_POWER, condition: '에너지를 쓰는 일과 쉬는 일의 균형을 볼 때', limitation: '전통 신강·신약의 단순 근사라 학파에 따라 판단이 달라질 수 있어요', salience: 3, tags: ['personality', 'strength', 'career', 'money', 'advice'], anchors: [pw === 'SELF' ? '자기 힘' : pw === 'OTHER' ? '바깥 힘' : '균형'] }));
   out.push(mk({ id: id('season'), domain: 'balance', semanticKey: `${p}season_support`, stance: A.seasonSupported ? 'HIGH' : 'LOW', thesis: A.seasonSupported ? `${A.season.name}에 태어나 계절의 기운이 일간을 받쳐 주는 편이라 타고난 기질이 비교적 안정적으로 드러나요` : `${A.season.name}에 태어나 계절의 기운이 일간을 직접 돕지 않는 편이라, 기질이 환경의 영향을 받아 달라지는 모습이 보일 수 있어요`, factIds: [fact('season')], counterFactIds: [], ruleId: R_SEASON, condition: '타고난 기질이 환경에서 어떻게 드러나는지 볼 때', limitation: '월령은 하나의 근거이며 다른 구조와 함께 평가해요', salience: 2, tags: ['personality', 'balance', 'advice'], anchors: [A.season.name.slice(0, 2), A.monthBranch] }));
   out.push(mk({ id: id('relations'), domain: 'relationship', semanticKey: `${p}internal_relations`, stance: A.relations.length ? 'CONTEXTUAL' : 'NONE', thesis: A.relations.length ? `원국 안에 ${A.relations.join(', ')}이(가) 있어, 해당 자리가 나타내는 주제끼리 서로 영향을 주고받기 쉬워요` : '원국 안에서 뚜렷한 합·충이 보이지 않아 구조가 비교적 조용한 편이에요', factIds: [fact('relations')], counterFactIds: [], ruleId: R_REL, condition: A.relations.length ? '관련된 자리의 주제가 이슈가 될 때' : '변화가 적은 안정적인 시기에', limitation: '합충이 있다고 반드시 작용하는 것은 아니며 강도는 따로 봐야 해요', salience: A.relations.length ? 3 : 1, tags: ['relations', 'relationship', 'love', 'personality'], anchors: A.relations.length ? ['합', '충'].filter((w) => A.relations.join().includes(w)) : ['합충 없음'] }));
-  if (A.missing.length) out.push(mk({ id: id('gap'), domain: 'balance', semanticKey: `${p}element_gap`, stance: 'LOW', thesis: `${A.missing.map((e) => ELEMENT_KO[e]).join('·')} 기운이 원국에 드러나지 않아, 이 기운과 연결된 활동·환경·루틴으로 균형을 보완해 볼 수 있어요`, factIds: [fact('balance')], counterFactIds: [], ruleId: R_GAP, condition: '일상의 균형을 점검하고 싶을 때', limitation: '없는 오행은 약점이 아니라 보완 포인트이며, 지장간까지 보면 달라질 수 있어요', salience: 3, tags: ['balance', 'advice', 'strength'], anchors: A.missing.map((e) => ELEMENT_KO[e].slice(0, 1)) }));
+  if (A.missing.length) out.push(mk({ id: id('gap'), domain: 'balance', semanticKey: `${p}element_gap`, stance: 'LOW', thesis: `${A.missing.map((e) => PLAIN_EL[e]).join('·')} 기운이 사주의 드러난 글자에 보이지 않아, 이 기운과 연결된 활동·환경·루틴으로 균형을 보완해 볼 수 있어요`, factIds: [fact('balance')], counterFactIds: [], ruleId: R_GAP, condition: '일상의 균형을 점검하고 싶을 때', limitation: '없는 오행은 약점이 아니라 보완 포인트이며, 땅 속 글자까지 보면 달라질 수 있어요', salience: 3, tags: ['balance', 'advice', 'strength'], anchors: A.missing.map((e) => ELEMENT_KO[e].slice(0, 1)) }));
   return out;
 }
 

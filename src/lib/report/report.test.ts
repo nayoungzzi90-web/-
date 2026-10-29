@@ -163,7 +163,7 @@ describe('생성 파이프라인 (가짜 LLM)', () => {
     const total = r.sections.reduce((n, s) => n + countChars(s.body), 0);
     expect(total).toBeGreaterThanOrEqual(lovePlan.totalRange[0]);
     expect(total).toBeLessThanOrEqual(lovePlan.totalRange[1]);
-    const yearly = r.sections.find((s) => s.title.includes('세운'))!;
+    const yearly = r.sections.find((s) => s.title.includes('한 해씩'))!;
     years.forEach((y) => expect(yearly.body).toContain(`${y}년`));
   });
   it('반려되면 사유를 프롬프트에 담아 같은 섹션만 재시도', async () => {

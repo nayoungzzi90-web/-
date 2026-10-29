@@ -3,6 +3,12 @@ import { Branch, ELEMENT_KO, SajuFacts, Stem } from '../saju/types';
 import { analyzeChart, analyzeLove, analyzeYear, bko, ELEMENTS, GOD_LOVE, GOD_TRAIT, GROUP_MEANING, ko, pillarsOf, POS_BRANCH, POS_STEM, STEM_COMBINE, type ChartAnalysis } from './analysis';
 import { applyApprovals, buildCompatClaims, buildLoveClaims, buildPersonClaims, buildYearClaims, detectConflicts, luckMissingClaim } from './claims';
 import type { EvidenceItem, FactLine, InterpretationFacts, ProductKey, Subject } from './types';
+import type { R002to005 } from '../../../engine/saju-rules/src';
+import { buildRuleCards } from './cards';
+
+/** 판단 카드가 대신하는 옛 명제 규칙·사실 줄 */
+const REPLACED_RULES = new Set(['R-CLM-AUTONOMY', 'R-CLM-EXPRESSION', 'R-CLM-PRACTICALITY', 'R-CLM-STRUCTURE', 'R-CLM-SUPPORT', 'R-CLM-POWER', 'R-CLM-SEASON']);
+const REPLACED_LINES = new Set(['gods', 'month_stem', 'power', 'season']);
 
 /**
  * 해석 규칙 엔진 (사주 계산 사실 → "사실 줄" + "해석 명제(Claim)").
@@ -69,6 +75,8 @@ function loveLines(b: Builder, f: SajuFacts, gender?: 'F' | 'M' | 'X') {
 
 export interface BuildOptions {
   gender?: 'F' | 'M' | 'X'; years?: number[]; yearPillar?: (year: number) => string;
+  /** R-002~R-005 결정론 엔진 결과. 주면 십성 비중 근사 명제 대신 판단 카드(cards.ts)를 쓴다. */
+  rules?: R002to005;
   /** 상담사가 승인한 규칙 ID. 기본값은 비어 있어 모든 명제가 DRAFT(검수 전)다. */
   approvedRuleIds?: ReadonlySet<string>;
 }
@@ -79,6 +87,26 @@ export function buildInterpretation(product: 'basic' | 'love_deep', f: SajuFacts
   const b = new Builder();
   const A = personLines(b, f, '', '나');
   let claims = buildPersonClaims(A, '', '나');
+  if (opts.rules) {
+    // 판단 카드로 교체: 십성 개수 기반 근사(R-CLM-AUTONOMY 등)와 그 사실 줄을 빼고, 기준서 규칙 결과를 넣는다
+    const cards = buildRuleCards(opts.rules);
+    if (cards.claims.length) {
+      b.lines = b.lines.filter((l) => !REPLACED_LINES.has(l.id)).concat(cards.lines);
+      b.evidence = b.evidence.concat(cards.evidence);
+      claims = claims.filter((c) => !REPLACED_RULES.has(c.ruleId) && !c.ruleId.startsWith('R-CLM-TENSION')).concat(cards.claims);
+      // 지지 합충: 천간합은 카드가 다루므로 빼고, 지지끼리의 짝만 쉬운 말로 다시 쓴다(존재만, 작용은 미판단)
+      const POSK: Record<string, string> = { 연지: '태어난 해', 월지: '태어난 달', 일지: '태어난 날', 시지: '태어난 시' };
+      const br = A.relations.map((x) => x.match(/^(연지|월지|일지|시지)\(.\)와 (연지|월지|일지|시지)\(.\)는 (충|육합)$/)).filter((m): m is RegExpMatchArray => !!m)
+        .map((m) => `${POSK[m[1]!]}·${POSK[m[2]!]} 자리의 ${m[3] === '충' ? '서로 부딪히는 짝' : '서로 묶이는 짝'}`);
+      const text = br.length ? `땅 쪽 자리끼리 ${br.join(', ')}이 있어요. 실제로 어떻게 작용하는지는 판단하지 않았어요.` : '땅 쪽 자리끼리 서로 부딪히거나 묶이는 짝은 뚜렷하지 않아요.';
+      b.lines = b.lines.map((l) => (l.id === 'relations' ? { ...l, text, anchors: ['짝'] } : l));
+      claims = claims.map((c) => (c.ruleId === 'R-CLM-RELATIONS' ? {
+        ...c, ruleId: 'SJ-BRANCH-PAIRS-DRAFT', stance: br.length ? 'CONTEXTUAL' : 'NONE', anchors: ['짝'],
+        thesis: br.length ? '땅 쪽 자리끼리 부딪히거나 묶이는 짝이 있어, 해당 자리와 관련된 일이나 관계에서 밀고 당기는 장면이 생길 여지가 있어요' : '땅 쪽 자리끼리 부딪히거나 묶이는 짝이 뚜렷하지 않아, 관계의 큰 출렁임은 적은 편으로 볼 수 있어요',
+        limitation: '짝이 있다는 사실일 뿐, 실제로 작용하는지와 그 세기는 판단하지 않았어요',
+      } : c));
+    }
+  }
   const limits = f.warnings.filter((w) => ['hour_pillar_unavailable', 'luck_cycles_unavailable', 'term_boundary_unverified', 'engine_unverified'].includes(w));
   const allowed = new Set<string>(pillarsOf(f).map(([, v]) => v));
 
