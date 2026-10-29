@@ -11,6 +11,7 @@ export type PaymentErrorCode =
   | "PAYMENTS_DISABLED"
   | "NOT_CONFIGURED"
   | "INVALID_PACK"
+  | "CONSENT_REQUIRED"
   | "ORDER_NOT_FOUND"
   | "FORBIDDEN"
   | "NOT_PAYABLE"
@@ -70,7 +71,7 @@ export interface OrderRow {
   status: string;
 }
 export interface OrdersApi {
-  createOrder(userId: string, coins: number): Promise<string>;
+  createOrder(userId: string, coins: number, consentVersion: string): Promise<string>;
   getOrder(orderId: string): Promise<OrderRow | null>;
   credit(
     orderId: string,
@@ -94,11 +95,13 @@ export function paymentsService(opts: {
     if (!opts.provider) throw new PaymentError("NOT_CONFIGURED");
   };
   return {
-    async createOrder(userId: string, coins: number) {
+    async createOrder(userId: string, coins: number, consentVersion: string) {
       guard();
+      if (!/^[A-Za-z0-9._-]{1,40}$/.test(consentVersion ?? ""))
+        throw new PaymentError("CONSENT_REQUIRED");
       if (!Number.isInteger(coins) || coins < 1 || coins > 4)
         throw new PaymentError("INVALID_PACK");
-      const orderId = await opts.api.createOrder(userId, coins);
+      const orderId = await opts.api.createOrder(userId, coins, consentVersion);
       return { orderId, coins, amountKrw: packAmount(coins), orderName: `엽전 ${coins}닢` };
     },
     async confirm(userId: string, orderId: string, paymentKey: string) {
@@ -126,10 +129,11 @@ export function paymentsService(opts: {
 /** service_role 클라이언트로 DB 함수를 부르는 구현. 반드시 admin.rpc(...) 메서드 호출 형태로 부른다(this 소실 방지). */
 export function supabaseOrdersApi(admin: AdminLike): OrdersApi {
   return {
-    async createOrder(userId, coins) {
+    async createOrder(userId, coins, consentVersion) {
       const { data, error } = await admin.rpc("create_coin_order", {
         p_user: userId,
         p_coins: coins,
+        p_consent_version: consentVersion,
       });
       if (error || typeof data !== "string")
         throw new PaymentError("INVALID_PACK", "주문을 만들지 못했어요.");

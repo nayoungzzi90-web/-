@@ -49,7 +49,7 @@ const coins = async (db: PGlite, n: number) => (await db.query<{ coins: number }
 const codeOf = async (db: PGlite, n: number) => (await db.query<{ code: string }>('SELECT code FROM public.invite_codes WHERE user_id = $1', [U(n)])).rows[0]!.code;
 const link = async (db: PGlite, n: number, code: string) => { await as(db, n); return (await db.query<{ ok: boolean }>('SELECT public.apply_invite($1) AS ok', [code])).rows[0]!.ok; };
 const spend = async (db: PGlite, id: string, cost: number) => (await db.query<{ b: number }>('SELECT public.spend_coins($1,$2) AS b', [id, cost])).rows[0]!.b;
-const order = async (db: PGlite, n: number, c = 1) => (await db.query<{ id: string }>('SELECT public.create_coin_order($1,$2) AS id', [U(n), c])).rows[0]!.id;
+const order = async (db: PGlite, n: number, c = 1) => (await db.query<{ id: string }>('SELECT public.create_coin_order($1,$2,$3) AS id', [U(n), c, 'test-v1'])).rows[0]!.id;
 let seq = 0;
 const credit = async (db: PGlite, orderId: string, amount?: number, pid?: string) => {
   const r = await db.query<{ r: Record<string, unknown> }>('SELECT public.credit_purchase($1,$2,$3,$4) AS r', [orderId, 'test', pid ?? `pay-${++seq}`, amount ?? null]);
@@ -125,6 +125,18 @@ describe('주문·결제 확정(credit_purchase)', () => {
     await expect(order(db, 1, 0)).rejects.toThrow(/INVALID_PACK/);
     await expect(order(db, 1, 5)).rejects.toThrow(/INVALID_PACK/);
     await expect(order(db, 999, 1)).rejects.toThrow(/UNKNOWN_USER/);
+    await db.close();
+  });
+
+  it('결제 전 동의: 약관·환불정책 버전이 없으면 주문을 만들 수 없고, 있으면 주문에 기록된다', async () => {
+    const db = await setup();
+    await setupUser(db, 1);
+    for (const bad of [null, '', '   ', 'x'.repeat(41)]) await expect(db.query('SELECT public.create_coin_order($1,1,$2)', [U(1), bad]), String(bad)).rejects.toThrow(/CONSENT_REQUIRED/);
+    expect((await one<{ n: number }>(db, 'SELECT count(*)::int AS n FROM public.coin_orders'))[0]!.n).toBe(0);
+    await db.query('SELECT public.create_coin_order($1,1,$2)', [U(1), '  2026-10-29-v1  ']);
+    const o = (await one<{ v: string; t: string }>(db, 'SELECT consent_version AS v, consented_at::text AS t FROM public.coin_orders'))[0]!;
+    expect(o.v).toBe('2026-10-29-v1'); // 앞뒤 공백 제거
+    expect(o.t).toBeTruthy();
     await db.close();
   });
 
@@ -334,7 +346,7 @@ describe('권한과 함수 설정', () => {
     await buy(db, 2, 2);
     for (const role of ['anon', 'authenticated']) {
       await db.exec(`SET ROLE ${role}`);
-      for (const q of [`SELECT public.create_coin_order('${U(1)}', 1)`, `SELECT public.credit_purchase('${U(1)}', 'x', 'y', 900)`, `SELECT public.refund_purchase('x', 'y')`,
+      for (const q of [`SELECT public.create_coin_order('${U(1)}', 1, 'x')`, `SELECT public.credit_purchase('${U(1)}', 'x', 'y', 900)`, `SELECT public.refund_purchase('x', 'y')`,
         'SELECT * FROM public.coin_orders', 'SELECT * FROM public.coin_purchases', 'SELECT * FROM public.referrals'])
         await expect(db.query(q), `${role}: ${q}`).rejects.toThrow(/permission denied/);
       await db.exec('RESET ROLE');
@@ -357,7 +369,7 @@ describe('권한과 함수 설정', () => {
     const fns = await one<{ proname: string; cfg: string[]; secdef: boolean }>(db, `SELECT p.proname, p.proconfig AS cfg, p.prosecdef AS secdef FROM pg_proc p WHERE p.pronamespace='public'::regnamespace AND p.proname IN ('ensure_user_setup','apply_invite','spend_coins','create_coin_order','credit_purchase','refund_purchase')`);
     expect(fns).toHaveLength(6);
     for (const f of fns) { expect(f.secdef, f.proname).toBe(true); expect(f.cfg, f.proname).toContain('search_path=""'); }
-    for (const sig of ['public.create_coin_order(uuid,integer)', 'public.credit_purchase(uuid,text,text,integer)', 'public.refund_purchase(text,text)']) {
+    for (const sig of ['public.create_coin_order(uuid,integer,text)', 'public.credit_purchase(uuid,text,text,integer)', 'public.refund_purchase(text,text)']) {
       const p = (await one<{ a: boolean; u: boolean; s: boolean }>(db, `SELECT has_function_privilege('anon', '${sig}', 'EXECUTE') AS a, has_function_privilege('authenticated', '${sig}', 'EXECUTE') AS u, has_function_privilege('service_role', '${sig}', 'EXECUTE') AS s`))[0]!;
       expect(p, sig).toEqual({ a: false, u: false, s: true });
     }

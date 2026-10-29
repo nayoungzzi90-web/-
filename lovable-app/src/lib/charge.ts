@@ -15,6 +15,7 @@ export function chargeErrorKo(message: string | undefined): string {
   const m = message ?? "";
   if (m.includes("PAYMENTS_DISABLED") || m.includes("NOT_CONFIGURED"))
     return "결제는 아직 준비 중이에요.";
+  if (m.includes("CONSENT_REQUIRED")) return "이용약관과 환불정책에 동의해 주세요.";
   if (m.includes("AMOUNT_MISMATCH"))
     return "결제 금액이 맞지 않아 취소됐어요. 잠시 후 다시 시도해 주세요.";
   if (m.includes("PROVIDER_REJECTED")) return "결제가 승인되지 않았어요.";
@@ -34,7 +35,7 @@ export function newSandboxPaymentKey(): string {
 
 export interface ChargeDeps {
   createOrder(input: {
-    data: { coins: number };
+    data: { coins: number; consentVersion: string };
   }): Promise<{ orderId: string; coins: number; amountKrw: number; orderName: string }>;
   confirmOrder(input: { data: { orderId: string; paymentKey: string } }): Promise<{
     credited: boolean;
@@ -48,9 +49,13 @@ export type ChargeResult =
   { ok: true; balance: number | null; coins: number } | { ok: false; message: string };
 
 /** 팩 하나를 충전한다: 주문 생성 → (sandbox 승인) → 확정. 금액은 서버가 정하므로 클라이언트는 팩 크기만 보낸다. */
-export async function runCharge(coins: number, deps: ChargeDeps): Promise<ChargeResult> {
+export async function runCharge(
+  coins: number,
+  consentVersion: string,
+  deps: ChargeDeps,
+): Promise<ChargeResult> {
   try {
-    const order = await deps.createOrder({ data: { coins } });
+    const order = await deps.createOrder({ data: { coins, consentVersion } });
     const r = await deps.confirmOrder({
       data: { orderId: order.orderId, paymentKey: (deps.paymentKey ?? newSandboxPaymentKey)() },
     });

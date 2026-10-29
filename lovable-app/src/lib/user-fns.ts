@@ -122,11 +122,17 @@ export const applyInvite = createServerFn({ method: "POST" })
 export const createCoinOrder = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
-    z.object({ coins: z.number().int().min(1).max(4) }).parse(input),
+    z
+      .object({ coins: z.number().int().min(1).max(4), consentVersion: z.string().min(1).max(40) })
+      .parse(input),
   )
   .handler(async ({ data, context }) => {
     const { buildPaymentsService } = await import("./payments.server");
-    return (await buildPaymentsService()).createOrder(context.userId, data.coins);
+    return (await buildPaymentsService()).createOrder(
+      context.userId,
+      data.coins,
+      data.consentVersion,
+    );
   });
 
 export const confirmCoinOrder = createServerFn({ method: "POST" })

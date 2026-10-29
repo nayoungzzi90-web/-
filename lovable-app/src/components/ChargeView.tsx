@@ -7,6 +7,8 @@ export function ChargeView({
   status,
   busyCoins,
   message,
+  consented,
+  onConsentChange,
   onBuy,
 }: {
   signedIn: boolean;
@@ -14,6 +16,8 @@ export function ChargeView({
   status: PaymentsStatus | null;
   busyCoins: number | null;
   message: string;
+  consented: boolean;
+  onConsentChange: (v: boolean) => void;
   onBuy: (coins: number) => void;
 }) {
   const available = !!status?.available;
@@ -52,23 +56,43 @@ export function ChargeView({
           </a>
         </div>
       ) : (
-        <ul className="mt-4 space-y-2" aria-label="충전 팩">
-          {PACKS.map((p) => (
-            <li key={p.coins} className="card-hanji flex items-center justify-between p-4">
-              <div>
-                <p className="font-serif font-bold">{p.label}</p>
-                <p className="text-sm text-muted-foreground">{p.price}</p>
-              </div>
-              <button
-                className="rounded-full bg-primary px-5 py-2 font-bold text-primary-foreground disabled:bg-muted disabled:text-muted-foreground"
-                disabled={!available || busyCoins !== null}
-                onClick={() => onBuy(p.coins)}
-              >
-                {busyCoins === p.coins ? "처리 중…" : "충전하기"}
-              </button>
-            </li>
-          ))}
-        </ul>
+        <>
+          <label className="card-hanji mt-4 flex items-start gap-2 p-4 text-sm leading-relaxed">
+            <input
+              type="checkbox"
+              className="mt-1"
+              checked={consented}
+              onChange={(e) => onConsentChange(e.target.checked)}
+            />
+            <span>
+              <a href="/terms" className="underline">
+                이용약관
+              </a>
+              과{" "}
+              <a href="/refund" className="underline">
+                환불정책
+              </a>
+              을 확인했고, <b>엽전을 사용(풀이 열람)한 뒤에는 환불이 어려울 수 있음</b>에 동의해요.
+            </span>
+          </label>
+          <ul className="mt-4 space-y-2" aria-label="충전 팩">
+            {PACKS.map((p) => (
+              <li key={p.coins} className="card-hanji flex items-center justify-between p-4">
+                <div>
+                  <p className="font-serif font-bold">{p.label}</p>
+                  <p className="text-sm text-muted-foreground">{p.price}</p>
+                </div>
+                <button
+                  className="rounded-full bg-primary px-5 py-2 font-bold text-primary-foreground disabled:bg-muted disabled:text-muted-foreground"
+                  disabled={!available || !consented || busyCoins !== null}
+                  onClick={() => onBuy(p.coins)}
+                >
+                  {busyCoins === p.coins ? "처리 중…" : "충전하기"}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </>
       )}
       {message && (
         <p role="alert" className="mt-3 text-center text-sm">

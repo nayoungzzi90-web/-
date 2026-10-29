@@ -21,6 +21,9 @@ import { Route as InviteRouteImport } from './routes/invite'
 import { Route as LedgerRouteImport } from './routes/ledger'
 import { Route as LoveRouteImport } from './routes/love'
 import { Route as MyRouteImport } from './routes/my'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as RefundRouteImport } from './routes/refund'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as TodayRouteImport } from './routes/today'
 
 const IndexRoute = IndexRouteImport.update({
@@ -83,6 +86,21 @@ const MyRoute = MyRouteImport.update({
   path: '/my',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RefundRoute = RefundRouteImport.update({
+  id: '/refund',
+  path: '/refund',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TodayRoute = TodayRouteImport.update({
   id: '/today',
   path: '/today',
@@ -102,6 +120,9 @@ export interface FileRoutesByFullPath {
   '/ledger': typeof LedgerRoute
   '/love': typeof LoveRoute
   '/my': typeof MyRoute
+  '/privacy': typeof PrivacyRoute
+  '/refund': typeof RefundRoute
+  '/terms': typeof TermsRoute
   '/today': typeof TodayRoute
 }
 export interface FileRoutesByTo {
@@ -117,6 +138,9 @@ export interface FileRoutesByTo {
   '/ledger': typeof LedgerRoute
   '/love': typeof LoveRoute
   '/my': typeof MyRoute
+  '/privacy': typeof PrivacyRoute
+  '/refund': typeof RefundRoute
+  '/terms': typeof TermsRoute
   '/today': typeof TodayRoute
 }
 export interface FileRoutesById {
@@ -133,6 +157,9 @@ export interface FileRoutesById {
   '/ledger': typeof LedgerRoute
   '/love': typeof LoveRoute
   '/my': typeof MyRoute
+  '/privacy': typeof PrivacyRoute
+  '/refund': typeof RefundRoute
+  '/terms': typeof TermsRoute
   '/today': typeof TodayRoute
 }
 export interface FileRouteTypes {
@@ -150,6 +177,9 @@ export interface FileRouteTypes {
     | '/ledger'
     | '/love'
     | '/my'
+    | '/privacy'
+    | '/refund'
+    | '/terms'
     | '/today'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -165,6 +195,9 @@ export interface FileRouteTypes {
     | '/ledger'
     | '/love'
     | '/my'
+    | '/privacy'
+    | '/refund'
+    | '/terms'
     | '/today'
   id:
     | '__root__'
@@ -180,6 +213,9 @@ export interface FileRouteTypes {
     | '/ledger'
     | '/love'
     | '/my'
+    | '/privacy'
+    | '/refund'
+    | '/terms'
     | '/today'
   fileRoutesById: FileRoutesById
 }
@@ -196,6 +232,9 @@ export interface RootRouteChildren {
   LedgerRoute: typeof LedgerRoute
   LoveRoute: typeof LoveRoute
   MyRoute: typeof MyRoute
+  PrivacyRoute: typeof PrivacyRoute
+  RefundRoute: typeof RefundRoute
+  TermsRoute: typeof TermsRoute
   TodayRoute: typeof TodayRoute
 }
 
@@ -285,6 +324,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/refund': {
+      id: '/refund'
+      path: '/refund'
+      fullPath: '/refund'
+      preLoaderRoute: typeof RefundRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/today': {
       id: '/today'
       path: '/today'
@@ -308,6 +368,9 @@ const rootRouteChildren: RootRouteChildren = {
   LedgerRoute: LedgerRoute,
   LoveRoute: LoveRoute,
   MyRoute: MyRoute,
+  PrivacyRoute: PrivacyRoute,
+  RefundRoute: RefundRoute,
+  TermsRoute: TermsRoute,
   TodayRoute: TodayRoute,
 }
 export const routeTree = rootRouteImport

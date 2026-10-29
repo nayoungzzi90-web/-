@@ -37,6 +37,19 @@ export function Shell({ children, title }: { children: ReactNode; title?: string
         )}
       </header>
       <main className="px-4 py-5">{children}</main>
+      <footer className="px-4 pb-4 text-center text-[11px] text-muted-foreground">
+        <Link to="/terms" className="underline">
+          이용약관
+        </Link>
+        {" · "}
+        <Link to="/refund" className="underline">
+          환불정책
+        </Link>
+        {" · "}
+        <Link to="/privacy" className="underline">
+          개인정보처리방침
+        </Link>
+      </footer>
       <nav
         aria-label="주요 메뉴"
         className="fixed inset-x-0 bottom-0 z-10 mx-auto flex max-w-md justify-around border-t border-border bg-card py-2"

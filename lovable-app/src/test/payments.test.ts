@@ -20,8 +20,8 @@ function fakeApi(over: Partial<OrdersApi> = {}) {
   const calls: { fn: string; args: unknown[] }[] = [];
   const orders = new Map<string, OrderRow>();
   const api: OrdersApi = {
-    async createOrder(userId, coins) {
-      calls.push({ fn: "createOrder", args: [userId, coins] });
+    async createOrder(userId, coins, consent) {
+      calls.push({ fn: "createOrder", args: [userId, coins, consent] });
       const id = `order-${orders.size + 1}`;
       orders.set(id, { userId, coins, amountKrw: coins * COIN_KRW, status: "created" });
       return id;
@@ -49,7 +49,9 @@ describe("결제 모드", () => {
   it("disabled 면 주문·확정 모두 거부하고 DB 를 건드리지 않는다", async () => {
     const f = fakeApi();
     const svc = paymentsService({ mode: "disabled", provider: new SandboxProvider(), api: f.api });
-    await expect(svc.createOrder("u1", 1)).rejects.toMatchObject({ code: "PAYMENTS_DISABLED" });
+    await expect(svc.createOrder("u1", 1, "v1")).rejects.toMatchObject({
+      code: "PAYMENTS_DISABLED",
+    });
     await expect(svc.confirm("u1", "order-1", "sandbox_abcd")).rejects.toMatchObject({
       code: "PAYMENTS_DISABLED",
     });
@@ -59,7 +61,7 @@ describe("결제 모드", () => {
   it("live 인데 실제 PG 구현이 없으면 NOT_CONFIGURED(실제 결제 불가)", async () => {
     const f = fakeApi();
     const svc = paymentsService({ mode: "live", provider: null, api: f.api });
-    await expect(svc.createOrder("u1", 1)).rejects.toMatchObject({ code: "NOT_CONFIGURED" });
+    await expect(svc.createOrder("u1", 1, "v1")).rejects.toMatchObject({ code: "NOT_CONFIGURED" });
     expect(f.calls).toEqual([]);
   });
 });
@@ -68,17 +70,19 @@ describe("주문·확정 흐름(sandbox)", () => {
   it("팩은 1~4닢, 금액은 서버가 900원 단위로 계산해 돌려준다", async () => {
     const f = fakeApi();
     const svc = paymentsService({ mode: "sandbox", provider: new SandboxProvider(), api: f.api });
-    const r = await svc.createOrder("u1", 3);
+    const r = await svc.createOrder("u1", 3, "v1");
     expect(r).toEqual({ orderId: "order-1", coins: 3, amountKrw: 2700, orderName: "엽전 3닢" });
     for (const bad of [0, 5, 1.5, -1, Number.NaN])
-      await expect(svc.createOrder("u1", bad)).rejects.toMatchObject({ code: "INVALID_PACK" });
+      await expect(svc.createOrder("u1", bad, "v1")).rejects.toMatchObject({
+        code: "INVALID_PACK",
+      });
     expect(PRODUCTS.basic.coins * COIN_KRW).toBe(900);
   });
 
   it("확정: 주문 금액 그대로 승인 → 충전 1회. 다른 사람의 주문은 FORBIDDEN, 없는 주문은 ORDER_NOT_FOUND", async () => {
     const f = fakeApi();
     const svc = paymentsService({ mode: "sandbox", provider: new SandboxProvider(), api: f.api });
-    const { orderId } = await svc.createOrder("u1", 2);
+    const { orderId } = await svc.createOrder("u1", 2, "v1");
     await expect(svc.confirm("u2", orderId, "sandbox_abcd1234")).rejects.toMatchObject({
       code: "FORBIDDEN",
     });
@@ -96,10 +100,22 @@ describe("주문·확정 흐름(sandbox)", () => {
     ]);
   });
 
+  it("약관 동의 버전이 없거나 이상하면 주문을 만들지 않는다(CONSENT_REQUIRED)", async () => {
+    const f = fakeApi();
+    const svc = paymentsService({ mode: "sandbox", provider: new SandboxProvider(), api: f.api });
+    for (const bad of ["", " ", "a".repeat(41), "v 1", "v1;drop", undefined as unknown as string])
+      await expect(svc.createOrder("u1", 1, bad), String(bad)).rejects.toMatchObject({
+        code: "CONSENT_REQUIRED",
+      });
+    expect(f.calls).toEqual([]);
+    await svc.createOrder("u1", 1, "draft-2026-10-29");
+    expect(f.calls[0]).toEqual({ fn: "createOrder", args: ["u1", 1, "draft-2026-10-29"] });
+  });
+
   it("PG 가 거절(잘못된 paymentKey)하면 충전하지 않는다", async () => {
     const f = fakeApi();
     const svc = paymentsService({ mode: "sandbox", provider: new SandboxProvider(), api: f.api });
-    const { orderId } = await svc.createOrder("u1", 1);
+    const { orderId } = await svc.createOrder("u1", 1, "v1");
     await expect(svc.confirm("u1", orderId, "real_key_123")).rejects.toMatchObject({
       code: "PROVIDER_REJECTED",
     });
@@ -116,7 +132,7 @@ describe("주문·확정 흐름(sandbox)", () => {
       }),
     };
     const svc = paymentsService({ mode: "sandbox", provider: cheat, api: f.api });
-    const { orderId } = await svc.createOrder("u1", 3);
+    const { orderId } = await svc.createOrder("u1", 3, "v1");
     await expect(svc.confirm("u1", orderId, "sandbox_abcd")).rejects.toMatchObject({
       code: "AMOUNT_MISMATCH",
     });
@@ -126,7 +142,7 @@ describe("주문·확정 흐름(sandbox)", () => {
   it("저장된 주문 금액이 팩 가격과 다르거나 취소된 주문이면 중단", async () => {
     const f = fakeApi();
     const svc = paymentsService({ mode: "sandbox", provider: new SandboxProvider(), api: f.api });
-    const { orderId } = await svc.createOrder("u1", 2);
+    const { orderId } = await svc.createOrder("u1", 2, "v1");
     f.orders.get(orderId)!.amountKrw = 100;
     await expect(svc.confirm("u1", orderId, "sandbox_abcd")).rejects.toMatchObject({
       code: "AMOUNT_MISMATCH",
@@ -173,12 +189,13 @@ describe("supabaseOrdersApi (실제 supabase-js → 가짜 PostgREST)", () => {
   it("create_coin_order·credit_purchase 를 올바른 경로·본문으로 호출하고 결과를 직렬화 가능한 모양으로 돌려준다", async () => {
     const api = supabaseOrdersApi(admin);
     replies["/rest/v1/rpc/create_coin_order"] = "11111111-1111-4111-8111-111111111111";
-    expect(await api.createOrder("22222222-2222-4222-8222-222222222222", 2)).toBe(
+    expect(await api.createOrder("22222222-2222-4222-8222-222222222222", 2, "v1")).toBe(
       "11111111-1111-4111-8111-111111111111",
     );
     expect(JSON.parse(seen.at(-1)!.body)).toEqual({
       p_user: "22222222-2222-4222-8222-222222222222",
       p_coins: 2,
+      p_consent_version: "v1",
     });
 
     replies["/rest/v1/rpc/credit_purchase"] = {

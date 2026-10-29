@@ -18,3 +18,4 @@ KASI_KEY='발급받은 일반 인증키(Decoding)' node scripts/kasi-verify.mjs 
 - `PAYMENTS_MODE` = `disabled`(기본) | `sandbox`(가짜 승인, 테스트) | `live`(실제 PG — 아직 구현 없음, NOT_CONFIGURED)
 - `ACCOUNT_DELETION_ENABLED` = `true` 일 때만 회원 탈퇴가 실제로 동작(정책 승인 전까지 켜지 않는다)
 - `RATE_LIMIT_PEPPER`(32자 이상), `TRUSTED_CLIENT_IP_HEADER`(프록시 검증 전 설정 금지) — `docs/R015_*` 참고
+- `VITE_LEGAL_APPROVED` = `true`(빌드 시) 일 때만 운영 빌드에 약관·정책 본문 포함(법무 검토 승인 후). 기본은 비어 있어 본문이 번들에 들어가지 않는다.

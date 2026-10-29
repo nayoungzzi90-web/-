@@ -132,9 +132,9 @@ describe("runCharge (주문 → 확정)", () => {
   });
   it("팩 크기만 서버로 보내고(금액 안 보냄), 승인 키로 확정한다", async () => {
     const d = ok();
-    const r = await runCharge(2, d);
+    const r = await runCharge(2, "v1", d);
     expect(r).toEqual({ ok: true, balance: 2, coins: 2 });
-    expect(d.createOrder).toHaveBeenCalledWith({ data: { coins: 2 } });
+    expect(d.createOrder).toHaveBeenCalledWith({ data: { coins: 2, consentVersion: "v1" } });
     expect(d.confirmOrder).toHaveBeenCalledWith({
       data: { orderId: "o1", paymentKey: "sandbox_testkey123" },
     });
@@ -144,7 +144,7 @@ describe("runCharge (주문 → 확정)", () => {
     d.createOrder = vi.fn(async () => {
       throw new Error("PAYMENTS_DISABLED");
     });
-    const r = await runCharge(1, d);
+    const r = await runCharge(1, "v1", d);
     expect(r).toMatchObject({ ok: false });
     expect((r as { message: string }).message).toContain("준비 중");
     expect(d.confirmOrder).not.toHaveBeenCalled();
@@ -154,13 +154,20 @@ describe("runCharge (주문 → 확정)", () => {
     d.confirmOrder = vi.fn(async () => {
       throw new Error("AMOUNT_MISMATCH");
     });
-    const r = await runCharge(3, d);
+    const r = await runCharge(3, "v1", d);
     expect((r as { message: string }).message).toContain("금액");
   });
 });
 
 describe("ChargeView", () => {
-  const base = { coins: 2, busyCoins: null, message: "", onBuy: () => {} };
+  const base = {
+    coins: 2,
+    busyCoins: null,
+    message: "",
+    consented: true,
+    onConsentChange: () => {},
+    onBuy: () => {},
+  };
   it("결제 준비 전(disabled): 안내 문구, 충전 버튼은 모두 비활성", () => {
     render(<ChargeView {...base} signedIn status={{ mode: "disabled", available: false }} />);
     expect(screen.getByText(/결제는 아직 준비 중/)).toBeInTheDocument();
@@ -179,6 +186,25 @@ describe("ChargeView", () => {
     btns.forEach((b) => expect(b).toBeEnabled());
     fireEvent.click(btns[2]!);
     expect(onBuy).toHaveBeenCalledWith(3);
+  });
+  it("약관·환불정책에 동의하기 전에는 모든 충전 버튼이 잠기고, 체크하면 풀린다", () => {
+    const onConsentChange = vi.fn();
+    render(
+      <ChargeView
+        {...base}
+        consented={false}
+        onConsentChange={onConsentChange}
+        signedIn
+        status={{ mode: "sandbox", available: true }}
+      />,
+    );
+    expect(host!.textContent).toContain("환불이 어려울 수 있음");
+    expect(q("a").map((a) => a.getAttribute("href"))).toEqual(
+      expect.arrayContaining(["/terms", "/refund"]),
+    );
+    screen.getAllByRole("button", { name: "충전하기" }).forEach((b) => expect(b).toBeDisabled());
+    fireEvent.click(q("input[type=checkbox]")[0]!);
+    expect(onConsentChange).toHaveBeenCalledWith(true);
   });
   it("처리 중에는 다른 팩 버튼도 잠근다", () => {
     render(

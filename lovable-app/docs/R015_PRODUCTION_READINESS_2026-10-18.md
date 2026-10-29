@@ -48,3 +48,4 @@
 - 택일(`taekil:YYYY-MM-DD`) id 형식은 예약값이며 상품 설계 시 확정한다.
 - 로그인 후 이동 경로(`?next=`)는 같은 사이트 안의 경로만 허용하도록 정리(`safe-next.ts`).
 - (2026-10-29) 환불 규칙 보강: 엽전이 한 개의 잔액이라 "잔액 ≥ 충전량"만 확인하면, 이미 풀이를 연 결제도 보상 엽전이 섞인 잔액으로 환불될 수 있었다. `refund_purchase` 는 이제 그 결제 이후 풀이 열람(spend)이 한 번이라도 있으면 자동 환불하지 않는다(수동 처리). 변이 시험으로 확인. 환불 기간(7일 등)은 정책 확정 후 추가.
+- (2026-10-29) 결제 전 동의 기록: `create_coin_order(p_user, p_coins, p_consent_version)` — 동의 버전이 없으면 `CONSENT_REQUIRED`, 있으면 `coin_orders.consent_version/consented_at` 에 기록(사용 개시 후 환불 제한 고지의 근거). 앱은 동의 체크 전에는 충전 버튼을 잠근다.

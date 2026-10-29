@@ -43,7 +43,7 @@ const member = async (db: PGlite, id: number, createdAgo = '0 minutes') => {
 };
 let seq = 0;
 const buy = async (db: PGlite, id: number, coins: number) => {
-  const oid = (await one<{ id: string }>(db, 'SELECT public.create_coin_order($1,$2) AS id', [U(id), coins]))[0]!.id;
+  const oid = (await one<{ id: string }>(db, 'SELECT public.create_coin_order($1,$2,$3) AS id', [U(id), coins, 'test-v1']))[0]!.id;
   return (await one<{ r: Record<string, unknown> }>(db, 'SELECT public.credit_purchase($1,$2,$3,$4) AS r', [oid, 'test', `pay-${++seq}`, coins * 900]))[0]!.r;
 };
 const del = async (db: PGlite, id: number, forfeit = false) => (await one<{ r: Record<string, unknown> }>(db, 'SELECT public.delete_member_data($1,$2) AS r', [U(id), forfeit]))[0]!.r;
@@ -100,7 +100,7 @@ describe('delete_member_data', () => {
     await member(db, 2);
     const code = (await one<{ code: string }>(db, 'SELECT code FROM public.invite_codes WHERE user_id=$1', [U(100)]))[0]!.code;
     await as(db, 1); await db.query('SELECT public.apply_invite($1)', [code]); // 1 → 100 대기 연결
-    await db.query('SELECT public.create_coin_order($1, 1)', [U(1)]); // 결제 대기 주문
+    await db.query('SELECT public.create_coin_order($1, 1, $2)', [U(1), 'test-v1']); // 결제 대기 주문
     // 초대자(100)가 아니라 초대받은 사람(1)이 탈퇴: 연결 삭제 + 주문 취소
     await del(db, 1);
     expect(await n(db, 'referrals', 1, 'invitee_id')).toBe(0);
@@ -117,7 +117,7 @@ describe('delete_member_data', () => {
   it('탈퇴 사용자가 결제 대기 중이던 주문은 이후 승인이 와도 충전되지 않는다', async () => {
     const db = await setup();
     await member(db, 1);
-    const oid = (await one<{ id: string }>(db, 'SELECT public.create_coin_order($1,2) AS id', [U(1)]))[0]!.id;
+    const oid = (await one<{ id: string }>(db, 'SELECT public.create_coin_order($1,2,$2) AS id', [U(1), 'test-v1']))[0]!.id;
     await del(db, 1);
     await expect(db.query('SELECT public.credit_purchase($1,$2,$3,$4)', [oid, 'test', 'late-pay', 1800])).rejects.toThrow(/ORDER_NOT_PAYABLE/);
     expect(await n(db, 'wallets', 1)).toBe(0);

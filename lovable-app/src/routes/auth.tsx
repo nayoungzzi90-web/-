@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { Shell } from "@/components/Shell";
 import { safeNext } from "@/lib/safe-next";
+import { passwordProblem } from "@/lib/password-policy";
 
 export const Route = createFileRoute("/auth")({
   validateSearch: (s: Record<string, unknown>): { ref?: string; next?: string } => ({
@@ -30,7 +31,7 @@ function errorKo(msg: string) {
   if (msg.includes("Invalid login credentials")) return "이메일 또는 비밀번호가 올바르지 않아요.";
   if (msg.includes("already registered")) return "이미 가입된 이메일이에요. 로그인해 주세요.";
   if (msg.includes("not confirmed")) return "이메일 확인 후 다시 로그인해 주세요.";
-  if (msg.toLowerCase().includes("password")) return "비밀번호는 6자 이상이어야 해요.";
+  if (msg.toLowerCase().includes("password")) return "비밀번호 조건을 확인해 주세요(8자 이상).";
   if (msg.toLowerCase().includes("rate limit"))
     return "너무 많이 시도했어요. 잠시 후 다시 해 주세요.";
   return "로그인에 문제가 생겼어요. 다시 시도해 주세요.";
@@ -53,6 +54,10 @@ function AuthPage() {
   const submit = async (e: FormEvent) => {
     e.preventDefault();
     if (!email || !password) return setErr("이메일과 비밀번호를 입력해 주세요.");
+    if (mode === "signup") {
+      const problem = passwordProblem(password, email);
+      if (problem) return setErr(problem);
+    }
     setErr("");
     setBusy(true);
     try {

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Shell } from "@/components/Shell";
 import { ChargeView } from "@/components/ChargeView";
 import { runCharge, type PaymentsStatus } from "@/lib/charge";
+import { LEGAL_VERSION } from "@/lib/legal";
 import { setStore, useStore } from "@/lib/store";
 import { confirmCoinOrder, createCoinOrder, getMyData, getPaymentsStatus } from "@/lib/user-fns";
 
@@ -23,6 +24,7 @@ function ChargePage() {
   const { signedIn, coins } = useStore();
   const [busy, setBusy] = useState<number | null>(null);
   const [message, setMessage] = useState("");
+  const [consented, setConsented] = useState(false);
   const { data: status } = useQuery<PaymentsStatus>({
     queryKey: ["payments-status"],
     queryFn: () => getPaymentsStatus(),
@@ -31,7 +33,10 @@ function ChargePage() {
   const buy = async (n: number) => {
     setBusy(n);
     setMessage("");
-    const r = await runCharge(n, { createOrder: createCoinOrder, confirmOrder: confirmCoinOrder });
+    const r = await runCharge(n, LEGAL_VERSION, {
+      createOrder: createCoinOrder,
+      confirmOrder: confirmCoinOrder,
+    });
     if (r.ok) {
       try {
         const d = await getMyData();
@@ -52,6 +57,8 @@ function ChargePage() {
         status={status ?? null}
         busyCoins={busy}
         message={message}
+        consented={consented}
+        onConsentChange={setConsented}
         onBuy={buy}
       />
     </Shell>

@@ -18,6 +18,8 @@ CREATE TABLE IF NOT EXISTS public.coin_orders (
   coins               integer     NOT NULL CHECK (coins BETWEEN 1 AND 4),             -- 팩: 1~4닢(900/1,800/2,700/3,600원)
   amount_krw          integer     NOT NULL CHECK (amount_krw = coins * 900),
   status              text        NOT NULL DEFAULT 'created' CHECK (status IN ('created', 'paid', 'canceled', 'failed')),
+  consent_version     text        NOT NULL CHECK (length(consent_version) BETWEEN 1 AND 40),   -- 결제 전에 동의한 약관·환불정책 버전(사용 개시 후 환불 제한 고지의 근거)
+  consented_at        timestamptz NOT NULL DEFAULT now(),
   provider            text,
   provider_payment_id text,
   created_at          timestamptz NOT NULL DEFAULT now(),
@@ -144,16 +146,18 @@ END;
 $$;
 
 -- ───────────── 함수: 서버(service_role) 전용 ─────────────
+-- 주문 생성: 금액은 팩 크기에서 서버가 계산하고, 결제 전에 동의한 약관·환불정책 버전을 함께 기록한다(동의 없으면 CONSENT_REQUIRED).
 -- 주문 생성: 금액은 팩 크기에서 서버가 계산한다. 로그인 확인은 서버 함수가 JWT 로 한 뒤 사용자 id 를 넘긴다.
-CREATE OR REPLACE FUNCTION public.create_coin_order(p_user uuid, p_coins integer)
+CREATE OR REPLACE FUNCTION public.create_coin_order(p_user uuid, p_coins integer, p_consent_version text)
 RETURNS uuid LANGUAGE plpgsql SECURITY DEFINER SET search_path = '' AS $$
 DECLARE v_id uuid;
 BEGIN
   IF p_user IS NULL OR NOT EXISTS (SELECT 1 FROM auth.users WHERE id = p_user) THEN RAISE EXCEPTION 'UNKNOWN_USER'; END IF;
   IF p_coins IS NULL OR p_coins < 1 OR p_coins > 4 THEN RAISE EXCEPTION 'INVALID_PACK'; END IF;
+  IF p_consent_version IS NULL OR length(btrim(p_consent_version)) = 0 OR length(p_consent_version) > 40 THEN RAISE EXCEPTION 'CONSENT_REQUIRED'; END IF;
   IF (SELECT count(*) FROM public.coin_orders WHERE user_id = p_user AND status = 'created' AND created_at > now() - interval '1 hour') >= 20
     THEN RAISE EXCEPTION 'TOO_MANY_ORDERS'; END IF;
-  INSERT INTO public.coin_orders (user_id, coins, amount_krw) VALUES (p_user, p_coins, p_coins * 900) RETURNING id INTO v_id;
+  INSERT INTO public.coin_orders (user_id, coins, amount_krw, consent_version) VALUES (p_user, p_coins, p_coins * 900, btrim(p_consent_version)) RETURNING id INTO v_id;
   RETURN v_id;
 END;
 $$;
@@ -260,9 +264,9 @@ END;
 $$;
 
 -- ───────────── 권한 ─────────────
-REVOKE ALL ON FUNCTION public.create_coin_order(uuid, integer), public.credit_purchase(uuid, text, text, integer), public.refund_purchase(text, text)
+REVOKE ALL ON FUNCTION public.create_coin_order(uuid, integer, text), public.credit_purchase(uuid, text, text, integer), public.refund_purchase(text, text)
   FROM PUBLIC, anon, authenticated;
-GRANT EXECUTE ON FUNCTION public.create_coin_order(uuid, integer), public.credit_purchase(uuid, text, text, integer), public.refund_purchase(text, text)
+GRANT EXECUTE ON FUNCTION public.create_coin_order(uuid, integer, text), public.credit_purchase(uuid, text, text, integer), public.refund_purchase(text, text)
   TO service_role;
 -- 아래 세 함수는 CREATE OR REPLACE 로 교체했으므로 기존 ACL 이 유지된다(적용 후 재조회로 확인):
 --   ensure_user_setup(), apply_invite(text), spend_coins(text, integer) → authenticated·service_role 실행 가능, anon 불가
