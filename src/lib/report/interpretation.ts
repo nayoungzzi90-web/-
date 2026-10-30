@@ -4,7 +4,7 @@ import { analyzeChart, analyzeLove, analyzeYear, bko, ELEMENTS, GOD_LOVE, GOD_TR
 import { applyApprovals, buildCompatClaims, buildLoveClaims, buildPersonClaims, buildYearClaims, detectConflicts, luckMissingClaim } from './claims';
 import type { EvidenceItem, FactLine, InterpretationFacts, ProductKey, Subject } from './types';
 import type { R002to005 } from '../../../engine/saju-rules/src';
-import { buildRuleCards } from './cards';
+import { buildRuleCards, CARD_TEXT } from './cards';
 
 /** 판단 카드가 대신하는 옛 명제 규칙·사실 줄 */
 const REPLACED_RULES = new Set(['R-CLM-AUTONOMY', 'R-CLM-EXPRESSION', 'R-CLM-PRACTICALITY', 'R-CLM-STRUCTURE', 'R-CLM-SUPPORT', 'R-CLM-POWER', 'R-CLM-SEASON']);
@@ -102,8 +102,9 @@ export function buildInterpretation(product: 'basic' | 'love_deep', f: SajuFacts
       b.lines = b.lines.map((l) => (l.id === 'relations' ? { ...l, text, anchors: ['짝'] } : l));
       claims = claims.map((c) => (c.ruleId === 'R-CLM-RELATIONS' ? {
         ...c, ruleId: 'SJ-BRANCH-PAIRS-DRAFT', stance: br.length ? 'CONTEXTUAL' : 'NONE', anchors: ['짝'],
-        thesis: br.length ? '땅 쪽 자리끼리 부딪히거나 묶이는 짝이 있어, 해당 자리와 관련된 일이나 관계에서 밀고 당기는 장면이 생길 여지가 있어요' : '땅 쪽 자리끼리 부딪히거나 묶이는 짝이 뚜렷하지 않아, 관계의 큰 출렁임은 적은 편으로 볼 수 있어요',
-        limitation: '짝이 있다는 사실일 뿐, 실제로 작용하는지와 그 세기는 판단하지 않았어요',
+        thesis: br.length ? CARD_TEXT.branchPairs.present : CARD_TEXT.branchPairs.absent,
+        condition: br.length ? CARD_TEXT.branchPairs.presentCondition : CARD_TEXT.branchPairs.absentCondition,
+        limitation: br.length ? CARD_TEXT.branchPairs.limitation : CARD_TEXT.branchPairs.absentLimitation,
       } : c));
     }
   }

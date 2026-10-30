@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { calculate } from '../../../engine/manse/src/engine';
 import { toSajuFacts } from '../../../engine/manse/src/adapter';
 import { analyzeR002toR005, fromManse } from '../../../engine/saju-rules/src';
-import { buildRuleCards } from './cards';
+import { buildRuleCards, cardTextCatalog } from './cards';
 import { usableClaims } from './claims';
 import { buildInterpretation } from './interpretation';
 import { buildPlan } from './plan';
@@ -88,5 +88,36 @@ describe('섹션 제목도 쉬운 말', () => {
     for (const s of buildPlan('basic', f).sections) expect(s.title.match(JARGON), s.title).toBeNull();
     const love = buildInterpretation('love_deep', facts, { rules, years: [2026, 2027, 2028, 2029, 2030], yearPillar: () => '丙午' });
     for (const s of buildPlan('love_deep', love).sections) expect(s.title.match(JARGON), s.title).toBeNull();
+  });
+});
+
+describe('카드 문장 검토표(cardTextCatalog)', () => {
+  const cat = cardTextCatalog();
+  const toRe = (t: string) => new RegExp('^' + t.replace(/[.*+?^$()|[\]\\]/g, '\\$&').replace(/\{[^}]+\}/g, '(나무|불|흙|쇠|물)') + '$');
+  it('키가 겹치지 않고, 문장·조건·한계·쓰이는 경우에 한자·전문용어가 없다', () => {
+    expect(new Set(cat.map((e) => e.key)).size).toBe(cat.length);
+    for (const e of cat) {
+      const text = [e.key, e.when, e.thesis, e.condition, e.limitation].join('\n');
+      expect(text, e.key).not.toMatch(/\p{Script=Han}/u);
+      expect(text.match(JARGON)?.[0] ?? null, e.key).toBeNull();
+      expect(e.status).toBe('DRAFT');
+    }
+  });
+  it('무작위 500개 원국: 카드가 실제로 낸 문장은 모두 검토표에 있다', () => {
+    const r = rng(99);
+    const used = new Set<string>();
+    for (let i = 0; i < 500; i++) {
+      const y = 1900 + Math.floor(r() * 151), m = 1 + Math.floor(r() * 12), d = 1 + Math.floor(r() * 28);
+      const h = r() < 0.15 ? null : Math.floor(r() * 24);
+      const { facts, rules } = chartOf(y, m, d, h);
+      const claims = [...buildRuleCards(rules).claims, ...buildInterpretation('basic', facts, { rules }).claims.filter((c) => c.ruleId === 'SJ-BRANCH-PAIRS-DRAFT')];
+      for (const c of claims) {
+        const hit = cat.find((e) => e.ruleId === c.ruleId && toRe(e.thesis).test(c.thesis) && e.condition === c.condition && e.limitation === c.limitation);
+        expect(hit, `${y}-${m}-${d} ${c.ruleId}: ${c.thesis}`).toBeTruthy();
+        used.add(hit!.key);
+      }
+    }
+    // 무작위 표본에서 대부분의 변형이 실제로 쓰인다(검토표에 죽은 문장이 쌓이지 않게)
+    expect(used.size).toBeGreaterThanOrEqual(cat.length - 4);
   });
 });

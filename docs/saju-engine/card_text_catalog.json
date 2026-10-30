@@ -1,0 +1,276 @@
+{
+  "version": "cards-0.1.0-draft",
+  "sample": 1000,
+  "entries": [
+    {
+      "key": "season.same",
+      "ruleId": "SJ-R002-SEASON",
+      "when": "태어난 계절의 기운과 나의 기운이 같을 때",
+      "thesis": "태어난 계절의 기운이 나의 {나의기운} 기운과 같아, 계절의 도움을 직접 받는 편이에요",
+      "condition": "새 환경에 들어가거나 생활 리듬을 정할 때",
+      "limitation": "계절의 도움은 여러 근거 중 하나일 뿐이며, 강하다·약하다는 뜻이 아니에요",
+      "status": "DRAFT",
+      "sampleRate": 0.144
+    },
+    {
+      "key": "season.same.transition",
+      "ruleId": "SJ-R002-SEASON",
+      "when": "태어난 계절의 기운과 나의 기운이 같을 때, 그리고 계절이 바뀌는 달(양력으로 대략 4·7·10·1월 초부터 한 달)에 태어났을 때",
+      "thesis": "태어난 계절의 기운이 나의 {나의기운} 기운과 같아, 계절의 도움을 직접 받는 편이에요. 다만 환절기라 이 판단은 잠정이에요",
+      "condition": "새 환경에 들어가거나 생활 리듬을 정할 때",
+      "limitation": "계절의 도움은 여러 근거 중 하나일 뿐이며, 강하다·약하다는 뜻이 아니에요",
+      "status": "DRAFT",
+      "sampleRate": 0.068
+    },
+    {
+      "key": "season.fed",
+      "ruleId": "SJ-R002-SEASON",
+      "when": "태어난 계절의 기운이 나의 기운을 길러 줄 때",
+      "thesis": "태어난 계절의 {계절기운} 기운이 나의 {나의기운} 기운을 길러 주는 쪽이에요",
+      "condition": "새 환경에 들어가거나 생활 리듬을 정할 때",
+      "limitation": "계절의 도움은 여러 근거 중 하나일 뿐이며, 강하다·약하다는 뜻이 아니에요",
+      "status": "DRAFT",
+      "sampleRate": 0.108
+    },
+    {
+      "key": "season.fed.transition",
+      "ruleId": "SJ-R002-SEASON",
+      "when": "태어난 계절의 기운이 나의 기운을 길러 줄 때, 그리고 계절이 바뀌는 달(양력으로 대략 4·7·10·1월 초부터 한 달)에 태어났을 때",
+      "thesis": "태어난 계절의 {계절기운} 기운이 나의 {나의기운} 기운을 길러 주는 쪽이에요. 다만 환절기라 이 판단은 잠정이에요",
+      "condition": "새 환경에 들어가거나 생활 리듬을 정할 때",
+      "limitation": "계절의 도움은 여러 근거 중 하나일 뿐이며, 강하다·약하다는 뜻이 아니에요",
+      "status": "DRAFT",
+      "sampleRate": 0.079
+    },
+    {
+      "key": "season.giving",
+      "ruleId": "SJ-R002-SEASON",
+      "when": "나의 기운이 태어난 계절의 기운을 길러 줄 때",
+      "thesis": "나의 {나의기운} 기운이 태어난 계절의 {계절기운} 기운 쪽으로 흘러 나가는 관계라, 힘을 밖으로 쓰는 일이 많은 편이에요",
+      "condition": "새 환경에 들어가거나 생활 리듬을 정할 때",
+      "limitation": "계절의 도움은 여러 근거 중 하나일 뿐이며, 강하다·약하다는 뜻이 아니에요",
+      "status": "DRAFT",
+      "sampleRate": 0.126
+    },
+    {
+      "key": "season.giving.transition",
+      "ruleId": "SJ-R002-SEASON",
+      "when": "나의 기운이 태어난 계절의 기운을 길러 줄 때, 그리고 계절이 바뀌는 달(양력으로 대략 4·7·10·1월 초부터 한 달)에 태어났을 때",
+      "thesis": "나의 {나의기운} 기운이 태어난 계절의 {계절기운} 기운 쪽으로 흘러 나가는 관계라, 힘을 밖으로 쓰는 일이 많은 편이에요. 다만 환절기라 이 판단은 잠정이에요",
+      "condition": "새 환경에 들어가거나 생활 리듬을 정할 때",
+      "limitation": "계절의 도움은 여러 근거 중 하나일 뿐이며, 강하다·약하다는 뜻이 아니에요",
+      "status": "DRAFT",
+      "sampleRate": 0.06
+    },
+    {
+      "key": "season.handling",
+      "ruleId": "SJ-R002-SEASON",
+      "when": "나의 기운이 태어난 계절의 기운을 누를 때",
+      "thesis": "나의 {나의기운} 기운이 태어난 계절의 {계절기운} 기운을 다뤄야 하는 관계라, 환경에 맞추는 데 손이 가는 편이에요",
+      "condition": "새 환경에 들어가거나 생활 리듬을 정할 때",
+      "limitation": "계절의 도움은 여러 근거 중 하나일 뿐이며, 강하다·약하다는 뜻이 아니에요",
+      "status": "DRAFT",
+      "sampleRate": 0.137
+    },
+    {
+      "key": "season.handling.transition",
+      "ruleId": "SJ-R002-SEASON",
+      "when": "나의 기운이 태어난 계절의 기운을 누를 때, 그리고 계절이 바뀌는 달(양력으로 대략 4·7·10·1월 초부터 한 달)에 태어났을 때",
+      "thesis": "나의 {나의기운} 기운이 태어난 계절의 {계절기운} 기운을 다뤄야 하는 관계라, 환경에 맞추는 데 손이 가는 편이에요. 다만 환절기라 이 판단은 잠정이에요",
+      "condition": "새 환경에 들어가거나 생활 리듬을 정할 때",
+      "limitation": "계절의 도움은 여러 근거 중 하나일 뿐이며, 강하다·약하다는 뜻이 아니에요",
+      "status": "DRAFT",
+      "sampleRate": 0.067
+    },
+    {
+      "key": "season.pressed",
+      "ruleId": "SJ-R002-SEASON",
+      "when": "태어난 계절의 기운이 나의 기운을 누를 때",
+      "thesis": "태어난 계절의 {계절기운} 기운이 나의 {나의기운} 기운을 누르는 관계라, 환경에 익숙해지는 시간이 필요한 편이에요",
+      "condition": "새 환경에 들어가거나 생활 리듬을 정할 때",
+      "limitation": "계절의 도움은 여러 근거 중 하나일 뿐이며, 강하다·약하다는 뜻이 아니에요",
+      "status": "DRAFT",
+      "sampleRate": 0.14
+    },
+    {
+      "key": "season.pressed.transition",
+      "ruleId": "SJ-R002-SEASON",
+      "when": "태어난 계절의 기운이 나의 기운을 누를 때, 그리고 계절이 바뀌는 달(양력으로 대략 4·7·10·1월 초부터 한 달)에 태어났을 때",
+      "thesis": "태어난 계절의 {계절기운} 기운이 나의 {나의기운} 기운을 누르는 관계라, 환경에 익숙해지는 시간이 필요한 편이에요. 다만 환절기라 이 판단은 잠정이에요",
+      "condition": "새 환경에 들어가거나 생활 리듬을 정할 때",
+      "limitation": "계절의 도움은 여러 근거 중 하나일 뿐이며, 강하다·약하다는 뜻이 아니에요",
+      "status": "DRAFT",
+      "sampleRate": 0.071
+    },
+    {
+      "key": "root.present",
+      "ruleId": "SJ-R004-ROOT",
+      "when": "나와 같은 기운이 땅 쪽 글자 속에 있지만, 태어난 날 자리의 땅 쪽 글자에는 없을 때",
+      "thesis": "나와 같은 기운이 땅 쪽에도 자리 잡고 있어, 타고난 바탕이 받쳐 주는 편이에요",
+      "condition": "혼자 버텨야 하거나 기댈 곳이 필요할 때",
+      "limitation": "뿌리가 있고 없음이나 그 개수만으로 힘의 세기를 정하지 않아요",
+      "status": "DRAFT",
+      "sampleRate": 0.448
+    },
+    {
+      "key": "root.present.day",
+      "ruleId": "SJ-R004-ROOT",
+      "when": "나와 같은 기운이 태어난 날 자리의 땅 쪽 글자에 있을 때(다른 자리에도 있을 수 있음)",
+      "thesis": "나와 같은 기운이 땅 쪽에도 자리 잡고 있어, 타고난 바탕이 받쳐 주는 편이에요. 특히 나 자신을 뜻하는 자리에도 있어요",
+      "condition": "혼자 버텨야 하거나 기댈 곳이 필요할 때",
+      "limitation": "뿌리가 있고 없음이나 그 개수만으로 힘의 세기를 정하지 않아요",
+      "status": "DRAFT",
+      "sampleRate": 0.439
+    },
+    {
+      "key": "root.absent",
+      "ruleId": "SJ-R004-ROOT",
+      "when": "나와 같은 기운이 땅 쪽 글자 속에 없을 때",
+      "thesis": "나와 같은 기운이 땅 쪽에는 보이지 않아, 주변의 도움과 환경을 활용해 힘을 쓰는 편이에요",
+      "condition": "혼자 버텨야 하거나 기댈 곳이 필요할 때",
+      "limitation": "뿌리가 있고 없음이나 그 개수만으로 힘의 세기를 정하지 않아요",
+      "status": "DRAFT",
+      "sampleRate": 0.113
+    },
+    {
+      "key": "role.peer",
+      "ruleId": "SJ-R005-ROLE-PEER",
+      "when": "태어난 해·달·시 자리의 드러난 글자에 나와 같은 기운이 있을 때",
+      "thesis": "곁에 나와 같은 기운이 있어, 내 방식과 함께하는 사람들을 같이 챙기는 편이에요",
+      "condition": "함께 일하거나 경쟁이 있는 자리에서",
+      "limitation": "드러난 글자를 기준으로 한 것이며, 실제 힘의 크기는 판단하지 않았어요",
+      "status": "DRAFT",
+      "sampleRate": 0.471
+    },
+    {
+      "key": "role.resource",
+      "ruleId": "SJ-R005-ROLE-RESOURCE",
+      "when": "태어난 해·달·시 자리의 드러난 글자에 나를 길러 주는 기운이 있을 때",
+      "thesis": "나를 길러 주는 기운이 곁에 있어, 배우고 도움을 받아들이며 힘을 얻는 편이에요",
+      "condition": "새로운 것을 익히거나 지칠 때",
+      "limitation": "드러난 글자를 기준으로 한 것이며, 실제 힘의 크기는 판단하지 않았어요",
+      "status": "DRAFT",
+      "sampleRate": 0.441
+    },
+    {
+      "key": "role.output",
+      "ruleId": "SJ-R005-ROLE-OUTPUT",
+      "when": "태어난 해·달·시 자리의 드러난 글자에 내가 길러 내는 기운이 있을 때",
+      "thesis": "내가 길러 내는 기운이 곁에 있어, 생각과 재능을 밖으로 꺼내는 쪽에 힘을 쓰는 편이에요",
+      "condition": "말·글·결과물로 보여 줄 기회가 있을 때",
+      "limitation": "드러난 글자를 기준으로 한 것이며, 실제 힘의 크기는 판단하지 않았어요",
+      "status": "DRAFT",
+      "sampleRate": 0.475
+    },
+    {
+      "key": "role.wealth",
+      "ruleId": "SJ-R005-ROLE-WEALTH",
+      "when": "태어난 해·달·시 자리의 드러난 글자에 내가 다루는 기운이 있을 때",
+      "thesis": "내가 다루는 기운이 곁에 있어, 현실적인 일과 자원(시간·돈)을 관리하는 데 힘을 쓰는 편이에요",
+      "condition": "일정·돈·결과를 챙겨야 할 때",
+      "limitation": "드러난 글자를 기준으로 한 것이며, 실제 힘의 크기는 판단하지 않았어요",
+      "status": "DRAFT",
+      "sampleRate": 0.499
+    },
+    {
+      "key": "role.officer",
+      "ruleId": "SJ-R005-ROLE-OFFICER",
+      "when": "태어난 해·달·시 자리의 드러난 글자에 나를 다스리는 기운이 있을 때",
+      "thesis": "나를 다스리는 기운이 곁에 있어, 규칙·책임·기대에 맞추는 장면이 자주 생기는 편이에요",
+      "condition": "역할과 기준이 분명한 자리에서",
+      "limitation": "드러난 글자를 기준으로 한 것이며, 실제 힘의 크기는 판단하지 않았어요",
+      "status": "DRAFT",
+      "sampleRate": 0.456
+    },
+    {
+      "key": "work_absent",
+      "ruleId": "SJ-R005-WORK-ABSENT",
+      "when": "드러난 글자에 내가 길러 내는·다루는·나를 다스리는 기운이 하나도 없을 때",
+      "thesis": "겉으로 드러난 기운만 보면 일과 돈을 다루는 방식은 정해진 틀보다 상황과 사람에 따라 달라지기 쉬워요",
+      "condition": "일하는 방식을 스스로 정해야 할 때",
+      "limitation": "드러난 글자만 본 것이며 땅 속 글자까지 보면 달라질 수 있어요",
+      "status": "DRAFT",
+      "sampleRate": 0.086
+    },
+    {
+      "key": "struct.wealth_controls_resource",
+      "ruleId": "SJ-R005-STRUCT-WEALTH_CONTROLS_RESOURCE",
+      "when": "내가 다루는 기운이 나를 길러 주는 기운을 누르는 배치가 있을 때(후보)",
+      "thesis": "현실적인 일을 챙기는 힘이 배움·쉼의 시간을 줄이는 쪽으로 작용할 여지가 있어요",
+      "condition": "두 가지 일이 동시에 몰릴 때",
+      "limitation": "배치가 있다는 뜻일 뿐, 실제로 그렇게 작용하는지는 아직 판단하지 않았어요",
+      "status": "DRAFT",
+      "sampleRate": 0.169
+    },
+    {
+      "key": "struct.officer_generates_resource",
+      "ruleId": "SJ-R005-STRUCT-OFFICER_GENERATES_RESOURCE",
+      "when": "나를 다스리는 기운이 나를 길러 주는 기운을 길러 주는 배치가 있을 때(후보)",
+      "thesis": "맡은 책임이 배움과 성장으로 이어지는 흐름으로 볼 여지가 있어요",
+      "condition": "두 가지 일이 동시에 몰릴 때",
+      "limitation": "배치가 있다는 뜻일 뿐, 실제로 그렇게 작용하는지는 아직 판단하지 않았어요",
+      "status": "DRAFT",
+      "sampleRate": 0.167
+    },
+    {
+      "key": "struct.output_controls_officer",
+      "ruleId": "SJ-R005-STRUCT-OUTPUT_CONTROLS_OFFICER",
+      "when": "내가 길러 내는 기운이 나를 다스리는 기운을 누르는 배치가 있을 때(후보)",
+      "thesis": "표현하고 싶은 마음과 규칙·책임이 서로 부딪히는 장면이 생길 여지가 있어요",
+      "condition": "두 가지 일이 동시에 몰릴 때",
+      "limitation": "배치가 있다는 뜻일 뿐, 실제로 그렇게 작용하는지는 아직 판단하지 않았어요",
+      "status": "DRAFT",
+      "sampleRate": 0.171
+    },
+    {
+      "key": "struct.output_generates_wealth",
+      "ruleId": "SJ-R005-STRUCT-OUTPUT_GENERATES_WEALTH",
+      "when": "내가 길러 내는 기운이 내가 다루는 기운을 길러 주는 배치가 있을 때(후보)",
+      "thesis": "재능과 표현이 현실적인 결과물로 이어지는 흐름으로 볼 여지가 있어요",
+      "condition": "두 가지 일이 동시에 몰릴 때",
+      "limitation": "배치가 있다는 뜻일 뿐, 실제로 그렇게 작용하는지는 아직 판단하지 않았어요",
+      "status": "DRAFT",
+      "sampleRate": 0.194
+    },
+    {
+      "key": "struct.peer_controls_wealth",
+      "ruleId": "SJ-R005-STRUCT-PEER_CONTROLS_WEALTH",
+      "when": "나와 같은 기운이 내가 다루는 기운을 누르는 배치가 있을 때(후보)",
+      "thesis": "내 방식이 강하게 나올 때 돈·시간 관리와 부딪힐 여지가 있어요",
+      "condition": "두 가지 일이 동시에 몰릴 때",
+      "limitation": "배치가 있다는 뜻일 뿐, 실제로 그렇게 작용하는지는 아직 판단하지 않았어요",
+      "status": "DRAFT",
+      "sampleRate": 0.185
+    },
+    {
+      "key": "combine",
+      "ruleId": "SJ-R005-COMBINE",
+      "when": "드러난 글자끼리 서로 끌리는 짝(다섯 쌍 중 하나)이 있을 때",
+      "thesis": "서로 끌리는 짝을 이루는 기운이 보여, 어떤 일이나 사람에게 마음이 묶이는 장면이 생길 여지가 있어요",
+      "condition": "가까운 관계나 오래 붙드는 일이 있을 때",
+      "limitation": "짝이 있다는 사실일 뿐, 실제로 작용하는지는 판단하지 않았어요",
+      "status": "DRAFT",
+      "sampleRate": 0.449
+    },
+    {
+      "key": "branch_pairs.present",
+      "ruleId": "SJ-BRANCH-PAIRS-DRAFT",
+      "when": "땅 쪽 글자끼리 부딪히거나 묶이는 짝이 있을 때",
+      "thesis": "땅 쪽 자리끼리 부딪히거나 묶이는 짝이 있어, 해당 자리와 관련된 일이나 관계에서 밀고 당기는 장면이 생길 여지가 있어요",
+      "condition": "관련된 자리의 주제가 이슈가 될 때",
+      "limitation": "짝이 있다는 사실일 뿐, 실제로 작용하는지와 그 세기는 판단하지 않았어요",
+      "status": "DRAFT",
+      "sampleRate": 0.635
+    },
+    {
+      "key": "branch_pairs.absent",
+      "ruleId": "SJ-BRANCH-PAIRS-DRAFT",
+      "when": "땅 쪽 글자끼리 그런 짝이 없을 때",
+      "thesis": "땅 쪽 자리끼리 부딪히거나 묶이는 짝이 뚜렷하지 않아, 관계의 큰 출렁임은 적은 편으로 볼 수 있어요",
+      "condition": "변화가 적은 안정적인 시기에",
+      "limitation": "눈에 띄는 짝이 없다는 뜻일 뿐, 삶에 변화가 적다는 뜻은 아니에요",
+      "status": "DRAFT",
+      "sampleRate": 0.365
+    }
+  ]
+}
