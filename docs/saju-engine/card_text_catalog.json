@@ -1,6 +1,36 @@
 {
   "version": "cards-0.1.0-draft",
   "sample": 1000,
+  "groups": [
+    {
+      "prefix": "SJ-R002-SEASON",
+      "title": "1. 태어난 계절과 나의 기운 (R-002)"
+    },
+    {
+      "prefix": "SJ-R004-ROOT",
+      "title": "2. 나와 같은 기운이 땅 쪽에도 있는가 (R-004)"
+    },
+    {
+      "prefix": "SJ-R005-ROLE",
+      "title": "3. 곁에 드러난 기운 (R-005)"
+    },
+    {
+      "prefix": "SJ-R005-WORK-ABSENT",
+      "title": "4. 일·돈과 연결되는 기운이 없을 때 (R-005)"
+    },
+    {
+      "prefix": "SJ-R005-STRUCT",
+      "title": "5. 기운끼리 작용할 수 있는 배치 — 후보 (R-005)"
+    },
+    {
+      "prefix": "SJ-R005-COMBINE",
+      "title": "6. 서로 끌리는 짝 (R-005)"
+    },
+    {
+      "prefix": "SJ-BRANCH-PAIRS",
+      "title": "7. 땅 쪽 자리끼리 부딪히거나 묶이는 짝 (기존 규칙을 쉬운 말로)"
+    }
+  ],
   "entries": [
     {
       "key": "season.same",
@@ -10,6 +40,8 @@
       "condition": "새 환경에 들어가거나 생활 리듬을 정할 때",
       "limitation": "계절의 도움은 여러 근거 중 하나일 뿐이며, 강하다·약하다는 뜻이 아니에요",
       "status": "DRAFT",
+      "group": "SJ-R002-SEASON",
+      "note": "",
       "sampleRate": 0.144
     },
     {
@@ -20,6 +52,8 @@
       "condition": "새 환경에 들어가거나 생활 리듬을 정할 때",
       "limitation": "계절의 도움은 여러 근거 중 하나일 뿐이며, 강하다·약하다는 뜻이 아니에요",
       "status": "DRAFT",
+      "group": "SJ-R002-SEASON",
+      "note": "",
       "sampleRate": 0.068
     },
     {
@@ -30,6 +64,8 @@
       "condition": "새 환경에 들어가거나 생활 리듬을 정할 때",
       "limitation": "계절의 도움은 여러 근거 중 하나일 뿐이며, 강하다·약하다는 뜻이 아니에요",
       "status": "DRAFT",
+      "group": "SJ-R002-SEASON",
+      "note": "",
       "sampleRate": 0.108
     },
     {
@@ -40,6 +76,8 @@
       "condition": "새 환경에 들어가거나 생활 리듬을 정할 때",
       "limitation": "계절의 도움은 여러 근거 중 하나일 뿐이며, 강하다·약하다는 뜻이 아니에요",
       "status": "DRAFT",
+      "group": "SJ-R002-SEASON",
+      "note": "",
       "sampleRate": 0.079
     },
     {
@@ -50,6 +88,8 @@
       "condition": "새 환경에 들어가거나 생활 리듬을 정할 때",
       "limitation": "계절의 도움은 여러 근거 중 하나일 뿐이며, 강하다·약하다는 뜻이 아니에요",
       "status": "DRAFT",
+      "group": "SJ-R002-SEASON",
+      "note": "",
       "sampleRate": 0.126
     },
     {
@@ -60,6 +100,8 @@
       "condition": "새 환경에 들어가거나 생활 리듬을 정할 때",
       "limitation": "계절의 도움은 여러 근거 중 하나일 뿐이며, 강하다·약하다는 뜻이 아니에요",
       "status": "DRAFT",
+      "group": "SJ-R002-SEASON",
+      "note": "",
       "sampleRate": 0.06
     },
     {
@@ -70,6 +112,8 @@
       "condition": "새 환경에 들어가거나 생활 리듬을 정할 때",
       "limitation": "계절의 도움은 여러 근거 중 하나일 뿐이며, 강하다·약하다는 뜻이 아니에요",
       "status": "DRAFT",
+      "group": "SJ-R002-SEASON",
+      "note": "\"손이 가는\" 이 관계(내가 계절의 기운을 누름)의 뜻과 맞는지",
       "sampleRate": 0.137
     },
     {
@@ -80,6 +124,8 @@
       "condition": "새 환경에 들어가거나 생활 리듬을 정할 때",
       "limitation": "계절의 도움은 여러 근거 중 하나일 뿐이며, 강하다·약하다는 뜻이 아니에요",
       "status": "DRAFT",
+      "group": "SJ-R002-SEASON",
+      "note": "",
       "sampleRate": 0.067
     },
     {
@@ -90,6 +136,8 @@
       "condition": "새 환경에 들어가거나 생활 리듬을 정할 때",
       "limitation": "계절의 도움은 여러 근거 중 하나일 뿐이며, 강하다·약하다는 뜻이 아니에요",
       "status": "DRAFT",
+      "group": "SJ-R002-SEASON",
+      "note": "\"익숙해지는 시간이 필요\" 가 지나친 단정이 아닌지",
       "sampleRate": 0.14
     },
     {
@@ -100,6 +148,8 @@
       "condition": "새 환경에 들어가거나 생활 리듬을 정할 때",
       "limitation": "계절의 도움은 여러 근거 중 하나일 뿐이며, 강하다·약하다는 뜻이 아니에요",
       "status": "DRAFT",
+      "group": "SJ-R002-SEASON",
+      "note": "",
       "sampleRate": 0.071
     },
     {
@@ -110,6 +160,8 @@
       "condition": "혼자 버텨야 하거나 기댈 곳이 필요할 때",
       "limitation": "뿌리가 있고 없음이나 그 개수만으로 힘의 세기를 정하지 않아요",
       "status": "DRAFT",
+      "group": "SJ-R004-ROOT",
+      "note": "",
       "sampleRate": 0.448
     },
     {
@@ -120,6 +172,8 @@
       "condition": "혼자 버텨야 하거나 기댈 곳이 필요할 때",
       "limitation": "뿌리가 있고 없음이나 그 개수만으로 힘의 세기를 정하지 않아요",
       "status": "DRAFT",
+      "group": "SJ-R004-ROOT",
+      "note": "",
       "sampleRate": 0.439
     },
     {
@@ -130,6 +184,8 @@
       "condition": "혼자 버텨야 하거나 기댈 곳이 필요할 때",
       "limitation": "뿌리가 있고 없음이나 그 개수만으로 힘의 세기를 정하지 않아요",
       "status": "DRAFT",
+      "group": "SJ-R004-ROOT",
+      "note": "뿌리 없음 → \"주변의 도움을 활용\" 으로 옮긴 것이 기준서(개수·유무로 힘을 정하지 않음)를 넘지 않는지",
       "sampleRate": 0.113
     },
     {
@@ -140,6 +196,8 @@
       "condition": "함께 일하거나 경쟁이 있는 자리에서",
       "limitation": "드러난 글자를 기준으로 한 것이며, 실제 힘의 크기는 판단하지 않았어요",
       "status": "DRAFT",
+      "group": "SJ-R005-ROLE",
+      "note": "같은 기운 → \"함께하는 사람을 챙김\" 이 일반론으로 맞는지(경쟁 쪽 뜻이 빠짐)",
       "sampleRate": 0.471
     },
     {
@@ -150,6 +208,8 @@
       "condition": "새로운 것을 익히거나 지칠 때",
       "limitation": "드러난 글자를 기준으로 한 것이며, 실제 힘의 크기는 판단하지 않았어요",
       "status": "DRAFT",
+      "group": "SJ-R005-ROLE",
+      "note": "",
       "sampleRate": 0.441
     },
     {
@@ -160,6 +220,8 @@
       "condition": "말·글·결과물로 보여 줄 기회가 있을 때",
       "limitation": "드러난 글자를 기준으로 한 것이며, 실제 힘의 크기는 판단하지 않았어요",
       "status": "DRAFT",
+      "group": "SJ-R005-ROLE",
+      "note": "",
       "sampleRate": 0.475
     },
     {
@@ -170,6 +232,8 @@
       "condition": "일정·돈·결과를 챙겨야 할 때",
       "limitation": "드러난 글자를 기준으로 한 것이며, 실제 힘의 크기는 판단하지 않았어요",
       "status": "DRAFT",
+      "group": "SJ-R005-ROLE",
+      "note": "",
       "sampleRate": 0.499
     },
     {
@@ -180,6 +244,8 @@
       "condition": "역할과 기준이 분명한 자리에서",
       "limitation": "드러난 글자를 기준으로 한 것이며, 실제 힘의 크기는 판단하지 않았어요",
       "status": "DRAFT",
+      "group": "SJ-R005-ROLE",
+      "note": "\"자주 생기는\" 이 빈도를 단정하는지",
       "sampleRate": 0.456
     },
     {
@@ -190,6 +256,8 @@
       "condition": "일하는 방식을 스스로 정해야 할 때",
       "limitation": "드러난 글자만 본 것이며 땅 속 글자까지 보면 달라질 수 있어요",
       "status": "DRAFT",
+      "group": "SJ-R005-WORK-ABSENT",
+      "note": "드러난 글자만 본 판단이라 땅 속 글자까지 보면 뒤집힐 수 있음. 아예 빼는 것도 방법",
       "sampleRate": 0.086
     },
     {
@@ -200,6 +268,8 @@
       "condition": "두 가지 일이 동시에 몰릴 때",
       "limitation": "배치가 있다는 뜻일 뿐, 실제로 그렇게 작용하는지는 아직 판단하지 않았어요",
       "status": "DRAFT",
+      "group": "SJ-R005-STRUCT",
+      "note": "\"배움·쉼의 시간을 줄임\" 이 이 배치의 뜻으로 적절한지",
       "sampleRate": 0.169
     },
     {
@@ -210,6 +280,8 @@
       "condition": "두 가지 일이 동시에 몰릴 때",
       "limitation": "배치가 있다는 뜻일 뿐, 실제로 그렇게 작용하는지는 아직 판단하지 않았어요",
       "status": "DRAFT",
+      "group": "SJ-R005-STRUCT",
+      "note": "",
       "sampleRate": 0.167
     },
     {
@@ -220,6 +292,8 @@
       "condition": "두 가지 일이 동시에 몰릴 때",
       "limitation": "배치가 있다는 뜻일 뿐, 실제로 그렇게 작용하는지는 아직 판단하지 않았어요",
       "status": "DRAFT",
+      "group": "SJ-R005-STRUCT",
+      "note": "부딪힘으로만 썼는데, 좋게 쓰이는 경우(규칙을 다듬음)도 넣을지",
       "sampleRate": 0.171
     },
     {
@@ -230,6 +304,8 @@
       "condition": "두 가지 일이 동시에 몰릴 때",
       "limitation": "배치가 있다는 뜻일 뿐, 실제로 그렇게 작용하는지는 아직 판단하지 않았어요",
       "status": "DRAFT",
+      "group": "SJ-R005-STRUCT",
+      "note": "",
       "sampleRate": 0.194
     },
     {
@@ -240,6 +316,8 @@
       "condition": "두 가지 일이 동시에 몰릴 때",
       "limitation": "배치가 있다는 뜻일 뿐, 실제로 그렇게 작용하는지는 아직 판단하지 않았어요",
       "status": "DRAFT",
+      "group": "SJ-R005-STRUCT",
+      "note": "",
       "sampleRate": 0.185
     },
     {
@@ -250,6 +328,8 @@
       "condition": "가까운 관계나 오래 붙드는 일이 있을 때",
       "limitation": "짝이 있다는 사실일 뿐, 실제로 작용하는지는 판단하지 않았어요",
       "status": "DRAFT",
+      "group": "SJ-R005-COMBINE",
+      "note": "\"마음이 묶이는\" 이 연애로만 읽히지 않는지",
       "sampleRate": 0.449
     },
     {
@@ -260,6 +340,8 @@
       "condition": "관련된 자리의 주제가 이슈가 될 때",
       "limitation": "짝이 있다는 사실일 뿐, 실제로 작용하는지와 그 세기는 판단하지 않았어요",
       "status": "DRAFT",
+      "group": "SJ-BRANCH-PAIRS",
+      "note": "부딪히는 짝과 묶이는 짝을 한 문장으로 합쳤음. 나눌지",
       "sampleRate": 0.635
     },
     {
@@ -270,6 +352,8 @@
       "condition": "변화가 적은 안정적인 시기에",
       "limitation": "눈에 띄는 짝이 없다는 뜻일 뿐, 삶에 변화가 적다는 뜻은 아니에요",
       "status": "DRAFT",
+      "group": "SJ-BRANCH-PAIRS",
+      "note": "\"출렁임이 적다\" 가 지나친 단정이 아닌지",
       "sampleRate": 0.365
     }
   ]

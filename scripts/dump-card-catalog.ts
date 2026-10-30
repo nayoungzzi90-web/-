@@ -98,5 +98,5 @@ out.push(`## 이 표에 없는 것
 - 연애·궁합·올해 운 전용 카드: 아직 없다. 지금은 기존 명제를 쓴다.
 `);
 writeFileSync('docs/saju-engine/CARD_TEXT_REVIEW.md', out.join('\n'));
-writeFileSync('docs/saju-engine/card_text_catalog.json', JSON.stringify({ version: CARDS_VERSION, sample: N, entries: cat.map((e) => ({ ...e, sampleRate: (freq.get(e.key) ?? 0) / N })) }, null, 2) + '\n');
+writeFileSync('docs/saju-engine/card_text_catalog.json', JSON.stringify({ version: CARDS_VERSION, sample: N, groups: GROUP.map(([prefix, title]) => ({ prefix, title })), entries: cat.map((e) => ({ ...e, group: GROUP.find(([p]) => e.ruleId.startsWith(p))![0], note: NOTE[e.key] ?? '', sampleRate: (freq.get(e.key) ?? 0) / N })) }, null, 2) + '\n');
 console.log(`문장 ${cat.length}개, 표본에서 한 번도 안 나온 문장: ${cat.filter((e) => !freq.get(e.key)).map((e) => e.key).join(', ') || '없음'}`);
