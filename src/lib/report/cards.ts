@@ -9,7 +9,7 @@ import type { Element } from '../saju/types';
 import type { GodGroup, Grade, Position, R002to005, StructureKind } from '../../../engine/saju-rules/src';
 import type { Claim, EvidenceItem, FactLine } from './types';
 
-export const CARDS_VERSION = 'cards-0.1.0-draft';
+export const CARDS_VERSION = 'cards-0.2.0-draft';
 
 const EL: Record<Element, string> = { wood: '나무', fire: '불', earth: '흙', metal: '쇠', water: '물' };
 const SEASON: Record<string, string> = { spring: '봄', summer: '여름', autumn: '가을', winter: '겨울' };
@@ -29,9 +29,9 @@ export const CARD_TEXT = {
     thesis: {
       旺: '태어난 계절의 기운이 나의 {나의기운} 기운과 같아, 계절의 도움을 직접 받는 편이에요',
       相: '태어난 계절의 {계절기운} 기운이 나의 {나의기운} 기운을 길러 주는 쪽이에요',
-      休: '나의 {나의기운} 기운이 태어난 계절의 {계절기운} 기운 쪽으로 흘러 나가는 관계라, 힘을 밖으로 쓰는 일이 많은 편이에요',
-      囚: '나의 {나의기운} 기운이 태어난 계절의 {계절기운} 기운을 다뤄야 하는 관계라, 환경에 맞추는 데 손이 가는 편이에요',
-      死: '태어난 계절의 {계절기운} 기운이 나의 {나의기운} 기운을 누르는 관계라, 환경에 익숙해지는 시간이 필요한 편이에요',
+      休: '나의 {나의기운} 기운이 태어난 계절의 {계절기운} 기운 쪽으로 흘러 나가는 관계라, 계절의 도움보다는 내 힘을 밖으로 쓰는 쪽이에요',
+      囚: '나의 {나의기운} 기운이 태어난 계절의 {계절기운} 기운을 다뤄야 하는 관계라, 계절을 상대하느라 힘을 쓰는 쪽이에요',
+      死: '태어난 계절의 {계절기운} 기운이 나의 {나의기운} 기운을 누르는 관계라, 계절의 도움은 받기 어려운 쪽이에요',
     } as Record<Grade, string>,
     provisionalSuffix: '. 다만 환절기라 이 판단은 잠정이에요',
     condition: '새 환경에 들어가거나 생활 리듬을 정할 때',
@@ -40,41 +40,46 @@ export const CARD_TEXT = {
   root: {
     present: '나와 같은 기운이 땅 쪽에도 자리 잡고 있어, 타고난 바탕이 받쳐 주는 편이에요',
     dayBranchSuffix: '. 특히 나 자신을 뜻하는 자리에도 있어요',
-    absent: '나와 같은 기운이 땅 쪽에는 보이지 않아, 주변의 도움과 환경을 활용해 힘을 쓰는 편이에요',
+    absent: '나와 같은 기운이 땅 쪽에는 보이지 않아, 혼자 버티기보다 주변의 도움을 함께 쓰는 편이 수월할 수 있어요',
     condition: '혼자 버텨야 하거나 기댈 곳이 필요할 때',
     limitation: '뿌리가 있고 없음이나 그 개수만으로 힘의 세기를 정하지 않아요',
   },
   role: {
-    비겁: { key: 'peer', fact: '나와 같은 기운이', text: '곁에 나와 같은 기운이 있어, 내 방식과 함께하는 사람들을 같이 챙기는 편이에요', condition: '함께 일하거나 경쟁이 있는 자리에서', tags: ['personality', 'relationship', 'strength'], anchors: ['같은 기운'] },
+    비겁: { key: 'peer', fact: '나와 같은 기운이', text: '곁에 나와 같은 기운이 있어, 함께하는 사람과 힘을 나누기도 하고 견주기도 하는 편이에요', condition: '함께 일하거나 경쟁이 있는 자리에서', tags: ['personality', 'relationship', 'strength'], anchors: ['같은 기운'] },
     인성: { key: 'resource', fact: '나를 길러 주는 기운이', text: '나를 길러 주는 기운이 곁에 있어, 배우고 도움을 받아들이며 힘을 얻는 편이에요', condition: '새로운 것을 익히거나 지칠 때', tags: ['strength', 'advice', 'personality'], anchors: ['길러', '배우'] },
     식상: { key: 'output', fact: '내가 길러 내는 기운이', text: '내가 길러 내는 기운이 곁에 있어, 생각과 재능을 밖으로 꺼내는 쪽에 힘을 쓰는 편이에요', condition: '말·글·결과물로 보여 줄 기회가 있을 때', tags: ['personality', 'strength', 'career'], anchors: ['표현', '꺼내'] },
     재성: { key: 'wealth', fact: '내가 다루는 기운이', text: '내가 다루는 기운이 곁에 있어, 현실적인 일과 자원(시간·돈)을 관리하는 데 힘을 쓰는 편이에요', condition: '일정·돈·결과를 챙겨야 할 때', tags: ['career', 'money'], anchors: ['관리', '현실'] },
-    관살: { key: 'officer', fact: '나를 다스리는 기운이', text: '나를 다스리는 기운이 곁에 있어, 규칙·책임·기대에 맞추는 장면이 자주 생기는 편이에요', condition: '역할과 기준이 분명한 자리에서', tags: ['career', 'relationship'], anchors: ['책임', '규칙'] },
+    관살: { key: 'officer', fact: '나를 다스리는 기운이', text: '나를 다스리는 기운이 곁에 있어, 규칙·책임·주변의 기대를 의식하는 편이에요', condition: '역할과 기준이 분명한 자리에서', tags: ['career', 'relationship'], anchors: ['책임', '규칙'] },
   } as Record<GodGroup, { key: string; fact: string; text: string; condition: string; tags: string[]; anchors: string[] }>,
   roleLimitation: '드러난 글자를 기준으로 한 것이며, 실제 힘의 크기는 판단하지 않았어요',
   workAbsent: {
-    text: '겉으로 드러난 기운만 보면 일과 돈을 다루는 방식은 정해진 틀보다 상황과 사람에 따라 달라지기 쉬워요',
+    text: '곁에 드러난 기운이 나와 같은 기운이나 나를 길러 주는 기운 쪽이라, 일과 돈도 함께하는 사람이나 배운 것을 바탕으로 풀어 가는 쪽으로 볼 여지가 있어요',
     condition: '일하는 방식을 스스로 정해야 할 때',
     limitation: '드러난 글자만 본 것이며 땅 속 글자까지 보면 달라질 수 있어요',
   },
   struct: {
-    wealth_controls_resource: { text: '현실적인 일을 챙기는 힘이 배움·쉼의 시간을 줄이는 쪽으로 작용할 여지가 있어요', tags: ['career', 'advice'] },
+    wealth_controls_resource: { text: '현실적인 일을 챙기다 보면 배우거나 쉬는 시간이 뒤로 밀릴 여지가 있어요', tags: ['career', 'advice'] },
     officer_generates_resource: { text: '맡은 책임이 배움과 성장으로 이어지는 흐름으로 볼 여지가 있어요', tags: ['career', 'strength'] },
-    output_controls_officer: { text: '표현하고 싶은 마음과 규칙·책임이 서로 부딪히는 장면이 생길 여지가 있어요', tags: ['personality', 'career', 'relationship'] },
+    output_controls_officer: { text: '표현하고 싶은 마음이 규칙·책임과 부딪히기도 하고, 반대로 규칙을 더 낫게 다듬는 힘이 될 여지도 있어요', tags: ['personality', 'career', 'relationship'] },
     output_generates_wealth: { text: '재능과 표현이 현실적인 결과물로 이어지는 흐름으로 볼 여지가 있어요', tags: ['strength', 'career', 'money'] },
     peer_controls_wealth: { text: '내 방식이 강하게 나올 때 돈·시간 관리와 부딪힐 여지가 있어요', tags: ['money', 'advice'] },
   } as Record<StructureKind, { text: string; tags: string[] }>,
   structCondition: '두 가지 일이 동시에 몰릴 때',
   structLimitation: '배치가 있다는 뜻일 뿐, 실제로 그렇게 작용하는지는 아직 판단하지 않았어요',
   combine: {
-    text: '서로 끌리는 짝을 이루는 기운이 보여, 어떤 일이나 사람에게 마음이 묶이는 장면이 생길 여지가 있어요',
+    text: '서로 끌리는 짝을 이루는 기운이 보여, 어떤 일이나 관계에 한번 마음을 주면 오래 붙드는 장면이 생길 여지가 있어요',
     condition: '가까운 관계나 오래 붙드는 일이 있을 때',
     limitation: '짝이 있다는 사실일 뿐, 실제로 작용하는지는 판단하지 않았어요',
   },
   /** 지지 충·육합(기존 명제를 쉬운 말로 바꿔 씀, interpretation.ts 에서 사용) */
   branchPairs: {
-    present: '땅 쪽 자리끼리 부딪히거나 묶이는 짝이 있어, 해당 자리와 관련된 일이나 관계에서 밀고 당기는 장면이 생길 여지가 있어요',
-    absent: '땅 쪽 자리끼리 부딪히거나 묶이는 짝이 뚜렷하지 않아, 관계의 큰 출렁임은 적은 편으로 볼 수 있어요',
+    /** 부딪히는 짝만 */
+    clash: '땅 쪽 자리끼리 서로 부딪히는 짝이 있어, 해당 자리와 관련된 일이나 관계에서 변화나 엇갈림이 생길 여지가 있어요',
+    /** 묶이는 짝만 */
+    bind: '땅 쪽 자리끼리 서로 묶이는 짝이 있어, 해당 자리와 관련된 일이나 관계가 서로 붙들고 이어지는 장면이 생길 여지가 있어요',
+    /** 둘 다 */
+    present: '땅 쪽 자리끼리 부딪히는 짝과 묶이는 짝이 함께 있어, 해당 자리와 관련된 일이나 관계에서 밀고 당기는 장면이 생길 여지가 있어요',
+    absent: '땅 쪽 자리끼리 부딪히거나 묶이는 짝이 뚜렷하지 않아, 이 부분에서 따로 짚을 흐름은 적은 편이에요',
     presentCondition: '관련된 자리의 주제가 이슈가 될 때',
     absentCondition: '변화가 적은 안정적인 시기에',
     limitation: '짝이 있다는 사실일 뿐, 실제로 작용하는지와 그 세기는 판단하지 않았어요',
@@ -245,7 +250,9 @@ export function cardTextCatalog(): CardCatalogEntry[] {
   const C = CARD_TEXT.combine;
   add({ key: 'combine', ruleId: 'SJ-R005-COMBINE', when: '드러난 글자끼리 서로 끌리는 짝(다섯 쌍 중 하나)이 있을 때', thesis: C.text, condition: C.condition, limitation: C.limitation });
   const B = CARD_TEXT.branchPairs;
-  add({ key: 'branch_pairs.present', ruleId: 'SJ-BRANCH-PAIRS-DRAFT', when: '땅 쪽 글자끼리 부딪히거나 묶이는 짝이 있을 때', thesis: B.present, condition: B.presentCondition, limitation: B.limitation });
+  add({ key: 'branch_pairs.clash', ruleId: 'SJ-BRANCH-PAIRS-DRAFT', when: '땅 쪽 글자끼리 부딪히는 짝만 있을 때', thesis: B.clash, condition: B.presentCondition, limitation: B.limitation });
+  add({ key: 'branch_pairs.bind', ruleId: 'SJ-BRANCH-PAIRS-DRAFT', when: '땅 쪽 글자끼리 묶이는 짝만 있을 때', thesis: B.bind, condition: B.presentCondition, limitation: B.limitation });
+  add({ key: 'branch_pairs.present', ruleId: 'SJ-BRANCH-PAIRS-DRAFT', when: '땅 쪽 글자끼리 부딪히는 짝과 묶이는 짝이 함께 있을 때', thesis: B.present, condition: B.presentCondition, limitation: B.limitation });
   add({ key: 'branch_pairs.absent', ruleId: 'SJ-BRANCH-PAIRS-DRAFT', when: '땅 쪽 글자끼리 그런 짝이 없을 때', thesis: B.absent, condition: B.absentCondition, limitation: B.absentLimitation });
   return out;
 }

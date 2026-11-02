@@ -102,7 +102,7 @@ export function buildInterpretation(product: 'basic' | 'love_deep', f: SajuFacts
       b.lines = b.lines.map((l) => (l.id === 'relations' ? { ...l, text, anchors: ['짝'] } : l));
       claims = claims.map((c) => (c.ruleId === 'R-CLM-RELATIONS' ? {
         ...c, ruleId: 'SJ-BRANCH-PAIRS-DRAFT', stance: br.length ? 'CONTEXTUAL' : 'NONE', anchors: ['짝'],
-        thesis: br.length ? CARD_TEXT.branchPairs.present : CARD_TEXT.branchPairs.absent,
+        thesis: !br.length ? CARD_TEXT.branchPairs.absent : br.every((x) => x.endsWith('부딪히는 짝')) ? CARD_TEXT.branchPairs.clash : br.every((x) => x.endsWith('묶이는 짝')) ? CARD_TEXT.branchPairs.bind : CARD_TEXT.branchPairs.present,
         condition: br.length ? CARD_TEXT.branchPairs.presentCondition : CARD_TEXT.branchPairs.absentCondition,
         limitation: br.length ? CARD_TEXT.branchPairs.limitation : CARD_TEXT.branchPairs.absentLimitation,
       } : c));

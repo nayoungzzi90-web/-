@@ -44,17 +44,13 @@ const GROUP: Array<[string, string]> = [
 ];
 // 작성자(Claude)가 스스로 덜 확신하는 곳. 검토자가 먼저 봐 주면 좋은 점.
 const NOTE: Record<string, string> = {
-  'season.handling': '"손이 가는" 이 관계(내가 계절의 기운을 누름)의 뜻과 맞는지',
-  'season.pressed': '"익숙해지는 시간이 필요" 가 지나친 단정이 아닌지',
-  'root.absent': '뿌리 없음 → "주변의 도움을 활용" 으로 옮긴 것이 기준서(개수·유무로 힘을 정하지 않음)를 넘지 않는지',
-  'role.peer': '같은 기운 → "함께하는 사람을 챙김" 이 일반론으로 맞는지(경쟁 쪽 뜻이 빠짐)',
-  'role.officer': '"자주 생기는" 이 빈도를 단정하는지',
-  'work_absent': '드러난 글자만 본 판단이라 땅 속 글자까지 보면 뒤집힐 수 있음. 아예 빼는 것도 방법',
-  'struct.wealth_controls_resource': '"배움·쉼의 시간을 줄임" 이 이 배치의 뜻으로 적절한지',
-  'struct.output_controls_officer': '부딪힘으로만 썼는데, 좋게 쓰이는 경우(규칙을 다듬음)도 넣을지',
-  'combine': '"마음이 묶이는" 이 연애로만 읽히지 않는지',
-  'branch_pairs.present': '부딪히는 짝과 묶이는 짝을 한 문장으로 합쳤음. 나눌지',
-  'branch_pairs.absent': '"출렁임이 적다" 가 지나친 단정이 아닌지',
+  'root.absent': '0.2에서 고침. "수월할 수 있어요"로 낮췄지만, 뿌리 유무로 성향을 말하는 것 자체가 괜찮은지',
+  'role.peer': '0.2에서 고침. 힘을 나눔(같은 편)과 견줌(경쟁)을 함께 넣음',
+  'work_absent': '0.2에서 고침. 이 경우 드러난 기운은 모두 나와 같은 기운이나 나를 길러 주는 기운이라, 그 뜻만으로 씀. 땅 속 글자는 아직 안 봄',
+  'struct.output_controls_officer': '0.2에서 고침. 부딪힘과 좋게 쓰이는 경우를 함께 넣음',
+  'combine': '0.2에서 고침. 연애로만 읽히지 않게 "일이나 관계"로 넓힘',
+  'branch_pairs.clash': '0.2에서 새로 나눔(부딪히는 짝만 있을 때)',
+  'branch_pairs.bind': '0.2에서 새로 나눔(묶이는 짝만 있을 때)',
 };
 const cell = (t: string) => t.replace(/\|/g, '\\|').replace(/\{([^}]+)\}/g, '**[$1]**');
 const pct = (k: string) => `${Math.round(((freq.get(k) ?? 0) / N) * 1000) / 10}%`;
