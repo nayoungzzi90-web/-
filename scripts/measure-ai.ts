@@ -1,10 +1,13 @@
 // AI 풀이 비용·품질 측정(수동 실행): npx vite-node scripts/measure-ai.ts [건수] [basic|love_deep] [모델]
+// REVIEW_MODEL=<Gemini 모델> 을 주면 쓴 뒤 Gemini 독립 감수까지 한다(GEMINI_API_KEY 또는 네트워크 비밀). REVIEW_PRICE_IN_PER_M·REVIEW_PRICE_OUT_PER_M 로 감수 가격.
 // 키는 코드에 넣지 않는다. OPENAI_API_KEY 환경변수 또는 네트워크 비밀(프록시 주입)을 쓴다. 가격은 공식 페이지 값으로 환경변수에서 읽는다.
 import { buildInterpretation } from '../src/lib/report/interpretation';
 import { buildPlan } from '../src/lib/report/plan';
 import { runReportPipeline } from '../src/lib/report/pipeline';
 import { OpenAiLlm } from '../src/lib/report/openaiClient';
 import { BudgetedLlm, costFromUsage } from '../src/lib/report/budget';
+import { GeminiLlm } from '../src/lib/report/geminiClient';
+import { applyReview, reviewReport } from '../src/lib/report/review';
 import { calculator } from '../src/lib/saju/sampleCalculator';
 import { calculate } from '../engine/manse/src/engine';
 import { toSajuFacts } from '../engine/manse/src/adapter';
@@ -46,6 +49,16 @@ for (let i = 0; i < n; i++) {
   const chars = r.sections.reduce((a, s) => a + s.body.replace(/\s/g, '').length, 0);
   console.log(JSON.stringify({ sample: `${y}-${m}-${d} ${h}시`, status: r.status, report: r.reportStatus, calls: r.calls, in: r.usage.inputTokens, out: r.usage.outputTokens, chars, usd: +cost.toFixed(4), krw: Math.round(cost * 1400), sec: Math.round((Date.now() - t0) / 1000), issues: r.issues.length, failure: r.failure?.code }));
   if (process.env.OUT_DIR) { const { writeFileSync } = await import('node:fs'); writeFileSync(`${process.env.OUT_DIR}/${product}-${y}${m}${d}.md`, r.sections.map((x) => `## ${x.title}\n### ${x.headline}\n\n${x.body}\n`).join('\n')); }
+  if (process.env.REVIEW_MODEL) {
+    const reviewModel = process.env.REVIEW_MODEL;
+    const rv = await reviewReport(new GeminiLlm({ apiKey: process.env.GEMINI_API_KEY ?? 'proxy-injected', model: reviewModel }), interp, r.sections, { model: reviewModel, displayName: process.env.NAME_FOR_TEST ?? '나영' });
+    const rprice = { inPerM: Number(process.env.REVIEW_PRICE_IN_PER_M ?? 0.3), outPerM: Number(process.env.REVIEW_PRICE_OUT_PER_M ?? 2.5) }; // 기본값 미확인. 공식 가격으로 지정
+    const rcost = costFromUsage(rv.usage, rprice);
+    total += rcost;
+    const after = applyReview(r, rv);
+    console.log(JSON.stringify({ review: rv.verdict, model: rv.model, findings: rv.findings.length, ignored: rv.ignored.length, error: rv.error, usd: +rcost.toFixed(4), report: after.reportStatus }));
+    for (const fd of [...rv.findings, ...rv.ignored.map((x) => ({ ...x, reason: `(본문에 없는 인용, 무시) ${x.reason}` }))]) console.log(`  - [${fd.sectionId}] ${fd.severity} ${fd.kind}: "${fd.quote}" — ${fd.reason}`);
+  }
   if (r.issues.length) console.log('QA 사유:', JSON.stringify(r.issues, null, 1).slice(0, 1500));
   if (i === 0 && r.sections[0]) console.log('--- 첫 섹션 ---\n' + r.sections[0].body.slice(0, 600));
 }
