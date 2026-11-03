@@ -6,7 +6,7 @@ import { buildRuleCards, cardTextCatalog } from './cards';
 import { usableClaims } from './claims';
 import { buildInterpretation } from './interpretation';
 import { buildPlan } from './plan';
-import { JARGON } from './qa';
+import { ELEMENT_REMEDY, JARGON, STRENGTH } from './qa';
 
 const POLICY = { ziHour: 'MIDNIGHT', timeBasis: 'ERA_WALL_CLOCK' } as never;
 function chartOf(y: number, m: number, d: number, h: number | null) {
@@ -119,5 +119,22 @@ describe('카드 문장 검토표(cardTextCatalog)', () => {
     }
     // 무작위 표본에서 대부분의 변형이 실제로 쓰인다(검토표에 죽은 문장이 쌓이지 않게)
     expect(used.size).toBeGreaterThanOrEqual(cat.length - 4);
+  });
+});
+
+describe('검수: 힘의 세기 단정·오행 물건 처방(qa-2.1)', () => {
+  it('뿌리·계절 사실을 "강하다/단단하다"로 바꾼 문장을 잡는다', () => {
+    for (const s of ['바탕이 단단해서 꾸준히 버텨요', '오래 버티며 밀어붙이는 힘이 강한 편이에요', '흙 기운이 가장 강해요', '쉽게 무너지지 않아요', '나무 기운이 약해 보여요']) expect(STRENGTH.test(s), s).toBe(true);
+    for (const s of ['같은 기운이 땅 쪽에도 있어 바탕을 받쳐 주는 편이에요', '계절의 도움은 받기 어려운 쪽이에요', '강점이 드러나기 쉬워요', '약속을 먼저 정하면 편해요']) expect(STRENGTH.test(s), s).toBe(false);
+  });
+  it('오행을 물건·행동 처방으로 바꾼 문장을 잡는다', () => {
+    for (const s of ['물 한 컵 마시기가 도움이 돼요', '물을 자주 마시면 좋아요', '행운의 색은 파랑이에요', '빨간 옷을 입어 보세요']) expect(ELEMENT_REMEDY.test(s), s).toBe(true);
+    for (const s of ['물 기운은 의식해서 챙기면 좋아요', '쉬는 시간을 일정 사이에 넣어 보세요']) expect(ELEMENT_REMEDY.test(s), s).toBe(false);
+  });
+  it('카드 문장 자체는 이 검수에 걸리지 않는다', () => {
+    for (const e of cardTextCatalog()) for (const t of [e.thesis, e.condition, e.limitation]) {
+      expect(STRENGTH.test(t), `${e.key}: ${t}`).toBe(false);
+      expect(ELEMENT_REMEDY.test(t), `${e.key}: ${t}`).toBe(false);
+    }
   });
 });

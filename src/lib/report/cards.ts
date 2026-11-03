@@ -9,7 +9,7 @@ import type { Element } from '../saju/types';
 import type { GodGroup, Grade, Position, R002to005, StructureKind } from '../../../engine/saju-rules/src';
 import type { Claim, EvidenceItem, FactLine } from './types';
 
-export const CARDS_VERSION = 'cards-0.2.0-draft';
+export const CARDS_VERSION = 'cards-0.2.1-draft';
 
 const EL: Record<Element, string> = { wood: '나무', fire: '불', earth: '흙', metal: '쇠', water: '물' };
 const SEASON: Record<string, string> = { spring: '봄', summer: '여름', autumn: '가을', winter: '겨울' };
@@ -40,7 +40,7 @@ export const CARD_TEXT = {
   root: {
     present: '나와 같은 기운이 땅 쪽에도 자리 잡고 있어, 타고난 바탕이 받쳐 주는 편이에요',
     dayBranchSuffix: '. 특히 나 자신을 뜻하는 자리에도 있어요',
-    absent: '나와 같은 기운이 땅 쪽에는 보이지 않아, 혼자 버티기보다 주변의 도움을 함께 쓰는 편이 수월할 수 있어요',
+    absent: '나와 같은 기운이 땅 쪽에는 보이지 않아, 내 힘의 바탕은 계절이나 곁에 드러난 기운 쪽에서 찾게 돼요',
     condition: '혼자 버텨야 하거나 기댈 곳이 필요할 때',
     limitation: '뿌리가 있고 없음이나 그 개수만으로 힘의 세기를 정하지 않아요',
   },

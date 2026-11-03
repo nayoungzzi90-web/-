@@ -51,7 +51,7 @@ function parseSection(text: string): Parsed | null {
   try {
     const j = JSON.parse(text);
     if (typeof j?.status !== 'string' || typeof j?.body !== 'string' || !Array.isArray(j.claim_ids)) return null;
-    return { status: j.status, headline: typeof j.headline === 'string' ? j.headline.trim() : '', body: j.body.trim(), claimIds: j.claim_ids.map(String), factIds: Array.isArray(j.fact_ids) ? j.fact_ids.map(String) : [] };
+    return { status: j.status, headline: typeof j.headline === 'string' ? j.headline.trim() : '', body: j.body.replace(/\\n/g, '\n').trim(), claimIds: j.claim_ids.map(String), factIds: Array.isArray(j.fact_ids) ? j.fact_ids.map(String) : [] };
   } catch { return null; }
 }
 

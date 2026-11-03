@@ -7,7 +7,7 @@ import type { InterpretationFacts, QaIssue, ReportPlan, SectionPlan } from './ty
  * 자동 품질 검수 (PRD 6.1-4): 코드로 확정할 수 있는 항목만 검사한다.
  * ⚠️ 문장의 "좋음"(자연스러움·공감)은 코드로 판정하지 않는다 → 사람의 5축 검수(사실 정합성·근거·차별성·읽기 편함·적용 가능성)가 따로 필요.
  */
-export const QA_VERSION = 'qa-2.0';
+export const QA_VERSION = 'qa-2.1';
 
 export const countChars = (s: string) => s.replace(/\s/g, '').length;
 const GANJI = /[甲乙丙丁戊己庚辛壬癸][子丑寅卯辰巳午未申酉戌亥]/g;
@@ -21,6 +21,10 @@ const PROPHECY = [
 const MEDICAL = /우울증|조울|불안\s*장애|공황|ADHD|자폐|치매|암\b|질병|정신과|진단|처방|치료/;
 /** 일반인이 모르는 사주 전문용어(제품 규칙: 쓰지 않는다). 본문·제목에서 발견되면 반려한다. */
 export const JARGON = /일간|일지|월지|연지|시지|천간|지지|원국|일주|월주|연주|시주|십성|비견|겁재|식신|상관|편재|정재|편관|정관|편인|정인|비겁|식상|재성|관성|인성|지장간|신살|용신|희신|기신|격국|대운|세운|간지|합충|신강|신약|득령|통근|투출|사령|월령|합화|육합|삼합|방합|천간합|합과 충|합·충|충과|충이|충을|충은|충이 있/;
+/** 힘의 세기 단정(R-002 제6조, R-004 제10조, R-005 제12조: 신강신약 판단 전). "표현하는 힘이 강해요" 같은 성향 표현도 막지만, 세기 대신 경향으로 쓰게 하는 쪽이 안전하다 */
+export const STRENGTH = /(힘|기운|바탕|뿌리)[이가은는도]?\s*(?:매우\s*|아주\s*|꽤\s*|더\s*|가장\s*)?(강해|강한|강하|약해|약한|약하|단단)|쉽게\s*무너지지/;
+/** 오행 이름을 물건·행동 처방으로 바꾼 표현 */
+export const ELEMENT_REMEDY = /물\s*(?:한\s*)?(?:컵|잔)|물을\s*(?:자주\s*|더\s*|많이\s*)?마시|행운의\s*(?:색|숫자|방향)|(?:빨간|붉은|파란|푸른|초록|노란|하얀|흰|검은)\s*(?:색|옷|소품)/;
 const SCORE = /\d+\s*(%|퍼센트|점\b)|\d+\s*\/\s*100|점수/;
 const HOUR_NEG = /모르|없|미상|제외|반영하지|알 수 없|계산하지|해석하지|생략/;
 
@@ -90,6 +94,11 @@ export function checkSection(body: string, claimIds: string[], section: SectionP
   // 의학·심리 진단
   const med = body.match(MEDICAL);
   if (med) add('MEDICAL', `의학·심리 진단성 표현이 있어요(${med[0]}). 빼거나 일상적인 표현으로 바꿔요.`);
+  // 힘의 세기 단정·오행 물건 처방
+  const st = body.match(STRENGTH);
+  if (st) add('STRENGTH', `힘의 세기를 단정했어요(${st[0]}). 아직 강하다·약하다는 판단하지 않았어요. 명제의 말("받쳐 주는 편", "도움을 받는 쪽")로 써요.`);
+  const rem = body.match(ELEMENT_REMEDY);
+  if (rem) add('ELEMENT_REMEDY', `오행 이름을 물건·행동 처방으로 바꿨어요(${rem[0]}). 명제의 조건에 맞춘 생활 습관으로 써요.`);
   // 점수·확률
   const sc = body.match(SCORE);
   if (sc) add('SCORE', `점수·확률 표현이 있어요(${sc[0]}). 말로 된 경향으로 바꿔요.`);
