@@ -150,7 +150,8 @@ export async function runReportPipeline(plan: ReportPlan, facts: InterpretationF
       if (!r.ok) return finish('failed', failStatus(r.failure), r.failure);
       done[idx] = r.sec;
     }
-    const after = checkReport(done, plan).filter((i) => i.severity === 'fail');
+    // 구절 반복(REPEAT_PHRASE)은 다시 쓰게 하는 용도로만 쓴다: 한 번 고쳐 쓴 뒤에도 남으면 실패가 아니라 경고로 둔다
+    const after = checkReport(done, plan).filter((i) => i.severity === 'fail' && i.code !== 'REPEAT_PHRASE');
     if (after.length) { allIssues.push(...after.map((i) => ({ ...i, message: `[재검수] ${i.message}` }))); return finish('failed', 'NEEDS_REVIEW', { code: 'REPORT_QA_FAILED', message: `전체 검수를 통과하지 못했어요: ${[...new Set(after.map((i) => i.code))].join(', ')}` }); }
   }
 

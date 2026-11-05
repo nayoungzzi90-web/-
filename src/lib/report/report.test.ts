@@ -37,9 +37,9 @@ function goodBody(f: InterpretationFacts, plan: ReportPlan, section: SectionPlan
   const anchors = [...new Set(primary.flatMap((c) => c.anchors))].slice(0, 4);
   const r = rng(plan.product + section.id);
   const trim = (t: string) => { const ss = t.split(/(?<=[.!?])\s+/); while (ss.length > 1 && countChars(ss.join(' ')) > section.maxChars * 0.9) ss.pop(); return ss.join(' '); };
-  let body = trim(owned.map((c) => `${c.thesis}. ${c.condition}에 그런 모습이 드러나기 쉬워요.`).join(' ')) + ` ${section.title}을(를) 풀 때는 ${anchors.join(', ')}을(를) 먼저 떠올려 보면 쉬워요. ` + extra;
+  let body = trim(owned.map((c) => `${c.thesis}. ${c.condition}에 ${section.id}번 칸에서만 ${section.id}번 모습이 보여요.`).join(' ')) + ` ${section.title}을(를) 풀 때는 ${anchors.join(', ')}을(를) ${section.id}번 칸에서 먼저 짚어요. ` + extra;
   if (plan.years && section.focusTags.includes('yearly')) body += plan.years.map((y) => `${y}년 이야기예요.`).join(' ');
-  while (countChars(body) < section.targetChars) body += ` ${Array.from({ length: 6 }, () => WORDS[Math.floor(r() * WORDS.length)]).join(' ')} 같은 장면으로 떠올려 보면 쉬워요.`;
+  while (countChars(body) < section.targetChars) body += ` ${Array.from({ length: 6 }, () => WORDS[Math.floor(r() * WORDS.length)]).join(' ')} ${section.id}번 칸의 장면이에요.`;
   const seenSen = new Set<string>();
   body = body.split(/(?<=[.!?])\s+/).filter((x) => { const k = x.replace(/\s/g, ''); if (seenSen.has(k)) return false; seenSen.add(k); return true; }).join(' ');
   if (!extra) body = body.replace(new RegExp(JARGON.source, 'g'), '기운');
@@ -158,6 +158,14 @@ describe('QA 검사기', () => {
     const plan = { ...basicPlan, totalRange: [countChars(cut.map((x) => x.body).join('')) + 50, 99999] as [number, number] };
     const short = checkReport(cut, plan).find((i) => i.code === 'TOTAL_SHORT');
     expect(short?.sectionId).toBe(target.id);
+  });
+  it('같은 구절이 3개 이상 섹션에 되풀이되면 가장 뒤 섹션을 지목한다', () => {
+    const rep = '생각과 재능을 밖으로 꺼내는 기운이 보여요.';
+    const s = basicPlan.sections.map((p, i) => ({ id: p.id, title: p.title, body: i < 3 ? `${rep} 섹션${i}만의 이야기가 이어져요.` : `전혀 다른 내용${i}이에요.` }));
+    const hit = checkReport(s, basicPlan).find((i) => i.code === 'REPEAT_PHRASE');
+    expect(hit?.sectionId).toBe(basicPlan.sections[2]!.id);
+    const two = s.map((x, i) => (i === 2 ? { ...x, body: `다른 이야기${i}가 이어져요.` } : x));
+    expect(checkReport(two, basicPlan).map((i) => i.code)).not.toContain('REPEAT_PHRASE');
   });
   it('목차 누락', () => expect(checkReport([], basicPlan).map((i) => i.code)).toContain('TOC'));
 });

@@ -177,6 +177,22 @@ export function checkReport(sections: { id: string; title: string; body: string 
     const jac = uni ? inter / uni : 0;
     if (jac > 0.4) out.push({ code: 'DUP_SECTION', severity: 'fail', sectionId: sections[j].id, message: `"${sections[j].title}"이(가) "${sections[i].title}"과 너무 비슷해요(유사도 ${Math.round(jac * 100)}%). 겹치는 설명을 빼고 새 관점을 써요.` });
   }
+  // 같은 구절이 3개 이상 섹션에 되풀이되면(뜻이 같은 말 반복) 가장 뒤 섹션을 다시 쓰게 한다
+  if (sections.length >= 4) {
+    const wordsOf = (t: string) => t.replace(/[.,!?·"“”()\-]/g, ' ').split(/\s+/).filter(Boolean);
+    const where = new Map<string, Set<number>>();
+    sections.forEach((sec, i) => {
+      const w = wordsOf(sec.body);
+      for (let k = 0; k + 3 <= w.length; k++) {
+        const g = w.slice(k, k + 3).join(' ');
+        if (g.replace(/\s/g, '').length < 9) continue;
+        (where.get(g) ?? where.set(g, new Set()).get(g)!).add(i);
+      }
+    });
+    const flagged = new Map<number, string>();
+    for (const [g, at] of where) if (at.size >= 3) { const last = Math.max(...at); if (!flagged.has(last)) flagged.set(last, g); }
+    for (const [i, g] of flagged) out.push({ code: 'REPEAT_PHRASE', severity: 'fail', sectionId: sections[i]!.id, message: `"${g}" 같은 구절이 3개 이상 섹션에 되풀이돼요. 이 섹션에서는 다른 명제·다른 장면으로 쓰고, 앞에서 쓴 내용은 한 문장 이내로만 짧게 언급해요.` });
+  }
   return out;
 }
 
