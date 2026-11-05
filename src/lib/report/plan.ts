@@ -30,7 +30,15 @@ const COMPAT: SectionPlan[] = [
   sec('s6', '소통 조언', '앞선 내용을 바탕으로 두 사람이 바로 해 볼 수 있는 대화 방법을 제안한다. 새로운 사실·명제를 만들지 않는다.', 300, ['communication', 'advice']),
 ];
 
-const loveSections = (years: number[]): SectionPlan[] => [
+const loveSections = (years: number[], cards = false): SectionPlan[] => cards ? [
+  // 판단 카드 기반(쉬운 말). 10년 흐름은 해석 기준 미검증이라 따로 섹션을 두지 않고 연도 섹션에서 한 줄로만 밝힌다.
+  sec('s1', '연애 기질', '타고난 바탕(계절·뿌리·곁에 드러난 기운) 명제로 연애에서의 기본 기질을 설명한다.', 600, ['love', 'personality', 'balance']),
+  sec('s2', '원하는 관계·상대', '가까운 관계를 뜻하는 자리와 인연을 살피는 기운 명제로 편안해하는 관계와 끌리는 상대의 결을 설명한다. 한 자리·한 기운으로 상대를 정하지 않고, 상대의 성별을 가정하지 않는다.', 500, ['love', 'relationship']),
+  sec('s3', '반복될 수 있는 관계 패턴', '짝(부딪히는·묶이는) 명제와 곁에 드러난 기운 명제로 관계의 시작·유지·갈등·조정에서 반복될 수 있는 모습과 알아차리는 방법을 설명한다.', 650, ['relations', 'relationship', 'personality']),
+  sec('s4', '강점·어려움', '연애에서의 강점과 어려움을 균형 있게 설명한다. 어려움은 비난이 아니라 조율 포인트로 쓴다.', 500, ['strength', 'love']),
+  sec('s6', `${years[0]}~${years[years.length - 1]}년 한 해씩 보기`, `${years.join(', ')}년을 한 해씩 모두 다룬다. 각 해의 연도 명제만 근거로, 관계에서 어떤 주제가 눈에 띄기 쉬운지 설명한다. 연도마다 "○○○○년은"으로 시작하고 연도별 문장이 반복되지 않게 한다. 10년 단위 흐름은 다루지 않는다는 점을 맨 끝에 한 문장으로만 밝힌다.`, 1250, ['yearly', 'limits']),
+  sec('s7', '조언', '앞선 내용을 바탕으로 관계에서 점검해 볼 실질적인 선택과 질문을 제안한다. 새로운 사실·명제를 만들지 않는다.', 500, ['advice', 'love']),
+] : [
   sec('s1', '연애 기질', '일간·월간 십성·오행 균형 명제로 연애에서의 기본 기질을 설명한다.', 600, ['love', 'personality', 'balance']),
   sec('s2', '원하는 관계·상대', '일지(배우자궁) 십성과 이성 인연 별 명제로 편안해하는 관계 유형과 끌리는 상대의 결을 설명한다. 단일 십성으로 상대 유형을 확정하지 않는다.', 500, ['love', 'relationship']),
   sec('s3', '반복될 수 있는 관계 패턴', '원국의 합충, 자기 힘/바깥 힘, 긴장(tension) 명제에서 읽히는 반복 패턴과 알아차리는 방법을 관계의 시작·유지·갈등·조정 단계로 설명한다.', 650, ['relations', 'relationship', 'personality']),
@@ -89,7 +97,7 @@ export const COMMON_RULES = [...RULE_GROUPS.evidence, ...RULE_GROUPS.saju, ...RU
 export function buildPlan(product: ProductKey, facts: InterpretationFacts, opts: { tone?: Tone } = {}): ReportPlan {
   const meta = CATALOG[product];
   const hourKnown = facts.subjects.every((s) => s.hourKnown);
-  const sections = product === 'basic' ? BASIC : product === 'compatibility' ? COMPAT : loveSections(facts.years ?? []);
+  const sections = product === 'basic' ? BASIC : product === 'compatibility' ? COMPAT : loveSections(facts.years ?? [], facts.claims.some((c) => c.ruleId === 'SJ-LOVE-LUCK-HELD'));
   const tone = opts.tone ?? 'haeyo';
   return {
     product, productName: meta.name, sections: sections.map((s) => ({ ...s })),

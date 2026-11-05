@@ -233,7 +233,7 @@ export async function getAiReading(
 ): Promise<AiReadingResponse> {
   if (!deps.config.ok) return unavailable(MSG.OFF);
   const c = deps.config.config;
-  if (input.product !== "basic") return unavailable(MSG.PRODUCT);
+  if (input.product !== "basic" && input.product !== "love") return unavailable(MSG.PRODUCT);
 
   const readingId = unlockIdFor(input.product, input.me, input.partner);
   if (!readingId || !(await isUnlocked(deps.unlockClient, userId, readingId)))
@@ -269,8 +269,22 @@ export async function getAiReading(
   // ── 생성 ──
   const { chart, monthTerm, birth } = fromManse(ch.chart.manse);
   const rules = analyzeR002toR005(chart, { monthTerm, birth });
-  const interp = buildInterpretation("basic", ch.chart.facts, { rules });
-  const plan = buildPlan("basic", interp);
+  const product = input.product === "love" ? "love_deep" : "basic";
+  const g =
+    typeof input.me === "object" && input.me !== null
+      ? (input.me as { gender?: string }).gender
+      : undefined;
+  const baseYear = Number((deps.today ?? kstToday()).slice(0, 4));
+  const interp = buildInterpretation(product, ch.chart.facts, {
+    rules,
+    ...(product === "love_deep"
+      ? {
+          gender: g === "f" ? "F" : g === "m" ? "M" : "X",
+          years: [0, 1, 2, 3, 4].map((i) => baseYear + i),
+        }
+      : {}),
+  });
+  const plan = buildPlan(product, interp);
   const writer = new BudgetedLlm(
     deps.writer ? deps.writer(c) : new OpenAiLlm({ apiKey: c.openaiKey, model: c.model }),
     c.budget,

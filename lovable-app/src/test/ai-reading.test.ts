@@ -189,7 +189,7 @@ describe("AI 풀이 생성 흐름", () => {
     expect(r).toMatchObject({ ok: true, state: "unavailable" });
     expect(s.calls.begin.length).toBe(0);
   });
-  it("열람하지 않았거나 기본 사주가 아니면 시작하지 않는다", async () => {
+  it("열람하지 않았거나 궁합(아직 미지원)이면 시작하지 않는다", async () => {
     const s = fakeStore();
     expect(
       await getAiReading(
@@ -199,9 +199,41 @@ describe("AI 풀이 생성 흐름", () => {
       ),
     ).toMatchObject({ state: "unavailable", message: expect.stringContaining("풀이를 연 뒤") });
     expect(
-      await getAiReading({ product: "love", me }, "u1", deps({ store: s.store })),
+      await getAiReading({ product: "compat", me, partner: me }, "u1", deps({ store: s.store })),
     ).toMatchObject({ state: "unavailable" });
     expect(s.calls.begin.length).toBe(0);
+  });
+  it("심층 연애운: 열람 id 는 love, 판단 카드 기반 계획(연도 5개, 10년 흐름 섹션 없음)으로 쓴다", async () => {
+    const loveRid = unlockId("love", me, undefined)!;
+    const lu: UnlockClient = {
+      from: () => ({
+        select: () => ({
+          eq: () => ({
+            eq: (_c: string, v: string) => ({
+              maybeSingle: async () => ({
+                data: v === loveRid ? { reading_id: v } : null,
+                error: null,
+              }),
+            }),
+          }),
+        }),
+      }),
+    };
+    const s = fakeStore();
+    const plans: { sections: { title: string }[]; years?: number[] }[] = [];
+    const run = (async (plan: never, f: never, o: never) => {
+      plans.push(plan);
+      return fakeRun()(plan, f, o);
+    }) as unknown as NonNullable<AiDeps["run"]>;
+    const r = await getAiReading(
+      { product: "love", me },
+      "u1",
+      deps({ store: s.store, unlockClient: lu, run }),
+    );
+    expect(r).toMatchObject({ ok: true, state: "ready" });
+    expect(s.calls.begin[0]).toMatchObject({ readingId: loveRid });
+    expect(plans[0]!.years).toEqual([2026, 2027, 2028, 2029, 2030]);
+    expect(plans[0]!.sections.map((x) => x.title)).not.toContain("10년 단위 큰 흐름");
   });
   it("trial: 만들어 저장하고(이름 없이), 응답할 때만 이름을 넣어 시범 표시와 함께 보여 준다", async () => {
     const s = fakeStore();

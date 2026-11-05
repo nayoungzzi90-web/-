@@ -49,7 +49,9 @@ export function ReadingBlock({
   return (
     <>
       <ReadingView sections={data.sections} chars={data.chars} needsReview={data.needsReview} />
-      {product === "basic" && isUnlocked && !hasLocked && me && <AiReading me={me} />}
+      {(product === "basic" || product === "love") && isUnlocked && !hasLocked && me && (
+        <AiReading me={me} product={product} />
+      )}
       {hasLocked && (
         <Paywall id={id} label={p.label} price={won(p.coins)} coins={p.coins}>
           {null}

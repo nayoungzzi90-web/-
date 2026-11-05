@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { calculate } from '../../../engine/manse/src/engine';
 import { toSajuFacts } from '../../../engine/manse/src/adapter';
 import { analyzeR002toR005, fromManse } from '../../../engine/saju-rules/src';
-import { buildRuleCards, cardTextCatalog } from './cards';
+import { branchBind, branchClash, buildLoveCards, buildRuleCards, cardTextCatalog, yearPillarOf } from './cards';
 import { usableClaims } from './claims';
 import { buildInterpretation } from './interpretation';
 import { buildPlan } from './plan';
@@ -93,7 +93,7 @@ describe('섹션 제목도 쉬운 말', () => {
 
 describe('카드 문장 검토표(cardTextCatalog)', () => {
   const cat = cardTextCatalog();
-  const toRe = (t: string) => new RegExp('^' + t.replace(/[.*+?^$()|[\]\\]/g, '\\$&').replace(/\{[^}]+\}/g, '(나무|불|흙|쇠|물)') + '$');
+  const toRe = (t: string) => new RegExp('^' + t.replace(/[.*+?^$()|[\]\\]/g, '\\$&').replace(/\{([^}]+)\}/g, (_m: string, k: string) => (k === '해' ? '\\d{4}' : '(나무|불|흙|쇠|물)')) + '$');
   it('키가 겹치지 않고, 문장·조건·한계·쓰이는 경우에 한자·전문용어가 없다', () => {
     expect(new Set(cat.map((e) => e.key)).size).toBe(cat.length);
     for (const e of cat) {
@@ -110,7 +110,7 @@ describe('카드 문장 검토표(cardTextCatalog)', () => {
       const y = 1900 + Math.floor(r() * 151), m = 1 + Math.floor(r() * 12), d = 1 + Math.floor(r() * 28);
       const h = r() < 0.15 ? null : Math.floor(r() * 24);
       const { facts, rules } = chartOf(y, m, d, h);
-      const claims = [...buildRuleCards(rules).claims, ...buildInterpretation('basic', facts, { rules }).claims.filter((c) => c.ruleId === 'SJ-BRANCH-PAIRS-DRAFT')];
+      const claims = [...buildRuleCards(rules).claims, ...buildLoveCards(rules, { gender: i % 2 ? 'F' : 'M', years: [2026, 2027, 2028, 2029, 2030] }).claims, ...buildInterpretation('basic', facts, { rules }).claims.filter((c) => c.ruleId === 'SJ-BRANCH-PAIRS-DRAFT')];
       for (const c of claims) {
         const hit = cat.find((e) => e.ruleId === c.ruleId && toRe(e.thesis).test(c.thesis) && e.condition === c.condition && e.limitation === c.limitation);
         expect(hit, `${y}-${m}-${d} ${c.ruleId}: ${c.thesis}`).toBeTruthy();
@@ -124,7 +124,7 @@ describe('카드 문장 검토표(cardTextCatalog)', () => {
 
 describe('검수: 힘의 세기 단정·오행 물건 처방(qa-2.1)', () => {
   it('뿌리·계절 사실을 "강하다/단단하다"로 바꾼 문장을 잡는다', () => {
-    for (const s of ['바탕이 단단해서 꾸준히 버텨요', '오래 버티며 밀어붙이는 힘이 강한 편이에요', '흙 기운이 가장 강해요', '쉽게 무너지지 않아요', '나무 기운이 약해 보여요']) expect(STRENGTH.test(s), s).toBe(true);
+    for (const s of ['바탕이 단단해서 꾸준히 버텨요', '오래 버티며 밀어붙이는 힘이 강한 편이에요', '흙 기운이 가장 강해요', '쉽게 무너지지 않아요', '관계에서 쉽게 무너지기보다 버텨요', '흔들리지 않는 바탕이 있어요', '나무 기운이 약해 보여요']) expect(STRENGTH.test(s), s).toBe(true);
     for (const s of ['같은 기운이 땅 쪽에도 있어 바탕을 받쳐 주는 편이에요', '계절의 도움은 받기 어려운 쪽이에요', '강점이 드러나기 쉬워요', '약속을 먼저 정하면 편해요']) expect(STRENGTH.test(s), s).toBe(false);
   });
   it('오행을 물건·행동 처방으로 바꾼 문장을 잡는다', () => {
@@ -135,6 +135,51 @@ describe('검수: 힘의 세기 단정·오행 물건 처방(qa-2.1)', () => {
     for (const e of cardTextCatalog()) for (const t of [e.thesis, e.condition, e.limitation]) {
       expect(STRENGTH.test(t), `${e.key}: ${t}`).toBe(false);
       expect(ELEMENT_REMEDY.test(t), `${e.key}: ${t}`).toBe(false);
+    }
+  });
+});
+
+describe('연애운 카드', () => {
+  const YEARS = [2026, 2027, 2028, 2029, 2030];
+  it('세운 간지는 60갑자 순환으로 정확하다(2024 갑진, 2026 병오, 1984 갑자)', () => {
+    expect(yearPillarOf(2024)).toEqual({ stem: '甲', branch: '辰' });
+    expect(yearPillarOf(2026)).toEqual({ stem: '丙', branch: '午' });
+    expect(yearPillarOf(1984)).toEqual({ stem: '甲', branch: '子' });
+  });
+  it('충은 정반대 자리, 육합은 子丑·寅亥·卯戌·辰酉·巳申·午未만', () => {
+    expect(branchClash('子', '午')).toBe(true);
+    expect(branchClash('子', '丑')).toBe(false);
+    const binds = ['子丑', '寅亥', '卯戌', '辰酉', '巳申', '午未'];
+    const all = '子丑寅卯辰巳午未申酉戌亥'.split('') as never[];
+    for (const a of all) for (const b of all) expect(branchBind(a, b), `${a}${b}`).toBe(binds.includes(`${a}${b}`) || binds.includes(`${b}${a}`));
+  });
+  it('여성·남성에 따라 인연을 살피는 기운이 다르고, 연도마다 명제가 하나씩 있다', () => {
+    const { rules } = chartOf(1995, 5, 17, 14); // 乙亥 辛巳 戊申 己未: 일간 무토, 연간 을목(관살)
+    const f = buildLoveCards(rules, { gender: 'F', years: YEARS });
+    const m = buildLoveCards(rules, { gender: 'M', years: YEARS });
+    expect(f.claims.find((c) => c.id === 'C-card-love-star')!.ruleId).toBe('SJ-LOVE-STAR-PRESENT');
+    expect(m.claims.find((c) => c.id === 'C-card-love-star')!.ruleId).toBe('SJ-LOVE-STAR-ABSENT');
+    for (const y of YEARS) expect(f.claims.some((c) => c.id === `C-card-year-${y}` && c.thesis.startsWith(`${y}년은`))).toBe(true);
+    expect(f.yearPillars[2026]).toBe('丙午');
+    // 일지 申(본기 庚 = 무토가 길러 내는 기운)
+    expect(f.claims.find((c) => c.id === 'C-card-love-palace')!.ruleId).toBe('SJ-LOVE-PALACE-OUTPUT');
+  });
+  it('무작위 300개 원국: 연애운 해석에 옛 전문용어 명제가 없고, 모든 섹션에 쓸 명제가 있다', () => {
+    const r = rng(11);
+    for (let i = 0; i < 300; i++) {
+      const y = 1900 + Math.floor(r() * 151), m = 1 + Math.floor(r() * 12), d = 1 + Math.floor(r() * 28);
+      const h = r() < 0.15 ? null : Math.floor(r() * 24);
+      const { facts, rules } = chartOf(y, m, d, h);
+      const f = buildInterpretation('love_deep', facts, { rules, gender: i % 3 === 0 ? 'F' : i % 3 === 1 ? 'M' : 'X', years: YEARS });
+      expect(f.claims.some((c) => /^R-CLM-(PALACE|STAR|PREL|YEAR|LUCK)/.test(c.ruleId)), `${y}-${m}-${d}`).toBe(false);
+      const usable = usableClaims(f.claims, true);
+      const text = [...usable.flatMap((c) => [c.thesis, c.condition, c.limitation]), ...f.lines.filter((l) => /^card_(love|year|luck)/.test(l.id)).map((l) => l.text)].join('\n');
+      expect(text, `${y}-${m}-${d}`).not.toMatch(/\p{Script=Han}/u);
+      expect(text.match(JARGON)?.[0] ?? null, `${y}-${m}-${d}`).toBeNull();
+      const plan = buildPlan('love_deep', f);
+      expect(plan.sections.map((s) => s.title)).not.toContain('10년 단위 큰 흐름');
+      for (const s of plan.sections) expect(usable.some((cl) => cl.tags.some((t) => s.focusTags.includes(t))), `${y}-${m}-${d} ${s.title}`).toBe(true);
+      for (const s of plan.sections) expect(s.title + s.purpose, s.title).not.toMatch(JARGON);
     }
   });
 });

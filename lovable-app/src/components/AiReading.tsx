@@ -9,16 +9,18 @@ const POLL_MS = 8000;
 const POLL_MAX = 22;
 
 /**
- * AI 풀이(기본 사주, 열람한 사람만). 누르기 전에는 AI 를 부르지 않는다.
+ * AI 풀이(기본 사주·심층 연애운, 열람한 사람만). 누르기 전에는 AI 를 부르지 않는다.
  * 서버가 꺼져 있으면(기본) "준비 중" 안내만 보인다.
  */
 export function AiReading({
   me,
+  product = "basic",
   fetcher = (d) => getAiReadingFn({ data: d }),
   pollMs = POLL_MS,
 }: {
   me: BirthInput;
-  fetcher?: (d: { product: "basic"; me: BirthInput }) => Promise<AiReadingResponse>;
+  product?: "basic" | "love";
+  fetcher?: (d: { product: "basic" | "love"; me: BirthInput }) => Promise<AiReadingResponse>;
   pollMs?: number;
 }) {
   const [res, setRes] = useState<AiReadingResponse | null>(null);
@@ -30,7 +32,7 @@ export function AiReading({
   async function ask() {
     setBusy(true);
     try {
-      const r = await fetcher({ product: "basic", me });
+      const r = await fetcher({ product, me });
       if (!alive.current) return;
       if (r.ok && r.state === "running" && polls.current < POLL_MAX) {
         polls.current += 1;

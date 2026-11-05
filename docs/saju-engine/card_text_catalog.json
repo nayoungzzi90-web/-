@@ -1,5 +1,5 @@
 {
-  "version": "cards-0.2.1-draft",
+  "version": "cards-0.3.0-draft",
   "sample": 1000,
   "groups": [
     {
@@ -29,6 +29,26 @@
     {
       "prefix": "SJ-BRANCH-PAIRS",
       "title": "7. 땅 쪽 자리끼리 부딪히거나 묶이는 짝 (기존 규칙을 쉬운 말로)"
+    },
+    {
+      "prefix": "SJ-LOVE-PALACE",
+      "title": "8. 연애운: 가까운 관계를 뜻하는 자리 (태어난 날 땅 쪽 글자의 대표 기운)"
+    },
+    {
+      "prefix": "SJ-LOVE-STAR",
+      "title": "9. 연애운: 인연을 살피는 기운"
+    },
+    {
+      "prefix": "SJ-LOVE-PAIRS",
+      "title": "10. 연애운: 가까운 관계 자리의 짝"
+    },
+    {
+      "prefix": "SJ-LOVE-YEAR",
+      "title": "11. 연애운: 한 해씩 보기 (2026~2030 등, 그해 간지는 60갑자로 계산)"
+    },
+    {
+      "prefix": "SJ-LOVE-LUCK",
+      "title": "12. 연애운: 10년 흐름 (다루지 않음 안내)"
     }
   ],
   "entries": [
@@ -379,6 +399,330 @@
       "group": "SJ-BRANCH-PAIRS",
       "note": "",
       "sampleRate": 0.365
+    },
+    {
+      "key": "love.palace.peer",
+      "ruleId": "SJ-LOVE-PALACE-PEER",
+      "when": "태어난 날 땅 쪽 글자의 대표 기운이 나와 같은 기운일 때",
+      "thesis": "가까운 관계를 뜻하는 자리에 나와 같은 기운이 있어, 관계에서도 대등함과 내 방식을 중요하게 여기는 편이에요",
+      "condition": "가까운 관계에서 편안함을 느끼는 조건을 볼 때",
+      "limitation": "한 자리만 본 것이며, 상대의 모습이나 연애·결혼 여부를 정하지 않아요",
+      "status": "DRAFT",
+      "group": "SJ-LOVE-PALACE",
+      "note": "0.3 새 문장. 태어난 날 땅 쪽 글자를 \"가까운 관계의 자리\"로 보는 것은 전통 해석이며 기준서 R-002~R-005 밖이다",
+      "sampleRate": 0.203
+    },
+    {
+      "key": "love.palace.resource",
+      "ruleId": "SJ-LOVE-PALACE-RESOURCE",
+      "when": "태어난 날 땅 쪽 글자의 대표 기운이 나를 길러 주는 기운일 때",
+      "thesis": "가까운 관계를 뜻하는 자리에 나를 길러 주는 기운이 있어, 관계에서 돌봄과 안정감을 주고받는 것을 중요하게 여기는 편이에요",
+      "condition": "가까운 관계에서 편안함을 느끼는 조건을 볼 때",
+      "limitation": "한 자리만 본 것이며, 상대의 모습이나 연애·결혼 여부를 정하지 않아요",
+      "status": "DRAFT",
+      "group": "SJ-LOVE-PALACE",
+      "note": "",
+      "sampleRate": 0.186
+    },
+    {
+      "key": "love.palace.output",
+      "ruleId": "SJ-LOVE-PALACE-OUTPUT",
+      "when": "태어난 날 땅 쪽 글자의 대표 기운이 내가 길러 내는 기운일 때",
+      "thesis": "가까운 관계를 뜻하는 자리에 내가 길러 내는 기운이 있어, 관계에서 마음을 표현하고 함께 즐기는 것을 중요하게 여기는 편이에요",
+      "condition": "가까운 관계에서 편안함을 느끼는 조건을 볼 때",
+      "limitation": "한 자리만 본 것이며, 상대의 모습이나 연애·결혼 여부를 정하지 않아요",
+      "status": "DRAFT",
+      "group": "SJ-LOVE-PALACE",
+      "note": "",
+      "sampleRate": 0.214
+    },
+    {
+      "key": "love.palace.wealth",
+      "ruleId": "SJ-LOVE-PALACE-WEALTH",
+      "when": "태어난 날 땅 쪽 글자의 대표 기운이 내가 다루는 기운일 때",
+      "thesis": "가까운 관계를 뜻하는 자리에 내가 다루는 기운이 있어, 관계에서도 현실적인 계획과 생활을 함께 챙기는 편이에요",
+      "condition": "가까운 관계에서 편안함을 느끼는 조건을 볼 때",
+      "limitation": "한 자리만 본 것이며, 상대의 모습이나 연애·결혼 여부를 정하지 않아요",
+      "status": "DRAFT",
+      "group": "SJ-LOVE-PALACE",
+      "note": "",
+      "sampleRate": 0.198
+    },
+    {
+      "key": "love.palace.officer",
+      "ruleId": "SJ-LOVE-PALACE-OFFICER",
+      "when": "태어난 날 땅 쪽 글자의 대표 기운이 나를 다스리는 기운일 때",
+      "thesis": "가까운 관계를 뜻하는 자리에 나를 다스리는 기운이 있어, 관계에서 약속과 책임을 중요하게 여기는 편이에요",
+      "condition": "가까운 관계에서 편안함을 느끼는 조건을 볼 때",
+      "limitation": "한 자리만 본 것이며, 상대의 모습이나 연애·결혼 여부를 정하지 않아요",
+      "status": "DRAFT",
+      "group": "SJ-LOVE-PALACE",
+      "note": "",
+      "sampleRate": 0.199
+    },
+    {
+      "key": "love.star.present",
+      "ruleId": "SJ-LOVE-STAR-PRESENT",
+      "when": "여성은 나를 다스리는 기운, 남성은 내가 다루는 기운(그 밖은 둘 다)이 드러난 글자에 있을 때",
+      "thesis": "인연을 볼 때 전통적으로 살피는 기운이 겉으로 드러나 있어, 관계라는 주제가 삶에서 자주 떠오르는 편으로 볼 여지가 있어요",
+      "condition": "관계가 시작되는 환경을 볼 때",
+      "limitation": "성별에 따라 살피는 기운을 나누는 전통 방식일 뿐, 연애 상대의 성별이나 인연의 많고 적음, 결혼 여부를 정하지 않아요",
+      "status": "DRAFT",
+      "group": "SJ-LOVE-STAR",
+      "note": "0.3 새 문장. 성별로 살피는 기운을 나누는 전통 방식을 그대로 따름(상대 성별은 가정하지 않음)",
+      "sampleRate": 0.474
+    },
+    {
+      "key": "love.star.absent",
+      "ruleId": "SJ-LOVE-STAR-ABSENT",
+      "when": "위 기운이 드러난 글자에 없을 때",
+      "thesis": "인연을 볼 때 전통적으로 살피는 기운이 겉으로는 드러나 있지 않아, 인연이 스스로 만드는 환경과 선택에 따라 달라지는 편으로 볼 여지가 있어요",
+      "condition": "관계가 시작되는 환경을 볼 때",
+      "limitation": "성별에 따라 살피는 기운을 나누는 전통 방식일 뿐, 연애 상대의 성별이나 인연의 많고 적음, 결혼 여부를 정하지 않아요",
+      "status": "DRAFT",
+      "group": "SJ-LOVE-STAR",
+      "note": "",
+      "sampleRate": 0.526
+    },
+    {
+      "key": "love.pairs.clash",
+      "ruleId": "SJ-LOVE-PAIRS-CLASH",
+      "when": "태어난 날 땅 쪽 글자가 다른 자리와 부딪히는 짝만 이룰 때",
+      "thesis": "가까운 관계를 뜻하는 자리가 다른 자리와 부딪히는 짝을 이루어, 관계에서 생활 변화나 엇갈림을 조율할 일이 생길 여지가 있어요",
+      "condition": "관계와 다른 생활 영역이 함께 바쁠 때",
+      "limitation": "짝이 있다는 사실일 뿐, 실제로 작용하는지와 그 세기는 판단하지 않았어요",
+      "status": "DRAFT",
+      "group": "SJ-LOVE-PAIRS",
+      "note": "",
+      "sampleRate": 0.224
+    },
+    {
+      "key": "love.pairs.bind",
+      "ruleId": "SJ-LOVE-PAIRS-BIND",
+      "when": "태어난 날 땅 쪽 글자가 다른 자리와 묶이는 짝만 이룰 때",
+      "thesis": "가까운 관계를 뜻하는 자리가 다른 자리와 묶이는 짝을 이루어, 관계가 가족·일 같은 다른 생활 영역과 엮여 움직일 여지가 있어요",
+      "condition": "관계와 다른 생활 영역이 함께 바쁠 때",
+      "limitation": "짝이 있다는 사실일 뿐, 실제로 작용하는지와 그 세기는 판단하지 않았어요",
+      "status": "DRAFT",
+      "group": "SJ-LOVE-PAIRS",
+      "note": "",
+      "sampleRate": 0.174
+    },
+    {
+      "key": "love.pairs.both",
+      "ruleId": "SJ-LOVE-PAIRS-BOTH",
+      "when": "두 가지 짝이 함께 있을 때",
+      "thesis": "가까운 관계를 뜻하는 자리에 부딪히는 짝과 묶이는 짝이 함께 있어, 관계에서 당기고 밀리는 흐름이 함께 나타날 여지가 있어요",
+      "condition": "관계와 다른 생활 영역이 함께 바쁠 때",
+      "limitation": "짝이 있다는 사실일 뿐, 실제로 작용하는지와 그 세기는 판단하지 않았어요",
+      "status": "DRAFT",
+      "group": "SJ-LOVE-PAIRS",
+      "note": "",
+      "sampleRate": 0.03
+    },
+    {
+      "key": "love.pairs.none",
+      "ruleId": "SJ-LOVE-PAIRS-NONE",
+      "when": "그런 짝이 없을 때",
+      "thesis": "가까운 관계를 뜻하는 자리와 부딪히거나 묶이는 짝이 뚜렷하지 않아, 이 부분에서 따로 짚을 흐름은 적은 편이에요",
+      "condition": "관계와 다른 생활 영역이 함께 바쁠 때",
+      "limitation": "눈에 띄는 짝이 없다는 뜻일 뿐, 관계가 순탄하다는 뜻은 아니에요",
+      "status": "DRAFT",
+      "group": "SJ-LOVE-PAIRS",
+      "note": "",
+      "sampleRate": 0.572
+    },
+    {
+      "key": "love.year.peer",
+      "ruleId": "SJ-LOVE-YEAR-PEER",
+      "when": "그해 하늘 글자가 나와 같은 기운일 때",
+      "thesis": "{해}년은 나와 같은 기운이 들어오는 해라, 내 방식과 주변 사람과의 관계가 함께 눈에 띄기 쉬운 해로 볼 여지가 있어요",
+      "condition": "그해 입춘(양력 2월 4일 무렵)부터 다음 해 입춘 전까지",
+      "limitation": "한 해의 흐름을 보는 참고일 뿐, 만남·결혼·이별 같은 일을 예언하지 않아요",
+      "status": "DRAFT",
+      "group": "SJ-LOVE-YEAR",
+      "note": "0.3 새 문장. 한 해의 하늘 글자 관계로 주제를 말하는 것은 해석이며 검증 전",
+      "sampleRate": 0.573
+    },
+    {
+      "key": "love.year.peer.clash",
+      "ruleId": "SJ-LOVE-YEAR-PEER-CLASH",
+      "when": "위와 같고, 그해 땅 쪽 글자가 가까운 관계 자리와 부딪히는 짝일 때",
+      "thesis": "{해}년은 나와 같은 기운이 들어오는 해라, 내 방식과 주변 사람과의 관계가 함께 눈에 띄기 쉬운 해로 볼 여지가 있어요. 그해의 땅 쪽 글자가 가까운 관계를 뜻하는 자리와 부딪히는 짝이라, 관계에서 변화나 조율이 필요한 일이 생길 여지도 있어요",
+      "condition": "그해 입춘(양력 2월 4일 무렵)부터 다음 해 입춘 전까지",
+      "limitation": "한 해의 흐름을 보는 참고일 뿐, 만남·결혼·이별 같은 일을 예언하지 않아요",
+      "status": "DRAFT",
+      "group": "SJ-LOVE-YEAR",
+      "note": "",
+      "sampleRate": 0.093
+    },
+    {
+      "key": "love.year.peer.bind",
+      "ruleId": "SJ-LOVE-YEAR-PEER-BIND",
+      "when": "위와 같고, 그해 땅 쪽 글자가 가까운 관계 자리와 묶이는 짝일 때",
+      "thesis": "{해}년은 나와 같은 기운이 들어오는 해라, 내 방식과 주변 사람과의 관계가 함께 눈에 띄기 쉬운 해로 볼 여지가 있어요. 그해의 땅 쪽 글자가 가까운 관계를 뜻하는 자리와 묶이는 짝이라, 관계가 가까워지거나 엮이는 일이 생길 여지도 있어요",
+      "condition": "그해 입춘(양력 2월 4일 무렵)부터 다음 해 입춘 전까지",
+      "limitation": "한 해의 흐름을 보는 참고일 뿐, 만남·결혼·이별 같은 일을 예언하지 않아요",
+      "status": "DRAFT",
+      "group": "SJ-LOVE-YEAR",
+      "note": "",
+      "sampleRate": 0.076
+    },
+    {
+      "key": "love.year.resource",
+      "ruleId": "SJ-LOVE-YEAR-RESOURCE",
+      "when": "그해 하늘 글자가 나를 길러 주는 기운일 때",
+      "thesis": "{해}년은 나를 길러 주는 기운이 들어오는 해라, 배움과 돌봄, 마음을 추스르는 일이 눈에 띄기 쉬운 해로 볼 여지가 있어요",
+      "condition": "그해 입춘(양력 2월 4일 무렵)부터 다음 해 입춘 전까지",
+      "limitation": "한 해의 흐름을 보는 참고일 뿐, 만남·결혼·이별 같은 일을 예언하지 않아요",
+      "status": "DRAFT",
+      "group": "SJ-LOVE-YEAR",
+      "note": "",
+      "sampleRate": 0.563
+    },
+    {
+      "key": "love.year.resource.clash",
+      "ruleId": "SJ-LOVE-YEAR-RESOURCE-CLASH",
+      "when": "위와 같고, 그해 땅 쪽 글자가 가까운 관계 자리와 부딪히는 짝일 때",
+      "thesis": "{해}년은 나를 길러 주는 기운이 들어오는 해라, 배움과 돌봄, 마음을 추스르는 일이 눈에 띄기 쉬운 해로 볼 여지가 있어요. 그해의 땅 쪽 글자가 가까운 관계를 뜻하는 자리와 부딪히는 짝이라, 관계에서 변화나 조율이 필요한 일이 생길 여지도 있어요",
+      "condition": "그해 입춘(양력 2월 4일 무렵)부터 다음 해 입춘 전까지",
+      "limitation": "한 해의 흐름을 보는 참고일 뿐, 만남·결혼·이별 같은 일을 예언하지 않아요",
+      "status": "DRAFT",
+      "group": "SJ-LOVE-YEAR",
+      "note": "",
+      "sampleRate": 0.07
+    },
+    {
+      "key": "love.year.resource.bind",
+      "ruleId": "SJ-LOVE-YEAR-RESOURCE-BIND",
+      "when": "위와 같고, 그해 땅 쪽 글자가 가까운 관계 자리와 묶이는 짝일 때",
+      "thesis": "{해}년은 나를 길러 주는 기운이 들어오는 해라, 배움과 돌봄, 마음을 추스르는 일이 눈에 띄기 쉬운 해로 볼 여지가 있어요. 그해의 땅 쪽 글자가 가까운 관계를 뜻하는 자리와 묶이는 짝이라, 관계가 가까워지거나 엮이는 일이 생길 여지도 있어요",
+      "condition": "그해 입춘(양력 2월 4일 무렵)부터 다음 해 입춘 전까지",
+      "limitation": "한 해의 흐름을 보는 참고일 뿐, 만남·결혼·이별 같은 일을 예언하지 않아요",
+      "status": "DRAFT",
+      "group": "SJ-LOVE-YEAR",
+      "note": "",
+      "sampleRate": 0.076
+    },
+    {
+      "key": "love.year.output",
+      "ruleId": "SJ-LOVE-YEAR-OUTPUT",
+      "when": "그해 하늘 글자가 내가 길러 내는 기운일 때",
+      "thesis": "{해}년은 내가 길러 내는 기운이 들어오는 해라, 마음을 표현하고 새로 시도하는 일이 눈에 띄기 쉬운 해로 볼 여지가 있어요",
+      "condition": "그해 입춘(양력 2월 4일 무렵)부터 다음 해 입춘 전까지",
+      "limitation": "한 해의 흐름을 보는 참고일 뿐, 만남·결혼·이별 같은 일을 예언하지 않아요",
+      "status": "DRAFT",
+      "group": "SJ-LOVE-YEAR",
+      "note": "",
+      "sampleRate": 0.545
+    },
+    {
+      "key": "love.year.output.clash",
+      "ruleId": "SJ-LOVE-YEAR-OUTPUT-CLASH",
+      "when": "위와 같고, 그해 땅 쪽 글자가 가까운 관계 자리와 부딪히는 짝일 때",
+      "thesis": "{해}년은 내가 길러 내는 기운이 들어오는 해라, 마음을 표현하고 새로 시도하는 일이 눈에 띄기 쉬운 해로 볼 여지가 있어요. 그해의 땅 쪽 글자가 가까운 관계를 뜻하는 자리와 부딪히는 짝이라, 관계에서 변화나 조율이 필요한 일이 생길 여지도 있어요",
+      "condition": "그해 입춘(양력 2월 4일 무렵)부터 다음 해 입춘 전까지",
+      "limitation": "한 해의 흐름을 보는 참고일 뿐, 만남·결혼·이별 같은 일을 예언하지 않아요",
+      "status": "DRAFT",
+      "group": "SJ-LOVE-YEAR",
+      "note": "",
+      "sampleRate": 0.069
+    },
+    {
+      "key": "love.year.output.bind",
+      "ruleId": "SJ-LOVE-YEAR-OUTPUT-BIND",
+      "when": "위와 같고, 그해 땅 쪽 글자가 가까운 관계 자리와 묶이는 짝일 때",
+      "thesis": "{해}년은 내가 길러 내는 기운이 들어오는 해라, 마음을 표현하고 새로 시도하는 일이 눈에 띄기 쉬운 해로 볼 여지가 있어요. 그해의 땅 쪽 글자가 가까운 관계를 뜻하는 자리와 묶이는 짝이라, 관계가 가까워지거나 엮이는 일이 생길 여지도 있어요",
+      "condition": "그해 입춘(양력 2월 4일 무렵)부터 다음 해 입춘 전까지",
+      "limitation": "한 해의 흐름을 보는 참고일 뿐, 만남·결혼·이별 같은 일을 예언하지 않아요",
+      "status": "DRAFT",
+      "group": "SJ-LOVE-YEAR",
+      "note": "",
+      "sampleRate": 0.107
+    },
+    {
+      "key": "love.year.wealth",
+      "ruleId": "SJ-LOVE-YEAR-WEALTH",
+      "when": "그해 하늘 글자가 내가 다루는 기운일 때",
+      "thesis": "{해}년은 내가 다루는 기운이 들어오는 해라, 현실적인 계획과 생활을 챙기는 일이 눈에 띄기 쉬운 해로 볼 여지가 있어요",
+      "condition": "그해 입춘(양력 2월 4일 무렵)부터 다음 해 입춘 전까지",
+      "limitation": "한 해의 흐름을 보는 참고일 뿐, 만남·결혼·이별 같은 일을 예언하지 않아요",
+      "status": "DRAFT",
+      "group": "SJ-LOVE-YEAR",
+      "note": "",
+      "sampleRate": 0.563
+    },
+    {
+      "key": "love.year.wealth.clash",
+      "ruleId": "SJ-LOVE-YEAR-WEALTH-CLASH",
+      "when": "위와 같고, 그해 땅 쪽 글자가 가까운 관계 자리와 부딪히는 짝일 때",
+      "thesis": "{해}년은 내가 다루는 기운이 들어오는 해라, 현실적인 계획과 생활을 챙기는 일이 눈에 띄기 쉬운 해로 볼 여지가 있어요. 그해의 땅 쪽 글자가 가까운 관계를 뜻하는 자리와 부딪히는 짝이라, 관계에서 변화나 조율이 필요한 일이 생길 여지도 있어요",
+      "condition": "그해 입춘(양력 2월 4일 무렵)부터 다음 해 입춘 전까지",
+      "limitation": "한 해의 흐름을 보는 참고일 뿐, 만남·결혼·이별 같은 일을 예언하지 않아요",
+      "status": "DRAFT",
+      "group": "SJ-LOVE-YEAR",
+      "note": "",
+      "sampleRate": 0.089
+    },
+    {
+      "key": "love.year.wealth.bind",
+      "ruleId": "SJ-LOVE-YEAR-WEALTH-BIND",
+      "when": "위와 같고, 그해 땅 쪽 글자가 가까운 관계 자리와 묶이는 짝일 때",
+      "thesis": "{해}년은 내가 다루는 기운이 들어오는 해라, 현실적인 계획과 생활을 챙기는 일이 눈에 띄기 쉬운 해로 볼 여지가 있어요. 그해의 땅 쪽 글자가 가까운 관계를 뜻하는 자리와 묶이는 짝이라, 관계가 가까워지거나 엮이는 일이 생길 여지도 있어요",
+      "condition": "그해 입춘(양력 2월 4일 무렵)부터 다음 해 입춘 전까지",
+      "limitation": "한 해의 흐름을 보는 참고일 뿐, 만남·결혼·이별 같은 일을 예언하지 않아요",
+      "status": "DRAFT",
+      "group": "SJ-LOVE-YEAR",
+      "note": "",
+      "sampleRate": 0.086
+    },
+    {
+      "key": "love.year.officer",
+      "ruleId": "SJ-LOVE-YEAR-OFFICER",
+      "when": "그해 하늘 글자가 나를 다스리는 기운일 때",
+      "thesis": "{해}년은 나를 다스리는 기운이 들어오는 해라, 약속과 책임, 관계의 기준이 눈에 띄기 쉬운 해로 볼 여지가 있어요",
+      "condition": "그해 입춘(양력 2월 4일 무렵)부터 다음 해 입춘 전까지",
+      "limitation": "한 해의 흐름을 보는 참고일 뿐, 만남·결혼·이별 같은 일을 예언하지 않아요",
+      "status": "DRAFT",
+      "group": "SJ-LOVE-YEAR",
+      "note": "",
+      "sampleRate": 0.588
+    },
+    {
+      "key": "love.year.officer.clash",
+      "ruleId": "SJ-LOVE-YEAR-OFFICER-CLASH",
+      "when": "위와 같고, 그해 땅 쪽 글자가 가까운 관계 자리와 부딪히는 짝일 때",
+      "thesis": "{해}년은 나를 다스리는 기운이 들어오는 해라, 약속과 책임, 관계의 기준이 눈에 띄기 쉬운 해로 볼 여지가 있어요. 그해의 땅 쪽 글자가 가까운 관계를 뜻하는 자리와 부딪히는 짝이라, 관계에서 변화나 조율이 필요한 일이 생길 여지도 있어요",
+      "condition": "그해 입춘(양력 2월 4일 무렵)부터 다음 해 입춘 전까지",
+      "limitation": "한 해의 흐름을 보는 참고일 뿐, 만남·결혼·이별 같은 일을 예언하지 않아요",
+      "status": "DRAFT",
+      "group": "SJ-LOVE-YEAR",
+      "note": "",
+      "sampleRate": 0.077
+    },
+    {
+      "key": "love.year.officer.bind",
+      "ruleId": "SJ-LOVE-YEAR-OFFICER-BIND",
+      "when": "위와 같고, 그해 땅 쪽 글자가 가까운 관계 자리와 묶이는 짝일 때",
+      "thesis": "{해}년은 나를 다스리는 기운이 들어오는 해라, 약속과 책임, 관계의 기준이 눈에 띄기 쉬운 해로 볼 여지가 있어요. 그해의 땅 쪽 글자가 가까운 관계를 뜻하는 자리와 묶이는 짝이라, 관계가 가까워지거나 엮이는 일이 생길 여지도 있어요",
+      "condition": "그해 입춘(양력 2월 4일 무렵)부터 다음 해 입춘 전까지",
+      "limitation": "한 해의 흐름을 보는 참고일 뿐, 만남·결혼·이별 같은 일을 예언하지 않아요",
+      "status": "DRAFT",
+      "group": "SJ-LOVE-YEAR",
+      "note": "",
+      "sampleRate": 0.086
+    },
+    {
+      "key": "love.luck_held",
+      "ruleId": "SJ-LOVE-LUCK-HELD",
+      "when": "연애운 풀이에서 항상(10년 흐름 해석 기준 미검증)",
+      "thesis": "10년 단위의 큰 흐름은 해석 기준이 아직 검증되지 않아 이번 풀이에서는 다루지 않고, 한 해씩의 흐름으로 봐요",
+      "condition": "긴 흐름이 궁금할 때",
+      "limitation": "검증이 끝나면 따로 안내해요",
+      "status": "DRAFT",
+      "group": "SJ-LOVE-LUCK",
+      "note": "10년 흐름(대운) 해석 기준이 검증 전이라 다루지 않는다는 안내만",
+      "sampleRate": 1
     }
   ]
 }

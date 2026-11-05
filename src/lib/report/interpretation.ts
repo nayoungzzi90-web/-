@@ -4,7 +4,7 @@ import { analyzeChart, analyzeLove, analyzeYear, bko, ELEMENTS, GOD_LOVE, GOD_TR
 import { applyApprovals, buildCompatClaims, buildLoveClaims, buildPersonClaims, buildYearClaims, detectConflicts, luckMissingClaim } from './claims';
 import type { EvidenceItem, FactLine, InterpretationFacts, ProductKey, Subject } from './types';
 import type { R002to005 } from '../../../engine/saju-rules/src';
-import { buildRuleCards, CARD_TEXT } from './cards';
+import { buildLoveCards, buildRuleCards, CARD_TEXT } from './cards';
 
 /** 판단 카드가 대신하는 옛 명제 규칙·사실 줄 */
 const REPLACED_RULES = new Set(['R-CLM-AUTONOMY', 'R-CLM-EXPRESSION', 'R-CLM-PRACTICALITY', 'R-CLM-STRUCTURE', 'R-CLM-SUPPORT', 'R-CLM-POWER', 'R-CLM-SEASON']);
@@ -111,7 +111,14 @@ export function buildInterpretation(product: 'basic' | 'love_deep', f: SajuFacts
   const limits = f.warnings.filter((w) => ['hour_pillar_unavailable', 'luck_cycles_unavailable', 'term_boundary_unverified', 'engine_unverified'].includes(w));
   const allowed = new Set<string>(pillarsOf(f).map(([, v]) => v));
 
-  if (product === 'love_deep') {
+  if (product === 'love_deep' && opts.rules) {
+    // 연애운 판단 카드: 가까운 관계의 자리·인연 기운·짝·연도별 흐름(세운 간지는 60갑자로 정확히 계산)·10년 흐름 보류
+    const lc = buildLoveCards(opts.rules, { gender: opts.gender, years: opts.years ?? [] });
+    b.lines = b.lines.concat(lc.lines);
+    b.evidence = b.evidence.concat(lc.evidence);
+    claims = claims.concat(lc.claims);
+    for (const p of Object.values(lc.yearPillars)) allowed.add(p);
+  } else if (product === 'love_deep') {
     const L = loveLines(b, f, opts.gender);
     claims = claims.concat(buildLoveClaims(L));
     const years = opts.years ?? [];

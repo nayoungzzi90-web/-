@@ -23,6 +23,8 @@ export const RULES_ENGINE_VERSION = 'saju-rules-0.1.0';
 export interface R002to005 {
   engineVersion: string;
   chartId: string | null;
+  /** 계산에 쓴 원국(입력 그대로). 연애 카드가 일지·연도 관계를 볼 때 쓴다 */
+  chart: Chart;
   r002: R002Result; r003: R003Result; r004: R004Result; r005: R005Result;
 }
 
@@ -31,7 +33,7 @@ export function analyzeR002toR005(chart: Chart, opts: { monthTerm?: MonthTerm | 
   const r003 = runR003(chart, opts);
   const r004 = runR004(chart);
   const r005 = runR005(chart, r004);
-  return { engineVersion: RULES_ENGINE_VERSION, chartId: chart.chartId ?? null, r002, r003, r004, r005 };
+  return { engineVersion: RULES_ENGINE_VERSION, chartId: chart.chartId ?? null, chart, r002, r003, r004, r005 };
 }
 
 /** 만세력 결과 → 규칙 엔진 입력. 출생 시간을 모르면 그날 하루(현지 날짜)를 가능 범위로 둔다. */

@@ -8,10 +8,10 @@
  * - 신강신약·격국·용신은 만들지 않는다(R-006 이후 미구현).
  */
 import type { Element } from '../saju/types';
-import type { GodGroup, Grade, Position, R002to005, StructureKind } from '../../../engine/saju-rules/src';
+import { BRANCHES, GROUP_OF, relationOf, STATIC_HIDDEN, STEMS, type Branch, type GodGroup, type Grade, type Position, type R002to005, type StructureKind } from '../../../engine/saju-rules/src';
 import type { Claim, EvidenceItem, FactLine } from './types';
 
-export const CARDS_VERSION = 'cards-0.2.1-draft';
+export const CARDS_VERSION = 'cards-0.3.0-draft';
 
 const EL: Record<Element, string> = { wood: '나무', fire: '불', earth: '흙', metal: '쇠', water: '물' };
 const SEASON: Record<string, string> = { spring: '봄', summer: '여름', autumn: '가을', winter: '겨울' };
@@ -87,10 +87,53 @@ export const CARD_TEXT = {
     limitation: '짝이 있다는 사실일 뿐, 실제로 작용하는지와 그 세기는 판단하지 않았어요',
     absentLimitation: '눈에 띄는 짝이 없다는 뜻일 뿐, 삶에 변화가 적다는 뜻은 아니에요',
   },
+  /** 연애운 전용(태어난 날의 땅 쪽 글자 = 가까운 관계의 자리로 보는 전통 방식) */
+  love: {
+    palace: {
+      비겁: '가까운 관계를 뜻하는 자리에 나와 같은 기운이 있어, 관계에서도 대등함과 내 방식을 중요하게 여기는 편이에요',
+      인성: '가까운 관계를 뜻하는 자리에 나를 길러 주는 기운이 있어, 관계에서 돌봄과 안정감을 주고받는 것을 중요하게 여기는 편이에요',
+      식상: '가까운 관계를 뜻하는 자리에 내가 길러 내는 기운이 있어, 관계에서 마음을 표현하고 함께 즐기는 것을 중요하게 여기는 편이에요',
+      재성: '가까운 관계를 뜻하는 자리에 내가 다루는 기운이 있어, 관계에서도 현실적인 계획과 생활을 함께 챙기는 편이에요',
+      관살: '가까운 관계를 뜻하는 자리에 나를 다스리는 기운이 있어, 관계에서 약속과 책임을 중요하게 여기는 편이에요',
+    } as Record<GodGroup, string>,
+    palaceCondition: '가까운 관계에서 편안함을 느끼는 조건을 볼 때',
+    palaceLimitation: '한 자리만 본 것이며, 상대의 모습이나 연애·결혼 여부를 정하지 않아요',
+    star: {
+      present: '인연을 볼 때 전통적으로 살피는 기운이 겉으로 드러나 있어, 관계라는 주제가 삶에서 자주 떠오르는 편으로 볼 여지가 있어요',
+      absent: '인연을 볼 때 전통적으로 살피는 기운이 겉으로는 드러나 있지 않아, 인연이 스스로 만드는 환경과 선택에 따라 달라지는 편으로 볼 여지가 있어요',
+    },
+    starCondition: '관계가 시작되는 환경을 볼 때',
+    starLimitation: '성별에 따라 살피는 기운을 나누는 전통 방식일 뿐, 연애 상대의 성별이나 인연의 많고 적음, 결혼 여부를 정하지 않아요',
+    pairs: {
+      clash: '가까운 관계를 뜻하는 자리가 다른 자리와 부딪히는 짝을 이루어, 관계에서 생활 변화나 엇갈림을 조율할 일이 생길 여지가 있어요',
+      bind: '가까운 관계를 뜻하는 자리가 다른 자리와 묶이는 짝을 이루어, 관계가 가족·일 같은 다른 생활 영역과 엮여 움직일 여지가 있어요',
+      both: '가까운 관계를 뜻하는 자리에 부딪히는 짝과 묶이는 짝이 함께 있어, 관계에서 당기고 밀리는 흐름이 함께 나타날 여지가 있어요',
+      none: '가까운 관계를 뜻하는 자리와 부딪히거나 묶이는 짝이 뚜렷하지 않아, 이 부분에서 따로 짚을 흐름은 적은 편이에요',
+    },
+    pairsCondition: '관계와 다른 생활 영역이 함께 바쁠 때',
+    pairsLimitation: '짝이 있다는 사실일 뿐, 실제로 작용하는지와 그 세기는 판단하지 않았어요',
+    pairsNoneLimitation: '눈에 띄는 짝이 없다는 뜻일 뿐, 관계가 순탄하다는 뜻은 아니에요',
+    year: {
+      비겁: '{해}년은 나와 같은 기운이 들어오는 해라, 내 방식과 주변 사람과의 관계가 함께 눈에 띄기 쉬운 해로 볼 여지가 있어요',
+      인성: '{해}년은 나를 길러 주는 기운이 들어오는 해라, 배움과 돌봄, 마음을 추스르는 일이 눈에 띄기 쉬운 해로 볼 여지가 있어요',
+      식상: '{해}년은 내가 길러 내는 기운이 들어오는 해라, 마음을 표현하고 새로 시도하는 일이 눈에 띄기 쉬운 해로 볼 여지가 있어요',
+      재성: '{해}년은 내가 다루는 기운이 들어오는 해라, 현실적인 계획과 생활을 챙기는 일이 눈에 띄기 쉬운 해로 볼 여지가 있어요',
+      관살: '{해}년은 나를 다스리는 기운이 들어오는 해라, 약속과 책임, 관계의 기준이 눈에 띄기 쉬운 해로 볼 여지가 있어요',
+    } as Record<GodGroup, string>,
+    yearClash: '. 그해의 땅 쪽 글자가 가까운 관계를 뜻하는 자리와 부딪히는 짝이라, 관계에서 변화나 조율이 필요한 일이 생길 여지도 있어요',
+    yearBind: '. 그해의 땅 쪽 글자가 가까운 관계를 뜻하는 자리와 묶이는 짝이라, 관계가 가까워지거나 엮이는 일이 생길 여지도 있어요',
+    yearCondition: '그해 입춘(양력 2월 4일 무렵)부터 다음 해 입춘 전까지',
+    yearLimitation: '한 해의 흐름을 보는 참고일 뿐, 만남·결혼·이별 같은 일을 예언하지 않아요',
+    luck: {
+      text: '10년 단위의 큰 흐름은 해석 기준이 아직 검증되지 않아 이번 풀이에서는 다루지 않고, 한 해씩의 흐름으로 봐요',
+      condition: '긴 흐름이 궁금할 때',
+      limitation: '검증이 끝나면 따로 안내해요',
+    },
+  },
 };
 const ROLE_CARD = CARD_TEXT.role;
 const STRUCT_CARD = CARD_TEXT.struct;
-/** {나의기운}·{계절기운} 자리표시를 채운다 */
+/** {나의기운}·{계절기운}·{해} 자리표시를 채운다 */
 export const fillCard = (t: string, v: Record<string, string>) => t.replace(/\{([^}]+)\}/g, (m, k: string) => v[k] ?? m);
 
 export interface CardSet { lines: FactLine[]; claims: Claim[]; evidence: EvidenceItem[] }
@@ -198,6 +241,71 @@ export function buildRuleCards(r: R002to005): CardSet {
   return { lines, claims, evidence };
 }
 
+// ───── 연애운 카드 ─────
+const BIDX = (b: Branch) => BRANCHES.indexOf(b);
+/** 지지 충(정반대 자리) */
+export const branchClash = (a: Branch, b: Branch) => Math.abs(BIDX(a) - BIDX(b)) === 6;
+/** 지지 육합(子丑·寅亥·卯戌·辰酉·巳申·午未: 순번 합이 12로 나눠 1) */
+export const branchBind = (a: Branch, b: Branch) => a !== b && (BIDX(a) + BIDX(b)) % 12 === 1;
+/** 양력 연도의 세운 간지(그해 입춘 이후). 60갑자 순환: 서기 4년 = 갑자 */
+export const yearPillarOf = (y: number) => ({ stem: STEMS[(((y - 4) % 10) + 10) % 10]!, branch: BRANCHES[(((y - 4) % 12) + 12) % 12]! });
+
+export interface LoveCardOptions { gender?: 'F' | 'M' | 'X'; years: number[] }
+
+/** 연애운 판단 카드: 가까운 관계의 자리(일지 본기), 인연을 살피는 기운, 그 자리의 짝, 연도별 흐름, 10년 흐름 보류 안내 */
+export function buildLoveCards(r: R002to005, o: LoveCardOptions): CardSet & { yearPillars: Record<number, string> } {
+  const lines: FactLine[] = [];
+  const claims: Claim[] = [];
+  const evidence: EvidenceItem[] = [];
+  const yearPillars: Record<number, string> = {};
+  const ev = (id: string, label: string, detail: string, ruleId: string) => { evidence.push({ id, label, detail, ruleId }); return id; };
+  const dayStem = r.r005.dayStem;
+  if (!dayStem || r.r005.status === 'blocked') return { lines, claims, evidence, yearPillars };
+  const L = CARD_TEXT.love;
+  const P = r.chart.pillars;
+  const db = P.day.branch;
+
+  // 가까운 관계의 자리: 태어난 날 땅 쪽 글자의 본기(R-003 정적표) → 일간 기준 관계(R-005)
+  const main = STATIC_HIDDEN[db].main;
+  const pg = GROUP_OF[relationOf(dayStem, main)];
+  const e1 = ev('card_love_palace', '가까운 관계의 자리', `태어난 날 땅 쪽 글자의 대표 기운 → ${ROLE_CARD[pg].key}`, 'SJ-LOVE');
+  lines.push({ id: 'card_love_palace', text: `가까운 관계를 뜻하는 자리(태어난 날의 땅 쪽 글자)의 대표 기운은 ${ROLE_CARD[pg].fact.replace(/이$/, '')}이에요.`, evidenceIds: [e1], tags: ['love', 'relationship'], anchors: ['가까운 관계'] });
+  claims.push(draft({ id: 'C-card-love-palace', domain: 'love', semanticKey: 'love_palace', stance: 'CONTEXTUAL', thesis: L.palace[pg], factIds: ['card_love_palace'], counterFactIds: [], ruleId: `SJ-LOVE-PALACE-${ROLE_CARD[pg].key.toUpperCase()}`, condition: L.palaceCondition, limitation: L.palaceLimitation, salience: 5, tags: ['love', 'relationship'], anchors: ['가까운 관계'] }));
+
+  // 인연을 살피는 기운: 여성은 나를 다스리는 기운, 남성은 내가 다루는 기운(전통), 그 밖은 둘 다
+  const starGroups: GodGroup[] = o.gender === 'F' ? ['관살'] : o.gender === 'M' ? ['재성'] : ['관살', '재성'];
+  const shown = r.r005.relations.filter((x) => starGroups.includes(x.group)).length;
+  const e2 = ev('card_love_star', '인연을 살피는 기운', `드러난 글자 중 ${starGroups.map((g) => ROLE_CARD[g].key).join('/')} ${shown}곳`, 'SJ-LOVE');
+  lines.push({ id: 'card_love_star', text: `인연을 볼 때 전통적으로 살피는 기운이 드러난 글자에 ${shown ? `${shown}곳 있어요` : '없어요'}(땅 속 글자는 보지 않았어요).`, evidenceIds: [e2], tags: ['love', 'relationship'], anchors: ['인연'] });
+  claims.push(draft({ id: 'C-card-love-star', domain: 'love', semanticKey: 'relationship_star', stance: shown ? 'CONTEXTUAL' : 'LOW', thesis: shown ? L.star.present : L.star.absent, factIds: ['card_love_star'], counterFactIds: [], ruleId: shown ? 'SJ-LOVE-STAR-PRESENT' : 'SJ-LOVE-STAR-ABSENT', condition: L.starCondition, limitation: L.starLimitation, salience: 3, tags: ['love', 'relationship'], anchors: ['인연'] }));
+
+  // 가까운 관계의 자리와 다른 자리의 짝(충·육합 존재만)
+  const others: Position[] = (['year', 'month', 'hour'] as Position[]).filter((p) => P[p]);
+  const clash = others.filter((p) => branchClash(db, P[p]!.branch));
+  const bind = others.filter((p) => branchBind(db, P[p]!.branch));
+  const kind = clash.length && bind.length ? 'both' : clash.length ? 'clash' : bind.length ? 'bind' : 'none';
+  const e3 = ev('card_love_pairs', '가까운 관계의 자리와 짝', `부딪히는 짝: ${clash.map((p) => POS[p]).join('·') || '없음'}, 묶이는 짝: ${bind.map((p) => POS[p]).join('·') || '없음'}, 작용 미판단`, 'SJ-LOVE');
+  lines.push({ id: 'card_love_pairs', text: kind === 'none' ? '가까운 관계를 뜻하는 자리와 부딪히거나 묶이는 짝은 뚜렷하지 않아요.' : `가까운 관계를 뜻하는 자리는 ${[...clash.map((p) => `${POS[p]} 자리와 부딪히는 짝`), ...bind.map((p) => `${POS[p]} 자리와 묶이는 짝`)].join(', ')}을 이뤄요. 실제 작용은 판단하지 않았어요.`, evidenceIds: [e3], tags: ['relations', 'relationship', 'love'], anchors: ['짝'] });
+  claims.push(draft({ id: 'C-card-love-pairs', domain: 'love', semanticKey: 'palace_relations', stance: kind === 'none' ? 'NONE' : 'CONTEXTUAL', thesis: L.pairs[kind], factIds: ['card_love_pairs'], counterFactIds: [], ruleId: `SJ-LOVE-PAIRS-${kind.toUpperCase()}`, condition: L.pairsCondition, limitation: kind === 'none' ? L.pairsNoneLimitation : L.pairsLimitation, salience: kind === 'none' ? 2 : 4, tags: ['relations', 'relationship', 'love'], anchors: ['짝'] }));
+
+  // 연도별 흐름(세운): 그해 천간의 일간 기준 관계 + 그해 지지와 가까운 관계 자리의 짝
+  for (const y of o.years) {
+    const yp = yearPillarOf(y);
+    yearPillars[y] = `${yp.stem}${yp.branch}`;
+    const g = GROUP_OF[relationOf(dayStem, yp.stem)];
+    const yc = branchClash(db, yp.branch), yb = branchBind(db, yp.branch);
+    const id = `card_year_${y}`;
+    const e = ev(id, `${y}년 흐름`, `그해 하늘 글자 → ${ROLE_CARD[g].key}${yc ? ', 가까운 관계 자리와 부딪히는 짝' : yb ? ', 가까운 관계 자리와 묶이는 짝' : ''}`, 'SJ-LOVE-YEAR');
+    lines.push({ id, text: `${y}년에는 ${ROLE_CARD[g].fact.replace(/이$/, '')}이 들어와요.${yc ? ' 그해의 땅 쪽 글자는 가까운 관계를 뜻하는 자리와 부딪히는 짝이에요.' : yb ? ' 그해의 땅 쪽 글자는 가까운 관계를 뜻하는 자리와 묶이는 짝이에요.' : ''}`, evidenceIds: [e], tags: ['yearly', 'love', `year:${y}`], anchors: [`${y}년`] });
+    claims.push(draft({ id: `C-card-year-${y}`, domain: 'yearly', semanticKey: `year_${y}`, stance: 'CONTEXTUAL', thesis: fillCard(L.year[g], { 해: String(y) }) + (yc ? L.yearClash : yb ? L.yearBind : ''), factIds: [id], counterFactIds: [], ruleId: `SJ-LOVE-YEAR-${ROLE_CARD[g].key.toUpperCase()}${yc ? '-CLASH' : yb ? '-BIND' : ''}`, condition: L.yearCondition, limitation: L.yearLimitation, salience: 4, tags: ['yearly', 'love', `year:${y}`], anchors: [`${y}년`] }));
+  }
+
+  // 10년 흐름: 해석 기준 미검증 → 다루지 않는다고만 안내
+  lines.push({ id: 'card_luck_held', text: '10년 단위의 큰 흐름은 해석 기준이 검증되지 않아 이번 풀이에서 다루지 않아요. 그 흐름을 지어내지 않아요.', evidenceIds: [], tags: ['yearly', 'limits'], anchors: ['10년'] });
+  claims.push(draft({ id: 'C-card-luck-held', domain: 'luck', semanticKey: 'luck_cycle', stance: 'NONE', thesis: L.luck.text, factIds: ['card_luck_held'], counterFactIds: [], ruleId: 'SJ-LOVE-LUCK-HELD', condition: L.luck.condition, limitation: L.luck.limitation, salience: 1, tags: ['yearly', 'limits'], anchors: ['10년'] }));
+  return { lines, claims, evidence, yearPillars };
+}
+
 /** 검토표 한 줄: 카드 하나의 문장 변형 하나 */
 export interface CardCatalogEntry {
   /** 검토용 고유 키(문장 위치) */
@@ -256,5 +364,17 @@ export function cardTextCatalog(): CardCatalogEntry[] {
   add({ key: 'branch_pairs.bind', ruleId: 'SJ-BRANCH-PAIRS-DRAFT', when: '땅 쪽 글자끼리 묶이는 짝만 있을 때', thesis: B.bind, condition: B.presentCondition, limitation: B.limitation });
   add({ key: 'branch_pairs.present', ruleId: 'SJ-BRANCH-PAIRS-DRAFT', when: '땅 쪽 글자끼리 부딪히는 짝과 묶이는 짝이 함께 있을 때', thesis: B.present, condition: B.presentCondition, limitation: B.limitation });
   add({ key: 'branch_pairs.absent', ruleId: 'SJ-BRANCH-PAIRS-DRAFT', when: '땅 쪽 글자끼리 그런 짝이 없을 때', thesis: B.absent, condition: B.absentCondition, limitation: B.absentLimitation });
+  const LV = CARD_TEXT.love;
+  for (const [g, t] of Object.entries(LV.palace) as Array<[GodGroup, string]>) add({ key: `love.palace.${ROLE_CARD[g].key}`, ruleId: `SJ-LOVE-PALACE-${ROLE_CARD[g].key.toUpperCase()}`, when: `태어난 날 땅 쪽 글자의 대표 기운이 ${ROLE_CARD[g].fact.replace(/이$/, '')}일 때`, thesis: t, condition: LV.palaceCondition, limitation: LV.palaceLimitation });
+  add({ key: 'love.star.present', ruleId: 'SJ-LOVE-STAR-PRESENT', when: '여성은 나를 다스리는 기운, 남성은 내가 다루는 기운(그 밖은 둘 다)이 드러난 글자에 있을 때', thesis: LV.star.present, condition: LV.starCondition, limitation: LV.starLimitation });
+  add({ key: 'love.star.absent', ruleId: 'SJ-LOVE-STAR-ABSENT', when: '위 기운이 드러난 글자에 없을 때', thesis: LV.star.absent, condition: LV.starCondition, limitation: LV.starLimitation });
+  for (const k of ['clash', 'bind', 'both', 'none'] as const) add({ key: `love.pairs.${k}`, ruleId: `SJ-LOVE-PAIRS-${k.toUpperCase()}`, when: { clash: '태어난 날 땅 쪽 글자가 다른 자리와 부딪히는 짝만 이룰 때', bind: '태어난 날 땅 쪽 글자가 다른 자리와 묶이는 짝만 이룰 때', both: '두 가지 짝이 함께 있을 때', none: '그런 짝이 없을 때' }[k], thesis: LV.pairs[k], condition: LV.pairsCondition, limitation: k === 'none' ? LV.pairsNoneLimitation : LV.pairsLimitation });
+  for (const [g, t] of Object.entries(LV.year) as Array<[GodGroup, string]>) {
+    const kk = ROLE_CARD[g].key;
+    add({ key: `love.year.${kk}`, ruleId: `SJ-LOVE-YEAR-${kk.toUpperCase()}`, when: `그해 하늘 글자가 ${ROLE_CARD[g].fact.replace(/이$/, '')}일 때`, thesis: t, condition: LV.yearCondition, limitation: LV.yearLimitation });
+    add({ key: `love.year.${kk}.clash`, ruleId: `SJ-LOVE-YEAR-${kk.toUpperCase()}-CLASH`, when: '위와 같고, 그해 땅 쪽 글자가 가까운 관계 자리와 부딪히는 짝일 때', thesis: t + LV.yearClash, condition: LV.yearCondition, limitation: LV.yearLimitation });
+    add({ key: `love.year.${kk}.bind`, ruleId: `SJ-LOVE-YEAR-${kk.toUpperCase()}-BIND`, when: '위와 같고, 그해 땅 쪽 글자가 가까운 관계 자리와 묶이는 짝일 때', thesis: t + LV.yearBind, condition: LV.yearCondition, limitation: LV.yearLimitation });
+  }
+  add({ key: 'love.luck_held', ruleId: 'SJ-LOVE-LUCK-HELD', when: '연애운 풀이에서 항상(10년 흐름 해석 기준 미검증)', thesis: LV.luck.text, condition: LV.luck.condition, limitation: LV.luck.limitation });
   return out;
 }
