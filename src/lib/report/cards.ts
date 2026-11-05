@@ -6,10 +6,11 @@
  * - 신강신약·격국·용신은 만들지 않는다(R-006 이후 미구현).
  */
 import type { Element } from '../saju/types';
-import { BRANCHES, GROUP_OF, relationOf, STATIC_HIDDEN, STEMS, type Branch, type GodGroup, type Grade, type Position, type R002to005, type StructureKind } from '../../../engine/saju-rules/src';
+import type { RelationCode } from '../../../engine/saju-rules/src';
+import { BRANCHES, GROUP_OF, relationOf, STATIC_HIDDEN, STEM_COMBINATIONS, STEMS, type Branch, type GodGroup, type Grade, type Position, type R002to005, type StructureKind } from '../../../engine/saju-rules/src';
 import type { Claim, EvidenceItem, FactLine } from './types';
 
-export const CARDS_VERSION = 'cards-0.3.0-draft';
+export const CARDS_VERSION = 'cards-0.4.0-draft';
 
 const EL: Record<Element, string> = { wood: '나무', fire: '불', earth: '흙', metal: '쇠', water: '물' };
 const SEASON: Record<string, string> = { spring: '봄', summer: '여름', autumn: '가을', winter: '겨울' };
@@ -127,6 +128,45 @@ export const CARD_TEXT = {
       condition: '긴 흐름이 궁금할 때',
       limitation: '검증이 끝나면 따로 안내해요',
     },
+  },
+  /** 궁합 전용. 상대의 이름은 쓰지 않고 "상대"라고만 한다. 점수·확률·잘 맞음/안 맞음 판정은 하지 않는다. */
+  compat: {
+    core: {
+      PEER: '두 사람의 바탕 기운이 같아, 서로의 방식을 쉽게 알아보고 나란히 가는 관계로 볼 여지가 있어요',
+      GENERATES_SELF: '상대의 바탕 기운이 나를 길러 주는 쪽이라, 상대에게서 힘과 도움을 받는 장면이 생기기 쉬운 관계로 볼 여지가 있어요',
+      SELF_GENERATES: '나의 바탕 기운이 상대를 길러 주는 쪽이라, 내가 상대를 챙기고 북돋우는 장면이 생기기 쉬운 관계로 볼 여지가 있어요',
+      SELF_CONTROLS: '나의 바탕 기운이 상대의 기운을 다루는 쪽이라, 내가 방향을 잡거나 이끄는 장면이 생기기 쉬운 관계로 볼 여지가 있어요',
+      CONTROLS_SELF: '상대의 바탕 기운이 나의 기운을 다루는 쪽이라, 상대가 기준을 세우고 내가 맞추는 장면이 생기기 쉬운 관계로 볼 여지가 있어요',
+    } as Record<RelationCode, string>,
+    coreCondition: '관계의 기본 결을 볼 때',
+    coreLimitation: '태어난 날의 하늘 글자 하나끼리만 본 것이며, 잘 맞고 안 맞고를 정하지 않아요',
+    combine: '두 사람의 바탕 기운이 서로 끌리는 짝이라, 처음부터 마음이 쉽게 가는 면이 있을 여지가 있어요',
+    combineCondition: '처음 가까워질 때',
+    combineLimitation: '짝이 있다는 사실일 뿐, 실제로 작용하는지는 판단하지 않았어요',
+    day: {
+      clash: '두 사람의 가까운 관계를 뜻하는 자리가 서로 부딪히는 짝이라, 생활 속도와 방식의 차이를 조율할 일이 생기기 쉬운 편으로 볼 여지가 있어요',
+      bind: '두 사람의 가까운 관계를 뜻하는 자리가 서로 묶이는 짝이라, 정서적으로 가까워지기 쉬운 편으로 볼 여지가 있어요',
+      none: '두 사람의 가까운 관계를 뜻하는 자리가 부딪히거나 묶이는 짝이 아니라, 이 부분에서 따로 짚을 흐름은 적은 편이에요',
+    },
+    dayCondition: '가까운 관계에서 일상의 속도가 맞물릴 때',
+    month: {
+      clash: '두 사람이 태어난 달의 땅 쪽 글자가 부딪히는 짝이라, 생활 리듬과 환경을 맞추는 데 이야기가 필요할 여지가 있어요',
+      bind: '두 사람이 태어난 달의 땅 쪽 글자가 묶이는 짝이라, 생활 리듬이 잘 맞물리기 쉬운 편으로 볼 여지가 있어요',
+      none: '두 사람이 태어난 달의 땅 쪽 글자가 부딪히거나 묶이는 짝이 아니라, 생활 리듬은 각자의 습관에 따라 맞춰 가는 편이에요',
+    },
+    monthCondition: '생활 방식과 리듬을 맞출 때',
+    pairLimitation: '짝이 있다는 사실일 뿐, 실제로 작용하는지와 그 세기는 판단하지 않았어요',
+    pairNoneLimitation: '눈에 띄는 짝이 없다는 뜻일 뿐, 관계가 순탄하다는 뜻은 아니에요',
+    complement: {
+      some: '한쪽의 드러난 글자에 적은 기운을 다른 쪽이 많이 가지고 있어, 서로 다른 면을 채워 주는 장면이 생길 여지가 있어요',
+      none: '드러난 글자로 보면 서로 채워 주는 기운이 뚜렷하지 않아, 비슷한 점을 바탕으로 맞춰 가는 편이에요',
+    },
+    complementCondition: '서로의 다른 점이 드러날 때',
+    complementLimitation: '드러난 글자의 개수만 본 것이며, 기운의 실제 세기나 잘 맞음을 정하지 않아요',
+    /** {누구} = 나 / 상대. 뒤 문장은 연애운의 가까운 관계 자리 문장과 같다 */
+    affectionPrefix: '{누구}는 ',
+    affectionCondition: '애정을 주고받는 방식을 볼 때',
+    affectionLimitation: '한 자리만 본 것이며, 사람의 성격이나 관계의 결과를 정하지 않아요',
   },
 };
 const ROLE_CARD = CARD_TEXT.role;
@@ -304,6 +344,59 @@ export function buildLoveCards(r: R002to005, o: LoveCardOptions): CardSet & { ye
   return { lines, claims, evidence, yearPillars };
 }
 
+// ───── 궁합 카드 ─────
+const STEM_COMBINE_OK = (a: string, b: string) => STEM_COMBINATIONS.some(([x, y]) => (x === a && y === b) || (x === b && y === a));
+const pairKind = (a: Branch, b: Branch) => (branchClash(a, b) ? 'clash' : branchBind(a, b) ? 'bind' : 'none') as 'clash' | 'bind' | 'none';
+
+/** 궁합 판단 카드. counts 는 각자의 드러난 글자 오행 개수(만세력 사실). 상대 이름·생년월일은 쓰지 않는다. */
+export function buildCompatCards(a: R002to005, b: R002to005, counts: { a: Record<Element, number>; b: Record<Element, number> }): CardSet {
+  const lines: FactLine[] = [];
+  const claims: Claim[] = [];
+  const evidence: EvidenceItem[] = [];
+  const ev = (id: string, label: string, detail: string, ruleId: string) => { evidence.push({ id, label, detail, ruleId }); return id; };
+  const da = a.r005.dayStem, dbs = b.r005.dayStem;
+  if (!da || !dbs || a.r005.status === 'blocked' || b.r005.status === 'blocked') return { lines, claims, evidence };
+  const C = CARD_TEXT.compat;
+  const ea = EL[STEM_EL[da]!], eb = EL[STEM_EL[dbs]!];
+
+  const rel = relationOf(da, dbs);
+  const e1 = ev('card_compat_core', '두 사람의 바탕 기운', `나 ${ea}, 상대 ${eb} → ${rel}`, 'SJ-COMPAT');
+  lines.push({ id: 'card_compat_core', text: `나의 바탕 기운(태어난 날의 하늘 글자)은 ${ea}, 상대는 ${eb}예요.`, evidenceIds: [e1], tags: ['compat_core', 'communication'], anchors: ['바탕 기운'] });
+  claims.push(draft({ id: 'C-card-compat-core', domain: 'compat', semanticKey: 'compat_core', stance: 'CONTEXTUAL', thesis: C.core[rel], factIds: ['card_compat_core'], counterFactIds: [], ruleId: `SJ-COMPAT-CORE-${rel}`, condition: C.coreCondition, limitation: C.coreLimitation, salience: 5, tags: ['compat_core', 'communication'], anchors: ['바탕 기운'] }));
+
+  if (STEM_COMBINE_OK(da, dbs)) {
+    lines.push({ id: 'card_compat_combine', text: '두 사람의 태어난 날 하늘 글자는 서로 끌리는 짝이에요. 실제 작용은 판단하지 않았어요.', evidenceIds: [e1], tags: ['compat_core', 'affection'], anchors: ['끌리'] });
+    claims.push(draft({ id: 'C-card-compat-combine', domain: 'compat', semanticKey: 'compat_combine', stance: 'CONTEXTUAL', thesis: C.combine, factIds: ['card_compat_combine'], counterFactIds: [], ruleId: 'SJ-COMPAT-COMBINE', condition: C.combineCondition, limitation: C.combineLimitation, salience: 3, tags: ['compat_core', 'affection'], anchors: ['끌리'] }));
+  }
+
+  const dk = pairKind(a.chart.pillars.day.branch, b.chart.pillars.day.branch);
+  const e2 = ev('card_compat_day', '가까운 관계 자리끼리', dk, 'SJ-COMPAT');
+  lines.push({ id: 'card_compat_day', text: dk === 'none' ? '두 사람의 태어난 날 땅 쪽 글자는 부딪히거나 묶이는 짝이 아니에요.' : `두 사람의 태어난 날 땅 쪽 글자는 서로 ${dk === 'clash' ? '부딪히는' : '묶이는'} 짝이에요. 실제 작용은 판단하지 않았어요.`, evidenceIds: [e2], tags: ['conflict', 'affection'], anchors: ['짝'] });
+  claims.push(draft({ id: 'C-card-compat-day', domain: 'compat', semanticKey: 'compat_branch', stance: dk === 'clash' ? 'LOW' : dk === 'bind' ? 'HIGH' : 'NONE', thesis: C.day[dk], factIds: ['card_compat_day'], counterFactIds: [], ruleId: `SJ-COMPAT-DAY-${dk.toUpperCase()}`, condition: C.dayCondition, limitation: dk === 'none' ? C.pairNoneLimitation : C.pairLimitation, salience: 4, tags: ['conflict', 'affection'], anchors: ['짝'] }));
+
+  const mk = pairKind(a.chart.pillars.month.branch, b.chart.pillars.month.branch);
+  const e3 = ev('card_compat_month', '태어난 달끼리', mk, 'SJ-COMPAT');
+  lines.push({ id: 'card_compat_month', text: mk === 'none' ? '두 사람이 태어난 달의 땅 쪽 글자는 부딪히거나 묶이는 짝이 아니에요.' : `두 사람이 태어난 달의 땅 쪽 글자는 서로 ${mk === 'clash' ? '부딪히는' : '묶이는'} 짝이에요. 실제 작용은 판단하지 않았어요.`, evidenceIds: [e3], tags: ['lifestyle', 'conflict'], anchors: ['생활 리듬'] });
+  claims.push(draft({ id: 'C-card-compat-month', domain: 'compat', semanticKey: 'compat_month', stance: mk === 'clash' ? 'LOW' : mk === 'bind' ? 'HIGH' : 'NONE', thesis: C.month[mk], factIds: ['card_compat_month'], counterFactIds: [], ruleId: `SJ-COMPAT-MONTH-${mk.toUpperCase()}`, condition: C.monthCondition, limitation: mk === 'none' ? C.pairNoneLimitation : C.pairLimitation, salience: 3, tags: ['lifestyle', 'conflict'], anchors: ['생활 리듬'] }));
+
+  const ELS = Object.keys(EL) as Element[];
+  const need = (x: Record<Element, number>, y: Record<Element, number>) => ELS.filter((e) => (x[e] ?? 0) <= 1 && (y[e] ?? 0) >= 2);
+  const aGets = need(counts.a, counts.b), bGets = need(counts.b, counts.a);
+  const some = aGets.length + bGets.length > 0;
+  const e4 = ev('card_compat_complement', '서로 채워 주는 기운', `나에게 적고 상대에게 많은: ${aGets.map((e) => EL[e]).join('·') || '없음'} / 상대에게 적고 나에게 많은: ${bGets.map((e) => EL[e]).join('·') || '없음'}`, 'SJ-COMPAT');
+  lines.push({ id: 'card_compat_complement', text: `드러난 글자로 보면 나에게 적고 상대에게 많은 기운은 ${aGets.map((e) => EL[e]).join('·') || '없고'}${aGets.length ? '이고' : ''}, 상대에게 적고 나에게 많은 기운은 ${bGets.map((e) => EL[e]).join('·') || '없어요'}${bGets.length ? '예요' : ''}.`, evidenceIds: [e4], tags: ['lifestyle', 'communication'], anchors: ['채워'] });
+  claims.push(draft({ id: 'C-card-compat-complement', domain: 'compat', semanticKey: 'compat_complement', stance: some ? 'HIGH' : 'NONE', thesis: some ? C.complement.some : C.complement.none, factIds: ['card_compat_complement'], counterFactIds: [], ruleId: some ? 'SJ-COMPAT-COMPLEMENT-SOME' : 'SJ-COMPAT-COMPLEMENT-NONE', condition: C.complementCondition, limitation: C.complementLimitation, salience: 3, tags: ['lifestyle', 'communication'], anchors: ['채워'] }));
+
+  for (const [who, r, ds] of [['나', a, da], ['상대', b, dbs]] as const) {
+    const g = GROUP_OF[relationOf(ds, STATIC_HIDDEN[r.chart.pillars.day.branch].main)];
+    const key = who === '나' ? 'a' : 'b';
+    const id = `card_compat_${key}_love`;
+    lines.push({ id, text: `${who}의 가까운 관계를 뜻하는 자리(태어난 날의 땅 쪽 글자)의 대표 기운은 ${ROLE_CARD[g].fact.replace(/이$/, '')}이에요.`, evidenceIds: [ev(id, `${who}의 가까운 관계 자리`, ROLE_CARD[g].key, 'SJ-COMPAT')], tags: ['affection', 'love'], anchors: ['가까운 관계'] });
+    claims.push(draft({ id: `C-card-compat-${key}-love`, domain: 'compat', semanticKey: `affection_${key}`, stance: 'CONTEXTUAL', thesis: fillCard(C.affectionPrefix, { 누구: who }) + CARD_TEXT.love.palace[g], factIds: [id], counterFactIds: [], ruleId: `SJ-COMPAT-AFFECTION-${ROLE_CARD[g].key.toUpperCase()}`, condition: C.affectionCondition, limitation: C.affectionLimitation, salience: 4, tags: ['affection', 'love'], anchors: ['가까운 관계'] }));
+  }
+  return { lines, claims, evidence };
+}
+
 /** 검토표 한 줄: 카드 하나의 문장 변형 하나 */
 export interface CardCatalogEntry {
   /** 검토용 고유 키(문장 위치) */
@@ -374,5 +467,16 @@ export function cardTextCatalog(): CardCatalogEntry[] {
     add({ key: `love.year.${kk}.bind`, ruleId: `SJ-LOVE-YEAR-${kk.toUpperCase()}-BIND`, when: '위와 같고, 그해 땅 쪽 글자가 가까운 관계 자리와 묶이는 짝일 때', thesis: t + LV.yearBind, condition: LV.yearCondition, limitation: LV.yearLimitation });
   }
   add({ key: 'love.luck_held', ruleId: 'SJ-LOVE-LUCK-HELD', when: '연애운 풀이에서 항상(10년 흐름 해석 기준 미검증)', thesis: LV.luck.text, condition: LV.luck.condition, limitation: LV.luck.limitation });
+  const CP = CARD_TEXT.compat;
+  const REL_WHEN: Record<RelationCode, string> = { PEER: '두 사람의 바탕 기운(태어난 날의 하늘 글자)이 같을 때', GENERATES_SELF: '상대의 바탕 기운이 나를 길러 줄 때', SELF_GENERATES: '나의 바탕 기운이 상대를 길러 줄 때', SELF_CONTROLS: '나의 바탕 기운이 상대를 누를 때', CONTROLS_SELF: '상대의 바탕 기운이 나를 누를 때' };
+  for (const [k, t] of Object.entries(CP.core) as Array<[RelationCode, string]>) add({ key: `compat.core.${k.toLowerCase()}`, ruleId: `SJ-COMPAT-CORE-${k}`, when: REL_WHEN[k], thesis: t, condition: CP.coreCondition, limitation: CP.coreLimitation });
+  add({ key: 'compat.combine', ruleId: 'SJ-COMPAT-COMBINE', when: '두 사람의 태어난 날 하늘 글자가 서로 끌리는 짝일 때', thesis: CP.combine, condition: CP.combineCondition, limitation: CP.combineLimitation });
+  for (const k of ['clash', 'bind', 'none'] as const) {
+    add({ key: `compat.day.${k}`, ruleId: `SJ-COMPAT-DAY-${k.toUpperCase()}`, when: `두 사람의 태어난 날 땅 쪽 글자가 ${{ clash: '부딪히는 짝일', bind: '묶이는 짝일', none: '짝이 아닐' }[k]} 때`, thesis: CP.day[k], condition: CP.dayCondition, limitation: k === 'none' ? CP.pairNoneLimitation : CP.pairLimitation });
+    add({ key: `compat.month.${k}`, ruleId: `SJ-COMPAT-MONTH-${k.toUpperCase()}`, when: `두 사람이 태어난 달의 땅 쪽 글자가 ${{ clash: '부딪히는 짝일', bind: '묶이는 짝일', none: '짝이 아닐' }[k]} 때`, thesis: CP.month[k], condition: CP.monthCondition, limitation: k === 'none' ? CP.pairNoneLimitation : CP.pairLimitation });
+  }
+  add({ key: 'compat.complement.some', ruleId: 'SJ-COMPAT-COMPLEMENT-SOME', when: '한쪽에 1개 이하인 기운을 다른 쪽이 2개 이상 가질 때(드러난 글자)', thesis: CP.complement.some, condition: CP.complementCondition, limitation: CP.complementLimitation });
+  add({ key: 'compat.complement.none', ruleId: 'SJ-COMPAT-COMPLEMENT-NONE', when: '그런 기운이 없을 때', thesis: CP.complement.none, condition: CP.complementCondition, limitation: CP.complementLimitation });
+  for (const [g, t] of Object.entries(CARD_TEXT.love.palace) as Array<[GodGroup, string]>) add({ key: `compat.affection.${ROLE_CARD[g].key}`, ruleId: `SJ-COMPAT-AFFECTION-${ROLE_CARD[g].key.toUpperCase()}`, when: `나 또는 상대의 태어난 날 땅 쪽 글자의 대표 기운이 ${ROLE_CARD[g].fact.replace(/이$/, '')}일 때`, thesis: CP.affectionPrefix + t, condition: CP.affectionCondition, limitation: CP.affectionLimitation });
   return out;
 }

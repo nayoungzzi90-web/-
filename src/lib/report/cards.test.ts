@@ -2,9 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { calculate } from '../../../engine/manse/src/engine';
 import { toSajuFacts } from '../../../engine/manse/src/adapter';
 import { analyzeR002toR005, fromManse } from '../../../engine/saju-rules/src';
-import { branchBind, branchClash, buildLoveCards, buildRuleCards, cardTextCatalog, yearPillarOf } from './cards';
+import { branchBind, branchClash, buildCompatCards, buildLoveCards, buildRuleCards, cardTextCatalog, yearPillarOf } from './cards';
 import { usableClaims } from './claims';
-import { buildInterpretation } from './interpretation';
+import { buildCompatInterpretation, buildInterpretation } from './interpretation';
 import { buildPlan } from './plan';
 import { ELEMENT_REMEDY, JARGON, STRENGTH } from './qa';
 
@@ -93,7 +93,7 @@ describe('섹션 제목도 쉬운 말', () => {
 
 describe('카드 문장 검토표(cardTextCatalog)', () => {
   const cat = cardTextCatalog();
-  const toRe = (t: string) => new RegExp('^' + t.replace(/[.*+?^$()|[\]\\]/g, '\\$&').replace(/\{([^}]+)\}/g, (_m: string, k: string) => (k === '해' ? '\\d{4}' : '(나무|불|흙|쇠|물)')) + '$');
+  const toRe = (t: string) => new RegExp('^' + t.replace(/[.*+?^$()|[\]\\]/g, '\\$&').replace(/\{([^}]+)\}/g, (_m: string, k: string) => (k === '해' ? '\\d{4}' : k === '누구' ? '(나|상대)' : '(나무|불|흙|쇠|물)')) + '$');
   it('키가 겹치지 않고, 문장·조건·한계·쓰이는 경우에 한자·전문용어가 없다', () => {
     expect(new Set(cat.map((e) => e.key)).size).toBe(cat.length);
     for (const e of cat) {
@@ -110,7 +110,8 @@ describe('카드 문장 검토표(cardTextCatalog)', () => {
       const y = 1900 + Math.floor(r() * 151), m = 1 + Math.floor(r() * 12), d = 1 + Math.floor(r() * 28);
       const h = r() < 0.15 ? null : Math.floor(r() * 24);
       const { facts, rules } = chartOf(y, m, d, h);
-      const claims = [...buildRuleCards(rules).claims, ...buildLoveCards(rules, { gender: i % 2 ? 'F' : 'M', years: [2026, 2027, 2028, 2029, 2030] }).claims, ...buildInterpretation('basic', facts, { rules }).claims.filter((c) => c.ruleId === 'SJ-BRANCH-PAIRS-DRAFT')];
+      const other = chartOf(1900 + Math.floor(r() * 151), 1 + Math.floor(r() * 12), 1 + Math.floor(r() * 28), Math.floor(r() * 24));
+      const claims = [...buildRuleCards(rules).claims, ...buildLoveCards(rules, { gender: i % 2 ? 'F' : 'M', years: [2026, 2027, 2028, 2029, 2030] }).claims, ...buildCompatCards(rules, other.rules, { a: facts.fiveElements, b: other.facts.fiveElements }).claims, ...buildInterpretation('basic', facts, { rules }).claims.filter((c) => c.ruleId === 'SJ-BRANCH-PAIRS-DRAFT')];
       for (const c of claims) {
         const hit = cat.find((e) => e.ruleId === c.ruleId && toRe(e.thesis).test(c.thesis) && e.condition === c.condition && e.limitation === c.limitation);
         expect(hit, `${y}-${m}-${d} ${c.ruleId}: ${c.thesis}`).toBeTruthy();
@@ -180,6 +181,36 @@ describe('연애운 카드', () => {
       expect(plan.sections.map((s) => s.title)).not.toContain('10년 단위 큰 흐름');
       for (const s of plan.sections) expect(usable.some((cl) => cl.tags.some((t) => s.focusTags.includes(t))), `${y}-${m}-${d} ${s.title}`).toBe(true);
       for (const s of plan.sections) expect(s.title + s.purpose, s.title).not.toMatch(JARGON);
+    }
+  });
+});
+
+describe('궁합 카드', () => {
+  it('실제 두 원국: 바탕 기운 관계·짝·채움·각자의 가까운 관계 자리 명제가 만들어진다', () => {
+    const A = chartOf(1995, 5, 17, 14); // 일간 무토, 일지 申
+    const B = chartOf(1993, 3, 9, 14);
+    const c = buildCompatCards(A.rules, B.rules, { a: A.facts.fiveElements, b: B.facts.fiveElements });
+    const ids = c.claims.map((x) => x.id);
+    expect(ids).toEqual(expect.arrayContaining(['C-card-compat-core', 'C-card-compat-day', 'C-card-compat-month', 'C-card-compat-complement', 'C-card-compat-a-love', 'C-card-compat-b-love']));
+    expect(c.claims.find((x) => x.id === 'C-card-compat-a-love')!.thesis.startsWith('나는 ')).toBe(true);
+    expect(c.claims.find((x) => x.id === 'C-card-compat-b-love')!.thesis.startsWith('상대는 ')).toBe(true);
+  });
+  it('무작위 200쌍: 한자·전문용어 없음, 점수 없음, 모든 섹션에 쓸 명제가 있고 섹션 지시문도 쉬운 말', () => {
+    const r = rng(23);
+    const pick = () => chartOf(1900 + Math.floor(r() * 151), 1 + Math.floor(r() * 12), 1 + Math.floor(r() * 28), r() < 0.15 ? null : Math.floor(r() * 24));
+    for (let i = 0; i < 200; i++) {
+      const A = pick(), B = pick();
+      const f = buildCompatInterpretation(A.facts, B.facts, { rules: { a: A.rules, b: B.rules } });
+      const text = [...f.claims.flatMap((c) => [c.thesis, c.condition, c.limitation]), ...f.lines.map((l) => l.text)].join('\n');
+      expect(text).not.toMatch(/\p{Script=Han}/u);
+      expect(text.match(JARGON)?.[0] ?? null).toBeNull();
+      expect(text).not.toMatch(/\d+\s*(%|점)/);
+      const usable = usableClaims(f.claims, true);
+      const plan = buildPlan('compatibility', f);
+      for (const s of plan.sections) {
+        expect(usable.some((cl) => cl.tags.some((t) => s.focusTags.includes(t))), s.title).toBe(true);
+        expect(s.title + s.purpose).not.toMatch(JARGON);
+      }
     }
   });
 });

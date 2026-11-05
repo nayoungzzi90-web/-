@@ -15,12 +15,19 @@ const POLL_MAX = 22;
 export function AiReading({
   me,
   product = "basic",
+  partner,
   fetcher = (d) => getAiReadingFn({ data: d }),
   pollMs = POLL_MS,
 }: {
   me: BirthInput;
-  product?: "basic" | "love";
-  fetcher?: (d: { product: "basic" | "love"; me: BirthInput }) => Promise<AiReadingResponse>;
+  product?: "basic" | "love" | "compat";
+  /** 궁합 상대(궁합일 때만) */
+  partner?: BirthInput;
+  fetcher?: (d: {
+    product: "basic" | "love" | "compat";
+    me: BirthInput;
+    partner?: BirthInput;
+  }) => Promise<AiReadingResponse>;
   pollMs?: number;
 }) {
   const [res, setRes] = useState<AiReadingResponse | null>(null);
@@ -32,7 +39,7 @@ export function AiReading({
   async function ask() {
     setBusy(true);
     try {
-      const r = await fetcher({ product, me });
+      const r = await fetcher({ product, me, ...(partner ? { partner } : {}) });
       if (!alive.current) return;
       if (r.ok && r.state === "running" && polls.current < POLL_MAX) {
         polls.current += 1;

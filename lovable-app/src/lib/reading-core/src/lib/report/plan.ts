@@ -31,6 +31,15 @@ const COMPAT: SectionPlan[] = [
   sec('s5', '생활방식', '월지 관계와 오행 보완 명제를 근거로 생활 리듬·소비·휴식 방식의 조율점을 설명한다.', 300, ['lifestyle']),
   sec('s6', '소통 조언', '앞선 내용을 바탕으로 두 사람이 바로 해 볼 수 있는 대화 방법을 제안한다. 새로운 사실·명제를 만들지 않는다.', 300, ['communication', 'advice']),
 ];
+/** 궁합(판단 카드 기반, 쉬운 말). 상대는 "상대"라고만 부른다. 같은 값(1닢)인 기본 사주와 비슷한 분량(약 1,100자)으로 둔다. */
+const COMPAT_CARDS: SectionPlan[] = [
+  sec('s1', '관계 유형', '두 사람의 바탕 기운 관계 명제와 끌리는 짝 명제로 관계의 기본 결을 설명한다. 점수·확률·잘 맞음/안 맞음 판정은 쓰지 않는다.', 600, ['compat_core']),
+  sec('s2', '소통', '바탕 기운 관계와 서로 채워 주는 기운 명제를 근거로 소통 방식의 장점과 엇갈림을 설명한다.', 600, ['communication', 'compat_core']),
+  sec('s3', '갈등·차이', '가까운 관계 자리끼리, 태어난 달끼리의 짝 명제를 근거로 부딪히기 쉬운 지점과 차이를 설명한다.', 600, ['conflict']),
+  sec('s4', '애정표현', '나와 상대 각자의 가까운 관계 자리 명제를 근거로 애정을 주고받는 방식의 차이를 설명한다.', 600, ['affection']),
+  sec('s5', '생활방식', '태어난 달끼리의 짝과 서로 채워 주는 기운 명제를 근거로 생활 리듬·소비·휴식 방식의 조율점을 설명한다.', 600, ['lifestyle']),
+  sec('s6', '소통 조언', '앞선 내용을 바탕으로 두 사람이 바로 해 볼 수 있는 대화 방법을 제안한다. 새로운 사실·명제를 만들지 않는다.', 450, ['communication', 'compat_core']),
+];
 
 const loveSections = (years: number[], cards = false): SectionPlan[] => cards ? [
   // 판단 카드 기반(쉬운 말). 10년 흐름은 해석 기준 미검증이라 따로 섹션을 두지 않고 연도 섹션에서 한 줄로만 밝힌다.
@@ -99,7 +108,7 @@ export const COMMON_RULES = [...RULE_GROUPS.evidence, ...RULE_GROUPS.saju, ...RU
 export function buildPlan(product: ProductKey, facts: InterpretationFacts, opts: { tone?: Tone } = {}): ReportPlan {
   const meta = CATALOG[product];
   const hourKnown = facts.subjects.every((s) => s.hourKnown);
-  const sections = product === 'basic' ? BASIC : product === 'compatibility' ? COMPAT : loveSections(facts.years ?? [], facts.claims.some((c) => c.ruleId === 'SJ-LOVE-LUCK-HELD'));
+  const sections = product === 'basic' ? BASIC : product === 'compatibility' ? (facts.claims.some((c) => c.ruleId.startsWith('SJ-COMPAT-')) ? COMPAT_CARDS : COMPAT) : loveSections(facts.years ?? [], facts.claims.some((c) => c.ruleId === 'SJ-LOVE-LUCK-HELD'));
   const tone = opts.tone ?? 'haeyo';
   return {
     product, productName: meta.name, sections: sections.map((s) => ({ ...s })),

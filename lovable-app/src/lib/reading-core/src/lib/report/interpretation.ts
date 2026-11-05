@@ -6,7 +6,7 @@ import { analyzeChart, analyzeLove, analyzeYear, bko, ELEMENTS, GOD_LOVE, GOD_TR
 import { applyApprovals, buildCompatClaims, buildLoveClaims, buildPersonClaims, buildYearClaims, detectConflicts, luckMissingClaim } from './claims';
 import type { EvidenceItem, FactLine, InterpretationFacts, ProductKey, Subject } from './types';
 import type { R002to005 } from '../../../engine/saju-rules/src';
-import { buildLoveCards, buildRuleCards, CARD_TEXT } from './cards';
+import { buildCompatCards, buildLoveCards, buildRuleCards, CARD_TEXT } from './cards';
 
 /** 판단 카드가 대신하는 옛 명제 규칙·사실 줄 */
 const REPLACED_RULES = new Set(['R-CLM-AUTONOMY', 'R-CLM-EXPRESSION', 'R-CLM-PRACTICALITY', 'R-CLM-STRUCTURE', 'R-CLM-SUPPORT', 'R-CLM-POWER', 'R-CLM-SEASON']);
@@ -144,7 +144,15 @@ export function buildInterpretation(product: 'basic' | 'love_deep', f: SajuFacts
 }
 
 /** 궁합: 두 사람 사실 + 관계 사실. 상대 실명·생년월일은 전달하지 않고 원국 간지만 쓴다. */
-export function buildCompatInterpretation(a: SajuFacts, bFacts: SajuFacts, opts: { approvedRuleIds?: ReadonlySet<string> } = {}): InterpretationFacts {
+export function buildCompatInterpretation(a: SajuFacts, bFacts: SajuFacts, opts: { approvedRuleIds?: ReadonlySet<string>; rules?: { a: R002to005; b: R002to005 } } = {}): InterpretationFacts {
+  if (opts.rules) {
+    // 판단 카드 기반 궁합: 두 사람 관계의 계산 사실만 쓴다(옛 십성·합충 전문용어 명제와 사실 줄은 쓰지 않음).
+    const cards = buildCompatCards(opts.rules.a, opts.rules.b, { a: a.fiveElements, b: bFacts.fiveElements });
+    const claims = applyApprovals(cards.claims, opts.approvedRuleIds);
+    const allowed = new Set([...pillarsOf(a).map(([, v]) => v), ...pillarsOf(bFacts).map(([, v]) => v)]);
+    const limits = [...new Set([...a.warnings, ...bFacts.warnings])].filter((w) => ['hour_pillar_unavailable', 'term_boundary_unverified', 'engine_unverified'].includes(w));
+    return { version: INTERPRETATION_VERSION, product: 'compatibility', subjects: [subjectOf(a, 'A'), subjectOf(bFacts, 'B')], lines: cards.lines, claims, conflicts: detectConflicts(claims), evidence: cards.evidence, calculation: { ...calcOf(a), verified: a.computation.verified && bFacts.computation.verified }, allowedGanji: [...allowed], limits };
+  }
   const b = new Builder();
   const AA = personLines(b, a, 'a_', '나');
   const BB = personLines(b, bFacts, 'b_', '상대');

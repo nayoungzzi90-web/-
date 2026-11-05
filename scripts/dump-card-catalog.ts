@@ -5,17 +5,18 @@ import { writeFileSync } from 'node:fs';
 import { calculate } from '../engine/manse/src/engine';
 import { toSajuFacts } from '../engine/manse/src/adapter';
 import { analyzeR002toR005, fromManse } from '../engine/saju-rules/src';
-import { buildLoveCards, buildRuleCards, CARDS_VERSION, cardTextCatalog } from '../src/lib/report/cards';
+import { buildCompatCards, buildLoveCards, buildRuleCards, CARDS_VERSION, cardTextCatalog } from '../src/lib/report/cards';
 import { buildInterpretation } from '../src/lib/report/interpretation';
 
 const cat = cardTextCatalog();
-const toRe = (t: string) => new RegExp('^' + t.replace(/[.*+?^$()|[\]\\]/g, '\\$&').replace(/\{([^}]+)\}/g, (_m: string, k: string) => (k === '해' ? '\\d{4}' : '(나무|불|흙|쇠|물)')) + '$');
+const toRe = (t: string) => new RegExp('^' + t.replace(/[.*+?^$()|[\]\\]/g, '\\$&').replace(/\{([^}]+)\}/g, (_m: string, k: string) => (k === '해' ? '\\d{4}' : k === '누구' ? '(나|상대)' : '(나무|불|흙|쇠|물)')) + '$');
 
 // 1900~2050 무작위 1,000명(시간 모름 15%)에서 각 문장이 몇 명에게 나오는지 센다
 let s = 20261030;
 const rnd = () => ((s = (s * 1103515245 + 12345) % 2147483648) / 2147483648);
 const N = 1000;
 const freq = new Map<string, number>();
+let lastRules: { rules: ReturnType<typeof analyzeR002toR005>; el: Record<string, number> } | null = null;
 for (let i = 0; i < N; i++) {
   const y = 1900 + Math.floor(rnd() * 151), m = 1 + Math.floor(rnd() * 12), d = 1 + Math.floor(rnd() * 28);
   const h = rnd() < 0.15 ? null : Math.floor(rnd() * 24);
@@ -23,7 +24,10 @@ for (let i = 0; i < N; i++) {
   if (!r.ok) continue;
   const { chart, monthTerm, birth } = fromManse(r.value);
   const rules = analyzeR002toR005(chart, { monthTerm, birth });
-  const claims = [...buildRuleCards(rules).claims, ...buildLoveCards(rules, { gender: i % 2 ? 'F' : 'M', years: [2026, 2027, 2028, 2029, 2030] }).claims, ...buildInterpretation('basic', toSajuFacts(r.value), { rules }).claims.filter((c) => c.ruleId === 'SJ-BRANCH-PAIRS-DRAFT')];
+  const prev = lastRules;
+  lastRules = { rules, el: toSajuFacts(r.value).fiveElements };
+  const compat = prev ? buildCompatCards(rules, prev.rules, { a: lastRules.el, b: prev.el }).claims : [];
+  const claims = [...compat, ...buildRuleCards(rules).claims, ...buildLoveCards(rules, { gender: i % 2 ? 'F' : 'M', years: [2026, 2027, 2028, 2029, 2030] }).claims, ...buildInterpretation('basic', toSajuFacts(r.value), { rules }).claims.filter((c) => c.ruleId === 'SJ-BRANCH-PAIRS-DRAFT')];
   const seen = new Set<string>();
   for (const c of claims) {
     const e = cat.find((x) => x.ruleId === c.ruleId && toRe(x.thesis).test(c.thesis) && x.condition === c.condition && x.limitation === c.limitation);
@@ -46,6 +50,12 @@ const GROUP: Array<[string, string]> = [
   ['SJ-LOVE-PAIRS', '10. 연애운: 가까운 관계 자리의 짝'],
   ['SJ-LOVE-YEAR', '11. 연애운: 한 해씩 보기 (2026~2030 등, 그해 간지는 60갑자로 계산)'],
   ['SJ-LOVE-LUCK', '12. 연애운: 10년 흐름 (다루지 않음 안내)'],
+  ['SJ-COMPAT-CORE', '13. 궁합: 두 사람의 바탕 기운 관계'],
+  ['SJ-COMPAT-COMBINE', '14. 궁합: 서로 끌리는 짝'],
+  ['SJ-COMPAT-DAY', '15. 궁합: 가까운 관계 자리끼리'],
+  ['SJ-COMPAT-MONTH', '16. 궁합: 태어난 달끼리(생활 리듬)'],
+  ['SJ-COMPAT-COMPLEMENT', '17. 궁합: 서로 채워 주는 기운'],
+  ['SJ-COMPAT-AFFECTION', '18. 궁합: 각자의 애정 표현(가까운 관계 자리)'],
 ];
 // 작성자(Claude)가 스스로 덜 확신하는 곳. 검토자가 먼저 봐 주면 좋은 점.
 const NOTE: Record<string, string> = {
@@ -59,6 +69,9 @@ const NOTE: Record<string, string> = {
   'love.palace.peer': '0.3 새 문장. 태어난 날 땅 쪽 글자를 "가까운 관계의 자리"로 보는 것은 전통 해석이며 기준서 R-002~R-005 밖이다',
   'love.star.present': '0.3 새 문장. 성별로 살피는 기운을 나누는 전통 방식을 그대로 따름(상대 성별은 가정하지 않음)',
   'love.year.peer': '0.3 새 문장. 한 해의 하늘 글자 관계로 주제를 말하는 것은 해석이며 검증 전',
+  'compat.core.self_controls': '0.4 새 문장. "누른다"를 "이끈다/맞춘다"로 옮긴 것이 한쪽을 깎아내리지 않는지',
+  'compat.complement.some': '0.4 새 문장. 드러난 글자 개수(1개 이하 / 2개 이상)로만 본 것',
+  'compat.affection.peer': '0.4 새 문장. 연애운 가까운 관계 자리 문장 앞에 "나는/상대는"만 붙임',
   'love.luck_held': '10년 흐름(대운) 해석 기준이 검증 전이라 다루지 않는다는 안내만',
 };
 const cell = (t: string) => t.replace(/\|/g, '\\|').replace(/\{([^}]+)\}/g, '**[$1]**');

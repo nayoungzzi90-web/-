@@ -16,7 +16,10 @@ import {
 } from "./reading-core/src/lib/report/budget";
 import { CARDS_VERSION } from "./reading-core/src/lib/report/cards";
 import { GeminiLlm } from "./reading-core/src/lib/report/geminiClient";
-import { buildInterpretation } from "./reading-core/src/lib/report/interpretation";
+import {
+  buildCompatInterpretation,
+  buildInterpretation,
+} from "./reading-core/src/lib/report/interpretation";
 import type { LlmClient } from "./reading-core/src/lib/report/llm";
 import { OpenAiLlm } from "./reading-core/src/lib/report/openaiClient";
 import { fillName, runReportPipeline } from "./reading-core/src/lib/report/pipeline";
@@ -233,13 +236,19 @@ export async function getAiReading(
 ): Promise<AiReadingResponse> {
   if (!deps.config.ok) return unavailable(MSG.OFF);
   const c = deps.config.config;
-  if (input.product !== "basic" && input.product !== "love") return unavailable(MSG.PRODUCT);
+  if (input.product === "compat" && input.partner === undefined) return unavailable(MSG.PRODUCT);
 
   const readingId = unlockIdFor(input.product, input.me, input.partner);
   if (!readingId || !(await isUnlocked(deps.unlockClient, userId, readingId)))
     return unavailable(MSG.LOCKED);
 
   const ch = chartOf(input.me, deps.today ?? kstToday(), "me", {});
+  // 궁합: 상대도 두 엔진으로 4주를 이중 확인한다. 상대의 이름·생년월일은 모델·DB 에 보내지 않는다(본문은 "상대"라고만 씀).
+  const chB =
+    input.product === "compat"
+      ? chartOf(input.partner, deps.today ?? kstToday(), "partner", {})
+      : null;
+  if (chB && !chB.ok) return { ok: false, error: chB.error };
   if (!ch.ok) return { ok: false, error: ch.error };
   const name =
     typeof input.me === "object" && input.me !== null
@@ -267,23 +276,32 @@ export async function getAiReading(
   if (b.state !== "start" || !b.id || !b.attempt) return unavailable(MSG.FAILED);
 
   // ── 생성 ──
-  const { chart, monthTerm, birth } = fromManse(ch.chart.manse);
-  const rules = analyzeR002toR005(chart, { monthTerm, birth });
-  const product = input.product === "love" ? "love_deep" : "basic";
+  const rulesOf = (m: typeof ch.chart.manse) => {
+    const fm = fromManse(m);
+    return analyzeR002toR005(fm.chart, { monthTerm: fm.monthTerm, birth: fm.birth });
+  };
+  const rules = rulesOf(ch.chart.manse);
+  const product =
+    input.product === "love" ? "love_deep" : input.product === "compat" ? "compatibility" : "basic";
   const g =
     typeof input.me === "object" && input.me !== null
       ? (input.me as { gender?: string }).gender
       : undefined;
   const baseYear = Number((deps.today ?? kstToday()).slice(0, 4));
-  const interp = buildInterpretation(product, ch.chart.facts, {
-    rules,
-    ...(product === "love_deep"
-      ? {
-          gender: g === "f" ? "F" : g === "m" ? "M" : "X",
-          years: [0, 1, 2, 3, 4].map((i) => baseYear + i),
-        }
-      : {}),
-  });
+  const interp =
+    product === "compatibility" && chB?.ok
+      ? buildCompatInterpretation(ch.chart.facts, chB.chart.facts, {
+          rules: { a: rules, b: rulesOf(chB.chart.manse) },
+        })
+      : buildInterpretation(product === "compatibility" ? "basic" : product, ch.chart.facts, {
+          rules,
+          ...(product === "love_deep"
+            ? {
+                gender: g === "f" ? "F" : g === "m" ? "M" : "X",
+                years: [0, 1, 2, 3, 4].map((i) => baseYear + i),
+              }
+            : {}),
+        });
   const plan = buildPlan(product, interp);
   const writer = new BudgetedLlm(
     deps.writer ? deps.writer(c) : new OpenAiLlm({ apiKey: c.openaiKey, model: c.model }),
