@@ -45,8 +45,26 @@ export const FILES = [
     "readingBank3",
     "report",
   ].map((f) => `src/lib/content/${f}.ts`),
-  "src/lib/report/analysis.ts",
-  "src/lib/report/hangul.ts",
+  ...["common", "index", "r002", "r003", "r004", "r005"].map((f) => `engine/saju-rules/src/${f}.ts`),
+  // AI 풀이(판단 카드 → GPT 작성 → 자동 검수 → Gemini 감수). 서버 전용(ai-reading.server.ts)에서만 쓴다.
+  ...[
+    "analysis",
+    "budget",
+    "cache",
+    "cards",
+    "claims",
+    "geminiClient",
+    "hangul",
+    "interpretation",
+    "llm",
+    "openaiClient",
+    "pipeline",
+    "plan",
+    "prompt",
+    "qa",
+    "review",
+    "types",
+  ].map((f) => `src/lib/report/${f}.ts`),
   ...["calculator", "rules", "types"].map((f) => `src/lib/saju/${f}.ts`),
 ];
 export const HEADER =

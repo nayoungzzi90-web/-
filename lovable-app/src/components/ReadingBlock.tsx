@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { AiReading } from "@/components/AiReading";
 import { Paywall } from "@/components/Paywall";
 import { ReadingWaiting } from "@/components/ReadingWaiting";
 import { ReadingView } from "@/components/ReadingView";
@@ -48,6 +49,7 @@ export function ReadingBlock({
   return (
     <>
       <ReadingView sections={data.sections} chars={data.chars} needsReview={data.needsReview} />
+      {product === "basic" && isUnlocked && !hasLocked && me && <AiReading me={me} />}
       {hasLocked && (
         <Paywall id={id} label={p.label} price={won(p.coins)} coins={p.coins}>
           {null}

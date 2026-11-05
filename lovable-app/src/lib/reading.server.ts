@@ -9,6 +9,8 @@ import { calculate } from "./reading-core/engine/manse/src/engine";
 import { toSajuFacts } from "./reading-core/engine/manse/src/adapter";
 import { generateReport } from "./reading-core/src/lib/content/report";
 import type { SajuFacts } from "./reading-core/src/lib/saju/types";
+
+type ManseValue = Extract<ReturnType<typeof calculate>, { ok: true }>["value"];
 import { kstToday } from "./saju";
 import { computeSaju, parseBirthInput } from "./saju-engine.server";
 
@@ -43,13 +45,16 @@ export interface BuildDeps {
   pillarsOverride?: (label: "me" | "partner", pillars: string[]) => string[];
 }
 
-interface Chart {
+export interface Chart {
   facts: SajuFacts;
+  /** 풀이 엔진(DE421) 계산 원본 — AI 풀이의 판단 카드(R-002~R-005) 입력 */
+  manse: ManseValue;
   needsReview: boolean;
   reasons: string[];
 }
 
-function chartOf(
+/** 출생 입력 → 두 엔진으로 4주를 이중 확인한 차트. 다르면 실패(fail-closed). */
+export function chartOf(
   raw: unknown,
   today: string,
   label: "me" | "partner",
@@ -103,7 +108,12 @@ function chartOf(
   }
   return {
     ok: true,
-    chart: { facts, needsReview: !!app.needsReview, reasons: app.reviewReasons ?? [] },
+    chart: {
+      facts,
+      manse: r.value,
+      needsReview: !!app.needsReview,
+      reasons: app.reviewReasons ?? [],
+    },
   };
 }
 

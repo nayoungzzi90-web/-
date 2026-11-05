@@ -8,6 +8,11 @@ import { describe, expect, it } from "vitest";
 const SENTINELS = [
   "출생 시간을 모르면 시간의 기둥인 시주를 빼고", // reading.ts (기본사주 시간 미상 안내)
   "마지막으로 올해 안에 해 볼 연애 계획을 세 가지로", // reading.ts (연애운 마무리)
+  // AI 풀이: 프롬프트·감수 지시문·판단 카드 문장·AI 호출 주소도 서버에만
+  "검증된 만세력 데이터와 승인된 해석 명제를 바탕으로", // prompt.ts
+  "너는 사주 풀이 원고의 독립 감수자다", // review.ts
+  "내가 길러 내는 기운이 곁에 있어, 생각과 재능을", // cards.ts
+  "generativelanguage.googleapis.com", // geminiClient.ts
 ];
 function containing(dir: string, needles: string[]): string[] {
   const hit = new Set<string>();

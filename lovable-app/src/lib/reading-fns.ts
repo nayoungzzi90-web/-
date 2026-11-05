@@ -90,3 +90,28 @@ export const getReadingFull = createServerFn({ method: "POST" })
       return FAIL("풀이를 만드는 중 문제가 생겼어요. 잠시 후 다시 시도해 주세요.");
     }
   });
+
+// AI 풀이(기본 사주만). 기본은 꺼짐(AI_READING_MODE=off) — 꺼져 있으면 AI 를 부르지 않고 "준비 중"만 돌려준다.
+// 열람 권한·생성 중복·하루 한도·원가는 ai-reading.server.ts 와 DB 함수(ai_reading_begin)가 서버에서 확인한다.
+export const getAiReadingFn = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => readingInputSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    try {
+      const { aiOffResponse, getAiReading, readAiConfig, supabaseAiStore } =
+        await import("./ai-reading.server");
+      const config = readAiConfig(process.env);
+      if (!config.ok) return aiOffResponse();
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      return await getAiReading(data, context.userId, {
+        config,
+        store: supabaseAiStore(supabaseAdmin as never),
+        unlockClient: context.supabase as never,
+      });
+    } catch {
+      return {
+        ok: false as const,
+        error: "AI 풀이를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.",
+      };
+    }
+  });
