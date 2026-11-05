@@ -5,7 +5,6 @@ import { ReadingBlock } from "@/components/ReadingBlock";
 import { useStore } from "@/lib/store";
 import { getSajuPreview } from "@/lib/saju-fns";
 import { characterFor } from "@/lib/characters";
-import type { Element } from "@/lib/saju";
 
 export const Route = createFileRoute("/basic")({
   head: () => ({
@@ -18,14 +17,6 @@ export const Route = createFileRoute("/basic")({
   }),
   component: BasicPage,
 });
-
-const ADVICE: Record<Element, string> = {
-  목: "초록 식물과 아침 산책이 기운을 북돋아요.",
-  화: "햇볕과 웃음, 따뜻한 색이 힘이 돼요.",
-  토: "규칙적인 식사와 정리정돈이 중심을 잡아줘요.",
-  금: "맺고 끊음, 깔끔한 계획이 행운을 불러요.",
-  수: "충분한 수면과 독서가 지혜를 채워요.",
-};
 
 function BasicPage() {
   const { me } = useStore();
@@ -62,9 +53,6 @@ function BasicPage() {
     );
   }
   const c = characterFor(p.pillars.day.stem, p.elements);
-  const els = Object.entries(p.elements) as [Element, number][];
-  const weak = [...els].sort((a, b) => a[1] - b[1])[0]![0];
-  const strong = [...els].sort((a, b) => b[1] - a[1])[0]![0];
   return (
     <Shell title="기본사주">
       <MockBadge />
