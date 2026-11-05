@@ -51,7 +51,7 @@ for (let i = 0; i < n; i++) {
   if (process.env.OUT_DIR) { const { writeFileSync } = await import('node:fs'); writeFileSync(`${process.env.OUT_DIR}/${product}-${y}${m}${d}.md`, r.sections.map((x) => `## ${x.title}\n### ${x.headline}\n\n${x.body}\n`).join('\n')); }
   if (process.env.REVIEW_MODEL) {
     const reviewModel = process.env.REVIEW_MODEL;
-    const rv = await reviewReport(new GeminiLlm({ apiKey: process.env.GEMINI_API_KEY ?? 'proxy-injected', model: reviewModel }), interp, r.sections, { model: reviewModel, displayName: process.env.NAME_FOR_TEST ?? '나영' });
+    const rv = await reviewReport(new GeminiLlm({ apiKey: process.env.GEMINI_API_KEY ?? 'proxy-injected', model: reviewModel }), interp, r.sections, { model: reviewModel, displayName: process.env.NAME_FOR_TEST ?? '나영', ...(process.env.REVIEW_MAX_TOKENS ? { maxTokens: Number(process.env.REVIEW_MAX_TOKENS) } : {}) });
     const rprice = { inPerM: Number(process.env.REVIEW_PRICE_IN_PER_M ?? 0.3), outPerM: Number(process.env.REVIEW_PRICE_OUT_PER_M ?? 2.5) }; // 기본값 미확인. 공식 가격으로 지정
     const rcost = costFromUsage(rv.usage, rprice);
     total += rcost;
