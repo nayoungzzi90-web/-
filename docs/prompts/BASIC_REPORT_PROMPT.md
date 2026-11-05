@@ -1,6 +1,6 @@
 # 기본 사주 AI 풀이 프롬프트 (자동 생성)
 
-- 프롬프트 prompt-5.1 / 계획 plan-4.5 / 검수 qa-2.2
+- 프롬프트 prompt-5.1 / 계획 plan-4.6 / 검수 qa-2.2
 - 이 문서는 `scripts/dump-prompt.ts` 가 코드(`src/lib/report/prompt.ts`, `plan.ts`)에서 만든다. 직접 고치지 말고 코드를 고친 뒤 다시 만든다.
 - 기준서(docs/saju-engine/source)의 정책을 코드 규칙과 검수로 옮긴 것이다. 전문가 승인 전 초안이다.
 
