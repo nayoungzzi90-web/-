@@ -132,7 +132,8 @@ export async function reviewReport(llm: LlmClient, facts: InterpretationFacts, s
   const findings: ReviewFinding[] = [];
   const ignored: ReviewFinding[] = [];
   for (const f of parsed) {
-    const q = norm(f.quote);
+    // 요청문이 제목을 "제목: …" 으로 보여 주므로 감수 모델이 접두어까지 인용해도 같은 문장으로 본다
+    const q = norm(f.quote.replace(/^\s*제목\s*[:：]\s*/, ''));
     const ok = q.length >= 4 && ((bodyOf.get(f.sectionId) ?? '').includes(q) || all.includes(q));
     (ok ? findings : ignored).push(f);
   }

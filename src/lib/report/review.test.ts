@@ -61,6 +61,15 @@ describe('독립 감수: 판정은 코드가 정한다', () => {
     expect(res.verdict).toBe('REVIEW');
   });
 
+  it('제목을 "제목: " 접두어째 인용해도 본문 인용으로 인정한다(사실 모순 지적이 버려지지 않게)', async () => {
+    const reply = JSON.stringify({ findings: [
+      { section_id: 's1', quote: '제목: 흙 기운이 중심이에요', kind: 'CONTRADICTS_FACT', severity: 'major', reason: '사실과 어긋남' },
+    ] });
+    const res = await reviewReport(new FakeLlm(reply), facts, sections, { displayName: '나영' });
+    expect(res.ignored).toEqual([]);
+    expect(res.verdict).toBe('BLOCK');
+  });
+
   it('감수 실패·형식 오류는 PASS 가 아니라 REVIEW', async () => {
     expect((await reviewReport(new FakeLlm(new LlmError('auth', 'x', false)), facts, sections)).verdict).toBe('REVIEW');
     expect((await reviewReport(new FakeLlm('형식 아님'), facts, sections)).verdict).toBe('REVIEW');
