@@ -153,7 +153,12 @@ export function checkReport(sections: { id: string; title: string; body: string 
   const out: QaIssue[] = [];
   const total = sections.reduce((n, s) => n + countChars(s.body), 0);
   if (sections.length !== plan.sections.length || plan.sections.some((p, i) => sections[i]?.id !== p.id)) out.push({ code: 'TOC', severity: 'fail', message: '필수 목차가 맞지 않아요.' });
-  if (total < plan.totalRange[0]) out.push({ code: 'TOTAL_SHORT', severity: 'fail', message: `전체 분량이 부족해요(${total}자, 최소 ${plan.totalRange[0]}자).` });
+  if (total < plan.totalRange[0]) {
+    // 어느 섹션을 고칠지 지정해야 전체 검수의 재작성이 일어난다: 목표 대비 가장 짧은 섹션
+    const ratio = (p: { id: string; targetChars: number }) => countChars(sections.find((x) => x.id === p.id)?.body ?? '') / Math.max(1, p.targetChars);
+    const shortest = [...plan.sections].sort((a, b) => ratio(a) - ratio(b))[0];
+    out.push({ code: 'TOTAL_SHORT', severity: 'fail', sectionId: shortest?.id, message: `전체 분량이 부족해요(${total}자, 최소 ${plan.totalRange[0]}자). 이 섹션을 목표 분량(${shortest?.targetChars ?? '?'}자 안팎)까지 늘려요. 제공된 명제의 조건과 한계를 풀어 쓰되 새 내용을 지어내지 않아요.` });
+  }
   if (total > plan.totalRange[1]) out.push({ code: 'TOTAL_LONG', severity: 'fail', message: `전체 분량이 너무 길어요(${total}자, 최대 ${plan.totalRange[1]}자).` });
 
   // 같은 문장 반복

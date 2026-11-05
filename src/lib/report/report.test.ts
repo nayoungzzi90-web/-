@@ -151,6 +151,14 @@ describe('QA 검사기', () => {
     const dup = s.map((x, i) => (i === 3 ? { ...x, body: s[2].body } : x));
     expect(checkReport(dup, basicPlan).map((i) => i.code)).toEqual(expect.arrayContaining(['DUP_SENTENCE', 'DUP_SECTION']));
   });
+  it('전체 분량이 부족하면 목표 대비 가장 짧은 섹션을 지목한다(그래야 전체 검수에서 다시 쓴다)', () => {
+    const s = basicPlan.sections.map((p) => ({ id: p.id, title: p.title, body: goodBody(basicF, basicPlan, p).body }));
+    const target = basicPlan.sections[3]!;
+    const cut = s.map((x) => (x.id === target.id ? { ...x, body: '짧아요.' } : x));
+    const plan = { ...basicPlan, totalRange: [countChars(cut.map((x) => x.body).join('')) + 50, 99999] as [number, number] };
+    const short = checkReport(cut, plan).find((i) => i.code === 'TOTAL_SHORT');
+    expect(short?.sectionId).toBe(target.id);
+  });
   it('목차 누락', () => expect(checkReport([], basicPlan).map((i) => i.code)).toContain('TOC'));
 });
 
