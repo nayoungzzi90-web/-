@@ -103,6 +103,16 @@ describe('QA 검사기', () => {
   const codes = (body: string, ids = base.claim_ids) => checkSection(body, ids, sec, ctx).map((i) => i.code);
   it('정상 본문은 통과', () => expect(checkSection(base.body, base.claim_ids, sec, ctx).filter((i) => i.severity === 'fail')).toEqual([]));
   it('제공되지 않은 간지', () => expect(codes(base.body + ' 갑자가 들어오는 해라고 해요 甲子.')).toContain('GANJI_MISMATCH'));
+  it('"변화가 적다는 뜻은 아니에요"가 한계인 명제를 쓰고 변화·안정으로 넓히면 반려', () => {
+    const claim = { ...basicF.claims[0]!, id: 'C-test-nopair', limitation: '눈에 띄는 짝이 없다는 뜻일 뿐, 삶에 변화가 적다는 뜻은 아니에요' };
+    const c2 = { ...ctx, facts: { ...basicF, claims: [...basicF.claims, claim] } };
+    const run = (body: string, ids: string[]) => checkSection(body, ids, sec, c2).map((i) => i.code);
+    const ids = [...base.claim_ids, 'C-test-nopair'];
+    expect(run(base.body + ' 그래서 관계가 크게 흔들리기보다 생활 속 호흡으로 읽혀요.', ids)).toContain('LIMIT_OVERREAD');
+    expect(run(base.body + ' 관계 안의 변동이 크게 드러나지 않는 편이에요.', ids)).toContain('LIMIT_OVERREAD');
+    expect(run(base.body + ' 그래서 따로 짚을 흐름은 적은 편이에요.', ids)).not.toContain('LIMIT_OVERREAD');
+    expect(run(base.body + ' 관계가 크게 흔들리기보다 생활 속 호흡으로 읽혀요.', base.claim_ids)).not.toContain('LIMIT_OVERREAD');
+  });
   it('단정 예언 / 의학 / 점수', () => {
     expect(codes(base.body + ' 반드시 결혼하게 됩니다.')).toContain('PROPHECY');
     expect(codes(base.body + ' 우울증 진단이 필요해요.')).toContain('MEDICAL');
