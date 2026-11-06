@@ -9,8 +9,9 @@ const POLL_MS = 8000;
 const POLL_MAX = 22;
 
 /**
- * AI 풀이(기본 사주·심층 연애운, 열람한 사람만). 누르기 전에는 AI 를 부르지 않는다.
- * 서버가 꺼져 있으면(기본) "준비 중" 안내만 보인다.
+ * AI 풀이(기본 사주·심층 연애운, 열람한 사람만). 기본은 누르기 전에는 AI 를 부르지 않는다.
+ * auto 이면 열릴 때 바로 만들어(서버가 열람 권한·하루 한도·예산을 확인한다) 보여 준다.
+ * 서버가 꺼져 있으면(기본) "준비 중" 안내만 보인다. onReady 는 AI 풀이가 화면에 나왔는지 알려 준다.
  */
 export function AiReading({
   me,
@@ -18,6 +19,8 @@ export function AiReading({
   partner,
   fetcher = (d) => getAiReadingFn({ data: d }),
   pollMs = POLL_MS,
+  auto = false,
+  onReady,
 }: {
   me: BirthInput;
   product?: "basic" | "love" | "compat";
@@ -29,12 +32,27 @@ export function AiReading({
     partner?: BirthInput;
   }) => Promise<AiReadingResponse>;
   pollMs?: number;
+  /** true 면 버튼 없이 열릴 때 바로 만든다 */
+  auto?: boolean;
+  /** AI 풀이가 화면에 나왔을 때만 true */
+  onReady?: (ready: boolean) => void;
 }) {
   const [res, setRes] = useState<AiReadingResponse | null>(null);
   const [busy, setBusy] = useState(false);
   const polls = useRef(0);
   const alive = useRef(true);
   useEffect(() => () => void (alive.current = false), []);
+  const started = useRef(false);
+  useEffect(() => {
+    if (!auto || started.current) return;
+    started.current = true;
+    polls.current = 0;
+    void ask();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [auto]);
+  useEffect(() => {
+    onReady?.(!!res && res.ok && res.state === "ready");
+  }, [res, onReady]);
 
   async function ask() {
     setBusy(true);
@@ -63,7 +81,7 @@ export function AiReading({
     }
   }
 
-  if (busy) return <ReadingWaiting />;
+  if (busy || (auto && !res)) return <ReadingWaiting />;
   if (!res)
     return (
       <div className="card-hanji mt-4 p-4 text-center">
