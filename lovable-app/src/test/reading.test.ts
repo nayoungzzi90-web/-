@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { readingInputSchema } from "@/lib/reading-fns";
+import { JARGON } from "@/lib/reading-core/src/lib/report/qa";
 import {
   FREE_SECTIONS,
   buildReading,
@@ -160,26 +161,54 @@ describe("풀이 생성(규칙형, 이중 엔진 확인)", () => {
 
 describe("잠금(권한 없는 사용자에게는 본문을 보내지 않는다)", () => {
   const full = ok(buildReading({ product: "basic", me }, { today: TODAY }));
-  it("미열람: 앞 섹션만 본문, 나머지는 제목과 짧은 미리보기만", () => {
+  it("미열람: 무료 본문은 앞 섹션 중 전문용어가 없는 것만, 나머지는 제목과 (전문용어 없는) 짧은 미리보기만", () => {
     const out = shapeSections(full.sections, false);
-    expect(out.slice(0, FREE_SECTIONS).every((s) => !s.locked)).toBe(true);
-    const locked = out.slice(FREE_SECTIONS);
-    expect(locked.length).toBe(full.sections.length - FREE_SECTIONS);
-    for (const s of locked) {
-      expect(s.locked).toBe(true);
+    expect(out.length).toBe(full.sections.length);
+    const open = out.filter((s) => !s.locked);
+    expect(open.length).toBeLessThanOrEqual(FREE_SECTIONS);
+    for (const s of open) expect(JARGON.test((s as { body: string }).body)).toBe(false);
+    for (const s of out.filter((x) => x.locked)) {
       expect("body" in s).toBe(false);
-      expect((s as { teaser: string }).teaser.length).toBeLessThanOrEqual(37);
+      const teaser = (s as { teaser: string }).teaser;
+      expect(teaser.length).toBeLessThanOrEqual(37);
+      expect(JARGON.test(teaser)).toBe(false);
+      if (s.headline) expect(JARGON.test(s.headline)).toBe(false);
     }
     // 잠긴 섹션의 본문 문장(미리보기 이후)은 응답 어디에도 없다
     const json = JSON.stringify(out);
-    for (const s of full.sections.slice(FREE_SECTIONS))
-      expect(json).not.toContain(s.body.slice(40, 120));
+    full.sections.forEach((s, i) => {
+      if (out[i]!.locked) expect(json).not.toContain(s.body.slice(40, 120));
+    });
     // 전체 글자 수 중 무료 공개분은 일부뿐
     const shown = out
       .filter((s) => !s.locked)
       .map((s) => (s as { body: string }).body)
       .join("");
     expect(chars(shown)).toBeLessThan(full.chars * 0.4);
+  });
+  it("전문용어가 든 앞 섹션·제목줄·미리보기는 미열람 응답에서 빠진다", () => {
+    const safe = "흙 기운이 중심이라 차분하게 쌓아 가는 편이에요. 새 일을 시작할 때도 순서를 먼저 잡아요.";
+    const mk = (id: string, body: string, headline: string) => ({ id, title: `제목-${id}`, headline, body });
+    // 앞 섹션이 쉬우면 무료 본문, 전문용어 제목줄·미리보기는 가린다
+    const a = shapeSections(
+      [mk("a", safe, "차분하게 쌓는 편"), mk("b", "일지와 월지가 부딪히는 구조예요. 뒤는 길게 이어져요.", "일간이 중심이에요"), mk("c", safe, "쉬운 제목")],
+      false,
+    );
+    expect(a[0]!.locked).toBe(false);
+    expect("body" in a[0]!).toBe(true);
+    expect(a[1]!.locked).toBe(true);
+    expect(a[1]!.headline).toBeUndefined();
+    expect((a[1] as { teaser: string }).teaser).toBe("");
+    expect((a[2] as { teaser: string }).teaser).toContain("흙 기운");
+    expect(a[2]!.headline).toBe("쉬운 제목");
+    // 앞 섹션이 전문용어를 담으면 잠금 카드로 바뀐다
+    const b = shapeSections([mk("a", "일간은 토예요. 일지는 신이에요.", "쉬운 제목")], false);
+    expect(b[0]!.locked).toBe(true);
+    expect("body" in b[0]!).toBe(false);
+    // 열람하면 그대로 다 준다
+    const c = shapeSections([mk("a", "일간은 토예요.", "일간이 중심")], true);
+    expect(c[0]!.locked).toBe(false);
+    expect((c[0] as { body: string }).body).toBe("일간은 토예요.");
   });
   it("열람: 모든 섹션 본문 전달", () => {
     const out = shapeSections(full.sections, true);

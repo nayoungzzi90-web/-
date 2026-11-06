@@ -29,9 +29,11 @@ export function ReadingView({
               {s.title}
             </p>
             {s.headline && <p className="mt-1 text-sm text-muted-foreground">{s.headline}</p>}
-            <p className="mt-2 text-sm text-muted-foreground/70 [mask-image:linear-gradient(to_right,black,transparent)]">
-              {s.teaser}
-            </p>
+            {s.teaser && (
+              <p className="mt-2 text-sm text-muted-foreground/70 [mask-image:linear-gradient(to_right,black,transparent)]">
+                {s.teaser}
+              </p>
+            )}
           </div>
         ) : (
           <details key={s.id} className="card-hanji p-4" open={i === 0}>

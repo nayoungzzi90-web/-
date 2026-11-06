@@ -4,6 +4,7 @@
 //   · 풀이 작성기가 쓰는 엔진(reading-core, DE421 표)           — 십성·대운 등 풍부한 사실을 만든다
 // 두 엔진의 4주가 다르면 풀이를 내지 않는다(fail-closed). 일치만 확인했을 뿐 KASI 공식 확인은 아니다.
 import { toHangul } from "./reading-core/src/lib/report/hangul";
+import { JARGON } from "./reading-core/src/lib/report/qa";
 import { unlockId } from "./unlock-id";
 import { calculate } from "./reading-core/engine/manse/src/engine";
 import { toSajuFacts } from "./reading-core/engine/manse/src/adapter";
@@ -172,17 +173,25 @@ const teaserOf = (body: string) => {
   return t.length <= 36 ? t : `${t.slice(0, 36)}…`;
 };
 
+/** 사주 전문용어가 들어 있는지(제품 규칙: 일반인이 보는 글에는 쓰지 않는다) */
+const hasJargon = (t: string) => new RegExp(JARGON.source).test(t);
+
+/**
+ * 열람한 사람에게는 전체 본문. 열람 전에는 앞 섹션을 무료로 보여 주되, 전문용어가 든 글
+ * (본문·제목줄·미리보기)은 보내지 않는다 — 그런 앞 섹션은 잠금 카드로 바뀐다.
+ */
 export function shapeSections(sections: FullSection[], unlocked: boolean): OutSection[] {
   return sections.map((s, i) => {
-    const head = {
-      id: s.id,
-      title: s.title,
-      ...(s.tag ? { tag: s.tag } : {}),
-      ...(s.headline ? { headline: s.headline } : {}),
-    };
-    return unlocked || i < FREE_SECTIONS
-      ? { ...head, locked: false as const, body: s.body }
-      : { ...head, locked: true as const, teaser: teaserOf(s.body) };
+    const base = { id: s.id, title: s.title, ...(s.tag ? { tag: s.tag } : {}) };
+    if (unlocked) {
+      return { ...base, ...(s.headline ? { headline: s.headline } : {}), locked: false as const, body: s.body };
+    }
+    const safeHeadline = s.headline && !hasJargon(s.headline) ? { headline: s.headline } : {};
+    if (i < FREE_SECTIONS && !hasJargon(s.body)) {
+      return { ...base, ...safeHeadline, locked: false as const, body: s.body };
+    }
+    const t = teaserOf(s.body);
+    return { ...base, ...safeHeadline, locked: true as const, teaser: hasJargon(t) ? "" : t };
   });
 }
 

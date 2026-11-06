@@ -187,7 +187,7 @@ export function basicDrafts(f: SajuFacts, ctx: ReadingCtx): Draft[] {
   ].filter(Boolean);
 
   return [
-    { id: 's1', title: '원국 핵심', paras: s1, evidenceIds: ['pillars', 'day_master', 'elements'] },
+    { id: 's1', title: '나의 큰 그림', paras: s1, evidenceIds: ['pillars', 'day_master', 'elements'] },
     { id: 's2', title: '타고난 성격·기질', paras: s2, evidenceIds: ['day_master', 'god_month'] },
     { id: 's3', title: '강점·재능', paras: s3, evidenceIds: ['day_master', 'elements', 'god_month'] },
     { id: 's4', title: '직업·재물 경향', paras: s4, evidenceIds: ['god_month', 'god_year'] },
@@ -272,8 +272,8 @@ export function loveDrafts(f: SajuFacts, years: number[], ctx: ReadingCtx): Draf
     { id: 's2', title: '원하는 관계·상대', paras: s2, evidenceIds: ['elements', 'god_month'] },
     { id: 's3', title: '반복될 수 있는 관계 패턴', paras: s3, evidenceIds: ['day_master'] },
     { id: 's4', title: '강점·어려움', paras: s4, evidenceIds: ['day_master'] },
-    { id: 's5', title: '현재 대운', paras: s5, evidenceIds: ['pillars'] },
-    { id: 's6', title: `${years[0]}~${years[years.length - 1]}년 세운`, paras: s6, evidenceIds: years.map((y) => `year_${y}`) },
+    { id: 's5', title: '10년 단위 큰 흐름', paras: s5, evidenceIds: ['pillars'] },
+    { id: 's6', title: `${years[0]}~${years[years.length - 1]}년 한 해씩 보기`, paras: s6, evidenceIds: years.map((y) => `year_${y}`) },
     { id: 's7', title: '조언', paras: s7, evidenceIds: ['elements'] },
   ];
 }
