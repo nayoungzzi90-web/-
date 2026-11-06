@@ -110,6 +110,7 @@ describe('QA 검사기', () => {
     const ids = [...base.claim_ids, 'C-test-nopair'];
     expect(run(base.body + ' 그래서 관계가 크게 흔들리기보다 생활 속 호흡으로 읽혀요.', ids)).toContain('LIMIT_OVERREAD');
     expect(run(base.body + ' 관계 안의 변동이 크게 드러나지 않는 편이에요.', ids)).toContain('LIMIT_OVERREAD');
+    expect(run(base.body + ' 관계에서 크게 흔들릴 흐름은 적은 편이에요.', ids)).toContain('LIMIT_OVERREAD');
     expect(run(base.body + ' 그래서 따로 짚을 흐름은 적은 편이에요.', ids)).not.toContain('LIMIT_OVERREAD');
     expect(run(base.body + ' 관계가 크게 흔들리기보다 생활 속 호흡으로 읽혀요.', base.claim_ids)).not.toContain('LIMIT_OVERREAD');
   });
