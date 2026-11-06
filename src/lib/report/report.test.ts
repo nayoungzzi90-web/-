@@ -159,6 +159,7 @@ describe('QA 검사기', () => {
     const plan = { ...basicPlan, totalRange: [countChars(cut.map((x) => x.body).join('')) + 50, 99999] as [number, number] };
     const short = checkReport(cut, plan).find((i) => i.code === 'TOTAL_SHORT');
     expect(short?.sectionId).toBe(target.id);
+    expect(short?.message).toContain('110자 이상 늘려요');
   });
   it('같은 구절이 3개 이상 섹션에 되풀이되면 가장 뒤 섹션을 지목한다', () => {
     const rep = '생각과 재능을 밖으로 꺼내는 기운이 보여요.';
