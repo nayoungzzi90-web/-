@@ -187,11 +187,21 @@ describe("잠금(권한 없는 사용자에게는 본문을 보내지 않는다)
     expect(chars(shown)).toBeLessThan(full.chars * 0.4);
   });
   it("전문용어가 든 앞 섹션·제목줄·미리보기는 미열람 응답에서 빠진다", () => {
-    const safe = "흙 기운이 중심이라 차분하게 쌓아 가는 편이에요. 새 일을 시작할 때도 순서를 먼저 잡아요.";
-    const mk = (id: string, body: string, headline: string) => ({ id, title: `제목-${id}`, headline, body });
+    const safe =
+      "흙 기운이 중심이라 차분하게 쌓아 가는 편이에요. 새 일을 시작할 때도 순서를 먼저 잡아요.";
+    const mk = (id: string, body: string, headline: string) => ({
+      id,
+      title: `제목-${id}`,
+      headline,
+      body,
+    });
     // 앞 섹션이 쉬우면 무료 본문, 전문용어 제목줄·미리보기는 가린다
     const a = shapeSections(
-      [mk("a", safe, "차분하게 쌓는 편"), mk("b", "일지와 월지가 부딪히는 구조예요. 뒤는 길게 이어져요.", "일간이 중심이에요"), mk("c", safe, "쉬운 제목")],
+      [
+        mk("a", safe, "차분하게 쌓는 편"),
+        mk("b", "일지와 월지가 부딪히는 구조예요. 뒤는 길게 이어져요.", "일간이 중심이에요"),
+        mk("c", safe, "쉬운 제목"),
+      ],
       false,
     );
     expect(a[0]!.locked).toBe(false);

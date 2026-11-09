@@ -184,7 +184,12 @@ export function shapeSections(sections: FullSection[], unlocked: boolean): OutSe
   return sections.map((s, i) => {
     const base = { id: s.id, title: s.title, ...(s.tag ? { tag: s.tag } : {}) };
     if (unlocked) {
-      return { ...base, ...(s.headline ? { headline: s.headline } : {}), locked: false as const, body: s.body };
+      return {
+        ...base,
+        ...(s.headline ? { headline: s.headline } : {}),
+        locked: false as const,
+        body: s.body,
+      };
     }
     const safeHeadline = s.headline && !hasJargon(s.headline) ? { headline: s.headline } : {};
     if (i < FREE_SECTIONS && !hasJargon(s.body)) {
