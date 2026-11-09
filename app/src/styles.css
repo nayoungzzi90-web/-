@@ -1,2 +1,132 @@
 @import "tailwindcss";
-body { background: #f7f0e3; color: #2b1d2e; }
+
+:root {
+  --paper: #f7f0e1;
+  --paper-2: #efe5cf;
+  --ink: #2b2233;
+  --ink-soft: #6b5f70;
+  --line: #2b2233;
+  /* 오방색 = 오행 */
+  --mok: #3b8f7b; /* 청 */
+  --hwa: #d6463a; /* 적 */
+  --to: #e8b23a; /* 황 */
+  --geum: #ece8df; /* 백 */
+  --su: #2f3150; /* 흑 */
+  --stamp: #c2372b;
+}
+
+html {
+  background: var(--paper);
+}
+body {
+  margin: 0;
+  color: var(--ink);
+  font-family:
+    "Gowun Dodum", "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
+  background-color: var(--paper);
+  background-image:
+    radial-gradient(rgba(120, 90, 50, 0.07) 1px, transparent 1.4px),
+    radial-gradient(rgba(120, 90, 50, 0.05) 1px, transparent 1.4px);
+  background-size:
+    22px 22px,
+    37px 37px;
+  background-position:
+    0 0,
+    11px 17px;
+}
+.font-display {
+  font-family: "Jua", "Gowun Dodum", "Apple SD Gothic Neo", sans-serif;
+  letter-spacing: -0.01em;
+}
+
+@layer components {
+  /* 오방색 띠(단청 느낌) */
+  .dancheong {
+    height: 10px;
+    background: linear-gradient(
+      90deg,
+      var(--mok) 0 20%,
+      var(--hwa) 20% 40%,
+      var(--to) 40% 60%,
+      var(--geum) 60% 80%,
+      var(--su) 80% 100%
+    );
+    border-bottom: 2px solid var(--line);
+  }
+
+  /* 한지 카드: 두꺼운 먹선 + 단단한 그림자 */
+  .hj-card {
+    border: 2.5px solid var(--line);
+    border-radius: 22px;
+    box-shadow: 4px 4px 0 var(--line);
+    background: #fffaf0;
+  }
+
+  /* 도장(가격표) */
+  .stamp {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    border: 2px solid var(--stamp);
+    color: var(--stamp);
+    border-radius: 8px;
+    padding: 1px 8px;
+    font-weight: 800;
+    font-size: 12px;
+    transform: rotate(-3deg);
+    background: rgba(255, 250, 240, 0.9);
+  }
+}
+
+@keyframes bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+.bob {
+  animation: bob 2.6s ease-in-out infinite;
+}
+
+@keyframes sway {
+  0%,
+  100% {
+    transform: rotate(-3deg);
+  }
+  50% {
+    transform: rotate(3deg);
+  }
+}
+.sway {
+  transform-origin: top center;
+  animation: sway 3.2s ease-in-out infinite;
+}
+
+@keyframes coin {
+  0% {
+    transform: translateY(0) rotateY(0);
+  }
+  40% {
+    transform: translateY(-34px) rotateY(540deg);
+  }
+  70% {
+    transform: translateY(0) rotateY(900deg);
+  }
+  100% {
+    transform: translateY(0) rotateY(1080deg);
+  }
+}
+.coin-toss {
+  animation: coin 1.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bob,
+  .sway,
+  .coin-toss {
+    animation: none;
+  }
+}

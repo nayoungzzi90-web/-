@@ -10,11 +10,18 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ResultRouteImport } from './routes/result'
 import { Route as StyleRouteImport } from './routes/style'
+import { Route as WaitRouteImport } from './routes/wait'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResultRoute = ResultRouteImport.update({
+  id: '/result',
+  path: '/result',
   getParentRoute: () => rootRouteImport,
 } as any)
 const StyleRoute = StyleRouteImport.update({
@@ -22,31 +29,44 @@ const StyleRoute = StyleRouteImport.update({
   path: '/style',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WaitRoute = WaitRouteImport.update({
+  id: '/wait',
+  path: '/wait',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/result': typeof ResultRoute
   '/style': typeof StyleRoute
+  '/wait': typeof WaitRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/result': typeof ResultRoute
   '/style': typeof StyleRoute
+  '/wait': typeof WaitRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/result': typeof ResultRoute
   '/style': typeof StyleRoute
+  '/wait': typeof WaitRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/style'
+  fullPaths: '/' | '/result' | '/style' | '/wait'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/style'
-  id: '__root__' | '/' | '/style'
+  to: '/' | '/result' | '/style' | '/wait'
+  id: '__root__' | '/' | '/result' | '/style' | '/wait'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ResultRoute: typeof ResultRoute
   StyleRoute: typeof StyleRoute
+  WaitRoute: typeof WaitRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -58,6 +78,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/result': {
+      id: '/result'
+      path: '/result'
+      fullPath: '/result'
+      preLoaderRoute: typeof ResultRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/style': {
       id: '/style'
       path: '/style'
@@ -65,12 +92,21 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StyleRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/wait': {
+      id: '/wait'
+      path: '/wait'
+      fullPath: '/wait'
+      preLoaderRoute: typeof WaitRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ResultRoute: ResultRoute,
   StyleRoute: StyleRoute,
+  WaitRoute: WaitRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
