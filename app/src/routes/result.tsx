@@ -138,7 +138,7 @@ function Locked({
       <p className="text-[11px] font-extrabold text-[var(--stamp)]">
         {eyebrow}
       </p>
-      <p className="font-display text-[17px] leading-snug">{title}</p>
+      <p className="font-display pr-14 text-[17px] leading-snug">{title}</p>
       <p
         className="mt-2 select-none text-[15px] leading-relaxed blur-[5px]"
         aria-hidden
