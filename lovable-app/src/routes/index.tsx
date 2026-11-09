@@ -1,7 +1,7 @@
 import { cleanRef } from "@/lib/share";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect } from "react";
-import hero from "@/assets/hero.jpg";
+import { Ghost, HauntedHero, type GhostKind } from "@/components/Ghosts";
 import { Shell } from "@/components/Shell";
 import { PRODUCTS, won } from "@/lib/coins";
 
@@ -23,28 +23,28 @@ export const Route = createFileRoute("/")({
 });
 
 const SERVICES = [
-  { to: "/character", t: "나의 오행 캐릭터", d: "무료 · 회원가입 없이", e: "🐯" },
-  { to: "/today", t: "오늘의 운세", d: "무료 · 매일 새로", e: "☀️" },
-  { to: "/sample", t: "예시 풀이 미리보기", d: "무료 · 풀이가 이렇게 나와요", e: "👀" },
+  { to: "/character", t: "나의 오행 캐릭터", d: "무료 · 회원가입 없이", g: "dokkaebi" },
+  { to: "/today", t: "오늘의 운세", d: "무료 · 매일 새로", g: "egg" },
+  { to: "/sample", t: "예시 풀이 미리보기", d: "무료 · 풀이가 이렇게 나와요", g: "reaper" },
   {
     to: "/basic",
     t: "기본 사주 풀이",
     d: `${won(PRODUCTS.basic.coins)} · ${PRODUCTS.basic.coins}닢`,
-    e: "📜",
+    g: "maiden",
   },
   {
     to: "/compatibility",
     t: "궁합",
     d: `${won(PRODUCTS.compat.coins)} · ${PRODUCTS.compat.coins}닢`,
-    e: "💞",
+    g: "fox",
   },
   {
     to: "/love",
     t: "심층 연애운",
     d: `${won(PRODUCTS.love.coins)} · ${PRODUCTS.love.coins}닢`,
-    e: "🌸",
+    g: "maiden",
   },
-] as const;
+] as const satisfies readonly { to: string; t: string; d: string; g: GhostKind }[];
 
 function Index() {
   const { ref } = Route.useSearch();
@@ -61,13 +61,7 @@ function Index() {
   return (
     <Shell>
       <div className="card-hanji overflow-hidden">
-        <img
-          src={hero}
-          alt="민화풍 오행 친구들: 호랑이, 학, 토끼, 까치, 거북"
-          width={1024}
-          height={768}
-          className="w-full"
-        />
+        <HauntedHero />
         <div className="p-5">
           <h1 className="font-serif text-2xl font-bold leading-snug">
             나를 닮은
@@ -89,9 +83,7 @@ function Index() {
       <div className="mt-3 grid gap-3">
         {SERVICES.map((s) => (
           <Link key={s.to} to={s.to} className="card-hanji flex items-center gap-4 p-4">
-            <span className="text-3xl" aria-hidden>
-              {s.e}
-            </span>
+            <Ghost kind={s.g} size={52} className="shrink-0" />
             <span className="flex-1">
               <span className="block font-serif font-bold">{s.t}</span>
               <span className="text-xs text-muted-foreground">{s.d}</span>

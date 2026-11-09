@@ -172,7 +172,24 @@
 }
 @utility card-hanji {
   background: var(--card);
-  border: 1.5px solid var(--border);
+  border: 2.5px solid #2b1d2e;
   border-radius: var(--radius-xl);
-  box-shadow: 0 6px 18px -10px color-mix(in oklab, var(--vermilion) 35%, transparent);
+  box-shadow: 4px 4px 0 #2b1d2e;
+}
+@keyframes ghost-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+.ghost-bob {
+  animation: ghost-bob 3.2s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ghost-bob {
+    animation: none;
+  }
 }
