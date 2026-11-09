@@ -1,6 +1,6 @@
 import { PACKS, type PaymentsStatus } from "@/lib/charge";
 import { Coin } from "@/components/Coin";
-import { Ghost } from "@/components/Ghosts";
+import { Friend } from "@/components/Friends";
 
 /** 엽전 충전 화면(표시 전용). 라우터·서버에 의존하지 않아 단독으로 시험할 수 있다. */
 export function ChargeView({
@@ -36,7 +36,7 @@ export function ChargeView({
           </div>
         </div>
         <div className="relative shrink-0">
-          <Ghost kind="dokkaebi" size={76} className="ghost-bob" />
+          <Friend kind="tiger" size={76} />
           <span className="absolute -top-3 right-full mr-1 whitespace-nowrap rounded-xl border-2 border-[#2b1d2e] bg-card px-2 py-1 text-[11px] font-bold text-foreground">
             좋은 운이 함께해요!
           </span>

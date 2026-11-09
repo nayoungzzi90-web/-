@@ -1,7 +1,7 @@
 import { cleanRef } from "@/lib/share";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { Ghost, GHOST_INTROS, HauntedHero, type GhostKind } from "@/components/Ghosts";
+import { Friend, FRIEND_INFO, FriendsHero, type FriendKind } from "@/components/Friends";
 import { Shell } from "@/components/Shell";
 import { PRODUCTS, won } from "@/lib/coins";
 
@@ -23,28 +23,28 @@ export const Route = createFileRoute("/")({
 });
 
 const SERVICES = [
-  { to: "/character", t: "나의 오행 캐릭터", d: "무료 · 회원가입 없이", g: "dokkaebi" },
-  { to: "/today", t: "오늘의 운세", d: "무료 · 매일 새로", g: "egg" },
-  { to: "/sample", t: "예시 풀이 미리보기", d: "무료 · 풀이가 이렇게 나와요", g: "reaper" },
+  { to: "/character", t: "나의 오행 캐릭터", d: "무료 · 회원가입 없이", g: "tiger" },
+  { to: "/today", t: "오늘의 운세", d: "무료 · 매일 새로", g: "rabbit" },
+  { to: "/sample", t: "예시 풀이 미리보기", d: "무료 · 풀이가 이렇게 나와요", g: "turtle" },
   {
     to: "/basic",
     t: "기본 사주 풀이",
     d: `${won(PRODUCTS.basic.coins)} · ${PRODUCTS.basic.coins}닢`,
-    g: "maiden",
+    g: "seonbi",
   },
   {
     to: "/compatibility",
     t: "궁합",
     d: `${won(PRODUCTS.compat.coins)} · ${PRODUCTS.compat.coins}닢`,
-    g: "fox",
+    g: "tiger",
   },
   {
     to: "/love",
     t: "심층 연애운",
     d: `${won(PRODUCTS.love.coins)} · ${PRODUCTS.love.coins}닢`,
-    g: "maiden",
+    g: "ssi",
   },
-] as const satisfies readonly { to: string; t: string; d: string; g: GhostKind }[];
+] as const satisfies readonly { to: string; t: string; d: string; g: FriendKind }[];
 
 function Index() {
   const { ref } = Route.useSearch();
@@ -62,15 +62,15 @@ function Index() {
     <Shell>
       <div className="card-hanji overflow-hidden">
         <div className="px-5 pb-3 pt-5">
-          <p className="text-xs font-bold text-muted-foreground">달밤 마당의 사주풀이</p>
+          <p className="text-xs font-bold text-muted-foreground">조선시대 감성 사주풀이</p>
           <h1 className="font-serif text-4xl font-bold leading-tight">오행 친구들</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            귀신 친구들이 나를 닮은 오행 친구를
+            나무, 불, 흙, 쇠, 물 다섯 친구가
             <br />
-            찾아드려요. 생년월일만 알려주세요.
+            당신의 길을 안내해요. 생년월일만 알려주세요.
           </p>
         </div>
-        <HauntedHero />
+        <FriendsHero />
         <div className="p-5">
           <Link
             to="/input"
@@ -80,21 +80,27 @@ function Index() {
           </Link>
         </div>
       </div>
-      <h2 className="mt-7 font-serif text-lg font-bold">마당에 모인 친구들</h2>
+      <h2 className="mt-7 font-serif text-lg font-bold">오행 친구들을 소개해요</h2>
       <div className="-mx-4 mt-3 flex snap-x gap-3 overflow-x-auto px-4 pb-2">
-        {GHOST_INTROS.map((g) => (
-          <div key={g.name} className="card-hanji w-28 shrink-0 snap-start p-3 text-center">
-            <Ghost kind={g.kind} size={56} className="mx-auto" />
-            <p className="mt-1 font-serif font-bold">{g.name}</p>
-            <p className="mt-0.5 text-[11px] leading-snug text-muted-foreground">{g.line}</p>
-          </div>
-        ))}
+        {(Object.keys(FRIEND_INFO) as FriendKind[]).map((k) => {
+          const f = FRIEND_INFO[k];
+          return (
+            <div key={k} className="card-hanji w-28 shrink-0 snap-start p-3 text-center">
+              <Friend kind={k} size={56} className="mx-auto" />
+              <p className="mt-1 font-serif font-bold">{f.name}</p>
+              <p className="text-[10px] font-bold text-primary">
+                {f.tag} · {f.role}
+              </p>
+              <p className="mt-0.5 text-[11px] leading-snug text-muted-foreground">{f.line}</p>
+            </div>
+          );
+        })}
       </div>
       <h2 className="mt-7 font-serif text-lg font-bold">풀이 보따리</h2>
       <div className="mt-3 grid gap-3">
         {SERVICES.map((s) => (
           <Link key={s.to} to={s.to} className="card-hanji flex items-center gap-4 p-4">
-            <Ghost kind={s.g} size={52} className="shrink-0" />
+            <Friend kind={s.g} size={52} className="shrink-0" />
             <span className="flex-1">
               <span className="block font-serif font-bold">{s.t}</span>
               <span className="text-xs text-muted-foreground">{s.d}</span>

@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { Shell } from "@/components/Shell";
 import { BirthForm } from "@/components/BirthForm";
-import { PeekRow } from "@/components/Ghosts";
+import { PeekRow } from "@/components/Friends";
 import { setStore, useStore } from "@/lib/store";
 import { saveBirth } from "@/lib/user-fns";
 import type { BirthInput } from "@/lib/saju";
