@@ -38,7 +38,9 @@ describe("AI 풀이 화면", () => {
     const fetcher = vi.fn(() => new Promise<AiReadingResponse>((r) => (resolve = r)));
     const { host, click } = mount(fetcher);
     click();
-    expect(host.textContent).toContain("풀이를 쓰는 중이에요");
+    // 기다리는 화면: 예상 진행률 막대와 예상 남은 시간이 보인다
+    expect(host.querySelector('[role="progressbar"]')).not.toBeNull();
+    expect(host.textContent).toContain("예상 남은 시간");
     resolve({
       ok: true,
       state: "ready",
