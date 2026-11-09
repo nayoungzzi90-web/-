@@ -6,6 +6,10 @@ import { Shell } from "@/components/Shell";
 import { safeNext } from "@/lib/safe-next";
 import { passwordProblem } from "@/lib/password-policy";
 
+// Google 로그인은 Lovable 호스팅의 중계 주소(/~oauth)가 있어야 동작한다. Cloudflare 배포에서는 그 주소가 없어 404 가 되므로
+// 기본 숨김. Supabase 자체 Google 로그인으로 교체한 뒤 true 로 바꾼다.
+const GOOGLE_LOGIN_ENABLED = false;
+
 export const Route = createFileRoute("/auth")({
   validateSearch: (s: Record<string, unknown>): { ref?: string; next?: string } => ({
     ...(typeof s["ref"] === "string" ? { ref: s["ref"] } : {}),
@@ -146,23 +150,27 @@ function AuthPage() {
           >
             {mode === "signup" ? "가입하기" : "로그인"}
           </button>
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <span className="h-px flex-1 bg-border" />
-            또는
-            <span className="h-px flex-1 bg-border" />
-          </div>
-          <button
-            type="button"
-            className="w-full rounded-full border border-input bg-card py-3 font-bold"
-            onClick={async () => {
-              const r = await lovable.auth.signInWithOAuth("google", {
-                redirect_uri: window.location.origin,
-              });
-              if (r.error) setErr("구글 로그인에 문제가 생겼어요. 다시 시도해 주세요.");
-            }}
-          >
-            Google로 계속하기
-          </button>
+          {GOOGLE_LOGIN_ENABLED && (
+            <>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <span className="h-px flex-1 bg-border" />
+                또는
+                <span className="h-px flex-1 bg-border" />
+              </div>
+              <button
+                type="button"
+                className="w-full rounded-full border border-input bg-card py-3 font-bold"
+                onClick={async () => {
+                  const r = await lovable.auth.signInWithOAuth("google", {
+                    redirect_uri: window.location.origin,
+                  });
+                  if (r.error) setErr("구글 로그인에 문제가 생겼어요. 다시 시도해 주세요.");
+                }}
+              >
+                Google로 계속하기
+              </button>
+            </>
+          )}
         </form>
       )}
     </Shell>
