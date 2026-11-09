@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { Home, Sparkles, Sun, Heart, User } from "lucide-react";
 import { useStore } from "@/lib/store";
+import { Coin } from "@/components/Coin";
 
 const NAV = [
   { to: "/", label: "홈", icon: Home },
@@ -15,7 +16,7 @@ export function Shell({ children, title }: { children: ReactNode; title?: string
   const { coins, signedIn } = useStore();
   return (
     <div className="mx-auto min-h-screen max-w-md pb-24">
-      <header className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-background/90 px-4 py-3 backdrop-blur">
+      <header className="sticky top-0 z-10 flex items-center justify-between border-b-2 border-[#2b1d2e] bg-background/95 px-4 py-3 backdrop-blur">
         <Link to="/" className="font-serif text-lg font-bold text-primary">
           오행 친구들
         </Link>
@@ -23,14 +24,14 @@ export function Shell({ children, title }: { children: ReactNode; title?: string
         {signedIn ? (
           <Link
             to="/invite"
-            className="rounded-full bg-gold/25 px-3 py-1 text-xs font-bold text-foreground"
+            className="flex items-center gap-1 rounded-full border-2 border-[#2b1d2e] bg-card px-2.5 py-0.5 text-xs font-bold text-foreground shadow-[2px_2px_0_#2b1d2e]"
           >
-            🪙 {coins}닢
+            <Coin size={18} /> {coins}닢
           </Link>
         ) : (
           <Link
             to="/auth"
-            className="rounded-full bg-gold/25 px-3 py-1 text-xs font-bold text-foreground"
+            className="rounded-full border-2 border-[#2b1d2e] bg-card px-3 py-0.5 text-xs font-bold text-foreground shadow-[2px_2px_0_#2b1d2e]"
           >
             로그인
           </Link>
@@ -52,7 +53,7 @@ export function Shell({ children, title }: { children: ReactNode; title?: string
       </footer>
       <nav
         aria-label="주요 메뉴"
-        className="fixed inset-x-0 bottom-0 z-10 mx-auto flex max-w-md justify-around border-t border-border bg-card py-2"
+        className="fixed inset-x-0 bottom-0 z-10 mx-auto flex max-w-md justify-around rounded-t-2xl border-2 border-b-0 border-[#2b1d2e] bg-card py-2"
       >
         {NAV.map(({ to, label, icon: Icon }) => (
           <Link

@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 
 // 민속 귀신 친구들(만화풍 SVG). 전부 직접 그린 그림이며 외부 이미지·상표를 쓰지 않는다.
 // 전통 설화 속 귀신(달걀귀신·도깨비·처녀귀신·저승사자·구미호)을 무섭지 않고 귀엽게 그렸다.
@@ -144,11 +144,13 @@ export function Ghost({
   size = 64,
   className,
   label,
+  style,
 }: {
   kind: GhostKind;
   size?: number;
   className?: string;
   label?: string;
+  style?: CSSProperties;
 }) {
   return (
     <svg
@@ -156,6 +158,7 @@ export function Ghost({
       width={size}
       height={size}
       className={className}
+      style={style}
       role={label ? "img" : undefined}
       aria-label={label}
       aria-hidden={label ? undefined : true}
@@ -254,3 +257,33 @@ export function HauntedHero() {
     </svg>
   );
 }
+
+// 폼 위로 귀신 친구들이 빼꼼 내다보는 줄(머리 윗부분만 보이게 아래를 가린다)
+export function PeekRow({ kinds = ["maiden", "egg", "dokkaebi", "fox", "reaper"] as GhostKind[] }) {
+  return (
+    <div
+      className="-mb-[3px] flex items-end justify-around overflow-hidden px-2"
+      style={{ height: 46 }}
+      aria-hidden
+    >
+      {kinds.map((k, i) => (
+        <Ghost
+          key={k}
+          kind={k}
+          size={64}
+          className="ghost-bob shrink-0"
+          style={{ animationDelay: `${i * 0.35}s`, marginBottom: -18 }}
+        />
+      ))}
+    </div>
+  );
+}
+
+// 홈의 친구 소개 카드(안내 역할). 사주 용어 없이 쉬운 말로만 쓴다.
+export const GHOST_INTROS: { kind: GhostKind; name: string; line: string }[] = [
+  { kind: "dokkaebi", name: "도리", line: "나를 닮은 친구를 찾아줘요" },
+  { kind: "egg", name: "달걀이", line: "매일 아침 오늘 운을 알려줘요" },
+  { kind: "fox", name: "여리", line: "두 사람의 마음을 맞춰봐요" },
+  { kind: "maiden", name: "소복이", line: "차분하게 풀이를 들려줘요" },
+  { kind: "reaper", name: "먹이", line: "풀이를 미리 보여줘요" },
+];

@@ -37,7 +37,7 @@ export function BirthForm({
     setB({ ...b, date: y && m && d ? `${y}-${m}-${d}` : `${y}-${m}-${d}` });
   return (
     <form
-      className="card-hanji space-y-4 p-5"
+      className="scroll-frame space-y-4 p-5"
       onSubmit={(e) => {
         e.preventDefault();
         if (!b.name.trim()) return setErr("이름(별명)을 입력해 주세요.");

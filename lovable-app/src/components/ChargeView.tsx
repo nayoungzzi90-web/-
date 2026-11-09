@@ -1,4 +1,6 @@
 import { PACKS, type PaymentsStatus } from "@/lib/charge";
+import { Coin } from "@/components/Coin";
+import { Ghost } from "@/components/Ghosts";
 
 /** 엽전 충전 화면(표시 전용). 라우터·서버에 의존하지 않아 단독으로 시험할 수 있다. */
 export function ChargeView({
@@ -24,11 +26,21 @@ export function ChargeView({
   const sandbox = status?.mode === "sandbox";
   return (
     <div>
-      <div className="card-hanji p-6 text-center">
-        <p className="text-5xl">🪙</p>
-        <p className="mt-2 text-sm text-muted-foreground">보유 엽전</p>
-        <p className="font-serif text-3xl font-bold">{coins}닢</p>
-        <p className="mt-1 text-xs text-muted-foreground">1닢 = 900원</p>
+      <div className="card-hanji flex items-center justify-between gap-3 bg-secondary p-5 text-secondary-foreground">
+        <div className="flex items-center gap-3">
+          <Coin size={52} />
+          <div>
+            <p className="text-sm opacity-80">보유 엽전</p>
+            <p className="font-serif text-3xl font-bold">{coins}닢</p>
+            <p className="text-xs opacity-70">1닢 = 900원</p>
+          </div>
+        </div>
+        <div className="relative shrink-0">
+          <Ghost kind="dokkaebi" size={76} className="ghost-bob" />
+          <span className="absolute -top-3 right-full mr-1 whitespace-nowrap rounded-xl border-2 border-[#2b1d2e] bg-card px-2 py-1 text-[11px] font-bold text-foreground">
+            좋은 운이 함께해요!
+          </span>
+        </div>
       </div>
 
       {sandbox && (

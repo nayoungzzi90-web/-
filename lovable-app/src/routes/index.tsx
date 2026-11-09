@@ -1,7 +1,7 @@
 import { cleanRef } from "@/lib/share";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { Ghost, HauntedHero, type GhostKind } from "@/components/Ghosts";
+import { Ghost, GHOST_INTROS, HauntedHero, type GhostKind } from "@/components/Ghosts";
 import { Shell } from "@/components/Shell";
 import { PRODUCTS, won } from "@/lib/coins";
 
@@ -61,23 +61,34 @@ function Index() {
   return (
     <Shell>
       <div className="card-hanji overflow-hidden">
+        <div className="px-5 pb-3 pt-5">
+          <p className="text-xs font-bold text-muted-foreground">달밤 마당의 사주풀이</p>
+          <h1 className="font-serif text-4xl font-bold leading-tight">오행 친구들</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            귀신 친구들이 나를 닮은 오행 친구를
+            <br />
+            찾아드려요. 생년월일만 알려주세요.
+          </p>
+        </div>
         <HauntedHero />
         <div className="p-5">
-          <h1 className="font-serif text-2xl font-bold leading-snug">
-            나를 닮은
-            <br />
-            <span className="text-primary">오행 친구</span>는 누구일까?
-          </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            생년월일만 알려주면 열 친구 중 나의 짝꿍을 찾아드려요.
-          </p>
           <Link
             to="/input"
-            className="mt-4 block rounded-full bg-primary py-3 text-center font-bold text-primary-foreground"
+            className="block rounded-full border-2 border-[#2b1d2e] bg-primary py-3 text-center font-bold text-primary-foreground shadow-[3px_3px_0_#2b1d2e]"
           >
             무료로 시작하기
           </Link>
         </div>
+      </div>
+      <h2 className="mt-7 font-serif text-lg font-bold">마당에 모인 친구들</h2>
+      <div className="-mx-4 mt-3 flex snap-x gap-3 overflow-x-auto px-4 pb-2">
+        {GHOST_INTROS.map((g) => (
+          <div key={g.name} className="card-hanji w-28 shrink-0 snap-start p-3 text-center">
+            <Ghost kind={g.kind} size={56} className="mx-auto" />
+            <p className="mt-1 font-serif font-bold">{g.name}</p>
+            <p className="mt-0.5 text-[11px] leading-snug text-muted-foreground">{g.line}</p>
+          </div>
+        ))}
       </div>
       <h2 className="mt-7 font-serif text-lg font-bold">풀이 보따리</h2>
       <div className="mt-3 grid gap-3">

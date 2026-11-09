@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { Shell } from "@/components/Shell";
 import { BirthForm } from "@/components/BirthForm";
+import { PeekRow } from "@/components/Ghosts";
 import { setStore, useStore } from "@/lib/store";
 import { saveBirth } from "@/lib/user-fns";
 import type { BirthInput } from "@/lib/saju";
@@ -23,7 +24,15 @@ function InputPage() {
   const nav = useNavigate();
   return (
     <Shell title="출생정보">
-      <h1 className="mb-4 font-serif text-xl font-bold">태어난 날을 알려주세요</h1>
+      <h1 className="mb-2 font-serif text-2xl font-bold leading-snug">
+        태어난 순간의 이야기,
+        <br />
+        귀엽게 풀어드려요
+      </h1>
+      <p className="mb-3 text-sm text-muted-foreground">
+        생년월일만 넣으면 무료로 나를 닮은 친구를 바로 볼 수 있어요.
+      </p>
+      <PeekRow />
       <BirthForm
         initial={me}
         submitLabel="내 오행 친구 만나기"

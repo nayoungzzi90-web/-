@@ -70,20 +70,20 @@
 
 :root {
   --radius: 1rem;
-  --hanji: oklch(0.955 0.025 85);
-  --vermilion: oklch(0.55 0.15 35);
-  --teal: oklch(0.55 0.08 185);
-  --indigo: oklch(0.33 0.07 265);
-  --gold: oklch(0.75 0.12 80);
-  --background: oklch(0.955 0.025 85);
-  --foreground: oklch(0.27 0.04 50);
-  --card: oklch(0.985 0.015 85);
+  --hanji: #f7f0e3;
+  --vermilion: #b83a26;
+  --teal: #2f7068;
+  --indigo: #203e73;
+  --gold: #e2b04a;
+  --background: #f7f0e3;
+  --foreground: #282320;
+  --card: #fffaf0;
   --card-foreground: oklch(0.27 0.04 50);
   --popover: oklch(0.985 0.015 85);
   --popover-foreground: oklch(0.27 0.04 50);
-  --primary: oklch(0.55 0.15 35);
+  --primary: #b83a26;
   --primary-foreground: oklch(0.98 0.015 85);
-  --secondary: oklch(0.33 0.07 265);
+  --secondary: #203e73;
   --secondary-foreground: oklch(0.98 0.015 85);
   --muted: oklch(0.92 0.03 85);
   --muted-foreground: oklch(0.48 0.04 60);
@@ -192,4 +192,14 @@
   .ghost-bob {
     animation: none;
   }
+}
+
+/* 두루마리 틀: 입력 폼 등을 감싸는 종이 느낌 */
+@utility scroll-frame {
+  background: var(--card);
+  border: 2.5px solid #2b1d2e;
+  border-radius: 18px;
+  box-shadow:
+    4px 4px 0 #2b1d2e,
+    inset 0 0 0 4px #f1e3c4;
 }
