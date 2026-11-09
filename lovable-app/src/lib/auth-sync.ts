@@ -31,7 +31,11 @@ export function useAuthSync() {
           if (r.granted) toast("초대 링크가 연결됐어요. 친구의 초대 덕분에 만났어요 🪙");
         }
       } catch {
-        if (!cancelled) setStore({ loaded: true });
+        // 회원 정보를 못 불러와도 로그인 자체는 된 상태다. 화면이 계속 로그인 화면으로 보이지 않게 로그인 상태는 반영한다.
+        if (!cancelled) {
+          setStore({ loaded: true, signedIn: true, email });
+          toast("내 정보를 불러오지 못했어요.", { description: "잠시 뒤 새로고침해 주세요." });
+        }
       }
     }
 
