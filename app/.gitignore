@@ -3,3 +3,5 @@ node_modules
 .wrangler
 .nitro
 .tanstack
+public/mock
+src/routes/mock.tsx
