@@ -5,10 +5,10 @@ export const Route = createFileRoute("/style")({ component: StyleBoard });
 
 const CARDS: { kind: FriendKind; acc: Accessory; caption: string; h: number }[] = [
   { kind: "rabbit", acc: "sunglasses", caption: "복 들어간다 입벌려", h: 250 },
-  { kind: "ssi", acc: "tiara", caption: "넌 공주야 다 꺼져", h: 190 },
-  { kind: "tiger", acc: "cap", caption: "오늘 운세 좀 치는데", h: 210 },
+  { kind: "ssi", acc: "none", caption: "넌 공주야 다 꺼져", h: 190 },
+  { kind: "tiger", acc: "sunglasses", caption: "오늘 운세 좀 치는데", h: 210 },
   { kind: "seonbi", acc: "headphones", caption: "귀여운 제가 왔습니다", h: 230 },
-  { kind: "turtle", acc: "party", caption: "느려도 도착은 합니다", h: 200 },
+  { kind: "turtle", acc: "none", caption: "느려도 도착은 합니다", h: 200 },
   { kind: "ssi", acc: "sunglasses", caption: "연애운 보러 왔어용", h: 240 },
 ];
 
