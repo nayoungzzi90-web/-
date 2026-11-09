@@ -10,6 +10,7 @@ interface State {
   partner: BirthInput | null;
   coins: number;
   unlocked: string[];
+  concern: string; // 요즘 고민(선택). 이 기기의 화면 상태에만 둔다
 }
 let state: State = {
   loaded: false,
@@ -20,6 +21,7 @@ let state: State = {
   partner: null,
   coins: 0,
   unlocked: [],
+  concern: "",
 };
 const subs = new Set<() => void>();
 export const getState = () => state;

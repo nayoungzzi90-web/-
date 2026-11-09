@@ -64,6 +64,7 @@ export function useAuthSync() {
           partner: null,
           coins: 0,
           unlocked: [],
+          concern: "",
         });
         router.invalidate();
         return;

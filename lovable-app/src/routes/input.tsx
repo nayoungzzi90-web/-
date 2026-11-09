@@ -35,7 +35,7 @@ function InputPage() {
       <PeekRow />
       <BirthForm
         initial={me}
-        submitLabel="내 오행 친구 만나기"
+        submitLabel="다음: 요즘 고민 적기"
         onSubmit={async (b: BirthInput) => {
           if (signedIn) {
             try {
@@ -50,7 +50,7 @@ function InputPage() {
             toast("출생정보를 회원정보에 저장했어요.");
           }
           setStore({ me: b });
-          nav({ to: "/character" });
+          nav({ to: "/concern" });
         }}
       />
       {!signedIn && (

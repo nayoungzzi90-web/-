@@ -16,6 +16,7 @@ import { Route as BasicRouteImport } from './routes/basic'
 import { Route as CharacterRouteImport } from './routes/character'
 import { Route as ChargeRouteImport } from './routes/charge'
 import { Route as CompatibilityRouteImport } from './routes/compatibility'
+import { Route as ConcernRouteImport } from './routes/concern'
 import { Route as InputRouteImport } from './routes/input'
 import { Route as InviteRouteImport } from './routes/invite'
 import { Route as LedgerRouteImport } from './routes/ledger'
@@ -60,6 +61,11 @@ const ChargeRoute = ChargeRouteImport.update({
 const CompatibilityRoute = CompatibilityRouteImport.update({
   id: '/compatibility',
   path: '/compatibility',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConcernRoute = ConcernRouteImport.update({
+  id: '/concern',
+  path: '/concern',
   getParentRoute: () => rootRouteImport,
 } as any)
 const InputRoute = InputRouteImport.update({
@@ -121,6 +127,7 @@ export interface FileRoutesByFullPath {
   '/character': typeof CharacterRoute
   '/charge': typeof ChargeRoute
   '/compatibility': typeof CompatibilityRoute
+  '/concern': typeof ConcernRoute
   '/input': typeof InputRoute
   '/invite': typeof InviteRoute
   '/ledger': typeof LedgerRoute
@@ -140,6 +147,7 @@ export interface FileRoutesByTo {
   '/character': typeof CharacterRoute
   '/charge': typeof ChargeRoute
   '/compatibility': typeof CompatibilityRoute
+  '/concern': typeof ConcernRoute
   '/input': typeof InputRoute
   '/invite': typeof InviteRoute
   '/ledger': typeof LedgerRoute
@@ -160,6 +168,7 @@ export interface FileRoutesById {
   '/character': typeof CharacterRoute
   '/charge': typeof ChargeRoute
   '/compatibility': typeof CompatibilityRoute
+  '/concern': typeof ConcernRoute
   '/input': typeof InputRoute
   '/invite': typeof InviteRoute
   '/ledger': typeof LedgerRoute
@@ -181,6 +190,7 @@ export interface FileRouteTypes {
     | '/character'
     | '/charge'
     | '/compatibility'
+    | '/concern'
     | '/input'
     | '/invite'
     | '/ledger'
@@ -200,6 +210,7 @@ export interface FileRouteTypes {
     | '/character'
     | '/charge'
     | '/compatibility'
+    | '/concern'
     | '/input'
     | '/invite'
     | '/ledger'
@@ -219,6 +230,7 @@ export interface FileRouteTypes {
     | '/character'
     | '/charge'
     | '/compatibility'
+    | '/concern'
     | '/input'
     | '/invite'
     | '/ledger'
@@ -239,6 +251,7 @@ export interface RootRouteChildren {
   CharacterRoute: typeof CharacterRoute
   ChargeRoute: typeof ChargeRoute
   CompatibilityRoute: typeof CompatibilityRoute
+  ConcernRoute: typeof ConcernRoute
   InputRoute: typeof InputRoute
   InviteRoute: typeof InviteRoute
   LedgerRoute: typeof LedgerRoute
@@ -300,6 +313,13 @@ declare module '@tanstack/react-router' {
       path: '/compatibility'
       fullPath: '/compatibility'
       preLoaderRoute: typeof CompatibilityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/concern': {
+      id: '/concern'
+      path: '/concern'
+      fullPath: '/concern'
+      preLoaderRoute: typeof ConcernRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/input': {
@@ -383,6 +403,7 @@ const rootRouteChildren: RootRouteChildren = {
   CharacterRoute: CharacterRoute,
   ChargeRoute: ChargeRoute,
   CompatibilityRoute: CompatibilityRoute,
+  ConcernRoute: ConcernRoute,
   InputRoute: InputRoute,
   InviteRoute: InviteRoute,
   LedgerRoute: LedgerRoute,
