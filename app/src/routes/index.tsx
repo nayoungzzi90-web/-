@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute } from "@tanstack/react-router";
 import { Friend, type FriendKind } from "@/components/Friends";
 import { Coin, Page } from "@/components/Shell";
 import { Storefront } from "@/components/Storefront";
@@ -18,6 +18,7 @@ type Service = {
   bg: string;
   shape: Shape;
   soon?: boolean;
+  to?: "/input" | "/today";
 };
 
 const SERVICES: Service[] = [
@@ -124,6 +125,25 @@ function Thumb({ s }: { s: Service }) {
   );
 }
 
+function Card({ s, children }: { s: Service; children: React.ReactNode }) {
+  const cls = "hj-card relative block min-w-0 px-2 pb-3 pt-4 text-left";
+  if (s.to && !s.soon)
+    return (
+      <Link to={s.to} className={cls} style={{ background: s.bg }}>
+        {children}
+      </Link>
+    );
+  return (
+    <div
+      className={`${cls} opacity-60`}
+      style={{ background: s.bg }}
+      aria-disabled="true"
+    >
+      {children}
+    </div>
+  );
+}
+
 function Home() {
   return (
     <Page>
@@ -137,25 +157,25 @@ function Home() {
         <p className="mt-1 text-sm text-[var(--ink-soft)]">
           생년월일만 알려주면 오행 친구가 찾아와요
         </p>
-        <button
-          type="button"
-          className="font-display mt-4 w-full rounded-full border-[2.5px] border-[var(--line)] bg-[var(--stamp)] py-3.5 text-lg text-white shadow-[4px_4px_0_var(--line)] active:translate-y-0.5 active:shadow-[2px_2px_0_var(--line)]"
+        <Link
+          to="/input"
+          className="font-display mt-4 block w-full rounded-full border-[2.5px] border-[var(--line)] bg-[var(--stamp)] py-3.5 text-lg text-white shadow-[4px_4px_0_var(--line)] active:translate-y-0.5 active:shadow-[2px_2px_0_var(--line)]"
         >
           내 사주 뽑으러 가기
-        </button>
+        </Link>
+        <Link
+          to="/sample"
+          className="mt-3 block text-sm text-[var(--ink-soft)] underline"
+        >
+          샘플 결과 먼저 구경하기
+        </Link>
       </section>
 
       <section className="mt-8 px-4">
         <h2 className="font-display text-xl">오늘의 점집 메뉴</h2>
         <div className="mt-3 grid grid-cols-2 gap-3">
           {SERVICES.map((s) => (
-            <button
-              key={s.id}
-              type="button"
-              disabled={s.soon}
-              className="hj-card relative min-w-0 px-2 pb-3 pt-4 text-left disabled:opacity-60"
-              style={{ background: s.bg }}
-            >
+            <Card key={s.id} s={s}>
               <Thumb s={s} />
               <div className="mt-2.5 flex items-start justify-between gap-1 px-1">
                 <p className="font-display text-[17px] leading-tight">
@@ -181,7 +201,7 @@ function Home() {
               <p className="mt-0.5 px-1 text-xs text-[var(--ink-soft)]">
                 {s.desc}
               </p>
-            </button>
+            </Card>
           ))}
         </div>
       </section>

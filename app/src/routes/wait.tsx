@@ -1,34 +1,53 @@
 import { useEffect, useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Friend } from "@/components/Friends";
 import { Page } from "@/components/Shell";
+import { useStore } from "@/lib/store";
 
 export const Route = createFileRoute("/wait")({ component: Wait });
 
-// 시안: 엽전 던지기 로딩. 실제 연결 때는 서버 응답 시간으로 바꾼다(여기 숫자는 데모).
-const EXPECTED_SEC = 45;
-const LINES = [true, false, true, true, false, true]; // 육효 느낌의 여섯 줄(양/음, 장식)
+// 계산은 이 기기에서 바로 끝난다. 아래 3초는 점괘를 뽑는 연출이며 실제 대기 시간이 아니다.
+const RITUAL_MS = 3200;
+const LINES = [true, false, true, true, false, true];
+const COPY = [
+  "엽전을 던지는 중…",
+  "오행의 균형을 재는 중…",
+  "내 친구를 찾는 중…",
+  "점괘를 정리하는 중…",
+];
 
 function Wait() {
-  const [sec, setSec] = useState(0);
+  const nav = useNavigate();
+  const { me, hydrated } = useStore();
+  const [pct, setPct] = useState(0);
   useEffect(() => {
-    const t = setInterval(() => setSec((v) => v + 1), 1000);
+    if (hydrated && !me) void nav({ to: "/input" });
+  }, [hydrated, me, nav]);
+  useEffect(() => {
+    const start = Date.now();
+    const t = setInterval(() => {
+      const p = Math.min(
+        100,
+        Math.round(((Date.now() - start) / RITUAL_MS) * 100),
+      );
+      setPct(p);
+      if (p >= 100) {
+        clearInterval(t);
+        void nav({ to: "/result", replace: true });
+      }
+    }, 120);
     return () => clearInterval(t);
-  }, []);
-  const percent = Math.min(95, Math.round((sec / EXPECTED_SEC) * 95));
-  const lit = Math.min(6, Math.floor(percent / 16) + 1);
-  const left = Math.max(5, EXPECTED_SEC - sec);
+  }, [nav]);
+  const lit = Math.min(6, Math.floor(pct / 17) + 1);
   return (
     <Page>
       <section className="px-4 pt-6 text-center">
         <p className="text-sm font-bold text-[var(--stamp)]">
-          오리 점쟁이가 엽전을 던지는 중
+          오리 점쟁이가 점괘를 뽑는 중
         </p>
         <h1 className="font-display mt-1 text-[26px] leading-tight">
-          오늘 들어올 귀인이
-          <br />몇 명인지 세는 중…
+          {COPY[Math.min(3, Math.floor(pct / 26))]}
         </h1>
-
         <div className="hj-card mt-5 bg-[var(--su)] px-4 pb-5 pt-6 text-[#fffaf0]">
           <div className="flex items-end justify-center gap-6">
             {[0, 0.35, 0.7].map((d) => (
@@ -61,12 +80,11 @@ function Wait() {
               </svg>
             ))}
           </div>
-          <div className="mx-auto mt-4 h-1.5 w-40 rounded-full bg-black/30" />
-          <div className="mt-5 flex flex-col items-center gap-2" aria-hidden>
+          <div className="mt-6 flex flex-col items-center gap-2" aria-hidden>
             {LINES.map((solid, i) => (
               <div
                 key={i}
-                className="flex gap-3 transition-opacity duration-500"
+                className="flex gap-3 transition-opacity duration-300"
                 style={{ opacity: i < lit ? 1 : 0.15 }}
               >
                 {solid ? (
@@ -94,30 +112,13 @@ function Wait() {
             )}
           </div>
         </div>
-
-        <div className="mt-5">
-          <div className="h-5 overflow-hidden rounded-full border-[2.5px] border-[var(--line)] bg-[#fffaf0]">
-            <div
-              className="h-full bg-[var(--hwa)] transition-all duration-700"
-              style={{ width: `${percent}%` }}
-            />
-          </div>
-          <p className="font-display mt-2 text-lg">{percent}%</p>
-          <p className="text-sm text-[var(--ink-soft)]">
-            예상 남은 시간: 약 {left}초 (어림한 값이에요)
-          </p>
-          <p className="mt-1 text-xs text-[var(--ink-soft)]">
-            화면을 나가도 계속 진행돼요
-          </p>
+        <div className="mt-5 h-5 overflow-hidden rounded-full border-[2.5px] border-[var(--line)] bg-[#fffaf0]">
+          <div
+            className="h-full bg-[var(--hwa)] transition-all"
+            style={{ width: `${pct}%` }}
+          />
         </div>
-
-        <div className="hj-card mt-6 bg-[#dfe9f7] p-4 text-left">
-          <p className="font-display text-base">문의하기</p>
-          <p className="mt-0.5 text-sm text-[var(--ink-soft)]">
-            3분이 지나도 안 끝나면 먼저{" "}
-            <b className="text-[var(--stamp)]">새로고침</b>을 해주세요.
-          </p>
-        </div>
+        <p className="font-display mt-2 text-lg">{pct}%</p>
       </section>
     </Page>
   );

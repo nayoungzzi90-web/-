@@ -10,8 +10,12 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ConcernRouteImport } from './routes/concern'
+import { Route as InputRouteImport } from './routes/input'
 import { Route as ResultRouteImport } from './routes/result'
+import { Route as SampleRouteImport } from './routes/sample'
 import { Route as StyleRouteImport } from './routes/style'
+import { Route as TodayRouteImport } from './routes/today'
 import { Route as WaitRouteImport } from './routes/wait'
 
 const IndexRoute = IndexRouteImport.update({
@@ -19,14 +23,34 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ConcernRoute = ConcernRouteImport.update({
+  id: '/concern',
+  path: '/concern',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InputRoute = InputRouteImport.update({
+  id: '/input',
+  path: '/input',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResultRoute = ResultRouteImport.update({
   id: '/result',
   path: '/result',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SampleRoute = SampleRouteImport.update({
+  id: '/sample',
+  path: '/sample',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const StyleRoute = StyleRouteImport.update({
   id: '/style',
   path: '/style',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TodayRoute = TodayRouteImport.update({
+  id: '/today',
+  path: '/today',
   getParentRoute: () => rootRouteImport,
 } as any)
 const WaitRoute = WaitRouteImport.update({
@@ -37,35 +61,76 @@ const WaitRoute = WaitRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/concern': typeof ConcernRoute
+  '/input': typeof InputRoute
   '/result': typeof ResultRoute
+  '/sample': typeof SampleRoute
   '/style': typeof StyleRoute
+  '/today': typeof TodayRoute
   '/wait': typeof WaitRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/concern': typeof ConcernRoute
+  '/input': typeof InputRoute
   '/result': typeof ResultRoute
+  '/sample': typeof SampleRoute
   '/style': typeof StyleRoute
+  '/today': typeof TodayRoute
   '/wait': typeof WaitRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/concern': typeof ConcernRoute
+  '/input': typeof InputRoute
   '/result': typeof ResultRoute
+  '/sample': typeof SampleRoute
   '/style': typeof StyleRoute
+  '/today': typeof TodayRoute
   '/wait': typeof WaitRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/result' | '/style' | '/wait'
+  fullPaths:
+    | '/'
+    | '/concern'
+    | '/input'
+    | '/result'
+    | '/sample'
+    | '/style'
+    | '/today'
+    | '/wait'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/result' | '/style' | '/wait'
-  id: '__root__' | '/' | '/result' | '/style' | '/wait'
+  to:
+    | '/'
+    | '/concern'
+    | '/input'
+    | '/result'
+    | '/sample'
+    | '/style'
+    | '/today'
+    | '/wait'
+  id:
+    | '__root__'
+    | '/'
+    | '/concern'
+    | '/input'
+    | '/result'
+    | '/sample'
+    | '/style'
+    | '/today'
+    | '/wait'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ConcernRoute: typeof ConcernRoute
+  InputRoute: typeof InputRoute
   ResultRoute: typeof ResultRoute
+  SampleRoute: typeof SampleRoute
   StyleRoute: typeof StyleRoute
+  TodayRoute: typeof TodayRoute
   WaitRoute: typeof WaitRoute
 }
 
@@ -78,6 +143,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/concern': {
+      id: '/concern'
+      path: '/concern'
+      fullPath: '/concern'
+      preLoaderRoute: typeof ConcernRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/input': {
+      id: '/input'
+      path: '/input'
+      fullPath: '/input'
+      preLoaderRoute: typeof InputRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/result': {
       id: '/result'
       path: '/result'
@@ -85,11 +164,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ResultRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sample': {
+      id: '/sample'
+      path: '/sample'
+      fullPath: '/sample'
+      preLoaderRoute: typeof SampleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/style': {
       id: '/style'
       path: '/style'
       fullPath: '/style'
       preLoaderRoute: typeof StyleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/today': {
+      id: '/today'
+      path: '/today'
+      fullPath: '/today'
+      preLoaderRoute: typeof TodayRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/wait': {
@@ -104,8 +197,12 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ConcernRoute: ConcernRoute,
+  InputRoute: InputRoute,
   ResultRoute: ResultRoute,
+  SampleRoute: SampleRoute,
   StyleRoute: StyleRoute,
+  TodayRoute: TodayRoute,
   WaitRoute: WaitRoute,
 }
 export const routeTree = rootRouteImport

@@ -1,9 +1,11 @@
+import { useEffect } from "react";
 import {
   HeadContent,
   Outlet,
   Scripts,
   createRootRoute,
 } from "@tanstack/react-router";
+import { hydrateStore } from "@/lib/store";
 import appCss from "../styles.css?url";
 
 export const Route = createRootRoute({
@@ -27,7 +29,15 @@ export const Route = createRootRoute({
       { rel: "stylesheet", href: appCss },
     ],
   }),
-  component: () => (
+  component: Root,
+});
+
+function Root() {
+  // 이 기기에 저장해 둔 입력(생년월일·고민)을 한 번 불러온다.
+  useEffect(() => {
+    hydrateStore();
+  }, []);
+  return (
     <html lang="ko">
       <head>
         <HeadContent />
@@ -37,5 +47,5 @@ export const Route = createRootRoute({
         <Scripts />
       </body>
     </html>
-  ),
-});
+  );
+}
