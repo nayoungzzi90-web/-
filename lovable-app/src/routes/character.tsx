@@ -7,7 +7,10 @@ import { getSajuPreview } from "@/lib/saju-fns";
 import { characterFor } from "@/lib/characters";
 import { shareText, shareUrl } from "@/lib/share";
 import { renderShareCard } from "@/lib/share-card";
-import type { Element, SajuPreview } from "@/lib/saju";
+import { Friend, FRIEND_INFO, type FriendKind } from "@/components/Friends";
+import { ResultSection } from "@/components/ResultSection";
+import { EL_HANJA, EL_PLAIN, elementSentence, pillarParts, stemElement } from "@/lib/pillar-view";
+import type { BirthInput, Element, Pillar, SajuPreview } from "@/lib/saju";
 
 export const Route = createFileRoute("/character")({
   head: () => ({
@@ -36,18 +39,46 @@ const EL_COLOR: Record<Element, string> = {
   수: "bg-indigo",
 };
 
-export function SajuResult({ p, me }: { p: SajuPreview; me: { name: string } }) {
+const EL_FRIEND: Record<Element, FriendKind> = {
+  목: "seonbi",
+  화: "ssi",
+  토: "tiger",
+  금: "rabbit",
+  수: "turtle",
+};
+const CELL: Record<Element, string> = {
+  목: "bg-teal text-white",
+  화: "bg-vermilion text-white",
+  토: "bg-gold text-foreground",
+  금: "bg-[#e8e6ea] text-foreground",
+  수: "bg-indigo text-white",
+};
+
+function birthChips(me: BirthInput): string[] {
+  const [y, m, d] = me.date.split("-");
+  return [
+    `${y}년 ${m}월 ${d}일`,
+    me.calendar === "lunar" ? "음력" : "양력",
+    me.time ?? "시간 모름",
+    me.gender === "f" ? "여성" : "남성",
+    "본인",
+  ];
+}
+
+export function SajuResult({ p, me }: { p: SajuPreview; me: BirthInput }) {
   const pillars = p.pillars!;
   const elements = p.elements!;
   const c = characterFor(pillars.day.stem, elements);
   const total = Object.values(elements).reduce((a, b) => a + b, 0);
-  const { inviteCode } = useStore();
+  const { inviteCode, concern } = useStore();
   const text = shareText(c);
-  const PILLAR_LABEL: [string, { hanja: string; ko: string } | null][] = [
-    ["연주", pillars.year],
-    ["월주", pillars.month],
-    ["일주", pillars.day],
-    ["시주", pillars.hour],
+  const dayEl = stemElement(pillars.day.stem);
+  const friend = FRIEND_INFO[EL_FRIEND[dayEl]];
+  const COLUMNS: [string, Pillar | null, boolean][] = [
+    ["시주", pillars.hour, false],
+    ["일주", pillars.day, true],
+    ["월주", pillars.month, false],
+    ["연주", pillars.year, false],
   ];
   return (
     <>
@@ -66,46 +97,105 @@ export function SajuResult({ p, me }: { p: SajuPreview; me: { name: string } }) 
           ⚠️ 검토 필요: {p.reviewReasons?.join(" ")}
         </div>
       )}
-      {/* 공유 카드: 출생일·시각 미노출 */}
-      <div className="card-hanji mt-3 overflow-hidden text-center">
-        <div className={`${TONE[c.tone]} py-8`}>
-          <div className="mx-auto flex h-32 w-32 items-center justify-center rounded-full bg-card text-7xl shadow-lg">
-            {c.emoji}
-          </div>
+
+      {/* 제목 띠: 이름과 입력한 출생 정보 */}
+      <div className="card-hanji mt-3 bg-gold p-4 text-center">
+        <h1 className="font-serif text-xl font-bold">{me.name}님의 사주풀이</h1>
+        <div className="mt-2 flex flex-wrap justify-center gap-1.5">
+          {birthChips(me).map((t) => (
+            <span
+              key={t}
+              className="rounded-full border-2 border-[#2b1d2e] bg-card px-2.5 py-0.5 text-[11px] font-bold"
+            >
+              {t}
+            </span>
+          ))}
         </div>
-        <div className="p-5">
-          <p className="text-xs text-muted-foreground">
-            일주 {pillars.day.ko} · {c.element}의 기운
+      </div>
+
+      {concern && (
+        <div className="mt-3 rounded-2xl border-2 border-dashed border-border bg-card p-4">
+          <p className="text-[11px] font-bold text-muted-foreground">내가 입력한 고민</p>
+          <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed">{concern}</p>
+        </div>
+      )}
+
+      {/* 나의 오행 친구 */}
+      <div className="card-hanji mt-3 flex items-center gap-4 bg-[#fbe9c2] p-4">
+        <Friend kind={EL_FRIEND[dayEl]} size={96} className="shrink-0" />
+        <div>
+          <p className="text-[11px] font-bold text-primary">나의 오행 친구</p>
+          <p className="font-serif text-xl font-bold">
+            {friend.name} <span className="text-sm">· {friend.role}</span>
           </p>
-          <h1 className="mt-1 font-serif text-2xl font-bold">
-            {c.epithet} <span className="text-primary">{c.name}</span>
-          </h1>
-          <p className="mt-2 text-sm">{c.personality}</p>
-          <p className="mt-1 text-[11px] text-muted-foreground">
-            ※ 캐릭터·칭호·성격 설명은 재미를 위한 창작 표현이에요.
+          <p className="text-xs text-muted-foreground">
+            {EL_HANJA[dayEl]} {EL_PLAIN[dayEl]}의 기운 · 일주 {pillars.day.hanja} {pillars.day.ko}
           </p>
         </div>
       </div>
-      <Section title="사주 4주">
-        <div className="grid grid-cols-4 gap-2 text-center">
-          {PILLAR_LABEL.map(([label, pl]) => (
-            <div key={label} className="rounded-xl border border-border bg-card py-3">
-              <p className="text-[11px] text-muted-foreground">{label}</p>
-              <p className="mt-1 font-serif text-lg font-bold">{pl ? pl.ko : "미상"}</p>
-              <p className="text-[11px] text-muted-foreground">{pl ? "\u00a0" : "시간 모름"}</p>
-            </div>
+
+      {/* 만세력 표 */}
+      <section className="card-hanji mt-3 overflow-hidden" aria-label="만세력">
+        <h2 className="bg-teal py-2 text-center font-serif text-base font-bold text-white">
+          만세력
+        </h2>
+        <div className="grid grid-cols-4 gap-px bg-border text-center">
+          {COLUMNS.map(([label, pl, mine]) => (
+            <p
+              key={label}
+              className={`bg-muted py-1.5 text-[11px] ${mine ? "font-bold text-primary" : "text-muted-foreground"}`}
+            >
+              {label}
+              {mine ? " · 나" : ""}
+            </p>
           ))}
+          {(["stem", "branch"] as const).map((row) =>
+            COLUMNS.map(([label, pl]) => {
+              if (!pl)
+                return (
+                  <div
+                    key={`${row}-${label}`}
+                    className="flex h-20 items-center justify-center bg-card text-[11px] text-muted-foreground"
+                  >
+                    시간 모름
+                  </div>
+                );
+              const g = pillarParts(pl)[row];
+              return (
+                <div
+                  key={`${row}-${label}`}
+                  className={`flex h-20 flex-col items-center justify-center ${CELL[g.element]}`}
+                >
+                  <span className="font-serif text-3xl font-bold leading-none">{g.hanja}</span>
+                  <span className="mt-1 text-[11px] opacity-90">
+                    {g.ko} · {EL_PLAIN[g.element]}
+                  </span>
+                </div>
+              );
+            }),
+          )}
         </div>
-        {!pillars.hour && (
-          <p className="mt-2 text-xs text-muted-foreground">
-            출생 시간 미상: 시주는 추측하지 않고 3주(6글자)만 계산했어요.
-          </p>
-        )}
-      </Section>
-      <Section title={`오행 분포 (${p.charCount}글자 기준)`}>
+        <p className="p-3 text-[11px] leading-relaxed text-muted-foreground">
+          위 줄은 하늘 글자(천간), 아래 줄은 땅 글자(지지)예요. 칸 색은 글자의 오행이에요: 나무
+          청록, 불 붉은색, 흙 황금, 쇠 회색, 물 남색.
+          {!pillars.hour && " 출생 시간 미상: 시주는 추측하지 않고 6글자만 계산했어요."}
+        </p>
+      </section>
+
+      <ResultSection eyebrow="한마디로" title={`${c.epithet} ${c.name}`} defaultOpen>
+        <p>{c.personality}</p>
+        <p className="mt-2 text-[11px] text-muted-foreground">
+          ※ 캐릭터·칭호·성격 설명은 재미를 위한 창작 표현이에요.
+        </p>
+      </ResultSection>
+
+      <ResultSection eyebrow="오행으로 보는 사주" title={`${p.charCount}글자 속 다섯 기운`}>
+        <p className="mb-2">{elementSentence(elements)}</p>
         {(Object.keys(elements) as Element[]).map((k) => (
           <div key={k} className="my-1.5 flex items-center gap-2">
-            <span className="w-6 font-serif">{k}</span>
+            <span className="w-14 font-serif text-xs">
+              {k} {EL_PLAIN[k]}
+            </span>
             <div className="h-3 flex-1 rounded-full bg-muted">
               <div
                 className={`h-3 rounded-full ${EL_COLOR[k]}`}
@@ -115,7 +205,62 @@ export function SajuResult({ p, me }: { p: SajuPreview; me: { name: string } }) 
             <span className="w-4 text-right text-xs">{elements[k]}</span>
           </div>
         ))}
-      </Section>
+      </ResultSection>
+
+      <ResultSection eyebrow="일주 이야기" title={`${pillars.day.hanja} ${pillars.day.ko} 일주`}>
+        <div className="flex items-center gap-3">
+          <span className="text-4xl" aria-hidden>
+            {c.emoji}
+          </span>
+          <p>
+            태어난 날의 하늘 글자는 {pillars.day.hanja.slice(0, 1)}({EL_PLAIN[dayEl]})이에요. 이
+            글자가 &lsquo;나 자신&rsquo;을 대표해서, 일간 캐릭터는 <b>{c.name}</b>
+            이에요.
+          </p>
+        </div>
+      </ResultSection>
+
+      <ResultSection eyebrow="나만의 매력" title="이런 점이 빛나요">
+        <ul className="flex flex-wrap gap-2">
+          {c.strengths.map((t) => (
+            <li
+              key={t}
+              className="rounded-full border-2 border-[#2b1d2e] bg-[#e3f2ea] px-3 py-1 text-xs font-bold"
+            >
+              {t}
+            </li>
+          ))}
+        </ul>
+      </ResultSection>
+
+      <ResultSection eyebrow="쓴소리 좀 할게" title="이런 점은 조심해요">
+        <ul className="flex flex-wrap gap-2">
+          {c.weaknesses.map((t) => (
+            <li
+              key={t}
+              className="rounded-full border-2 border-[#2b1d2e] bg-[#fde4e1] px-3 py-1 text-xs font-bold"
+            >
+              {t}
+            </li>
+          ))}
+        </ul>
+      </ResultSection>
+
+      <div className="card-hanji mt-3 bg-[#e6e4fa] p-4 text-sm leading-relaxed">
+        <p className="font-serif font-bold">더 자세한 풀이가 궁금하다면</p>
+        <p className="mt-1 text-xs text-muted-foreground">
+          {concern
+            ? "적어주신 고민은 AI 풀이가 열리면 풀이에 반영돼요. 지금은 규칙으로 만든 기본 풀이를 볼 수 있어요."
+            : "엽전 1닢으로 기본 사주 풀이를 볼 수 있어요."}
+        </p>
+        <Link
+          to="/basic"
+          className="mt-3 block rounded-full border-2 border-[#2b1d2e] bg-primary py-2.5 text-center font-bold text-primary-foreground shadow-[3px_3px_0_#2b1d2e]"
+        >
+          기본 사주 풀이 보기
+        </Link>
+      </div>
+
       <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">
         계산: {p.source} · 엔진 {p.engineVersion} · {p.clockPolicy}
         <br />
