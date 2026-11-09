@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { Shell } from "@/components/Shell";
@@ -49,6 +50,7 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [err, setErr] = useState("");
   const [sent, setSent] = useState(false);
+  const [resendMsg, setResendMsg] = useState("");
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -67,7 +69,11 @@ function AuthPage() {
     try {
       const { data, error } =
         mode === "signup"
-          ? await supabase.auth.signUp({ email, password })
+          ? await supabase.auth.signUp({
+              email,
+              password,
+              options: { emailRedirectTo: window.location.origin },
+            })
           : await supabase.auth.signInWithPassword({ email, password });
       if (error) {
         setErr(errorKo(error.message));
@@ -77,6 +83,7 @@ function AuthPage() {
         setSent(true);
         return;
       }
+      toast("로그인했어요. 반가워요!");
       nav({ to: safeNext(next) });
     } catch {
       setErr("로그인에 문제가 생겼어요. 다시 시도해 주세요.");
@@ -96,8 +103,45 @@ function AuthPage() {
           <p className="text-4xl">📬</p>
           <p className="mt-3 font-serif">이메일로 확인 링크를 보냈어요</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            {email} 메일함을 확인하고 링크를 눌러주세요.
+            {email} 메일함을 확인하고 링크를 눌러주세요. 안 보이면 스팸함도 살펴봐 주세요.
           </p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            링크는 한 번만 쓸 수 있어요. 확인이 끝나면 이 사이트로 돌아와요.
+          </p>
+          <button
+            type="button"
+            className="mt-4 rounded-full border-2 border-[#2b1d2e] bg-card px-4 py-2 text-sm font-bold"
+            onClick={async () => {
+              setResendMsg("");
+              const { error } = await supabase.auth.resend({
+                type: "signup",
+                email,
+                options: { emailRedirectTo: window.location.origin },
+              });
+              setResendMsg(
+                error
+                  ? "지금은 다시 보내지 못했어요. 잠시 뒤에 해 주세요."
+                  : "확인 메일을 다시 보냈어요.",
+              );
+            }}
+          >
+            확인 메일 다시 보내기
+          </button>
+          {resendMsg && (
+            <p role="status" className="mt-2 text-xs">
+              {resendMsg}
+            </p>
+          )}
+          <button
+            type="button"
+            className="mt-3 block w-full text-xs text-muted-foreground underline"
+            onClick={() => {
+              setSent(false);
+              setMode("signin");
+            }}
+          >
+            이미 확인했다면 로그인하기
+          </button>
         </div>
       ) : (
         <form className="card-hanji space-y-4 p-5" onSubmit={submit}>

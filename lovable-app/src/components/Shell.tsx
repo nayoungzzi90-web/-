@@ -1,6 +1,8 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import type { ReactNode } from "react";
-import { Home, Sparkles, Sun, Heart, User } from "lucide-react";
+import { Home, Sparkles, Sun, Heart, User, LogOut } from "lucide-react";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import { useStore } from "@/lib/store";
 import { Coin } from "@/components/Coin";
 
@@ -14,6 +16,17 @@ const NAV = [
 
 export function Shell({ children, title }: { children: ReactNode; title?: string }) {
   const { coins, signedIn } = useStore();
+  const nav = useNavigate();
+  const path = useRouterState({ select: (s) => s.location.pathname });
+  const logout = async () => {
+    try {
+      await supabase.auth.signOut();
+    } catch {
+      /* 네트워크 오류여도 화면은 로그아웃 상태로 */
+    }
+    toast("로그아웃했어요");
+    nav({ to: "/" });
+  };
   return (
     <div className="mx-auto min-h-screen max-w-md pb-24">
       <header className="sticky top-0 z-10 flex items-center justify-between border-b-2 border-[#2b1d2e] bg-background/95 px-4 py-3 backdrop-blur">
@@ -22,12 +35,25 @@ export function Shell({ children, title }: { children: ReactNode; title?: string
         </Link>
         {title && <span className="font-serif text-sm text-muted-foreground">{title}</span>}
         {signedIn ? (
-          <Link
-            to="/invite"
-            className="flex items-center gap-1 rounded-full border-2 border-[#2b1d2e] bg-card px-2.5 py-0.5 text-xs font-bold text-foreground shadow-[2px_2px_0_#2b1d2e]"
-          >
-            <Coin size={18} /> {coins}닢
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link
+              to="/my"
+              aria-label="내 정보"
+              className="flex items-center gap-1 rounded-full border-2 border-[#2b1d2e] bg-card px-2.5 py-0.5 text-xs font-bold text-foreground shadow-[2px_2px_0_#2b1d2e]"
+            >
+              <Coin size={18} /> {coins}닢
+            </Link>
+            <button
+              type="button"
+              onClick={logout}
+              className="flex items-center gap-1 rounded-full border-2 border-[#2b1d2e] bg-card px-2.5 py-0.5 text-xs font-bold text-foreground shadow-[2px_2px_0_#2b1d2e]"
+            >
+              <LogOut className="h-3.5 w-3.5" aria-hidden />
+              로그아웃
+            </button>
+          </div>
+        ) : path === "/auth" ? (
+          <span aria-hidden className="w-10" />
         ) : (
           <Link
             to="/auth"
