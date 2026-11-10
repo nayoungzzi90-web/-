@@ -16,6 +16,22 @@ export default defineConfig({
     nitro({
       preset: "cloudflare-module",
       cloudflare: { wrangler: { name: "ohaeng-friends", keep_vars: true } },
+      // 모든 응답에 붙이는 보안 헤더(옛 앱과 같은 4개 + 다른 사이트가 화면을 iframe 에 끼우는 것 차단).
+      // 스크립트 출처를 제한하는 CSP 는 SSR 인라인 스크립트 때문에 아직 넣지 않았다(nonce 방식으로 따로 도입).
+      routeRules: {
+        "/**": {
+          headers: {
+            "x-content-type-options": "nosniff",
+            "referrer-policy": "strict-origin-when-cross-origin",
+            "permissions-policy":
+              "camera=(), microphone=(), geolocation=(), payment=(self)",
+            "strict-transport-security": "max-age=15552000",
+            "x-frame-options": "DENY",
+            "content-security-policy":
+              "frame-ancestors 'none'; base-uri 'self'; object-src 'none'",
+          },
+        },
+      },
     } as never),
   ],
 });
