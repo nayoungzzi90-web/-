@@ -273,6 +273,18 @@ function Result() {
             기본 사주 풀이 · 준비 중
           </button>
         </div>
+        <div className="hj-card mt-3 bg-[#fbd9d4] p-4">
+          <p className="font-display text-lg">친구랑 오행 케미도 볼래꽥?</p>
+          <p className="mt-0.5 text-sm text-[var(--ink-soft)]">
+            링크를 보내면 친구가 자기 정보를 넣고 바로 우리 궁합을 봐요.
+          </p>
+          <Link
+            to="/compat"
+            className="font-display mt-3 block rounded-full border-[2.5px] border-[var(--line)] bg-[var(--stamp)] py-2.5 text-center text-white shadow-[3px_3px_0_var(--line)]"
+          >
+            궁합 보러 가기
+          </Link>
+        </div>
         <div className="hj-card mt-3 bg-[#d3ead9] p-4">
           <p className="font-display text-lg">내일도 복주머니 열어볼래꽥?</p>
           <p className="mt-0.5 text-sm text-[var(--ink-soft)]">

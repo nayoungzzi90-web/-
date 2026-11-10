@@ -10,8 +10,10 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CompatRouteImport } from './routes/compat'
 import { Route as ConcernRouteImport } from './routes/concern'
 import { Route as InputRouteImport } from './routes/input'
+import { Route as InviteRouteImport } from './routes/invite'
 import { Route as ResultRouteImport } from './routes/result'
 import { Route as SampleRouteImport } from './routes/sample'
 import { Route as StyleRouteImport } from './routes/style'
@@ -23,6 +25,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CompatRoute = CompatRouteImport.update({
+  id: '/compat',
+  path: '/compat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ConcernRoute = ConcernRouteImport.update({
   id: '/concern',
   path: '/concern',
@@ -31,6 +38,11 @@ const ConcernRoute = ConcernRouteImport.update({
 const InputRoute = InputRouteImport.update({
   id: '/input',
   path: '/input',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InviteRoute = InviteRouteImport.update({
+  id: '/invite',
+  path: '/invite',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResultRoute = ResultRouteImport.update({
@@ -61,8 +73,10 @@ const WaitRoute = WaitRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/compat': typeof CompatRoute
   '/concern': typeof ConcernRoute
   '/input': typeof InputRoute
+  '/invite': typeof InviteRoute
   '/result': typeof ResultRoute
   '/sample': typeof SampleRoute
   '/style': typeof StyleRoute
@@ -71,8 +85,10 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/compat': typeof CompatRoute
   '/concern': typeof ConcernRoute
   '/input': typeof InputRoute
+  '/invite': typeof InviteRoute
   '/result': typeof ResultRoute
   '/sample': typeof SampleRoute
   '/style': typeof StyleRoute
@@ -82,8 +98,10 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/compat': typeof CompatRoute
   '/concern': typeof ConcernRoute
   '/input': typeof InputRoute
+  '/invite': typeof InviteRoute
   '/result': typeof ResultRoute
   '/sample': typeof SampleRoute
   '/style': typeof StyleRoute
@@ -94,8 +112,10 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/compat'
     | '/concern'
     | '/input'
+    | '/invite'
     | '/result'
     | '/sample'
     | '/style'
@@ -104,8 +124,10 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/compat'
     | '/concern'
     | '/input'
+    | '/invite'
     | '/result'
     | '/sample'
     | '/style'
@@ -114,8 +136,10 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/compat'
     | '/concern'
     | '/input'
+    | '/invite'
     | '/result'
     | '/sample'
     | '/style'
@@ -125,8 +149,10 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CompatRoute: typeof CompatRoute
   ConcernRoute: typeof ConcernRoute
   InputRoute: typeof InputRoute
+  InviteRoute: typeof InviteRoute
   ResultRoute: typeof ResultRoute
   SampleRoute: typeof SampleRoute
   StyleRoute: typeof StyleRoute
@@ -143,6 +169,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/compat': {
+      id: '/compat'
+      path: '/compat'
+      fullPath: '/compat'
+      preLoaderRoute: typeof CompatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/concern': {
       id: '/concern'
       path: '/concern'
@@ -155,6 +188,13 @@ declare module '@tanstack/react-router' {
       path: '/input'
       fullPath: '/input'
       preLoaderRoute: typeof InputRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/invite': {
+      id: '/invite'
+      path: '/invite'
+      fullPath: '/invite'
+      preLoaderRoute: typeof InviteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/result': {
@@ -197,8 +237,10 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CompatRoute: CompatRoute,
   ConcernRoute: ConcernRoute,
   InputRoute: InputRoute,
+  InviteRoute: InviteRoute,
   ResultRoute: ResultRoute,
   SampleRoute: SampleRoute,
   StyleRoute: StyleRoute,

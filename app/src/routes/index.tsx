@@ -18,19 +18,20 @@ type Service = {
   bg: string;
   shape: Shape;
   soon?: boolean;
-  to?: "/input" | "/today";
+  to?: "/input" | "/today" | "/compat";
 };
 
 const SERVICES: Service[] = [
   {
     id: "basic",
-    title: "기본 사주",
-    desc: "내 사주 속 친구 만나기",
-    price: "1",
+    title: "내 사주 보기",
+    desc: "내 사주 속 오행 친구 만나기",
+    price: "무료",
     photo: "/characters/basic.jpg",
     fallback: "rabbit",
     bg: "#e9e5f6",
     shape: "arch",
+    to: "/input",
   },
   {
     id: "love",
@@ -41,16 +42,18 @@ const SERVICES: Service[] = [
     fallback: "ssi",
     bg: "#fbd9d4",
     shape: "moon",
+    soon: true,
   },
   {
     id: "compat",
     title: "궁합",
-    desc: "우리 둘, 몇 점일까꽥?",
-    price: "1",
+    desc: "우리 둘, 어떤 케미일까꽥?",
+    price: "무료",
     photo: "/characters/compat.jpg",
     fallback: "tiger",
     bg: "#f8e4ae",
     shape: "hex",
+    to: "/compat",
   },
   {
     id: "today",
@@ -61,6 +64,7 @@ const SERVICES: Service[] = [
     fallback: "seonbi",
     bg: "#d3ead9",
     shape: "squircle",
+    to: "/today",
   },
   {
     id: "date",
