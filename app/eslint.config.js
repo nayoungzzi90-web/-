@@ -3,7 +3,7 @@ import globals from "globals";
 import tseslint from "typescript-eslint";
 
 export default tseslint.config(
-  { ignores: [".output", ".wrangler", "src/routeTree.gen.ts"] },
+  { ignores: [".output", ".wrangler", "src/routeTree.gen.ts", "src/lib/reading-core/**"] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   { languageOptions: { globals: { ...globals.browser, ...globals.node } } },

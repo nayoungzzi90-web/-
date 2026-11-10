@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AiTrialRouteImport } from './routes/ai-trial'
 import { Route as CompatRouteImport } from './routes/compat'
 import { Route as ConcernRouteImport } from './routes/concern'
 import { Route as InputRouteImport } from './routes/input'
@@ -23,6 +24,11 @@ import { Route as WaitRouteImport } from './routes/wait'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AiTrialRoute = AiTrialRouteImport.update({
+  id: '/ai-trial',
+  path: '/ai-trial',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CompatRoute = CompatRouteImport.update({
@@ -73,6 +79,7 @@ const WaitRoute = WaitRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/ai-trial': typeof AiTrialRoute
   '/compat': typeof CompatRoute
   '/concern': typeof ConcernRoute
   '/input': typeof InputRoute
@@ -85,6 +92,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/ai-trial': typeof AiTrialRoute
   '/compat': typeof CompatRoute
   '/concern': typeof ConcernRoute
   '/input': typeof InputRoute
@@ -98,6 +106,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/ai-trial': typeof AiTrialRoute
   '/compat': typeof CompatRoute
   '/concern': typeof ConcernRoute
   '/input': typeof InputRoute
@@ -112,6 +121,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/ai-trial'
     | '/compat'
     | '/concern'
     | '/input'
@@ -124,6 +134,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/ai-trial'
     | '/compat'
     | '/concern'
     | '/input'
@@ -136,6 +147,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/ai-trial'
     | '/compat'
     | '/concern'
     | '/input'
@@ -149,6 +161,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AiTrialRoute: typeof AiTrialRoute
   CompatRoute: typeof CompatRoute
   ConcernRoute: typeof ConcernRoute
   InputRoute: typeof InputRoute
@@ -167,6 +180,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ai-trial': {
+      id: '/ai-trial'
+      path: '/ai-trial'
+      fullPath: '/ai-trial'
+      preLoaderRoute: typeof AiTrialRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/compat': {
@@ -237,6 +257,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AiTrialRoute: AiTrialRoute,
   CompatRoute: CompatRoute,
   ConcernRoute: ConcernRoute,
   InputRoute: InputRoute,
