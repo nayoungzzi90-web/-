@@ -1,4 +1,3 @@
-import { useEffect, useRef, useState } from "react";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import {
   Friend,
@@ -32,7 +31,7 @@ const SERVICES: Service[] = [
     desc: "내 사주 속 오행 친구 만나기",
     price: "무료",
     photo: "/characters/basic.jpg",
-    fallback: "rabbit",
+    fallback: "seonbi",
     bg: "#e9e5f6",
     shape: "arch",
     to: "/input",
@@ -65,7 +64,7 @@ const SERVICES: Service[] = [
     desc: "하루 한 번 공짜 운세",
     price: "무료",
     photo: "/characters/today.jpg",
-    fallback: "seonbi",
+    fallback: "rabbit",
     bg: "#d3ead9",
     shape: "squircle",
     to: "/today",
@@ -87,7 +86,7 @@ const SERVICES: Service[] = [
     desc: "평생 흐름까지 깊게",
     price: "3",
     photo: "/characters/deep.jpg",
-    fallback: "rabbit",
+    fallback: "seonbi",
     bg: "#e4e2ee",
     shape: "moon",
     soon: true,
@@ -104,31 +103,12 @@ const CLIP: Record<Shape, React.CSSProperties> = {
 };
 
 function Thumb({ s }: { s: Service }) {
-  const [failed, setFailed] = useState(false);
-  const ref = useRef<HTMLImageElement>(null);
-  // 화면이 열리기 전에 이미 실패한 사진도 오리 그림으로 바꾼다.
-  useEffect(() => {
-    const el = ref.current;
-    if (el && el.complete && el.naturalWidth === 0) setFailed(true);
-  }, []);
   return (
     <div
-      className="mx-auto aspect-square w-[86%] overflow-hidden bg-[#fffaf0]/70"
+      className="mx-auto flex aspect-square w-[86%] items-end justify-center overflow-hidden bg-[#fffaf0]/80"
       style={CLIP[s.shape]}
     >
-      {failed ? (
-        <div className="flex h-full items-center justify-center">
-          <Friend kind={s.fallback} size={118} />
-        </div>
-      ) : (
-        <img
-          ref={ref}
-          src={s.photo}
-          alt={s.title}
-          onError={() => setFailed(true)}
-          className="h-full w-full object-cover"
-        />
-      )}
+      <Friend kind={s.fallback} size={118} className="mb-1" />
     </div>
   );
 }
@@ -187,27 +167,24 @@ function Home() {
             </p>
           </div>
           <div
-            className="absolute flex flex-row-reverse font-bold"
+            className="absolute flex flex-row-reverse whitespace-nowrap font-bold"
             style={{
               left: "79.5%",
               width: "12.5%",
-              top: "56%",
-              height: "31%",
+              top: "54%",
+              height: "34%",
               justifyContent: "center",
-              gap: "0.8cqw",
-              fontSize: "2.9cqw",
-              lineHeight: 1.1,
+              alignItems: "flex-start",
+              gap: "2.2cqw",
+              fontSize: "3.6cqw",
+              lineHeight: 1.25,
             }}
           >
-            {["오늘도", "좋은 운이", "가득해요"].map((l) => (
-              <span
-                key={l}
-                style={{
-                  writingMode: "vertical-rl",
-                  textOrientation: "upright",
-                }}
-              >
-                {l}
+            {["복많이", "받으세요"].map((l) => (
+              <span key={l} className="flex flex-col items-center">
+                {[...l].map((ch, i) => (
+                  <span key={i}>{ch}</span>
+                ))}
               </span>
             ))}
           </div>
