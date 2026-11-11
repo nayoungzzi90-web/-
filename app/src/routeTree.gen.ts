@@ -20,6 +20,10 @@ import { Route as SampleRouteImport } from './routes/sample'
 import { Route as StyleRouteImport } from './routes/style'
 import { Route as TodayRouteImport } from './routes/today'
 import { Route as WaitRouteImport } from './routes/wait'
+import { Route as RestoreChargeRouteImport } from './routes/restore.charge'
+import { Route as RestoreGuideRouteImport } from './routes/restore.guide'
+import { Route as RestoreHomeRouteImport } from './routes/restore.home'
+import { Route as RestoreResultRouteImport } from './routes/restore.result'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -76,6 +80,26 @@ const WaitRoute = WaitRouteImport.update({
   path: '/wait',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RestoreChargeRoute = RestoreChargeRouteImport.update({
+  id: '/restore/charge',
+  path: '/restore/charge',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RestoreGuideRoute = RestoreGuideRouteImport.update({
+  id: '/restore/guide',
+  path: '/restore/guide',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RestoreHomeRoute = RestoreHomeRouteImport.update({
+  id: '/restore/home',
+  path: '/restore/home',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RestoreResultRoute = RestoreResultRouteImport.update({
+  id: '/restore/result',
+  path: '/restore/result',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -89,6 +113,10 @@ export interface FileRoutesByFullPath {
   '/style': typeof StyleRoute
   '/today': typeof TodayRoute
   '/wait': typeof WaitRoute
+  '/restore/charge': typeof RestoreChargeRoute
+  '/restore/guide': typeof RestoreGuideRoute
+  '/restore/home': typeof RestoreHomeRoute
+  '/restore/result': typeof RestoreResultRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -102,6 +130,10 @@ export interface FileRoutesByTo {
   '/style': typeof StyleRoute
   '/today': typeof TodayRoute
   '/wait': typeof WaitRoute
+  '/restore/charge': typeof RestoreChargeRoute
+  '/restore/guide': typeof RestoreGuideRoute
+  '/restore/home': typeof RestoreHomeRoute
+  '/restore/result': typeof RestoreResultRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -116,6 +148,10 @@ export interface FileRoutesById {
   '/style': typeof StyleRoute
   '/today': typeof TodayRoute
   '/wait': typeof WaitRoute
+  '/restore/charge': typeof RestoreChargeRoute
+  '/restore/guide': typeof RestoreGuideRoute
+  '/restore/home': typeof RestoreHomeRoute
+  '/restore/result': typeof RestoreResultRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -131,6 +167,10 @@ export interface FileRouteTypes {
     | '/style'
     | '/today'
     | '/wait'
+    | '/restore/charge'
+    | '/restore/guide'
+    | '/restore/home'
+    | '/restore/result'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -144,6 +184,10 @@ export interface FileRouteTypes {
     | '/style'
     | '/today'
     | '/wait'
+    | '/restore/charge'
+    | '/restore/guide'
+    | '/restore/home'
+    | '/restore/result'
   id:
     | '__root__'
     | '/'
@@ -157,6 +201,10 @@ export interface FileRouteTypes {
     | '/style'
     | '/today'
     | '/wait'
+    | '/restore/charge'
+    | '/restore/guide'
+    | '/restore/home'
+    | '/restore/result'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -171,6 +219,10 @@ export interface RootRouteChildren {
   StyleRoute: typeof StyleRoute
   TodayRoute: typeof TodayRoute
   WaitRoute: typeof WaitRoute
+  RestoreChargeRoute: typeof RestoreChargeRoute
+  RestoreGuideRoute: typeof RestoreGuideRoute
+  RestoreHomeRoute: typeof RestoreHomeRoute
+  RestoreResultRoute: typeof RestoreResultRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -252,6 +304,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WaitRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/restore/charge': {
+      id: '/restore/charge'
+      path: '/restore/charge'
+      fullPath: '/restore/charge'
+      preLoaderRoute: typeof RestoreChargeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/restore/guide': {
+      id: '/restore/guide'
+      path: '/restore/guide'
+      fullPath: '/restore/guide'
+      preLoaderRoute: typeof RestoreGuideRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/restore/home': {
+      id: '/restore/home'
+      path: '/restore/home'
+      fullPath: '/restore/home'
+      preLoaderRoute: typeof RestoreHomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/restore/result': {
+      id: '/restore/result'
+      path: '/restore/result'
+      fullPath: '/restore/result'
+      preLoaderRoute: typeof RestoreResultRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -267,6 +347,10 @@ const rootRouteChildren: RootRouteChildren = {
   StyleRoute: StyleRoute,
   TodayRoute: TodayRoute,
   WaitRoute: WaitRoute,
+  RestoreChargeRoute: RestoreChargeRoute,
+  RestoreGuideRoute: RestoreGuideRoute,
+  RestoreHomeRoute: RestoreHomeRoute,
+  RestoreResultRoute: RestoreResultRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
