@@ -42,17 +42,17 @@ function Today() {
 
   if (!hydrated)
     return (
-      <Page>
+      <Page active="오늘">
         <p className="p-6 text-center">불러오는 중…</p>
       </Page>
     );
   if (!me || stem === null)
     return (
-      <Page>
+      <Page active="오늘">
         <section className="px-4 pt-8 text-center">
           <Friend kind="turtle" size={110} className="mx-auto bob" />
           <p className="font-display mt-3 text-xl">
-            내 일주를 먼저 알아야 복주머니를 열 수 있어요꽥
+            내 일주를 먼저 알아야 복주머니를 열 수 있어요
           </p>
           <Link
             to="/input"
@@ -65,7 +65,7 @@ function Today() {
     );
   if (!f)
     return (
-      <Page>
+      <Page active="오늘">
         <p className="p-6 text-center">오늘의 운세를 계산하지 못했어요.</p>
       </Page>
     );
@@ -76,7 +76,7 @@ function Today() {
   const stamps = Math.min(7, Math.max(shown, lastDaily === today ? 1 : 0));
 
   return (
-    <Page>
+    <Page active="오늘">
       <section className="px-4 pt-5 text-center">
         <p className="text-sm font-bold text-[var(--stamp)]">
           {today.replace(/-/g, ".")} · {me.name}님의 오늘

@@ -43,7 +43,7 @@ function Wait() {
     <Page>
       <section className="px-4 pt-6 text-center">
         <p className="text-sm font-bold text-[var(--stamp)]">
-          오리 점쟁이가 점괘를 뽑는 중
+          오행 친구들이 점괘를 뽑는 중
         </p>
         <h1 className="font-display mt-1 text-[26px] leading-tight">
           {COPY[Math.min(3, Math.floor(pct / 26))]}

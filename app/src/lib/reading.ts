@@ -296,7 +296,7 @@ export function buildReading(p: SajuPreview): ReadingData | null {
   sections.push({
     id: "advice",
     eyebrow: "쓴소리 좀 할게",
-    title: `${info.weaknesses[0]}, 이건 조심해요꽥`,
+    title: `${info.weaknesses[0]}, 이건 조심해요`,
     friend: "ssi",
     summary: [
       `${info.weaknesses.join(" · ")}이(가) 도드라질 수 있어요`,
@@ -358,7 +358,7 @@ const CATS: { key: string; words: string[]; head: [string, string] }[] = [
       "부업",
     ],
     head: [
-      "움직이되, 발판부터 깔고 가꽥.",
+      "움직이되, 발판부터 깔고 가요.",
       "서두르면 쇠가 울어요. 준비하고 움직이면 길이 열려요.",
     ],
   },
@@ -376,7 +376,7 @@ const CATS: { key: string; words: string[]; head: [string, string] }[] = [
       "소개팅",
     ],
     head: [
-      "마음은 크게, 속도는 천천히 가꽥.",
+      "마음은 크게, 속도는 천천히 가요.",
       "상대보다 내 마음의 결을 먼저 알아봐요.",
     ],
   },
@@ -384,17 +384,14 @@ const CATS: { key: string; words: string[]; head: [string, string] }[] = [
     key: "돈·재물",
     words: ["돈", "재물", "투자", "주식", "월급", "빚", "사업", "매출", "창업"],
     head: [
-      "벌 힘은 있고, 새는 구멍을 먼저 막아요꽥.",
+      "벌 힘은 있고, 새는 구멍을 먼저 막아요.",
       "크게 벌기 전에 지키는 습관이 먼저예요.",
     ],
   },
   {
     key: "시험·공부",
     words: ["시험", "공부", "합격", "자격증", "수능", "면접", "학교"],
-    head: [
-      "꾸준함이 이기는 판이에요꽥.",
-      "몰아치기보다 매일 조금씩이 점괘예요.",
-    ],
+    head: ["꾸준함이 이기는 판이에요.", "몰아치기보다 매일 조금씩이 점괘예요."],
   },
   {
     key: "관계·가족",
@@ -410,14 +407,14 @@ const CATS: { key: string; words: string[]; head: [string, string] }[] = [
       "갈등",
     ],
     head: [
-      "한 걸음 물러서면 길이 보여요꽥.",
+      "한 걸음 물러서면 길이 보여요.",
       "맞서기보다 거리를 조절하는 게 유리해요.",
     ],
   },
   {
     key: "건강·마음",
     words: ["건강", "우울", "불안", "스트레스", "번아웃", "잠", "피곤"],
-    head: ["먼저 쉬어야 길이 보여요꽥.", "몸과 마음의 기운부터 채워요."],
+    head: ["먼저 쉬어야 길이 보여요.", "몸과 마음의 기운부터 채워요."],
   },
 ];
 
@@ -436,7 +433,7 @@ export function buildVerdict(p: SajuPreview, concern: string): Verdict | null {
   const cat = CATS.find((c) => c.key === key);
   const lackEl = (rd.missing[0] ??
     ELEMENTS.reduce((a, b) => (p.elements![a] <= p.elements![b] ? a : b)))!;
-  const head = cat ? cat.head[0] : "서두르지 말고, 빈 곳부터 채워요꽥.";
+  const head = cat ? cat.head[0] : "서두르지 말고, 빈 곳부터 채워요.";
   const text = `${cat ? cat.head[1] : "고민의 결을 더 알려주면 점괘가 선명해져요."} 사주에는 ${EL_WORD[lackEl]}(${EL_HANJA[lackEl]}) 기운이 ${rd.missing.includes(lackEl) ? "없고" : "적고"}, ${EL_WORD[rd.dominant[0]!]} 기운이 가장 많아요. 그래서 ${MISSING_TIP[lackEl]}을 곁들이면 균형이 좋아져요.`;
   return {
     category: key,

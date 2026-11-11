@@ -15,10 +15,10 @@ const CHIPS = [
 ];
 
 function feedback(n: number) {
-  if (n === 0) return "한 줄이라도 적으면 풀이가 내 얘기가 돼요꽥";
+  if (n === 0) return "한 줄이라도 적으면 풀이가 내 얘기가 돼요";
   if (n < 20) return "좋아요! 조금만 더 구체적으로 적어줘요";
   if (n < 80) return "오, 디테일이 살아있어요";
-  return "이 정도면 점쟁이도 감동이에요";
+  return "이 정도면 친구도 감동이에요";
 }
 
 function Concern() {
@@ -35,7 +35,7 @@ function Concern() {
           {me?.name ?? ""}님의 사주를 보고 있어요
         </p>
         <h1 className="font-display mt-1 text-[24px] leading-tight">
-          요즘 어떤 점이 가장 궁금해요꽥?
+          요즘 어떤 점이 가장 궁금해요?
         </h1>
 
         <div className="mt-3 flex flex-wrap gap-2">

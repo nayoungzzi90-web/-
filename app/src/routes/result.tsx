@@ -33,15 +33,15 @@ function Result() {
 
   if (!me || !preview)
     return (
-      <Page>
+      <Page active="내 결과">
         <p className="p-6 text-center">불러오는 중…</p>
       </Page>
     );
   if (!preview.ok || !rd || !preview.pillars)
     return (
-      <Page>
+      <Page active="내 결과">
         <section className="px-4 pt-8 text-center">
-          <p className="font-display text-xl">앗, 계산할 수 없었어요꽥</p>
+          <p className="font-display text-xl">앗, 계산할 수 없었어요</p>
           <p role="alert" className="mt-2 text-sm">
             {preview.error}
           </p>
@@ -61,7 +61,7 @@ function Result() {
   const text = `나의 오행 친구는 ${info.name}! (${rd.image})`;
 
   return (
-    <Page>
+    <Page active="내 결과">
       <section className="mx-3 mt-3">
         {preview.calendarConversion && (
           <div className="mb-3 rounded-2xl border-2 border-[var(--line)] bg-[#fffaf0] p-3 text-xs">
@@ -118,7 +118,7 @@ function Result() {
               점괘
             </span>
             <p className="text-xs font-bold text-[#cfcbe0]">
-              오리 점쟁이의 한 줄 판정 · 고민 분류 &lsquo;{verdict.category}
+              오행 친구의 한 줄 판정 · 고민 분류 &lsquo;{verdict.category}
               &rsquo;
             </p>
             <p className="font-display mt-1 pr-10 text-[24px] leading-tight">
@@ -229,7 +229,7 @@ function Result() {
           ))}
         </section>
 
-        <h2 className="font-display mt-7 px-1 text-xl">오리 점쟁이의 풀이</h2>
+        <h2 className="font-display mt-7 px-1 text-xl">오행 친구의 풀이</h2>
         {rd.sections.map((s, i) => (
           <Fold
             key={s.id}
@@ -260,7 +260,7 @@ function Result() {
         />
 
         <div className="hj-card mt-5 bg-[#dfe9f7] p-4">
-          <p className="font-display text-lg">내 고민, 더 깊게 풀어볼까꽥?</p>
+          <p className="font-display text-lg">내 고민, 더 깊게 풀어볼까요?</p>
           <p className="mt-0.5 text-sm text-[var(--ink-soft)]">
             연애운·재물복에 올해 흐름까지 풀어주는 기본 사주 풀이는 준비
             중이에요.
@@ -274,7 +274,7 @@ function Result() {
           </button>
         </div>
         <div className="hj-card mt-3 bg-[#fbd9d4] p-4">
-          <p className="font-display text-lg">친구랑 오행 케미도 볼래꽥?</p>
+          <p className="font-display text-lg">친구랑 오행 케미도 볼래요?</p>
           <p className="mt-0.5 text-sm text-[var(--ink-soft)]">
             링크를 보내면 친구가 자기 정보를 넣고 바로 우리 궁합을 봐요.
           </p>
@@ -286,7 +286,7 @@ function Result() {
           </Link>
         </div>
         <div className="hj-card mt-3 bg-[#d3ead9] p-4">
-          <p className="font-display text-lg">내일도 복주머니 열어볼래꽥?</p>
+          <p className="font-display text-lg">내일도 복주머니 열어볼래요?</p>
           <p className="mt-0.5 text-sm text-[var(--ink-soft)]">
             하루 한 번 공짜. 연속으로 열면 도장이 쌓여요.
           </p>

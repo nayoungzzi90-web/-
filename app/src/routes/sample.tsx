@@ -155,7 +155,7 @@ function Locked({
 function Sample() {
   const total = Object.values(COUNT).reduce((a, b) => a + b, 0);
   return (
-    <Page>
+    <Page active="내 결과">
       <section className="mx-3 mt-3">
         <div className="hj-card bg-[var(--to)] px-4 py-5 text-center">
           <h1 className="font-display text-[22px]">나영님의 사주풀이</h1>

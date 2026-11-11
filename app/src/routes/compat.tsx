@@ -61,7 +61,7 @@ function Compat() {
   async function sendLink() {
     if (!mine) return;
     const url = `${location.origin}/invite?c=${encodeInvite(mine)}`;
-    const text = `나랑 오행 케미 볼래꽥? (${mine.name}님의 오행 친구가 기다려요)`;
+    const text = `나랑 오행 케미 볼래요? (${mine.name}님의 오행 친구가 기다려요)`;
     try {
       if (navigator.share) await navigator.share({ text, url });
       else {
@@ -75,17 +75,17 @@ function Compat() {
 
   if (!hydrated || !me || !mine)
     return (
-      <Page>
+      <Page active="궁합">
         <p className="p-6 text-center">불러오는 중…</p>
       </Page>
     );
 
   if (!partner || !res)
     return (
-      <Page>
+      <Page active="궁합">
         <section className="px-4 pt-5">
           <h1 className="font-display text-[24px] leading-tight">
-            누구랑 궁합을 볼까요꽥?
+            누구랑 궁합을 볼까요?
           </h1>
           <div className="hj-card mt-4 bg-[#d3ead9] p-4">
             <p className="font-display text-lg">친구가 직접 입력하게 하기</p>
@@ -126,7 +126,7 @@ function Compat() {
     );
 
   return (
-    <Page>
+    <Page active="궁합">
       <section className="px-4 pt-5 text-center">
         <p className="text-sm font-bold text-[var(--stamp)]">오행 케미 결과</p>
         <div className="mt-3 flex items-center gap-2">

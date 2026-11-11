@@ -1,8 +1,6 @@
-import { createElement } from "react";
-import { renderToStaticMarkup } from "react-dom/server";
-import { Friend, FRIEND_INFO, type FriendKind } from "@/components/Friends";
+import { FRIEND_IMG, FRIEND_INFO, type FriendKind } from "@/components/Friends";
 
-// 공유 카드(1080×1350 PNG). 직접 그린 오리 SVG를 캔버스에 그린다. 외부 이미지 없음.
+// 공유 카드(1080×1350 PNG). 복원 캐릭터 그림(public/restore/characters)을 캔버스에 그린다.
 export interface CardInput {
   kind: FriendKind;
   title: string; // 예: 달빛에 벼린 칼
@@ -19,12 +17,12 @@ const BG: Record<FriendKind, string> = {
   turtle: "#cdddf3",
 };
 
-function loadSvg(markup: string): Promise<HTMLImageElement> {
+function loadImg(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => resolve(img);
-    img.onerror = () => reject(new Error("svg load"));
-    img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(markup);
+    img.onerror = () => reject(new Error("img load"));
+    img.src = src;
   });
 }
 
@@ -66,12 +64,11 @@ export async function renderShareCard(c: CardInput): Promise<Blob> {
   ctx.roundRect(70, 120, W - 140, 760, 56);
   ctx.fill();
   ctx.stroke();
-  const markup = renderToStaticMarkup(
-    createElement(Friend, { kind: c.kind, size: 620 }),
-  ).replace("<svg", '<svg xmlns="http://www.w3.org/2000/svg"');
   try {
-    const img = await loadSvg(markup);
-    ctx.drawImage(img, (W - 620) / 2, 170, 620, 620);
+    const img = await loadImg(FRIEND_IMG[c.kind]);
+    const h = 640;
+    const w = (img.width / img.height) * h;
+    ctx.drawImage(img, (W - w) / 2, 170 + (620 - h) / 2 + 20, w, h);
   } catch {
     /* 그림을 못 그려도 글자 카드는 만든다 */
   }

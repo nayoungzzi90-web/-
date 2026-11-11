@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-// 오행 친구들 — 하얗고 통통한 "오리" 마스코트가 조선풍 옷을 입은 모습.
+// (이전 디자인 보존) 오행 친구들 — 하얗고 통통한 "오리" 마스코트가 조선풍 옷을 입은 모습.
 // 전부 직접 그린 SVG(외부 이미지·남의 그림·캐릭터 사용 없음).
 // 솔이(목), 댕이(화), 호동이(토), 달토(금), 물이(수).
 export type FriendKind = "seonbi" | "ssi" | "tiger" | "rabbit" | "turtle";
@@ -13,16 +13,16 @@ export const FRIEND_INFO: Record<
   FriendKind,
   { name: string; role: string; element: string; tint: string }
 > = {
-  seonbi: { name: "솔이", role: "선비 오리", element: "목", tint: "#cfe8d5" },
-  ssi: { name: "댕이", role: "아씨 오리", element: "화", tint: "#f9d3cf" },
+  seonbi: { name: "솔이", role: "푸른 선비", element: "목", tint: "#cfe8d5" },
+  ssi: { name: "댕이", role: "댕기머리 소녀", element: "화", tint: "#f9d3cf" },
   tiger: {
     name: "호동이",
-    role: "호랑이 오리",
+    role: "인기 호랑이",
     element: "토",
     tint: "#f7e0a8",
   },
-  rabbit: { name: "달토", role: "토끼 오리", element: "금", tint: "#e4e2ee" },
-  turtle: { name: "물이", role: "거북이 오리", element: "수", tint: "#cdddf3" },
+  rabbit: { name: "달토", role: "달토끼", element: "금", tint: "#e4e2ee" },
+  turtle: { name: "거북기", role: "아기 거북", element: "수", tint: "#cdddf3" },
 };
 
 // 몸통 아래(옷·목도리) 색
@@ -228,7 +228,7 @@ function Acc({ kind }: { kind: Accessory }) {
   return null;
 }
 
-export function Friend({
+export function DuckFriend({
   kind,
   accessory = "none",
   size = 120,
@@ -254,5 +254,37 @@ export function Friend({
       {COSTUME[kind]}
       <Acc kind={accessory} />
     </svg>
+  );
+}
+
+// ── 현행 캐릭터: 조선 민화풍 시안에서 가져온 그림(public/restore/characters). 오리 그림은 DuckFriend 로 남겨 둔다.
+export const FRIEND_IMG: Record<FriendKind, string> = {
+  seonbi: "/restore/characters/solri.png",
+  ssi: "/restore/characters/daengi.png",
+  tiger: "/restore/characters/hodongi.png",
+  rabbit: "/restore/characters/dalto.png",
+  turtle: "/restore/characters/geobuki.png",
+};
+
+export function Friend({
+  kind,
+  size = 120,
+  className,
+}: {
+  kind: FriendKind;
+  accessory?: Accessory; // 이전 오리 디자인 호환용(무시)
+  size?: number;
+  className?: string;
+}) {
+  const info = FRIEND_INFO[kind];
+  return (
+    <img
+      src={FRIEND_IMG[kind]}
+      alt={`${info.name}(${info.role})`}
+      height={size}
+      style={{ height: size, width: "auto", maxWidth: "none" }}
+      className={className}
+      draggable={false}
+    />
   );
 }

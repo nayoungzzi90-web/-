@@ -1,18 +1,18 @@
 @import "tailwindcss";
 
 :root {
-  --paper: #f7f0e1;
-  --paper-2: #efe5cf;
-  --ink: #2b2233;
-  --ink-soft: #6b5f70;
-  --line: #2b2233;
+  --paper: #f7f0e3;
+  --paper-2: #f0e4cb;
+  --ink: #2b2320;
+  --ink-soft: #7a6c60;
+  --line: #2b2320;
   /* 오방색 = 오행 */
-  --mok: #3b8f7b; /* 청 */
-  --hwa: #d6463a; /* 적 */
-  --to: #e8b23a; /* 황 */
+  --mok: #2f7068; /* 청 */
+  --hwa: #b83a26; /* 적 */
+  --to: #e2b04a; /* 황 */
   --geum: #ece8df; /* 백 */
-  --su: #2f3150; /* 흑 */
-  --stamp: #c2372b;
+  --su: #2d3e73; /* 흑 */
+  --stamp: #b83a26;
 }
 
 html {
@@ -56,9 +56,9 @@ body {
 
   /* 한지 카드: 두꺼운 먹선 + 단단한 그림자 */
   .hj-card {
-    border: 2.5px solid var(--line);
+    border: 2px solid #c9a76e;
     border-radius: 22px;
-    box-shadow: 4px 4px 0 var(--line);
+    box-shadow: 0 3px 0 rgba(160, 120, 70, 0.28);
     background: #fffaf0;
   }
 
@@ -148,7 +148,8 @@ body {
   --mh-outline: 2.5px; /* 굵은 먹 외곽선 */
   background: var(--mh-hanji);
   color: var(--mh-ink);
-  font-family: "Gowun Dodum", "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
+  font-family:
+    "Gowun Dodum", "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
 }
 .skin-minhwa .mh-title {
   font-family: "Jua", "Gowun Dodum", "Apple SD Gothic Neo", sans-serif;
@@ -159,8 +160,12 @@ body {
   background-image:
     radial-gradient(rgba(150, 110, 60, 0.06) 1px, transparent 1.4px),
     radial-gradient(rgba(150, 110, 60, 0.04) 1px, transparent 1.4px);
-  background-size: 22px 22px, 37px 37px;
-  background-position: 0 0, 11px 17px;
+  background-size:
+    22px 22px,
+    37px 37px;
+  background-position:
+    0 0,
+    11px 17px;
 }
 .skin-minhwa .mh-card {
   background: var(--mh-card);

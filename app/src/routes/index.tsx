@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { Friend, type FriendKind } from "@/components/Friends";
 import { Coin, Page } from "@/components/Shell";
-import { Storefront } from "@/components/Storefront";
+import { Scene, Scroll } from "@/components/minhwa/Scene";
 
 export const Route = createFileRoute("/")({ component: Home });
 
@@ -47,7 +47,7 @@ const SERVICES: Service[] = [
   {
     id: "compat",
     title: "궁합",
-    desc: "우리 둘, 어떤 케미일까꽥?",
+    desc: "우리 둘, 어떤 케미일까요?",
     price: "무료",
     photo: "/characters/compat.jpg",
     fallback: "tiger",
@@ -151,32 +151,63 @@ function Card({ s, children }: { s: Service; children: React.ReactNode }) {
 function Home() {
   return (
     <Page>
-      <section className="px-4 pt-4 text-center">
-        <Storefront />
-        <h1 className="font-display mt-4 text-[27px] leading-tight">
-          내 운세는
-          <br />
-          <span className="text-[var(--stamp)]">오리</span>가 알고 있꽥!
-        </h1>
-        <p className="mt-1 text-sm text-[var(--ink-soft)]">
-          생년월일만 알려주면 오행 친구가 찾아와요
-        </p>
-        <Link
-          to="/input"
-          className="font-display mt-4 block w-full rounded-full border-[2.5px] border-[var(--line)] bg-[var(--stamp)] py-3.5 text-lg text-white shadow-[4px_4px_0_var(--line)] active:translate-y-0.5 active:shadow-[2px_2px_0_var(--line)]"
-        >
-          내 사주 뽑으러 가기
-        </Link>
-        <Link
-          to="/sample"
-          className="mt-3 block text-sm text-[var(--ink-soft)] underline"
-        >
-          샘플 결과 먼저 구경하기
-        </Link>
+      <section>
+        <div className="relative h-[400px] overflow-hidden">
+          <Scene />
+          <div className="relative px-5 pt-5">
+            <p className="flex items-center gap-2 text-[15px]">
+              조선시대 감성 사주풀이
+              <span className="rounded-[4px] bg-[var(--stamp)] px-1 text-[11px] text-white">
+                福
+              </span>
+            </p>
+            <h1 className="font-display mt-1 text-[40px] leading-none">
+              오행 친구들
+            </h1>
+            <p className="mt-3 text-[15px] leading-snug">
+              나무, 불, 흙, 쇠, 물 다섯 친구가
+              <br />
+              당신의 길을 안내해요.
+            </p>
+          </div>
+          <Scroll
+            style={{ right: 34, top: 108, height: 160, paddingBottom: 22 }}
+            lines={["오늘도", "좋은 운이", "가득해요"]}
+          />
+          <div className="absolute inset-x-2 bottom-1 z-10 flex items-end justify-center">
+            {(
+              ["seonbi", "ssi", "tiger", "rabbit", "turtle"] as FriendKind[]
+            ).map((k) => (
+              <div key={k} className="-mx-1 flex-1 text-center">
+                <Friend kind={k} size={88} />
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="px-4 pt-4 text-center">
+          <p className="font-display text-[22px] leading-snug">
+            태어난 순간의 이야기,
+            <br />
+            귀엽게 풀어드려요
+          </p>
+          <Link
+            to="/input"
+            className="font-display mt-4 block w-full rounded-[24px] border-2 border-[var(--line)] py-3.5 text-lg text-white shadow-[0_3px_0_rgba(43,35,32,0.55)] active:translate-y-0.5"
+            style={{ background: "linear-gradient(180deg,#c4452f,#a93421)" }}
+          >
+            무료로 내 사주 보기 ›
+          </Link>
+          <Link
+            to="/sample"
+            className="mt-3 block text-sm text-[var(--ink-soft)] underline"
+          >
+            샘플 결과 먼저 구경하기
+          </Link>
+        </div>
       </section>
 
       <section className="mt-8 px-4">
-        <h2 className="font-display text-xl">오늘의 점집 메뉴</h2>
+        <h2 className="font-display text-xl">오늘의 메뉴</h2>
         <div className="mt-3 grid grid-cols-2 gap-3">
           {SERVICES.map((s) => (
             <Card key={s.id} s={s}>

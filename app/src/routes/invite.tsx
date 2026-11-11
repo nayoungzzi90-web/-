@@ -22,9 +22,7 @@ function Invite() {
       <Page>
         <section className="px-4 pt-10 text-center">
           <Friend kind="turtle" size={110} className="mx-auto" />
-          <p className="font-display mt-3 text-xl">
-            초대 링크를 읽지 못했어요꽥
-          </p>
+          <p className="font-display mt-3 text-xl">초대 링크를 읽지 못했어요</p>
           <p className="mt-1 text-sm text-[var(--ink-soft)]">
             링크가 잘렸거나 바뀌었을 수 있어요. 친구에게 다시 받아주세요.
           </p>
@@ -32,7 +30,7 @@ function Invite() {
             to="/"
             className="font-display mt-5 inline-block rounded-full border-[2.5px] border-[var(--line)] bg-[var(--to)] px-6 py-2.5"
           >
-            점집으로 가기
+            홈으로 가기
           </Link>
         </section>
       </Page>

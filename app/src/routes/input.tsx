@@ -22,8 +22,8 @@ function InputPage() {
           <div className="hj-card relative flex-1 bg-[#fffaf0] px-3.5 py-3">
             <p className="font-display text-lg leading-snug">
               {invite
-                ? "내 정보를 넣으면 바로 궁합을 볼 수 있어요꽥!"
-                : "생년월일을 알려주면 내 오행 친구를 찾아줄게꽥!"}
+                ? "내 정보를 넣으면 바로 궁합을 볼 수 있어요!"
+                : "생년월일을 알려주면 내 오행 친구를 찾아줄게요!"}
             </p>
           </div>
         </div>
