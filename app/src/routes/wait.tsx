@@ -48,7 +48,14 @@ function Wait() {
         <h1 className="font-display mt-1 text-[26px] leading-tight">
           {COPY[Math.min(3, Math.floor(pct / 26))]}
         </h1>
-        <div className="hj-card mt-5 bg-[var(--su)] px-4 pb-5 pt-6 text-[#fffaf0]">
+        <div
+          className="hj-card mt-5 bg-[var(--su)] px-4 pb-5 pt-6 text-[#fffaf0]"
+          style={{
+            backgroundImage: "url(/restore/deco/night-sky.svg)",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
+        >
           <div className="flex items-end justify-center gap-6">
             {[0, 0.35, 0.7].map((d) => (
               <svg

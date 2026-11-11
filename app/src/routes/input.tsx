@@ -10,7 +10,7 @@ function InputPage() {
   const nav = useNavigate();
   const { me, invite } = useStore();
   return (
-    <Page>
+    <Page blossom>
       <section className="px-4 pt-5">
         <div className="flex items-end gap-3">
           <Friend

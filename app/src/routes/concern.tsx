@@ -29,7 +29,7 @@ function Concern() {
   }, [hydrated, me, nav]);
   const n = concern.length;
   return (
-    <Page>
+    <Page blossom>
       <section className="px-4 pt-5">
         <p className="text-sm font-bold text-[var(--stamp)]">
           {me?.name ?? ""}님의 사주를 보고 있어요

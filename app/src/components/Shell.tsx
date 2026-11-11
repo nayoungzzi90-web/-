@@ -1,27 +1,18 @@
 import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 
+// 엽전 아이콘(패키지의 coin.svg)
 export function Coin({ size = 18 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden>
-      <circle
-        cx="12"
-        cy="12"
-        r="10.5"
-        fill="#e8b23a"
-        stroke="#2b2233"
-        strokeWidth="1.8"
-      />
-      <rect
-        x="8.2"
-        y="8.2"
-        width="7.6"
-        height="7.6"
-        fill="#fffaf0"
-        stroke="#2b2233"
-        strokeWidth="1.8"
-      />
-    </svg>
+    <img
+      src="/restore/deco/coin.svg"
+      width={size}
+      height={size}
+      alt=""
+      aria-hidden
+      draggable={false}
+      style={{ width: size, height: size }}
+    />
   );
 }
 
@@ -103,14 +94,25 @@ export function Page({
   children,
   coins,
   active,
+  blossom,
 }: {
   children: ReactNode;
   coins?: number;
   active?: string;
+  blossom?: boolean;
 }) {
   return (
-    <div className="mx-auto min-h-screen max-w-md pb-28">
+    <div className="relative mx-auto min-h-screen max-w-md pb-28">
       <Header {...(coins === undefined ? {} : { coins })} />
+      {blossom && (
+        <img
+          src="/restore/deco/blossom-corner.svg"
+          alt=""
+          aria-hidden
+          draggable={false}
+          className="pointer-events-none absolute right-0 top-14 z-0 w-[120px] opacity-80"
+        />
+      )}
       {children}
       <BottomNav active={active} />
     </div>
