@@ -1,6 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { Friend, type FriendKind } from "@/components/Friends";
+import {
+  Friend,
+  type FriendKind,
+  FRIEND_IMG,
+  FRIEND_INFO,
+} from "@/components/Friends";
 import { Coin, Page } from "@/components/Shell";
 
 export const Route = createFileRoute("/")({ component: Home });
@@ -212,8 +217,17 @@ function Home() {
             {(
               ["seonbi", "ssi", "tiger", "rabbit", "turtle"] as FriendKind[]
             ).map((k) => (
-              <div key={k} className="-mx-1 flex-1 text-center">
-                <Friend kind={k} size={92} />
+              <div
+                key={k}
+                className="flex flex-1 items-end justify-center"
+                style={{ height: 104 }}
+              >
+                <img
+                  src={FRIEND_IMG[k]}
+                  alt={FRIEND_INFO[k].name}
+                  className="max-h-full w-[19vw] max-w-[84px] object-contain"
+                  draggable={false}
+                />
               </div>
             ))}
           </div>
