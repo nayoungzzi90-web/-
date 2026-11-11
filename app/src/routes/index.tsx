@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { Friend, type FriendKind } from "@/components/Friends";
 import { Coin, Page } from "@/components/Shell";
-import { Scene, Scroll } from "@/components/minhwa/Scene";
 
 export const Route = createFileRoute("/")({ component: Home });
 
@@ -152,9 +151,21 @@ function Home() {
   return (
     <Page>
       <section>
-        <div className="relative h-[400px] overflow-hidden">
-          <Scene />
-          <div className="relative px-5 pt-5">
+        {/* 시안의 한옥 그림(글자 제거본) 위에 제목·족자 글자·캐릭터를 얹는다 */}
+        <div
+          className="relative overflow-hidden"
+          style={{ containerType: "inline-size" }}
+        >
+          <img
+            src="/restore/hero.jpg"
+            alt=""
+            className="block w-full"
+            draggable={false}
+          />
+          <div
+            className="absolute left-0 top-0 px-5 pt-5"
+            style={{ fontSize: "min(100%, 16px)" }}
+          >
             <p className="flex items-center gap-2 text-[15px]">
               조선시대 감성 사주풀이
               <span className="rounded-[4px] bg-[var(--stamp)] px-1 text-[11px] text-white">
@@ -170,16 +181,39 @@ function Home() {
               당신의 길을 안내해요.
             </p>
           </div>
-          <Scroll
-            style={{ right: 34, top: 108, height: 160, paddingBottom: 22 }}
-            lines={["오늘도", "좋은 운이", "가득해요"]}
-          />
-          <div className="absolute inset-x-2 bottom-1 z-10 flex items-end justify-center">
+          <div
+            className="absolute flex flex-row-reverse font-bold"
+            style={{
+              left: "79.5%",
+              width: "12.5%",
+              top: "56%",
+              height: "31%",
+              justifyContent: "center",
+              gap: "0.8cqw",
+              fontSize: "2.9cqw",
+              lineHeight: 1.1,
+            }}
+          >
+            {["오늘도", "좋은 운이", "가득해요"].map((l) => (
+              <span
+                key={l}
+                style={{
+                  writingMode: "vertical-rl",
+                  textOrientation: "upright",
+                }}
+              >
+                {l}
+              </span>
+            ))}
+          </div>
+        </div>
+        <div className="relative bg-[#efe0bf] pb-3 pt-1">
+          <div className="relative z-10 flex items-end justify-center px-2">
             {(
               ["seonbi", "ssi", "tiger", "rabbit", "turtle"] as FriendKind[]
             ).map((k) => (
               <div key={k} className="-mx-1 flex-1 text-center">
-                <Friend kind={k} size={88} />
+                <Friend kind={k} size={92} />
               </div>
             ))}
           </div>
