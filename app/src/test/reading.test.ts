@@ -41,7 +41,7 @@ describe("규칙 기반 풀이", () => {
     const r = buildReading(sample())!;
     expect(r.dayEl).toBe("금");
     expect(r.friend).toBe("rabbit");
-    expect(r.sections.length).toBe(5);
+    expect(r.sections.length).toBe(12); // 2단계 심화로 5 → 12개
   });
   it("검증 전 용어(격국·용신·신강·십성 이름 등)를 풀이에 쓰지 않는다", () => {
     for (const time of ["14:30", null]) {
