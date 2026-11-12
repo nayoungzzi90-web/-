@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AiTrialRouteImport } from './routes/ai-trial'
 import { Route as CompatRouteImport } from './routes/compat'
 import { Route as ConcernRouteImport } from './routes/concern'
+import { Route as HomeProposalRouteImport } from './routes/home-proposal'
 import { Route as InputRouteImport } from './routes/input'
 import { Route as InviteRouteImport } from './routes/invite'
 import { Route as QuizRouteImport } from './routes/quiz'
@@ -44,6 +45,11 @@ const CompatRoute = CompatRouteImport.update({
 const ConcernRoute = ConcernRouteImport.update({
   id: '/concern',
   path: '/concern',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HomeProposalRoute = HomeProposalRouteImport.update({
+  id: '/home-proposal',
+  path: '/home-proposal',
   getParentRoute: () => rootRouteImport,
 } as any)
 const InputRoute = InputRouteImport.update({
@@ -112,6 +118,7 @@ export interface FileRoutesByFullPath {
   '/ai-trial': typeof AiTrialRoute
   '/compat': typeof CompatRoute
   '/concern': typeof ConcernRoute
+  '/home-proposal': typeof HomeProposalRoute
   '/input': typeof InputRoute
   '/invite': typeof InviteRoute
   '/quiz': typeof QuizRoute
@@ -130,6 +137,7 @@ export interface FileRoutesByTo {
   '/ai-trial': typeof AiTrialRoute
   '/compat': typeof CompatRoute
   '/concern': typeof ConcernRoute
+  '/home-proposal': typeof HomeProposalRoute
   '/input': typeof InputRoute
   '/invite': typeof InviteRoute
   '/quiz': typeof QuizRoute
@@ -149,6 +157,7 @@ export interface FileRoutesById {
   '/ai-trial': typeof AiTrialRoute
   '/compat': typeof CompatRoute
   '/concern': typeof ConcernRoute
+  '/home-proposal': typeof HomeProposalRoute
   '/input': typeof InputRoute
   '/invite': typeof InviteRoute
   '/quiz': typeof QuizRoute
@@ -169,6 +178,7 @@ export interface FileRouteTypes {
     | '/ai-trial'
     | '/compat'
     | '/concern'
+    | '/home-proposal'
     | '/input'
     | '/invite'
     | '/quiz'
@@ -187,6 +197,7 @@ export interface FileRouteTypes {
     | '/ai-trial'
     | '/compat'
     | '/concern'
+    | '/home-proposal'
     | '/input'
     | '/invite'
     | '/quiz'
@@ -205,6 +216,7 @@ export interface FileRouteTypes {
     | '/ai-trial'
     | '/compat'
     | '/concern'
+    | '/home-proposal'
     | '/input'
     | '/invite'
     | '/quiz'
@@ -224,6 +236,7 @@ export interface RootRouteChildren {
   AiTrialRoute: typeof AiTrialRoute
   CompatRoute: typeof CompatRoute
   ConcernRoute: typeof ConcernRoute
+  HomeProposalRoute: typeof HomeProposalRoute
   InputRoute: typeof InputRoute
   InviteRoute: typeof InviteRoute
   QuizRoute: typeof QuizRoute
@@ -266,6 +279,13 @@ declare module '@tanstack/react-router' {
       path: '/concern'
       fullPath: '/concern'
       preLoaderRoute: typeof ConcernRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/home-proposal': {
+      id: '/home-proposal'
+      path: '/home-proposal'
+      fullPath: '/home-proposal'
+      preLoaderRoute: typeof HomeProposalRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/input': {
@@ -360,6 +380,7 @@ const rootRouteChildren: RootRouteChildren = {
   AiTrialRoute: AiTrialRoute,
   CompatRoute: CompatRoute,
   ConcernRoute: ConcernRoute,
+  HomeProposalRoute: HomeProposalRoute,
   InputRoute: InputRoute,
   InviteRoute: InviteRoute,
   QuizRoute: QuizRoute,
