@@ -10,23 +10,16 @@ import { computeDetail, signalWord } from "./saju-detail";
 import { tenGodOf, type TenGod } from "./ten-gods";
 import { stageOf } from "./twelve-stages";
 
-export const STEM_NAME = ["갑목", "을목", "병화", "정화", "무토", "기토", "경금", "신금", "임수", "계수"] as const;
+import { STEM_NAME, STEM_IMAGE, BRANCH_IMAGE, buildChartPacket, packetJson } from "./saju-packet";
+export { STEM_NAME, STEM_IMAGE, BRANCH_IMAGE };
 const GROUP: Record<TenGod, string> = {
   비견: "비겁", 겁재: "비겁", 식신: "식상", 상관: "식상", 편재: "재성", 정재: "재성", 편관: "관성", 정관: "관성", 편인: "인성", 정인: "인성",
 };
-// 일주의 상징 이미지(일주론에서 흔히 쓰는 비유, 재미용). 글에 이미지를 이어 쓰는 재료로만 쓴다.
-export const STEM_IMAGE = [
-  "하늘을 향해 곧게 뻗는 큰 나무", "바람에 눕지만 끊어지지 않는 덩굴과 풀꽃", "세상을 비추는 한낮의 태양", "어둠을 밝히는 촛불과 등불", "묵직하게 자리를 지키는 큰 산", "씨앗을 품어 기르는 논밭의 흙",
-  "단단한 바위와 날 선 칼", "다듬어질수록 빛나는 보석", "끝없이 흐르는 큰 강과 바다", "조용히 스며드는 이슬과 봄비",
-] as const;
-export const BRANCH_IMAGE = [
-  "깊은 밤의 고요한 방", "겨울 끝자락의 얼어 있는 땅", "이른 봄 새싹이 오르는 숲", "봄 꽃밭 위의 바람", "봄비를 머금은 촉촉한 땅", "초여름 햇살이 드는 마당",
-  "한여름 정오의 뜨거운 길", "늦여름 열기가 남은 마른 땅", "초가을 선선한 바람이 부는 언덕", "가을 저녁의 붉은 노을", "늦가을 낙엽 쌓인 산자락", "초겨울 바다 곁의 찬 바람",
-] as const;
-const MONTH_OF_BRANCH = [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]; // 지지(자~해) → 대략 양력 달
+const MONTH_OF_BRANCH = [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
 
 export interface StoryFacts {
-  text: string; // AI 에 보낼 사실 블록
+  text: string; // 사람이 읽는 사실 블록(검수·시험용 보존)
+  json: string; // AI 에 보내는 계산 결과 JSON 패킷
   dayStemName: string;
   hasHour: boolean;
   sinsalNames: string[]; // 이 사주에 실제로 해당하는 신살 이름(AI 가 다른 신살을 말하면 검수에서 막는다)
@@ -145,6 +138,8 @@ export function buildStoryFacts(me: BirthInput, now: Date = new Date()): StoryFa
   L.push("[향후 5년(입춘 기준 해의 간지) — 분위기는 12운성 단계와 필요한 기운 여부를 센 판정]");
   for (const r of dt.years) L.push(`- ${r.year}년 ${r.name}년: ${line(r)}`);
 
-  return { text: L.join("\n"), dayStemName: STEM_NAME[dm]!, hasHour: !!pil.hour, sinsalNames, strengthLabel: st.label, years: dt.years.map((y) => y.year!), yearNames: dt.years.map((y) => y.name), daeunNow: dt.daeunNowName, needName: EL_WORD[need.primary] };
+  const built = buildChartPacket(me, now);
+  if (!built) return null;
+  return { text: L.join("\n"), json: packetJson(built.packet), dayStemName: STEM_NAME[dm]!, hasHour: !!pil.hour, sinsalNames, strengthLabel: st.label, years: dt.years.map((y) => y.year!), yearNames: dt.years.map((y) => y.name), daeunNow: dt.daeunNowName, needName: EL_WORD[need.primary] };
 }
 
