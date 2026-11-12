@@ -434,8 +434,8 @@ describe("기본(10카드, 카드당 450~550자) 구성", () => {
     expect(llm.calls[0]!.system).toContain("[카드 목록]");
     expect(llm.calls[0]!.system).toContain("elements");
   });
-  it("구상 결과에 방어적인 말(일반 이론·후보)이 섞이면 버린다", async () => {
-    const llm = new ScriptedLlm(() => SPINE_JSON.replace("혼자 길을 열어 온 사람의 이야기", "일반 이론 후보"));
+  it("구상 결과에 엔진이 계산하지 않은 판정(격국)이 섞이면 버린다", async () => {
+    const llm = new ScriptedLlm(() => SPINE_JSON.replace("혼자 길을 열어 온 사람의 이야기", "격국이 강한 사람"));
     const r = await runAiStorySpine({ me: ME, token: ENV.AI_TRIAL_TOKEN, depth: "basic" }, { config: readTrialConfig(ENV), now: NOW, writer: () => llm });
     expect(r.ok && r.state === "ready" && r.spine).toBeNull();
   });
@@ -449,7 +449,7 @@ describe("새 검수: 방어 문구·옛 용어·권유 과다·긴 문단·반�
     expect(ok(goodBody(560, 3).split("\n\n").slice(0, 3).join("\n\n"))).not.toContain("FEW_PARAGRAPHS");
   });
   it("방어적인 메타 표현(일반 이론·검증 전·후보)은 글에서 막는다", () => {
-    for (const w of ["일반 이론에 따른 판단이에요", "전문가 검증 전이에요", "용신 후보는 물이에요", "검증 전인 후보예요"])
+    for (const w of ["일반 이론에 따른 판단이에요", "전문가 검증 전이에요", "용신 후보라고 해요", "검증 전인 후보예요"])
       expect(ok(`${body}\n\n${w}.`), w).toContain("META_PHRASE");
   });
   it("하늘 글자·땅 글자·원래 사주는 막는다", () => {
@@ -530,7 +530,9 @@ describe("story-6 새 검수(호칭 시작·방어 문장·일상 장면·코칭
   it("신살은 카드마다 겹치지 않게 배정된다", () => {
     const all = ["괴강살", "금여록", "홍염살", "과숙살", "공망", "현침살", "태극귀인"];
     const used = BASIC_SECTIONS.flatMap((x) => sinsalFor(x.id, all));
-    expect(used.sort()).toEqual([...all].sort());
+    expect([...new Set(used)].sort()).toEqual([...all].sort());
+    expect(used.filter((n) => n === "금여록")).toHaveLength(2); // 재물복·나만의 매력(귀인으로 격려)에서만
+    expect(used.length - new Set(used).size).toBe(1);
   });
   it("프롬프트가 새 규칙(호칭·방어 문구 금지·장면/팁 금지·풍경 제목 금지·구조 태그)을 담는다", () => {
     const p = buildStorySystemPrompt();

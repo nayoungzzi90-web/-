@@ -120,3 +120,25 @@ describe("새 검수(카드 단위)", () => {
     expect(run(body().replace("결론부터 말하면 부업을 키울 바탕이 있어요.", "서비스 기획자, 프로젝트 관리자, 사업 개발 담당자가 어울려요."))).toContain("JOB_LIST");
   });
 });
+
+describe("고민 직답 분담", () => {
+  const sp = validateSpine({
+    theme: "혼자 길을 열어 온 사람의 이야기", contradiction: "겉으로는 단단하고 속으로는 여려요", past: ["어린 시절 이야기예요.", "청년기 이야기예요."],
+    concern: { conclusion: "부업은 잘 맞는 바탕이에요", evidence: ["월지 진 편재"], caution: "동업 비용을 흐리지 않는 것이에요", action: "소규모 유료 상담부터 시작해요", quotes: ["부업"] },
+    cards: sections.map((s) => ({ id: s.id, evidence: [], angle: `${s.title}각도`, concernLink: true, concernSentence: `${s.title} 연결`, contrast: "없음", motif: `${s.title}소재` })),
+  }, sections, pk, CONCERN)!;
+  it("결론·시작 방법은 일 카드, 조심할 점은 재물 카드, 시기는 흐름 카드가 맡고 나머지는 연결 문장만 받는다", async () => {
+    const { spineBlockFor } = await import("../lib/ai-story-plan");
+    const blk = (id: string) => spineBlockFor(sp, id, sections);
+    expect(blk("work")).toContain("부업은 잘 맞는 바탕이에요");
+    expect(blk("work")).toContain("소규모 유료 상담부터 시작해요");
+    expect(blk("money")).toContain("동업 비용을 흐리지 않는 것이에요");
+    expect(blk("money")).not.toContain("부업은 잘 맞는 바탕이에요");
+    expect(blk("flow")).toContain("실행하기 좋은 시기");
+    for (const id of ["summary", "elements", "ilju"]) {
+      expect(blk(id)).not.toContain("부업은 잘 맞는 바탕이에요");
+      expect(blk(id)).not.toContain("소규모 유료 상담부터 시작해요");
+      expect(blk(id)).toContain("되풀이하지 않는다");
+    }
+  });
+});
