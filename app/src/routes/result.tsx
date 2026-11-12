@@ -3,7 +3,8 @@ import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Friend, FRIEND_INFO } from "@/components/Friends";
 import { ManseExtra } from "@/components/ManseExtra";
 import { computeDaeunForBirth } from "@/lib/daeun";
-import { Basis, Locked, ManseTable, ReadingCard } from "@/components/ResultParts";
+import { Locked, ManseTable, ReadingCard } from "@/components/ResultParts";
+import { hangulOnly as ko } from "@/lib/hangul";
 import { Page } from "@/components/Shell";
 import {
   buildReading,
@@ -147,26 +148,25 @@ function Result() {
               &rsquo;
             </p>
             <p className="font-display mt-1 pr-10 text-[24px] leading-tight">
-              {verdict.headline}
+              {ko(verdict.headline)}
             </p>
             <p className="mt-2 text-sm leading-relaxed text-[#e6e2f3]">
-              {verdict.text}
+              {ko(verdict.text)}
             </p>
             <p className="mt-2 rounded-xl bg-white/10 p-3 text-sm leading-relaxed text-[#e6e2f3]">
               <span className="font-extrabold text-[var(--to)]">
                 이 고민에서 나는{" "}
               </span>
-              {verdict.personal}
+              {ko(verdict.personal)}
             </p>
             <div className="mt-3 rounded-xl bg-white/10 p-3 text-sm">
               <p className="font-extrabold text-[var(--to)]">이번 주 해볼 일</p>
               <ul className="mt-1 space-y-0.5">
                 {verdict.todo.map((t) => (
-                  <li key={t}>☐ {t}</li>
+                  <li key={t}>☐ {ko(t)}</li>
                 ))}
               </ul>
             </div>
-            <Basis items={verdict.basis} />
             <p className="mt-2 text-[10px] text-[#a9a5c0]">
               고민 글자에서 키워드를 찾아 분류한 재미용 점괘예요. 중요한 결정은
               스스로의 판단이 먼저예요.
@@ -180,7 +180,7 @@ function Result() {
         >
           <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/50" />
           <p className="text-[11px] font-extrabold text-[var(--stamp)]">
-            나의 오행 친구 · 일간 {preview.pillars.day.hanja.charAt(0)}(
+            나의 오행 친구 · 일간 {ko(preview.pillars.day.hanja.charAt(0))}(
             {EL_WORD[rd.dayEl]})
           </p>
           <div className="mt-3 flex items-center gap-3">
@@ -286,15 +286,13 @@ function Result() {
             {c.items.map((s) => (
               <ReadingCard
                 key={s.id}
-                eyebrow={s.eyebrow}
-                title={s.title}
+                eyebrow={ko(s.eyebrow)}
+                title={ko(s.title)}
                 friend={s.friend}
-                summary={s.summary}
               >
                 {s.body.map((b) => (
-                  <p key={b}>{b}</p>
+                  <p key={b}>{ko(b)}</p>
                 ))}
-                <Basis items={s.basis} />
               </ReadingCard>
             ))}
           </section>
