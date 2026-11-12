@@ -237,3 +237,57 @@ describe("고민별 맞춤 풀이", () => {
     expect(firsts.size).toBe(7);
   });
 });
+
+describe("문장 품질(조사·중복)", () => {
+  it("조사 자리 표시(이(가))와 받침 오류, 같은 섹션 안 같은 문장 반복이 없다", () => {
+    const now = new Date("2026-11-12T12:00:00+09:00");
+    let n = 0;
+    for (let y = 1960; y <= 2010; y += 3)
+      for (let m = 1; m <= 12; m++)
+        for (const d of [5, 20]) {
+          const me = {
+            name: "테스트",
+            calendar: "solar" as const,
+            leap: false,
+            date: `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`,
+            time: m % 3 === 0 ? null : "10:20",
+            gender: (m % 2 ? "f" : "m") as "f" | "m",
+          };
+          const rd = buildReading(previewFromBirthInput(me), now, computeDaeunForBirth(me));
+          if (!rd) continue;
+          n++;
+          for (const s of rd.sections) {
+            const all = [s.title, ...s.summary, ...s.body, ...s.basis];
+            for (const t of all) {
+              expect(t).not.toMatch(/이\(가\)|을\(를\)|은\(는\)|와\(과\)/);
+              expect(t).not.toMatch(/쇠\(金\)이|쇠이 /);
+              expect(t).not.toMatch(/ {2}|\.\./);
+            }
+            if (s.id === "year") {
+              const sents = s.body.join(" ").split(/(?<=[.!?])\s+/);
+              expect(new Set(sents).size).toBe(sents.length);
+            }
+          }
+        }
+    expect(n).toBeGreaterThan(300);
+  });
+
+  it("조사 보정 예: 쇠(金)가 하나도 없는 사주는 '쇠(金)가'로 쓴다", () => {
+    let found = false;
+    for (let y = 1960; y <= 2010 && !found; y++)
+      for (let m = 1; m <= 12 && !found; m++) {
+        const rd = buildReading(
+          previewFromBirthInput({
+            name: "테스트", calendar: "solar", leap: false,
+            date: `${y}-${String(m).padStart(2, "0")}-10`, time: "10:20", gender: "f",
+          }),
+        );
+        if (rd && rd.missing.length === 1 && rd.missing[0] === "금") {
+          const t = rd.sections[0]!.summary.concat(rd.sections[0]!.body).join(" ");
+          expect(t).toContain("쇠(金)가 하나도 없어요");
+          found = true;
+        }
+      }
+    expect(found).toBe(true);
+  });
+});

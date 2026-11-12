@@ -424,6 +424,9 @@ function hasBatchim(word: string): boolean {
   return true;
 }
 const iga = (w: string) => `${w}${hasBatchim(w) ? "이" : "가"}`;
+const ieyoOf = (w: string) => (hasBatchim(w) ? "이에요" : "예요");
+const ieyo = (w: string) => `${w}${ieyoOf(w)}`;
+const iraneun = (w: string) => `${w}${hasBatchim(w) ? "이라는" : "라는"}`;
 const gwawa = (w: string) => `${w}${hasBatchim(w) ? "과" : "와"}`;
 
 
@@ -530,8 +533,8 @@ export function buildReading(
   const chipDay = `일간 ${day.hanja.charAt(0)}(${EL_WORD[dayEl]})`;
   const chipCount = `오행 ${dominant.map((e) => `${e} ${counts[e]}`).join("·")}`;
   const lackText = missing.length
-    ? `${missing.map((e) => EL_WORD[e]).join("·")}(${missing.map((e) => EL_HANJA[e]).join("·")})이 하나도 없어요`
-    : `${weakest.map((e) => EL_WORD[e]).join("·")}이 가장 적어요`;
+    ? `${missing.map((e) => EL_WORD[e]).join("·")}(${missing.map((e) => EL_HANJA[e]).join("·")})${hasBatchim(missing.map((e) => EL_WORD[e]).join("·")) ? "이" : "가"} 하나도 없어요`
+    : `${iga(weakest.map((e) => EL_WORD[e]).join("·"))} 가장 적어요`;
   const lackEl = (missing[0] ?? weakest[0])!;
   const deep = STEM_DEEP[day.stem]!;
   const monthEl = branchElement(month.branch);
@@ -558,7 +561,7 @@ export function buildReading(
       `${lackText}`,
     ],
     body: [
-      `태어난 날의 하늘 글자가 ${day.hanja.charAt(0)}(${EL_WORD[dayEl]})이에요. 사주에서는 이 글자를 ‘나 자신’으로 보고, ${info.image}에 빗대요. ${info.trait}이 첫인상으로 남는 편이에요.`,
+      `태어난 날의 하늘 글자가 ${day.hanja.charAt(0)}(${EL_WORD[dayEl]}) ${ieyoOf(STEM_KO[day.stem]!)}. 사주에서는 이 글자를 ‘나 자신’으로 보고, ${info.image}에 빗대요. ${iga(info.trait)} 첫인상으로 남는 편이에요.`,
       `여덟 글자를 통틀어 ${dominant.map((e) => EL_WORD[e]).join("·")} 기운이 가장 많아서 ${DOMINANT_NOTE[dom]}. 반대로 ${lackText}, 이쪽은 일부러 채워 주면 균형이 좋아져요.`,
     ],
     basis: [chipDay, chipCount, `연주 ${label(year)}`],
@@ -576,7 +579,7 @@ export function buildReading(
     ],
     body: [
       deep.inner,
-      `${info.weaknesses.join("·")}이(가) 올라올 땐 ‘지금 내 속마음은 뭐지?’ 하고 한 박자 쉬어 가 보세요.`,
+      `${iga(info.weaknesses.join("·"))} 올라올 땐 ‘지금 내 속마음은 뭐지?’ 하고 한 박자 쉬어 가 보세요.`,
     ],
     basis: [chipDay],
   });
@@ -611,7 +614,7 @@ export function buildReading(
       `월지 ${month.hanja.charAt(1)}(${EL_WORD[branchElement(month.branch)]})의 영향도 함께 봐요`,
     ],
     body: [
-      `태어난 날의 땅 글자는 ${day.hanja.charAt(1)}, 오행으로는 ${EL_WORD[branchElement(day.branch)]}이에요. ${REL_BRANCH[brRel]}.`,
+      `태어난 날의 땅 글자는 ${day.hanja.charAt(1)}, 오행으로는 ${ieyo(EL_WORD[branchElement(day.branch)])}. ${REL_BRANCH[brRel]}.`,
       `태어난 달의 땅 글자 ${month.hanja.charAt(1)}(${EL_WORD[branchElement(month.branch)]})는 ${REL_BRANCH[monthRel]}. 두 글자를 함께 보면 겉으로 보이는 나와 환경에서 받는 영향의 결이 읽혀요.`,
     ],
     basis: [
@@ -736,8 +739,12 @@ export function buildReading(
       x.fills > 0
         ? `${x.g.ko}년에는 내게 적은 ${EL_WORD[lackEl]} 기운이 ${x.fills === 2 ? "두 글자 모두" : "한 글자"} 들어와요.`
         : `${x.g.ko}년의 글자에는 내게 적은 ${EL_WORD[lackEl]} 기운이 없어서, 균형 처방 습관으로 직접 채워 봐요.`;
-    const yearBody = (x: ReturnType<typeof part>, which: string) =>
-      `${which} ${x.g.hanja}(${x.g.ko})년은 ${EL_WORD[x.se]}(${EL_HANJA[x.se]}) 기운 위에 ${EL_WORD[x.be]}(${EL_HANJA[x.be]}) 기운이 얹힌 해예요. ${x.mood.line} ${fillText(x)}`;
+    const yearBody = (
+      x: ReturnType<typeof part>,
+      which: string,
+      same?: boolean,
+    ) =>
+      `${which} ${x.g.hanja}(${x.g.ko})년은 ${EL_WORD[x.se]}(${EL_HANJA[x.se]}) 기운 위에 ${EL_WORD[x.be]}(${EL_HANJA[x.be]}) 기운이 얹힌 해예요. ${same ? "올해와 같은 결의 분위기가 한 해 더 이어지는 비유예요." : x.mood.line} ${fillText(x)}`;
     sections.push({
       id: "year",
       eyebrow: "올해·내년 흐름",
@@ -750,8 +757,8 @@ export function buildReading(
       ],
       body: [
         yearBody(a, "올해"),
-        yearBody(b, "내년"),
-        `내년을 미리 준비한다면: ${b.mood.tip}`,
+        yearBody(b, "내년", a.rel === b.rel),
+        ...(a.rel === b.rel ? [] : [`내년을 미리 준비한다면: ${b.mood.tip}`]),
         "해가 바뀌는 기준은 입춘(2월 초)이에요. 길흉을 맞히는 풀이가 아니라, 해의 오행과 내 일간을 견준 분위기 비유예요.",
       ],
       basis: [
@@ -822,7 +829,7 @@ export function buildReading(
     title: `${info.weaknesses[0]}, 이건 조심해요`,
     friend: "ssi",
     summary: [
-      `${info.weaknesses.join(" · ")}이(가) 도드라질 수 있어요`,
+      `${iga(info.weaknesses.join(" · "))} 도드라질 수 있어요`,
       `${EL_WORD[dom]} 기운이 많아서 한쪽으로 쏠릴 때가 있어요`,
       `처방: ${MISSING_TIP[lackEl]}`,
     ],
@@ -844,7 +851,7 @@ export function buildReading(
       `${EL_WORD[dom]} 기운이 받쳐줘요`,
     ],
     body: [
-      `${iga(info.strengths.join(", "))} ${EL_WORD[dayEl]} 기운의 사람이 가진 무기예요. ${info.trait}이라는 점이 사람들 사이에서 신뢰를 얻는 이유가 돼요.`,
+      `${iga(info.strengths.join(", "))} ${EL_WORD[dayEl]} 기운의 사람이 가진 무기예요. ${iraneun(info.trait)} 점이 사람들 사이에서 신뢰를 얻는 이유가 돼요.`,
     ],
     basis: [chipDay],
   });
