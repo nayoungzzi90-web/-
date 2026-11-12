@@ -31,3 +31,19 @@ export const runAiTrialFn = createServerFn({ method: "POST" })
       };
     }
   });
+
+// 풍부한 해석 모드(일반 명리 해석 허용). 같은 안전장치(꺼짐 기본·비밀 토큰·원가 상한)를 쓴다.
+export const runAiStoryFn = createServerFn({ method: "POST" })
+  .inputValidator((input: unknown) => schema.parse(input))
+  .handler(async ({ data }): Promise<TrialResponse> => {
+    try {
+      const { readTrialConfig } = await import("./ai-trial.server");
+      const { runAiStory } = await import("./ai-story.server");
+      return await runAiStory(data, { config: readTrialConfig(process.env) });
+    } catch {
+      return {
+        ok: false,
+        error: "AI 풀이를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.",
+      };
+    }
+  });

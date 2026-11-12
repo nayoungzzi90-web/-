@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { Friend } from "@/components/Friends";
 import { Page } from "@/components/Shell";
-import { runAiTrialFn } from "@/lib/ai-trial-fns";
+import { runAiStoryFn, runAiTrialFn } from "@/lib/ai-trial-fns";
 import type { TrialResponse } from "@/lib/ai-trial.server";
 import { useStore } from "@/lib/store";
 
@@ -31,6 +31,7 @@ function AiTrial() {
   const [token, setToken] = useState(loadToken);
   const [send, setSend] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [mode, setMode] = useState<"story" | "claims">("story");
   const [res, setRes] = useState<TrialResponse | null>(null);
 
   async function run() {
@@ -43,9 +44,15 @@ function AiTrial() {
       /* 저장 못 해도 계속 */
     }
     try {
-      const r = await runAiTrialFn({
-        data: { me, token, ...(concern ? { concern, sendConcern: send } : {}) },
-      });
+      const data = {
+        me,
+        token,
+        ...(concern ? { concern, sendConcern: send } : {}),
+      };
+      const r =
+        mode === "story"
+          ? await runAiStoryFn({ data })
+          : await runAiTrialFn({ data });
       setRes(r);
     } catch {
       setRes({ ok: false, error: "요청에 실패했어요." });
@@ -58,8 +65,9 @@ function AiTrial() {
     <Page>
       <section className="px-4 pt-5">
         <p className="rounded-xl border-2 border-[var(--to)] bg-[#fff3cf] px-3 py-2 text-xs font-bold">
-          소유자 전용 시범 화면이에요. 전문가 검수 전 초안 명제를 쓰고, 결과에는
-          &lsquo;시범·검수 전&rsquo;이 표시돼요.
+          소유자 전용 시범 화면이에요. 결과는 모두 &lsquo;시범·검수 전&rsquo;이에요.
+          풍부한 해석은 일반 명리 해석을 써서 길게 쓰고, 승인 근거 방식은 검수
+          전 초안 명제만 써요.
         </p>
         {!me ? (
           <div className="mt-6 text-center">
@@ -105,6 +113,26 @@ function AiTrial() {
                 </span>
               </label>
             )}
+            <fieldset className="mt-4 text-sm">
+              <legend className="mb-1 font-extrabold">풀이 방식</legend>
+              {(
+                [
+                  ["story", "풍부한 해석 (일반 명리 해석, 길게)"],
+                  ["claims", "승인 근거 방식 (짧고 조심스러움)"],
+                ] as const
+              ).map(([v, label]) => (
+                <label key={v} className="mt-1 flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="mode"
+                    checked={mode === v}
+                    onChange={() => setMode(v)}
+                    className="h-4 w-4 accent-[var(--stamp)]"
+                  />
+                  {label}
+                </label>
+              ))}
+            </fieldset>
             <button
               type="button"
               disabled={busy || !token}
