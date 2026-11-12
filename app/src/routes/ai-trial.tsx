@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { Friend } from "@/components/Friends";
+import { Friend, type FriendKind } from "@/components/Friends";
+import { ReadingCard } from "@/components/ResultParts";
 import { Page } from "@/components/Shell";
 import { runAiStoryFn, runAiTrialFn } from "@/lib/ai-trial-fns";
 import type { TrialResponse } from "@/lib/ai-trial.server";
@@ -17,6 +18,7 @@ export const Route = createFileRoute("/ai-trial")({
   component: AiTrial,
 });
 
+const FRIENDS: FriendKind[] = ["seonbi", "ssi", "tiger", "rabbit", "turtle"];
 const KEY = "ohaeng:ai-trial-token"; // 이 탭에서만 기억(sessionStorage)
 function loadToken() {
   try {
@@ -168,21 +170,22 @@ function AiTrial() {
               {res.reviewed ? "독립 감수 통과" : "시범 · 검수 전"} · 이번 원가
               약 ${res.costUsd}
             </p>
-            {res.sections.map((s) => (
-              <article key={s.id} className="hj-card mt-3 bg-[#fffaf0] p-4">
-                <p className="text-[11px] font-extrabold text-[var(--stamp)]">
-                  {s.title}
-                </p>
-                <h2 className="font-display text-[19px] leading-snug">
-                  {s.headline}
-                </h2>
-                <div className="mt-2 space-y-3 text-[15px] leading-[1.75]">
-                  {s.body.split(/\n{2,}/).map((p) => (
-                    <p key={p}>{p}</p>
-                  ))}
-                </div>
-              </article>
+            {res.sections.map((s, i) => (
+              <ReadingCard
+                key={s.id}
+                eyebrow={s.title}
+                title={s.headline}
+                friend={FRIENDS[i % FRIENDS.length]!}
+              >
+                {s.body.split(/\n{2,}/).map((p) => (
+                  <p key={p}>{p}</p>
+                ))}
+              </ReadingCard>
             ))}
+            <p className="mt-4 rounded-xl bg-[var(--paper-2)] px-3 py-2 text-[12px] leading-relaxed">
+              일반적으로 알려진 명리 해석을 쉬운 말로 풀어 쓴 글이에요. 책·학파마다
+              다를 수 있고 전문가 검증 전이라, 재미와 참고로만 읽어 주세요.
+            </p>
           </div>
         )}
       </section>
