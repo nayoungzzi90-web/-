@@ -292,3 +292,17 @@ describe("글쓰기 지시 story-2와 이야기 줄기", () => {
   });
 });
 const base2 = { me: ME, token: ENV.AI_TRIAL_TOKEN, index: 0, prior: [] as { id: string; title: string; headline: string; body: string }[] };
+
+describe("story-3 보완(숫자 표기·이미지·안내 반복)", () => {
+  it("지시문이 아라비아 숫자와 안내 1회 원칙을 담고, 대운 섹션 상한이 넉넉하다", () => {
+    const s = buildStorySystemPrompt();
+    expect(s).toContain("아라비아 숫자");
+    expect(s).toContain("에서만 한 번 밝히고");
+    expect(STORY_SECTIONS.find((x) => x.id === "daeun")!.max).toBeGreaterThanOrEqual(1700);
+  });
+  it("일지 상징 이미지에 동물이 없다(양 곁의 등불 같은 어색한 반복 방지)", () => {
+    const f = buildStoryFacts(ME, NOW)!;
+    expect(f.text).not.toMatch(/쥐|소와|호랑이|토끼|용과|뱀|말의|양의|원숭이|닭|개의|돼지/);
+    expect(f.text).toContain("늦여름 열기가 남은 마른 땅");
+  });
+});
