@@ -785,10 +785,10 @@ export function buildReading(
       const mood = DAEUN_MOOD[relation(dayEl, se)];
       const fills = (se === lackEl ? 1 : 0) + (be === lackEl ? 1 : 0);
       const span = (d: (typeof ps)[number], next?: (typeof ps)[number]) =>
-        `만 ${d.startAge.years}세~${next ? next.startAge.years : d.startAge.years + 10}세(${d.startYear}년경~)`;
+        `만 ${d.startAge.years}~${next ? next.startAge.years : d.startAge.years + 10}세, ${d.startYear}년경부터`;
       const lead = notYet
         ? `아직 첫 10년 흐름이 시작되기 전이에요(약 만 ${cur.startAge.years}세 시작). 시작하면 ${cur.hanja}(${cur.ko}) 흐름이 먼저 와요.`
-        : `지금은 ${cur.hanja}(${cur.ko}) 흐름 위에 있어요. ${span(cur, nxt)}.`;
+        : `지금은 ${cur.hanja}(${cur.ko}) 흐름 위에 있어요. 대략 ${span(cur, nxt)}예요.`;
       const body: string[] = [
         lead,
         `${EL_WORD[se]}(${EL_HANJA[se]}) 기운 위에 ${EL_WORD[be]}(${EL_HANJA[be]}) 기운이 얹힌 10년이에요. ${mood.line}`,
@@ -799,7 +799,7 @@ export function buildReading(
       if (nxt) {
         const ne = stemElement(nxt.stem);
         body.push(
-          `다음 10년은 ${nxt.hanja}(${nxt.ko}) 흐름이고, ${DAEUN_MOOD[relation(dayEl, ne)].head}로 읽어요.(${span(nxt, ps[ps.indexOf(nxt) + 1])})`,
+          `다음 10년은 ${nxt.hanja}(${nxt.ko}) 흐름이고, ${DAEUN_MOOD[relation(dayEl, ne)].head}으로 읽어요. 대략 ${span(nxt, ps[ps.indexOf(nxt) + 1])}예요.`,
         );
       }
       body.push(
@@ -1073,7 +1073,7 @@ export function buildVerdict(
   const yearMood = YEAR_MOOD[relation(rd.dayEl, stemElement(yg.stem))];
   const head = cat ? cat.head[0] : "서두르지 말고, 빈 곳부터 채워요.";
   const todo = CAT_TODO[key] ?? DEFAULT_TODO;
-  const text = `${cat ? cat.head[1] : "고민의 결을 더 알려주면 점괘가 선명해져요."} 사주에는 ${EL_WORD[lackEl]}(${EL_HANJA[lackEl]}) 기운이 ${rd.missing.includes(lackEl) ? "없고" : "적고"}, ${EL_WORD[rd.dominant[0]!]} 기운이 가장 많아요. 그래서 ${MISSING_TIP[lackEl]}을 곁들이면 균형이 좋아져요. 올해 ${yg.ko}년은 ${yearMood.head}이라, ${yearMood.tip}`;
+  const text = `${cat ? cat.head[1] : "고민의 결을 더 알려주면 점괘가 선명해져요."} 사주에는 ${EL_WORD[lackEl]}(${EL_HANJA[lackEl]}) 기운이 ${rd.missing.includes(lackEl) ? "없고" : "적고"}, ${EL_WORD[rd.dominant[0]!]} 기운이 가장 많아요. 그래서 ${MISSING_TIP[lackEl]}을 곁들이면 균형이 좋아져요. 올해 ${yg.ko}년은 ${yearMood.head}${hasBatchim(yearMood.head) ? "이라" : "라"}, ${yearMood.tip}`;
   return {
     category: key,
     headline: head,

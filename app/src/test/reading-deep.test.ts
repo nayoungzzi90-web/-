@@ -262,6 +262,7 @@ describe("문장 품질(조사·중복)", () => {
               expect(t).not.toMatch(/이\(가\)|을\(를\)|은\(는\)|와\(과\)/);
               expect(t).not.toMatch(/쇠\(金\)이|쇠이 /);
               expect(t).not.toMatch(/ {2}|\.\./);
+              expect(t).not.toMatch(/10년로|분위기이라|\)\)/);
             }
             if (s.id === "year") {
               const sents = s.body.join(" ").split(/(?<=[.!?])\s+/);
@@ -289,5 +290,21 @@ describe("문장 품질(조사·중복)", () => {
         }
       }
     expect(found).toBe(true);
+  });
+});
+
+describe("점괘 문장 품질", () => {
+  it("점괘 본문에 '분위기이라' 같은 조사 오류가 없다", () => {
+    for (let y = 1960; y <= 2010; y += 5)
+      for (let m = 1; m <= 12; m++) {
+        const p = previewFromBirthInput({
+          name: "테스트", calendar: "solar", leap: false,
+          date: `${y}-${String(m).padStart(2, "0")}-12`, time: "10:20", gender: "f",
+        });
+        for (const c of ["이직", "연애", "돈", "시험", "가족", "우울", "그냥"]) {
+          const v = buildVerdict(p, `${c} 고민`, new Date("2026-11-12T12:00:00+09:00"))!;
+          expect(v.text).not.toMatch(/분위기이라|\)\)|이\(가\)/);
+        }
+      }
   });
 });
