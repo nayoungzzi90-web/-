@@ -17,7 +17,7 @@ export type JudgmentStatus = "CONDITIONAL" | "CANDIDATE";
 const helpsMe = (r: ReturnType<typeof relation>) => r === "same" || r === "helps";
 
 export interface StrengthResult {
-  ryeong: boolean; // 득령: 태어난 달의 땅 글자가 일간을 돕는다
+  ryeong: boolean; // 득령: 태어난 달의 지지가 일간을 돕는다
   ji: boolean; // 득지: 일지 속 글자가 일간을 돕는다(뿌리)
   se: boolean; // 득세: 돕는 글자가 힘을 빼는 글자보다 많다
   helpCount: number;
@@ -32,7 +32,7 @@ export function computeStrength(p: P4): StrengthResult {
   const dm = p.day.stem;
   const dayEl = stemElement(dm);
   const mEl = branchElement(p.month.branch);
-  // 토월(축·진·미·술)은 땅 글자 하나의 오행만으로 월령을 정하기 어려워 지장간까지 본다(잠정 규칙, R-002도 토월은 잠정)
+  // 토월(축·진·미·술)은 지지 하나의 오행만으로 월령을 정하기 어려워 지장간까지 본다(잠정 규칙, R-002도 토월은 잠정)
   const earthMonth = [1, 4, 7, 10].includes(p.month.branch);
   const byBase = helpsMe(relation(dayEl, mEl));
   const byHidden = earthMonth && !byBase && hiddenStemsOf(p.month.branch).some((h) => helpsMe(relation(dayEl, stemElement(h.stem))));
@@ -57,7 +57,7 @@ export function computeStrength(p: P4): StrengthResult {
     side: n >= 2 ? "strong" : "weak",
     status: n === 3 || n === 0 ? "CONDITIONAL" : "CANDIDATE",
     evidence: [
-      `월령(득령) ${ryeong ? "예" : "아니오"}: 태어난 달 땅 글자의 기운(${EL_WORD[mEl]})이 일간(${EL_WORD[dayEl]})을 ${ryeong ? "돕는" : "돕지 못하는"} 관계${byHidden ? " (토월이라 지장간까지 본 잠정 규칙으로 예)" : ""}`,
+      `월령(득령) ${ryeong ? "예" : "아니오"}: 태어난 달 지지의 기운(${EL_WORD[mEl]})이 일간(${EL_WORD[dayEl]})을 ${ryeong ? "돕는" : "돕지 못하는"} 관계${byHidden ? " (토월이라 지장간까지 본 잠정 규칙으로 예)" : ""}`,
       `일지 뿌리(득지) ${ji ? "예" : "아니오"}: 일지 속 ${hid.map((h) => EL_WORD[stemElement(h.stem)]).join("·")} 중 일간을 돕는 글자 ${rootStems.length}개`,
       `주변 도움(득세) ${se ? "예" : "아니오"}: 일간을 돕는 글자 ${help}개, 힘을 빼는 글자 ${drain}개`,
     ],
@@ -156,8 +156,8 @@ export function branchLinks(branch: number, p: P4): string[] {
 export const tenGodName = (dm: number, stem: number): TenGod => tenGodOf(dm, stem);
 
 export interface NeedEffect {
-  stemCount: number; // 하늘 글자에 드러난(투출) 필요한 기운 글자 수
-  rootCount: number; // 땅 글자 본기에 뿌리가 있는 수
+  stemCount: number; // 천간에 드러난(투출) 필요한 기운 글자 수
+  rootCount: number; // 지지 본기에 뿌리가 있는 수
   clashedRoots: number; // 그 뿌리 중 원국에서 충을 맞은 수
   level: "튼튼" | "보통" | "약함";
   evidence: string;
@@ -172,6 +172,6 @@ export function observeNeed(p: P4, el: Element): NeedEffect {
   const level = stems > 0 && live > 0 ? "튼튼" : stems > 0 || live > 0 ? "보통" : "약함";
   return {
     stemCount: stems, rootCount: roots.length, clashedRoots: clashed, level,
-    evidence: `하늘 글자에 ${EL_WORD[el]} ${stems}개(드러남), 땅 글자 본기에 ${EL_WORD[el]} ${roots.length}개(뿌리)${clashed ? `, 그중 ${clashed}개는 원국에서 충을 맞음` : ""} → 실제로 힘을 쓸 가능성: ${level}`,
+    evidence: `천간에 ${EL_WORD[el]} ${stems}개(드러남), 지지 본기에 ${EL_WORD[el]} ${roots.length}개(뿌리)${clashed ? `, 그중 ${clashed}개는 원국에서 충을 맞음` : ""} → 실제로 힘을 쓸 가능성: ${level}`,
   };
 }

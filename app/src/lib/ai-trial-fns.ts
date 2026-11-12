@@ -50,16 +50,18 @@ export const runAiStoryFn = createServerFn({ method: "POST" })
   });
 
 // 섹션 한 장씩 요청(휴대폰 브라우저가 1분 넘게 응답이 없는 요청을 끊는 문제를 피한다).
-export const STORY_TOTAL = 12; // ai-story.server.ts 의 STORY_SECTIONS 개수와 같아야 한다(시험이 확인)
+export const STORY_TOTALS = { basic: 7, deep: 12 } as const; // ai-story.server.ts 의 섹션 개수와 같아야 한다(시험이 확인)
 const priorSchema = z.object({
   id: z.string().max(32),
   title: z.string().max(60),
   headline: z.string().max(200),
   body: z.string().max(4000),
 });
+const depthSchema = z.enum(["basic", "deep"]);
 const sectionSchema = schema.extend({
-  index: z.number().int().min(0).max(STORY_TOTAL - 1),
-  prior: z.array(priorSchema).max(STORY_TOTAL),
+  depth: depthSchema.optional(),
+  index: z.number().int().min(0).max(STORY_TOTALS.deep - 1),
+  prior: z.array(priorSchema).max(STORY_TOTALS.deep),
   fix: z.string().max(600).optional(),
   giveUp: z.boolean().optional(),
   spine: z
@@ -69,6 +71,9 @@ const sectionSchema = schema.extend({
       strengths: z.array(z.string().max(120)).max(4),
       tensions: z.array(z.string().max(120)).max(3),
       answer: z.string().max(300),
+      keywords: z.array(z.string().max(12)).max(3),
+      yearLine: z.string().max(120),
+      themes: z.record(z.string().max(32), z.string().max(140)),
     })
     .optional(),
 });
@@ -88,7 +93,7 @@ export const runAiStorySectionFn = createServerFn({ method: "POST" })
   });
 
 export const runAiStorySpineFn = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => schema.parse(input))
+  .inputValidator((input: unknown) => schema.extend({ depth: depthSchema.optional() }).parse(input))
   .handler(async ({ data }): Promise<StorySpineResponse> => {
     try {
       const { readTrialConfig } = await import("./ai-trial.server");

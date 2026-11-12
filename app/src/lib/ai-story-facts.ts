@@ -62,7 +62,7 @@ export function buildStoryFacts(me: BirthInput, now: Date = new Date()): StoryFa
   ];
   for (const c of cols) {
     if (!c.p) continue;
-    L.push(`- ${c.n}: ${c.p.ko} (하늘 글자 ${STEM_NAME[c.p.stem]}, 땅 글자 ${BRANCH_KO[c.p.branch]}(${EL_WORD[branchElement(c.p.branch)]}))`);
+    L.push(`- ${c.n}: ${c.p.ko} (천간 ${STEM_NAME[c.p.stem]}, 지지 ${BRANCH_KO[c.p.branch]}(${EL_WORD[branchElement(c.p.branch)]}))`);
   }
 
   L.push("[오행 개수(여덟 글자 기준, 시주 없으면 여섯 글자)]");
@@ -79,21 +79,21 @@ export function buildStoryFacts(me: BirthInput, now: Date = new Date()): StoryFa
     const parts: string[] = [];
     if (c.n !== "일주") {
       const g = tenGodOf(dm, c.p.stem);
-      parts.push(`하늘 글자 ${STEM_NAME[c.p.stem]}=${g}`);
+      parts.push(`천간 ${STEM_NAME[c.p.stem]}=${g}`);
       tally[GROUP[g]]!++;
-    } else parts.push("하늘 글자=나 자신(일간)");
+    } else parts.push("천간=나 자신(일간)");
     const main = mainStemOf(c.p.branch);
     const gm = tenGodOf(dm, main);
     tally[GROUP[gm]]!++;
     const hidden = hiddenStemsOf(c.p.branch)
       .map((h) => `${STEM_NAME[h.stem]}${h.main ? "(본기)" : ""}=${tenGodOf(dm, h.stem)}`)
       .join(", ");
-    parts.push(`땅 글자 ${BRANCH_KO[c.p.branch]} 속 글자: ${hidden}`);
+    parts.push(`지지 ${BRANCH_KO[c.p.branch]} 속 글자: ${hidden}`);
     L.push(`- ${c.n}: ${parts.join(" / ")}`);
   }
-  L.push(`- 십성 묶음 개수(하늘 글자와 땅 글자 본기만 셈): ${Object.entries(tally).map(([k, v]) => `${k} ${v}`).join(", ")}`);
+  L.push(`- 십성 묶음 개수(천간과 지지 본기만 셈): ${Object.entries(tally).map(([k, v]) => `${k} ${v}`).join(", ")}`);
 
-  L.push("[12운성(일간이 각 땅 글자에서 놓이는 단계)]");
+  L.push("[12운성(일간이 각 지지에서 놓이는 단계)]");
   L.push(`- ${cols.filter((c) => c.p).map((c) => `${c.n} ${BRANCH_KO[c.p!.branch]}=${stageOf(dm, c.p!.branch)}`).join(", ")}`);
 
   L.push("[신살(일반 표 기준, 해당하는 것만)]");
@@ -136,7 +136,7 @@ export function buildStoryFacts(me: BirthInput, now: Date = new Date()): StoryFa
   L.push("- 물: 검은색·남색, 북쪽, 겨울, 짠맛, 충분한 수면과 수분·수영·휴식, 전통적으로 신장·방광·귀·허리 쪽 관리와 연결");
 
   const line = (r: (typeof dt.daeun)[number]) =>
-    `하늘 글자 ${STEM_NAME[r.stem]}=${r.stemTenGod}, 땅 글자 ${BRANCH_KO[r.branch]}, 일간의 12운성 ${r.stage}, 하늘 글자 기운은 필요한 기운 쪽으로 ${signalWord(r.stemSignal)}, 땅 글자 기운은 ${signalWord(r.branchSignal)}, 원국과: ${r.links.length ? r.links.join("; ") : "발견된 관계 없음"}${r.links.some((l) => l.endsWith(": 충")) ? " (충은 사건이 아니라 변화·이동이 큰 신호)" : ""} → 분위기 판정: ${r.mood.label}`;
+    `천간 ${STEM_NAME[r.stem]}=${r.stemTenGod}, 지지 ${BRANCH_KO[r.branch]}, 일간의 12운성 ${r.stage}, 천간 기운은 필요한 기운 쪽으로 ${signalWord(r.stemSignal)}, 지지 기운은 ${signalWord(r.branchSignal)}, 원국과: ${r.links.length ? r.links.join("; ") : "발견된 관계 없음"}${r.links.some((l) => l.endsWith(": 충")) ? " (충은 사건이 아니라 변화·이동이 큰 신호)" : ""} → 분위기 판정: ${r.mood.label}`;
   if (dt.daeun.length) {
     L.push("[10년 단위 인생 흐름(대운, 참고용) — 분위기는 12운성 단계와 필요한 기운 여부를 센 판정]");
     for (const r of dt.daeun) L.push(`- ${r.now ? "[지금] " : ""}${r.name} 대운 ${r.range}: ${line(r)}`);

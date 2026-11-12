@@ -52,7 +52,7 @@ export function computeDetail(pil: P4, counts: Record<Element, number>, daeun: D
     const sSig = elementSignal(stemElement(stem), need);
     const bSig = elementSignal(branchElement(branch), need);
     const tag = kind === "대운" ? "대운" : "세운";
-    const links = [...stemRelations(base, { label: `${tag} 하늘`, stem }), ...branchRelations(base, { label: `${tag} 땅`, branch })].slice(0, 5);
+    const links = [...stemRelations(base, { label: `${tag} 천간`, stem }), ...branchRelations(base, { label: `${tag} 지지`, branch })].slice(0, 5);
     return {
       kind, name, range, stemTenGod: tenGodOf(dm, stem), stage: STAGE_KO[stg]!, stemSignal: sSig, branchSignal: bSig, links,
       mood: moodOf([stageSignal(stg), sSig, bSig]), now: false, stem, branch, ...extra,

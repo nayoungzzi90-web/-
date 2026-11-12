@@ -50,7 +50,7 @@ export const positionsOf = (p: P4): Pos[] => [
   ...(p.hour ? [{ label: "시", stem: p.hour.stem, branch: p.hour.branch }] : []),
 ];
 
-/** 하늘 글자 관계 발견(원국 안, 또는 외부(대운·세운) 글자와 원국) */
+/** 천간 관계 발견(원국 안, 또는 외부(대운·세운) 글자와 원국) */
 export function stemRelations(base: Pos[], ext?: { label: string; stem: number }, policy = DEFAULT_RELATION_POLICY): string[] {
   const items: { label: string; stem: number }[] = base.filter((x) => x.stem !== null).map((x) => ({ label: `${x.label}간`, stem: x.stem! }));
   const out: string[] = [];
@@ -67,7 +67,7 @@ export function stemRelations(base: Pos[], ext?: { label: string; stem: number }
   return out;
 }
 
-/** 땅 글자 관계 발견. ext 가 있으면 그 글자와 원국의 관계(삼합·방합은 원국 두 글자 + 외부 글자 조합까지) */
+/** 지지 관계 발견. ext 가 있으면 그 글자와 원국의 관계(삼합·방합은 원국 두 글자 + 외부 글자 조합까지) */
 export function branchRelations(base: Pos[], ext?: { label: string; branch: number }): string[] {
   const out: string[] = [];
   const nm = (b: number) => BRANCH_KO2[b]!;
@@ -84,7 +84,7 @@ export function branchRelations(base: Pos[], ext?: { label: string; branch: numb
     if (HYUNG_PAIRS.some(([x, y]) => (a.branch === x && b.branch === y) || (a.branch === y && b.branch === x))) out.push(`${tag}: 형 후보`);
     if (a.branch === b.branch && SELF_HYUNG.includes(a.branch)) out.push(`${tag}: 자형 후보`);
   }
-  // 삼합·방합: 원국(+외부) 땅 글자 집합에서 찾는다. 외부 글자가 있으면 그 글자가 들어간 조합만 적는다
+  // 삼합·방합: 원국(+외부) 지지 집합에서 찾는다. 외부 글자가 있으면 그 글자가 들어간 조합만 적는다
   const set = new Set<number>([...items.map((x) => x.branch), ...(ext ? [ext.branch] : [])]);
   const mentions = (b: number[]) => !ext || b.includes(ext.branch);
   for (const t of SAMHAP) {

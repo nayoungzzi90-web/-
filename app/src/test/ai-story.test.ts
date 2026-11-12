@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { buildStoryFacts } from "@/lib/ai-story-facts";
-import { STORY_SECTIONS, buildStorySystemPrompt, buildStoryUser, checkStory, explainedTerms, runAiStory, runAiStorySection, runAiStorySpine } from "@/lib/ai-story.server";
-import { STORY_TOTAL } from "@/lib/ai-trial-fns";
+import { BASIC_SECTIONS, STORY_SECTIONS, buildStorySystemPrompt, buildStoryUser, checkStory, explainedTerms, runAiStory, runAiStorySection, runAiStorySpine } from "@/lib/ai-story.server";
+import { STORY_TOTALS } from "@/lib/ai-trial-fns";
 import { readTrialConfig } from "@/lib/ai-trial.server";
 import { ScriptedLlm } from "@/lib/reading-core/src/lib/report/llm";
 
@@ -12,27 +12,38 @@ const ENV = {
   LLM_PRICE_IN_PER_M: "1", LLM_PRICE_OUT_PER_M: "5", LLM_REPORT_BUDGET_USD: "0.5", LLM_DAILY_BUDGET_USD: "2",
 };
 const ENDS = ["이에요.", "거든요.", "죠.", "네요.", "답니다.", "잖아요.", "어요."];
-const para = (n: number) => {
+/** 섹션(k)·문장(i)마다 겹치지 않는 낱말(실제 AI는 섹션마다 다른 글을 쓰므로 반복 검수에 걸리지 않게 한다) */
+const stem = (k: number, i: number) => Array.from({ length: 10 }, (_, j) => String.fromCharCode(0xac00 + ((k * 1319 + i * 211 + j * 97 + 53) % 11000))).join("");
+const para = (n: number, k = 0) => {
   const out: string[] = [];
   let len = 0;
   for (let i = 0; len < n; i++) {
-    const sentence = `가나다라마바사아자차${ENDS[i % ENDS.length]}`;
+    const sentence = `${stem(k, i)}${ENDS[i % ENDS.length]}`;
     out.push(sentence);
     len += sentence.length + 1;
   }
-  return out.join(" ");
+  return out.join(" ").slice(0, Math.max(n, 15));
 };
-const goodBody = (chars: number) => Array.from({ length: 5 }, () => para(Math.floor(chars / 5))).join("\n\n");
-const SPINE_JSON = JSON.stringify({ image: "촛불을 든 사람이 늦여름 마른 땅 곁에 서 있는 모습", motifs: ["촛불", "마른 땅", "문 앞"], strengths: ["깊이 파고드는 힘", "꼼꼼한 책임감", "배운 것을 풀어내는 표현"], tensions: ["시작이 늦어짐"], answer: "작게 시작하는 쪽이 잘 맞아요" });
+const goodBody = (chars: number, k = 0) => Array.from({ length: 5 }, (_, j) => para(Math.floor(chars / 5), k * 7 + j)).join("\n\n");
+const ALL_IDS = [...new Set([...STORY_SECTIONS, ...BASIC_SECTIONS].map((s) => s.id))];
+const SPINE_JSON = JSON.stringify({
+  image: "촛불을 든 사람이 늦여름 마른 땅 곁에 서 있는 모습", motifs: ["촛불", "마른 땅", "문 앞"],
+  strengths: ["깊이 파고드는 힘", "꼼꼼한 책임감", "배운 것을 풀어내는 표현"], tensions: ["시작이 늦어짐", "혼자 떠안는 습관"],
+  answer: "작게 시작하는 쪽이 잘 맞아요", keywords: ["꼼꼼함", "깊은 생각", "책임감"], yearLine: "움직이면 길이 열리는 해",
+  themes: ALL_IDS.map((id) => ({ id, message: `${[...STORY_SECTIONS, ...BASIC_SECTIONS].find((s) => s.id === id)!.title} 카드가 홀로 맡을 메시지` })),
+});
 const F = buildStoryFacts(ME, NOW)!;
 /** 섹션마다 검수가 요구하는 내용(필요한 기운·병원 검진·다섯 해·대운 이름)을 갖춘 모의 응답 */
 const extraFor = (user: string) =>
-  user.includes("지금 쓸 섹션: 필요한 기운") ? ` 이 판정은 일반 이론이라 전문가 검증 전인 후보예요. 필요한 기운은 ${F.needName}이에요.`
+  user.includes("지금 쓸 섹션: 필요한 기운") ? ` 이 사람에게 필요한 기운은 ${F.needName}이에요.`
   : user.includes("지금 쓸 섹션: 건강과 마음") ? " 몸이 불편하면 병원 검진을 받아 보세요."
   : user.includes("지금 쓸 섹션: 향후 5년") ? ` ${F.years.map((y) => `${y}년`).join(", ")}을 차례로 살펴요.`
+  : user.includes("지금 쓸 섹션: 지금의 흐름") ? ` 지금은 ${F.daeunNow} 대운이에요. ${F.years.map((y) => `${y}년`).join(", ")}을 차례로 살펴요.`
+  : user.includes("지금 쓸 섹션: 건강·마음") ? " 몸이 불편하면 병원 검진을 받아 보세요."
   : user.includes("지금 쓸 섹션: 대운의 흐름") ? ` 지금은 ${F.daeunNow} 대운이에요.`
   : "";
-const jsonFor = (req: { user: string }) => JSON.stringify({ headline: "봄바람을 기다리며 단단히 뿌리내린 나무", body: `${goodBody(1300)}${extraFor(req.user)}` });
+const kOf = (user: string) => [...STORY_SECTIONS, ...BASIC_SECTIONS].findIndex((s) => user.includes(`지금 쓸 섹션: ${s.title}\n`));
+const jsonFor = (req: { user: string }) => JSON.stringify({ headline: "봄바람을 기다리며 단단히 뿌리내린 나무", body: `${goodBody(1300, Math.max(0, kOf(req.user)))}${extraFor(req.user)}` });
 const sec = STORY_SECTIONS[0]!;
 const facts = { sinsalNames: ["천을귀인", "암록"], hasHour: true };
 
@@ -92,7 +103,7 @@ describe("코드 검수", () => {
     expect(c2("love", `${goodBody(1300)}\n\n올해 이혼수가 들어와요.`)).toContain("OVERCLAIM");
     expect(c2("money", `${goodBody(1300)}\n\n파산 위험이 있어요.`)).toContain("OVERCLAIM");
     // 행동 권유의 "반드시·무조건"은 허용하고, 결과 단정은 막는다
-    expect(c2("balance", `${goodBody(1300)}\n\n물 기운은 반드시 챙겨 보세요. 일반 이론이라 참고만 하세요. 필요한 기운은 물이에요.`)).not.toContain("OVERCLAIM");
+    expect(c2("balance", `${goodBody(1300)}\n\n물 기운은 반드시 챙겨 보세요. 필요한 기운은 물이에요.`)).not.toContain("OVERCLAIM");
     expect(c2("work", `${goodBody(1300)}\n\n이 일은 반드시 성공해요.`)).toContain("OVERCLAIM");
     expect(c2("love", `${goodBody(1300)}\n\n무조건 이혼합니다.`)).toContain("OVERCLAIM");
     expect(c2("now", `${goodBody(1300)}\n\n병오년에는 합화가 성립해서 불로 바뀌어요.`)).toContain("RELATION_CLAIM");
@@ -100,7 +111,7 @@ describe("코드 검수", () => {
     expect(c2("now", `${goodBody(1300)}\n\n충이 풀려요.`)).toContain("RELATION_CLAIM");
     expect(c2("now", `${goodBody(1300)}\n\n오와 미가 합을 이루는 관계 후보가 있어요.`)).not.toContain("RELATION_CLAIM");
     expect(c2("health", goodBody(1300))).toContain("NO_MEDICAL_NOTE");
-    expect(c2("balance", goodBody(1300))).toEqual(expect.arrayContaining(["NO_DISCLAIMER", "NEED_MISSING"]));
+    expect(c2("balance", goodBody(1300))).toContain("NEED_MISSING");
     expect(c2("now", goodBody(1300))).toContain("YEARS_MISSING");
     // 숫자 연도나 간지 이름 중 하나로 그 해를 다룬 것으로 본다
     expect(c2("now", `${goodBody(1300)}\n\n올해 병오년과 내년 정미년을 살펴요.`)).not.toContain("YEARS_MISSING");
@@ -136,7 +147,7 @@ describe("실행(모의 AI)", () => {
     expect(llm.calls).toHaveLength(0);
   });
   it("정상이면 모든 섹션을 쓰고 이름을 채우며 이름·생년월일은 모델에 보내지 않는다", async () => {
-    const llm = new ScriptedLlm((req) => (req.system.includes("기획자") ? SPINE_JSON : JSON.stringify({ headline: "봄바람을 기다리며 단단히 뿌리내린 나무", body: `{{이름}}님은 ${goodBody(1300)}${extraFor(req.user)}` })));
+    const llm = new ScriptedLlm((req) => (req.system.includes("기획자") ? SPINE_JSON : JSON.stringify({ headline: "봄바람을 기다리며 단단히 뿌리내린 나무", body: `{{이름}}님은 ${goodBody(1300, Math.max(0, kOf(req.user)))}${extraFor(req.user)}` })));
     const r = await runAiStory({ me: ME, token: ENV.AI_TRIAL_TOKEN }, { config: readTrialConfig(ENV), now: NOW, writer: () => llm });
     expect(r.ok && r.state === "ready").toBe(true);
     if (r.ok && r.state === "ready") {
@@ -195,9 +206,10 @@ describe("반복 줄이기 도우미", () => {
 });
 
 describe("섹션 한 장씩 실행", () => {
-  const base = { me: ME, token: ENV.AI_TRIAL_TOKEN, index: 0, prior: [] as { id: string; title: string; headline: string; body: string }[] };
+  const base = { me: ME, token: ENV.AI_TRIAL_TOKEN, index: 0, depth: "deep" as const, prior: [] as { id: string; title: string; headline: string; body: string }[] };
   it("화면이 쓰는 섹션 개수 상수가 실제 개수와 같다", () => {
-    expect(STORY_TOTAL).toBe(STORY_SECTIONS.length);
+    expect(STORY_TOTALS.deep).toBe(STORY_SECTIONS.length);
+    expect(STORY_TOTALS.basic).toBe(BASIC_SECTIONS.length);
   });
   it("꺼져 있거나 토큰이 틀리면 AI를 부르지 않는다", async () => {
     const llm = new ScriptedLlm((req) => jsonFor(req));
@@ -256,7 +268,7 @@ describe("섹션 한 장씩 실행", () => {
 describe("글쓰기 지시 story-2와 이야기 줄기", () => {
   it("지시문에 단호한 해석·말투 다양성·이미지·말투 예시가 들어 있다", () => {
     const s = buildStorySystemPrompt();
-    for (const w of ["단호하고 자신 있게", "끝맺음을 다양하게", "[이야기 줄기]", "[말투 예시]", "그대로 쓰지 않는다", "첫 문단 첫 문장에서 결론"]) expect(s).toContain(w);
+    for (const w of ["단호하게 쓰고", "끝맺음을 섞는다", "[이야기 줄기]", "[말투 예시]", "그대로 쓰지 않는다", "첫 문장에서 결론", "중심 메시지"]) expect(s).toContain(w);
     expect(s).not.toMatch(/[\u3400-\u4DBF\u4E00-\u9FFF]/);
   });
   it("사실 블록에 일주 상징 이미지가 들어 있다", () => {
@@ -291,18 +303,128 @@ describe("글쓰기 지시 story-2와 이야기 줄기", () => {
     expect(llm.calls[0]!.factsBlock).toContain("촛불을 든 사람");
   });
 });
-const base2 = { me: ME, token: ENV.AI_TRIAL_TOKEN, index: 0, prior: [] as { id: string; title: string; headline: string; body: string }[] };
+const base2 = { me: ME, token: ENV.AI_TRIAL_TOKEN, index: 0, depth: "deep" as const, prior: [] as { id: string; title: string; headline: string; body: string }[] };
 
 describe("story-3 보완(숫자 표기·이미지·안내 반복)", () => {
   it("지시문이 아라비아 숫자와 안내 1회 원칙을 담고, 대운 섹션 상한이 넉넉하다", () => {
     const s = buildStorySystemPrompt();
     expect(s).toContain("아라비아 숫자");
-    expect(s).toContain("에서만 한 번 밝히고");
+    expect(s).toContain("방어적인 말");
     expect(STORY_SECTIONS.find((x) => x.id === "daeun")!.max).toBeGreaterThanOrEqual(1700);
   });
   it("일지 상징 이미지에 동물이 없다(양 곁의 등불 같은 어색한 반복 방지)", () => {
     const f = buildStoryFacts(ME, NOW)!;
     expect(f.text).not.toMatch(/쥐|소와|호랑이|토끼|용과|뱀|말의|양의|원숭이|닭|개의|돼지/);
     expect(f.text).toContain("늦여름 열기가 남은 마른 땅");
+  });
+});
+
+describe("기본(7카드, 약 4,500자) 구성", () => {
+  const mid = (s: { min: number; max: number }) => (s.min + s.max) / 2;
+  const basicJson = (req: { user: string }) => {
+    const k = Math.max(0, BASIC_SECTIONS.findIndex((s) => req.user.includes(`지금 쓸 섹션: ${s.title}\n`)));
+    const s = BASIC_SECTIONS[k]!;
+    // 공백 포함 길이가 목표(공백 제외 중간값)보다 조금 크게 만들어 최소·최대 사이에 들어오게 한다
+    return JSON.stringify({ headline: "봄바람을 기다리며 단단히 뿌리내린 나무", body: `${goodBody(Math.round(mid(s) * 1.08), k)}${extraFor(req.user)}` });
+  };
+  it("7개 섹션이고 분량 합이 약 4,500자를 겨냥한다", () => {
+    expect(BASIC_SECTIONS.map((s) => s.id)).toEqual(["summary", "inner", "balance", "work", "love", "flow", "advice"]);
+    const total = BASIC_SECTIONS.reduce((a, s) => a + mid(s), 0);
+    expect(total).toBeGreaterThan(4000);
+    expect(total).toBeLessThan(5000);
+    for (const s of BASIC_SECTIONS) {
+      expect(s.min).toBeGreaterThanOrEqual(400);
+      expect(s.max).toBeLessThanOrEqual(900);
+      expect(s.minParas).toBe(3);
+    }
+    expect(BASIC_SECTIONS.find((s) => s.id === "balance")!.requires).toContain("needName");
+    expect(BASIC_SECTIONS.find((s) => s.id === "flow")!.requires).toEqual(expect.arrayContaining(["years", "daeun"]));
+    expect(BASIC_SECTIONS.find((s) => s.id === "advice")!.requires).toContain("medical");
+    expect(BASIC_SECTIONS.filter((s) => s.useConcern).map((s) => s.id)).toEqual(["work", "flow"]);
+  });
+  it("섹션 요청은 기본이 7장이고, 앞 섹션 글 없이(병렬로) 한 장씩 쓴다", async () => {
+    for (let i = 0; i < 7; i++) {
+      const llm = new ScriptedLlm((req) => basicJson(req));
+      const r = await runAiStorySection({ me: ME, token: ENV.AI_TRIAL_TOKEN, index: i, prior: [] }, { config: readTrialConfig(ENV), now: NOW, writer: () => llm });
+      expect(r.ok && r.state === "ready", `섹션 ${i}`).toBe(true);
+      if (r.ok && r.state === "ready") {
+        expect(r.total).toBe(7);
+        expect(r.section.id).toBe(BASIC_SECTIONS[i]!.id);
+      }
+      expect(llm.calls).toHaveLength(1);
+    }
+  });
+  it("줄기의 중심 메시지가 섹션 프롬프트에 들어가고, 다른 섹션의 메시지는 반복 금지로 전달된다", async () => {
+    const llm = new ScriptedLlm((req) => basicJson(req));
+    // 모델이 돌려준 줄기(themes 배열)를 서버가 섹션 id → 메시지 표로 바꾼 결과를 쓴다(화면이 그대로 돌려보낸다)
+    const sp = await runAiStorySpine({ me: ME, token: ENV.AI_TRIAL_TOKEN, depth: "basic" }, { config: readTrialConfig(ENV), now: NOW, writer: () => new ScriptedLlm(() => SPINE_JSON) });
+    const spine = sp.ok && sp.state === "ready" ? sp.spine! : undefined;
+    expect(spine).toBeDefined();
+    await runAiStorySection({ me: ME, token: ENV.AI_TRIAL_TOKEN, index: 3, prior: [], spine }, { config: readTrialConfig(ENV), now: NOW, writer: () => llm });
+    const u = llm.calls[0]!.user;
+    const own = "나에게 맞는 일 카드가 홀로 맡을 메시지"; // 시험 줄기는 id(work)로 메시지를 만든다
+    expect(u).toContain(`이 섹션의 중심 메시지(이것 하나만 다룬다): ${own}`);
+    expect(u).toContain("다른 섹션이 맡은 메시지(여기서 반복하지 않는다)");
+    expect(u).toContain("한마디로 카드가 홀로 맡을 메시지");
+    expect(u.split(own).length - 1).toBe(1); // 자기 메시지는 '다른 섹션' 목록에 들어가지 않는다
+  });
+  it("용어 풀이는 첫 카드에서만 허락하고 나머지는 이름만 쓰게 한다", () => {
+    expect(buildStoryUser(BASIC_SECTIONS[0]!, [], undefined, [], {})).toContain("한 줄씩만 풀어 준다");
+    expect(buildStoryUser(BASIC_SECTIONS[1]!, [], undefined, [], {})).toContain("풀어 쓰지 않고 이름만 쓴다");
+  });
+  it("구상 단계: 기본 섹션 목록으로 중심 메시지를 받고 키워드·올해 한 줄을 돌려준다", async () => {
+    const llm = new ScriptedLlm(() => SPINE_JSON);
+    const r = await runAiStorySpine({ me: ME, token: ENV.AI_TRIAL_TOKEN, depth: "basic" }, { config: readTrialConfig(ENV), now: NOW, writer: () => llm });
+    expect(r.ok && r.state === "ready").toBe(true);
+    if (r.ok && r.state === "ready" && r.spine) {
+      expect(r.spine.keywords).toEqual(["꼼꼼함", "깊은 생각", "책임감"]);
+      expect(r.spine.yearLine).toContain("해");
+      expect(Object.keys(r.spine.themes).sort()).toEqual(BASIC_SECTIONS.map((s) => s.id).sort());
+    }
+    expect(llm.calls[0]!.system).toContain("[섹션 목록]");
+    expect(llm.calls[0]!.system).toContain("balance");
+  });
+  it("구상 결과에 방어적인 말(일반 이론·후보)이 섞이면 버린다", async () => {
+    const llm = new ScriptedLlm(() => SPINE_JSON.replace("꼼꼼함", "일반 이론 후보"));
+    const r = await runAiStorySpine({ me: ME, token: ENV.AI_TRIAL_TOKEN, depth: "basic" }, { config: readTrialConfig(ENV), now: NOW, writer: () => llm });
+    expect(r.ok && r.state === "ready" && r.spine).toBeNull();
+  });
+});
+
+describe("새 검수: 방어 문구·옛 용어·권유 과다·긴 문단·반복", () => {
+  const sec3 = BASIC_SECTIONS[1]!;
+  const ok = (b: string, opts = {}) => checkStory("봄바람을 기다리며 단단히 뿌리내린 나무", b, sec3, facts, opts).map((i) => i.code);
+  const body = goodBody(600, 3);
+  it("기본 카드는 3문단으로 통과한다", () => {
+    expect(ok(goodBody(560, 3).split("\n\n").slice(0, 3).join("\n\n"))).not.toContain("FEW_PARAGRAPHS");
+  });
+  it("방어적인 메타 표현(일반 이론·검증 전·후보)은 글에서 막는다", () => {
+    for (const w of ["일반 이론에 따른 판단이에요", "전문가 검증 전이에요", "용신 후보는 물이에요", "검증 전인 후보예요"])
+      expect(ok(`${body}\n\n${w}.`), w).toContain("META_PHRASE");
+  });
+  it("하늘 글자·땅 글자·원래 사주는 막는다", () => {
+    for (const w of ["하늘 글자에 물이 있어요", "땅 글자가 충을 맞아요", "원래 사주에는 쇠가 없어요"]) expect(ok(`${body}\n\n${w}.`), w).toContain("OLD_TERMS");
+    expect(ok(`${body}\n\n천간에 물이 있고 지지가 충을 맞아요.`)).not.toContain("OLD_TERMS");
+  });
+  it("권유(~세요)가 너무 많으면 막는다", () => {
+    const adv = Array.from({ length: 5 }, (_, j) => `${para(110, 40 + j)} 오늘은 쉬어 보세요.`).join("\n\n");
+    expect(ok(adv)).toContain("ADVICE_HEAVY");
+    expect(ok(`${body}\n\n오늘은 쉬어 보세요.`)).not.toContain("ADVICE_HEAVY");
+  });
+  it("한 문단이 너무 길면 막는다", () => {
+    expect(ok(`${body}\n\n${para(600, 50)}`)).toContain("PARA_LONG");
+  });
+  it("앞 섹션과 같은 구절이 겹치면 막는다", () => {
+    expect(ok(body, { prior: [body] })).toContain("REPEAT_PRIOR");
+    expect(ok(body, { prior: [goodBody(600, 99)] })).not.toContain("REPEAT_PRIOR");
+  });
+  it("모티프를 세 번 넘게 쓰면 막는다", () => {
+    expect(ok(`${body}\n\n촛불. 촛불. 촛불.`, { motifs: ["촛불"] })).toContain("MOTIF_OVERUSE");
+    expect(ok(`${body}\n\n촛불. 촛불.`, { motifs: ["촛불"] })).not.toContain("MOTIF_OVERUSE");
+  });
+  it("지시문이 중심 메시지·방어 문구 금지·한글 전문용어·짧은 문단을 담는다", () => {
+    const s = buildStorySystemPrompt();
+    for (const w of ["중심 메시지", "방어적인 말", "천간, 지지", "2~3문장", "아라비아 숫자"]) expect(s).toContain(w);
+    expect(s).not.toMatch(/[㐀-䶿一-鿿]/);
   });
 });
