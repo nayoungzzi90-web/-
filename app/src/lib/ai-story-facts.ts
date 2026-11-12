@@ -10,7 +10,7 @@ import { computeDetail, signalWord } from "./saju-detail";
 import { tenGodOf, type TenGod } from "./ten-gods";
 import { stageOf } from "./twelve-stages";
 
-import { STEM_NAME, STEM_IMAGE, BRANCH_IMAGE, buildChartPacket, packetJson } from "./saju-packet";
+import { STEM_NAME, STEM_IMAGE, BRANCH_IMAGE, buildChartPacket, packetJson, type ChartPacket } from "./saju-packet";
 export { STEM_NAME, STEM_IMAGE, BRANCH_IMAGE };
 const GROUP: Record<TenGod, string> = {
   비견: "비겁", 겁재: "비겁", 식신: "식상", 상관: "식상", 편재: "재성", 정재: "재성", 편관: "관성", 정관: "관성", 편인: "인성", 정인: "인성",
@@ -20,6 +20,7 @@ const MONTH_OF_BRANCH = [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
 export interface StoryFacts {
   text: string; // 사람이 읽는 사실 블록(검수·시험용 보존)
   json: string; // AI 에 보내는 계산 결과 JSON 패킷
+  packet: ChartPacket; // 같은 패킷(검수와 구상 검증이 쓴다)
   dayStemName: string;
   hasHour: boolean;
   tags: string[]; // 구조 패턴 태그 이름(AI 가 태그에 없는 구조를 말하면 검수에서 막는다)
@@ -141,6 +142,6 @@ export function buildStoryFacts(me: BirthInput, now: Date = new Date()): StoryFa
 
   const built = buildChartPacket(me, now);
   if (!built) return null;
-  return { text: L.join("\n"), json: packetJson(built.packet), tags: built.tags, dayStemName: STEM_NAME[dm]!, hasHour: !!pil.hour, sinsalNames: built.sinsalNames, strengthLabel: st.label, years: dt.years.map((y) => y.year!), yearNames: dt.years.map((y) => y.name), daeunNow: dt.daeunNowName, needName: EL_WORD[need.primary] };
+  return { text: L.join("\n"), json: packetJson(built.packet), packet: built.packet, tags: built.tags, dayStemName: STEM_NAME[dm]!, hasHour: !!pil.hour, sinsalNames: built.sinsalNames, strengthLabel: st.label, years: dt.years.map((y) => y.year!), yearNames: dt.years.map((y) => y.name), daeunNow: dt.daeunNowName, needName: EL_WORD[need.primary] };
 }
 

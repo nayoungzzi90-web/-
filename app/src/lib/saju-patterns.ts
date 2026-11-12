@@ -27,9 +27,15 @@ export const PATTERN_CRITERIA: { 태그: string; 기준: string }[] = [
   { 태그: "재성 과다", 기준: "재성(편재·정재)이 3곳 이상" },
   { 태그: "관성 과다", 기준: "관성(편관·정관)이 3곳 이상" },
   { 태그: "인성 과다", 기준: "인성(편인·정인)이 3곳 이상" },
-  { 태그: "군비쟁재", 기준: "비겁이 3곳 이상이고 재성이 1~2곳(재성이 아예 없거나 3곳 이상이면 해당 없음). 식상이 있으면 근거에 '통관 역할 가능'을 덧붙이고 태그는 유지" },
+  { 태그: "군비쟁재", 기준: "재성이 1~2곳 있고, 비겁이 3곳 이상이거나(비겁이 2곳이고 일간 강약 판정이 신강·신강 경향)일 때 '군비쟁재 주의'. 재성이 없거나 3곳 이상이면 해당 없음. 식상이 있으면 근거에 '통관 역할 가능'을 덧붙이고 태그는 유지" },
   { 태그: "식상생재", 기준: "식상과 재성이 서로 인접한 자리에 있음(같은 기둥 또는 이웃 기둥)" },
-  { 태그: "관인상생", 기준: "관성과 인성이 서로 인접한 자리에 있음" },
+  { 태그: "관인상생", 기준: "정관과 인성(편인·정인)이 서로 인접한 자리에 있음" },
+  { 태그: "살인상생", 기준: "편관과 인성(편인·정인)이 서로 인접한 자리에 있음(압박이 배움·보호로 풀리는 구조)" },
+  { 태그: "편관 중첩", 기준: "편관이 세는 자리 중 2곳 이상" },
+  { 태그: "정관 중첩", 기준: "정관이 세는 자리 중 2곳 이상" },
+  { 태그: "같은 천간 병존", 기준: "연간·월간·일간·시간 네 천간 가운데 같은 글자가 2개 이상(예: 경·경)" },
+  { 태그: "양팔통", 기준: "여덟 글자(시주까지 있을 때) 모두 양의 글자(천간 갑병무경임, 지지 자인진오신술)" },
+  { 태그: "음팔통", 기준: "여덟 글자(시주까지 있을 때) 모두 음의 글자(천간 을정기신계, 지지 축묘사미유해)" },
   { 태그: "재생관", 기준: "재성과 관성이 서로 인접한 자리에 있음(재물·현실의 힘이 직책·책임으로 이어지는 흐름)" },
   { 태그: "현침살", 기준: "신살 일반 표: 원국 글자 중 천간 갑·신, 지지 묘·오·미·신에 해당하는 글자가 3개 이상(출생 시간을 모르면 시주 제외). 책마다 기준이 달라 일반적으로 쓰이는 형태로 정했다" },
   { 태그: "관살혼잡", 기준: "편관과 정관이 모두 있음(위치 무관)" },
@@ -67,7 +73,8 @@ export function buildPatternTags(packet: ChartPacket): PatternTag[] {
   ];
   for (const [g, name, mean] of over) if (of(g).length >= 3) add(name, mean, of(g).map(label));
 
-  if (of("비겁").length >= 3 && of("재성").length >= 1 && of("재성").length <= 2) {
+  const strong = packet.강약.판정.startsWith("신강");
+  if (of("재성").length >= 1 && of("재성").length <= 2 && (of("비겁").length >= 3 || (of("비겁").length >= 2 && strong))) {
     const 통관 = of("식상").length ? ["식상이 있어 비겁의 힘을 재성으로 이어 주는 통관 역할 가능: " + of("식상").map(label).join(", ")] : [];
     add("군비쟁재", "내 편이 많은데 재물 자리는 적어, 같은 것을 두고 주도권을 다투기 쉬운 구조", [...of("비겁").map(label), ...of("재성").map(label), ...통관]);
   }
@@ -75,17 +82,37 @@ export function buildPatternTags(packet: ChartPacket): PatternTag[] {
   if (sg.length) add("식상생재", "재능과 표현이 재물·성과로 이어지는 흐름의 구조", sg);
   const jg2 = pairs(of("재성"), of("관성"));
   if (jg2.length) add("재생관", "재물·현실의 힘이 직책과 책임으로 이어져 자리를 얻어 가는 흐름의 구조", jg2);
-  const gi = pairs(of("관성"), of("인성"));
+  const jgs = of("관성").filter((s) => s.십성 === "정관");
+  const pgs = of("관성").filter((s) => s.십성 === "편관");
+  const gi = pairs(jgs, of("인성"));
   if (gi.length) add("관인상생", "책임과 규칙이 배움·보호로 이어져 자리를 잡아 가는 구조", gi);
-  const pg = of("관성").filter((s) => s.십성 === "편관"), jg = of("관성").filter((s) => s.십성 === "정관");
+  const si = pairs(pgs, of("인성"));
+  if (si.length) add("살인상생", "강한 압박(편관)이 배움·보호(인성)로 풀려 오히려 힘이 되는 구조", si);
+  if (pgs.length >= 2) add("편관 중첩", "편관이 겹쳐 책임과 압박을 크게 짊어지는 구조", pgs.map(label));
+  if (jgs.length >= 2) add("정관 중첩", "정관이 겹쳐 규칙과 체면의 무게가 큰 구조", jgs.map(label));
+  const pg = pgs, jg = jgs;
   if (pg.length && jg.length) add("관살혼잡", "편관과 정관이 함께 있어 요구와 책임이 여러 갈래로 오는 구조", [...pg, ...jg].map(label));
   const sk = pairs(of("식상").filter((s) => s.십성 === "상관"), jg);
   if (sk.length) add("상관견관", "상관과 정관이 맞닿아 규칙·권위에 대한 반발심이 생기기 쉬운 구조", sk);
   const ss = pairs(of("식상").filter((s) => s.십성 === "식신"), pg);
   if (ss.length) add("식신제살", "식신이 편관 곁에서 압박을 다스리는 구조", ss);
+  // 같은 천간 병존 / 양팔통·음팔통
+  const stems = packet.네기둥.map((p) => ({ 기둥: p.기둥, 글자: p.간지[0]! }));
+  const seen = new Map<string, string[]>();
+  for (const x of stems) seen.set(x.글자, [...(seen.get(x.글자) ?? []), `${x.기둥[0]}간`]);
+  const dup = [...seen.entries()].filter(([, v]) => v.length >= 2);
+  if (dup.length) add("같은 천간 병존", "같은 천간이 나란히 있어 그 기운이 겹쳐 힘이 세지는 구조", dup.map(([g, v]) => `${v.join("·")} ${g}`));
+  if (packet.네기둥.length === 4) {
+    const chars = packet.네기둥.flatMap((p) => [p.간지[0]!, p.간지[1]!]);
+    const yang = chars.map((c, i) => (i % 2 === 0 ? STEMS.indexOf(c) % 2 === 0 : BRANCHES.indexOf(c) % 2 === 0));
+    if (yang.every(Boolean)) add("양팔통", "여덟 글자가 모두 양이라 추진력과 직선적인 기운이 강한 구조", packet.네기둥.map((p) => p.간지));
+    if (yang.every((v) => !v)) add("음팔통", "여덟 글자가 모두 음이라 섬세하고 안으로 모으는 기운이 강한 구조", packet.네기둥.map((p) => p.간지));
+  }
   return out;
 }
 
+const STEMS = "갑을병정무기경신임계";
+const BRANCHES = "자축인묘진사오미신유술해";
 const HYEONCHIM_STEM = new Set(["갑", "신"]);
 const HYEONCHIM_BRANCH = new Set(["묘", "오", "미", "신"]);
 /** 현침살(신살 일반 표). 해당하면 위치 목록, 아니면 null. 엔진(sinsal.ts)은 건드리지 않고 이 파일에서만 판정한다. */

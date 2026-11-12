@@ -13,6 +13,7 @@ import { computeDetail, countElements, signalWord, type TimeRow } from "./saju-d
 import { SINSAL12, computeSinsal, twelveSinsal } from "./sinsal";
 import { tenGodOf, type TenGod } from "./ten-gods";
 import { buildPatternTags, findHyeonchim, type PatternTag } from "./saju-patterns";
+import { POSITION_MEANING, buildCoreImage, elementTenGods, type CoreImage } from "./saju-material";
 import { stageOf } from "./twelve-stages";
 
 export const PACKET_VERSION = "packet-1";
@@ -39,6 +40,7 @@ export interface PillarPacket {
   천간: { 이름: string; 오행: string; 십성: string }; // 일주의 천간 십성은 "나 자신(일간)"
   지지: { 이름: string; 오행: string; 본기십성: string; 지장간: HiddenStemPacket[] };
   십이운성: string; // 일간이 이 기둥의 지지에서 놓이는 단계
+  위치의미: string; // 이 기둥이 뜻하는 인생 영역(연주=어린 시절·바깥 인상 등)
 }
 export interface TimePacket {
   이름: string; // 병술 / 병오
@@ -48,13 +50,14 @@ export interface TimePacket {
   천간십성: string;
   십이운성: string;
   필요한기운쪽: { 천간: string; 지지: string }; // 도움 / 부담 / 중립
+  지지본기십성: string;
   원국관계: string[]; // 합·충·형·파·해 발견(성립 여부는 판정하지 않음)
   분위기: string; // 오르는 구간 / 엇갈리는 구간 / 쉬어가는 구간
 }
 export interface ChartPacket {
   버전: string;
   기본: { 성별: string; 나이: string; 출생시간: "있음" | "모름(시주 없음, 시주 얘기는 하지 않는다)" };
-  일주의상징이미지: { 일간: string; 일지: string; 일주: string };
+  일주핵심이미지: CoreImage;
   일간: { 이름: string; 오행: string };
   네기둥: PillarPacket[];
   오행개수: Record<string, number>;
@@ -65,11 +68,12 @@ export interface ChartPacket {
   균형과필요한기운: {
     상태: string; 억부관점: string; 조후관점: string; 필요한기운: string; 우선규칙: string; 원국내작용: string;
     희신: string; 기신: string; 넘치는기운: string[]; 가장적은기운: string[];
+    십성표기: { 필요한기운: string; 희신: string; 기신: string }; // 오행을 일간 기준 십성 이름으로도 적은 것
   };
   구조패턴태그: PatternTag[]; // 일반 명리 이론으로 코드가 판정한 구조. 여기 없는 구조는 말하지 않는다
   원국의합충형파해: string[];
-  신살: { 해당: { 이름: string; 위치: string[] }[]; 십이신살_일지기준: Record<string, string> };
-  대운: { 방향: string; 첫시작나이: number; 목록: TimePacket[]; 교운기: { 연도: number; 나이: number; 안내: string } | null };
+  신살: { 해당: { 이름: string; 위치: string[] }[]; 십이신살_일지기준: Record<string, string>; 십이신살_연지기준: Record<string, string> };
+  대운: { 방향: string; 첫시작나이: number; 지나간대운: TimePacket[]; 목록: TimePacket[]; 교운기: { 연도: number; 나이: number; 안내: string } | null };
   향후5년: TimePacket[];
   오행상징대응: Record<string, { 색: string; 방향: string; 계절: string; 맛: string; 생활: string; 전통적연결부위: string }>;
   해석주의: string[];
@@ -89,12 +93,13 @@ const NOTES = [
   "오행상징대응은 생활 처방 재료이며 의학·종교적 주장이 아니다",
 ];
 
-const timeRow = (r: TimeRow): TimePacket => ({
+const timeRow = (r: TimeRow, dm: number): TimePacket => ({
   이름: r.name,
   구간: r.range,
   ...(r.year !== undefined ? { 연도: r.year } : {}),
   지금: r.now,
   천간십성: r.stemTenGod,
+  지지본기십성: tenGodOf(dm, mainStemOf(r.branch)),
   십이운성: r.stage,
   필요한기운쪽: { 천간: signalWord(r.stemSignal), 지지: signalWord(r.branchSignal) },
   원국관계: r.links,
@@ -142,6 +147,7 @@ export function buildChartPacket(me: BirthInput, now: Date = new Date()): BuiltP
         지장간: hiddenStemsOf(c.p.branch).map((h) => ({ 이름: STEM_NAME[h.stem]!, 본기: h.main, 십성: tenGodOf(dm, h.stem) })),
       },
       십이운성: stageOf(dm, c.p.branch),
+      위치의미: POSITION_MEANING[c.n],
     });
   }
 
@@ -157,6 +163,9 @@ export function buildChartPacket(me: BirthInput, now: Date = new Date()): BuiltP
   const t12 = twelveSinsal(pil)[0]!;
   const sinsal12: Record<string, string> = {};
   for (const c of t12.cells) if (c.idx !== null) sinsal12[c.label] = SINSAL12[c.idx]!;
+  const t12y = twelveSinsal(pil)[1]!;
+  const sinsal12y: Record<string, string> = {};
+  for (const c of t12y.cells) if (c.idx !== null) sinsal12y[c.label] = SINSAL12[c.idx]!;
 
   const mb = pil.month.branch;
   const max = Math.max(...ELEMENTS.map((e) => counts[e]));
@@ -167,7 +176,7 @@ export function buildChartPacket(me: BirthInput, now: Date = new Date()): BuiltP
   const packet: ChartPacket = {
     버전: PACKET_VERSION,
     기본: { 성별: me.gender === "f" ? "여성" : "남성", 나이: `만 ${age}세 안팎`, 출생시간: pil.hour ? "있음" : "모름(시주 없음, 시주 얘기는 하지 않는다)" },
-    일주의상징이미지: { 일간: `${STEM_NAME[dm]}: ${STEM_IMAGE[dm]}`, 일지: `${BRANCH_KO[pil.day.branch]}: ${BRANCH_IMAGE[pil.day.branch]}`, 일주: `${pil.day.ko}: ${STEM_IMAGE[dm]}이(가) ${BRANCH_IMAGE[pil.day.branch]} 곁에 서 있는 모습` },
+    일주핵심이미지: buildCoreImage(dm, pil.day.branch),
     일간: { 이름: STEM_NAME[dm]!, 오행: EL_WORD[stemElement(dm)] },
     네기둥: pillars,
     오행개수: Object.fromEntries(ELEMENTS.map((e) => [EL_WORD[e], counts[e]])),
@@ -193,17 +202,19 @@ export function buildChartPacket(me: BirthInput, now: Date = new Date()): BuiltP
       기신: EL_WORD[need.gi],
       넘치는기운: excess,
       가장적은기운: need.least.map((e) => EL_WORD[e]),
+      십성표기: { 필요한기운: elementTenGods(dm, EL_WORD[need.primary]), 희신: elementTenGods(dm, EL_WORD[need.hee]), 기신: elementTenGods(dm, EL_WORD[need.gi]) },
     },
     구조패턴태그: [],
     원국의합충형파해: dt.natal,
-    신살: { 해당: [...byName.entries()].map(([이름, 위치]) => ({ 이름, 위치 })), 십이신살_일지기준: sinsal12 },
+    신살: { 해당: [...byName.entries()].map(([이름, 위치]) => ({ 이름, 위치 })), 십이신살_일지기준: sinsal12, 십이신살_연지기준: sinsal12y },
     대운: {
       방향: dt.daeun.length ? (computeDaeunForBirth(me)?.forward ? "순행" : "역행") : "",
       첫시작나이: computeDaeunForBirth(me)?.startAge.years ?? 0,
-      목록: dt.daeun.map((r) => timeRow(dRow(r))),
+      지나간대운: dt.daeun.slice(0, Math.max(0, dt.daeun.findIndex((r) => r.now))).map((r) => timeRow(dRow(r), dm)),
+      목록: dt.daeun.map((r) => timeRow(dRow(r), dm)),
       교운기: nextChange ? { 연도: nextChange.year, 나이: nextChange.age, 안내: "바뀌기 전후 1~2년은 환경·마음이 전환되기 쉬운 시기로 본다" } : null,
     },
-    향후5년: dt.years.map(timeRow),
+    향후5년: dt.years.map((r) => timeRow(r, dm)),
     오행상징대응: SYMBOLS,
     해석주의: NOTES,
   };

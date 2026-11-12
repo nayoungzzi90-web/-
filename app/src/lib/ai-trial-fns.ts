@@ -66,14 +66,30 @@ const sectionSchema = schema.extend({
   giveUp: z.boolean().optional(),
   spine: z
     .object({
-      image: z.string().max(200),
-      motifs: z.array(z.string().max(80)).max(4),
-      strengths: z.array(z.string().max(120)).max(4),
-      tensions: z.array(z.string().max(120)).max(3),
-      answer: z.string().max(300),
-      keywords: z.array(z.string().max(12)).max(3),
-      yearLine: z.string().max(120),
-      themes: z.record(z.string().max(32), z.string().max(140)),
+      theme: z.string().max(120),
+      contradiction: z.string().max(160),
+      past: z.array(z.string().max(200)).max(2),
+      concern: z
+        .object({
+          conclusion: z.string().max(200),
+          evidence: z.array(z.string().max(80)).max(3),
+          caution: z.string().max(200),
+          action: z.string().max(200),
+          quotes: z.array(z.string().max(40)).max(4),
+        })
+        .nullable(),
+      cards: z.record(
+        z.string().max(32),
+        z.object({
+          id: z.string().max(32),
+          evidence: z.array(z.string().max(60)).max(3),
+          angle: z.string().max(140),
+          concernLink: z.boolean(),
+          concernSentence: z.string().max(160),
+          contrast: z.enum(["겉속", "과거지금", ""]),
+          motif: z.string().max(30),
+        }),
+      ),
     })
     .optional(),
 });

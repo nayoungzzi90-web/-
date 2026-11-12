@@ -438,13 +438,13 @@ function Glance({ spine, detail, showAnswer }: { spine: StorySpine; detail: NonN
   const now = detail.daeun.find((r) => r.now);
   const year = detail.years[0];
   const rows: [string, string][] = [
-    ["사주 한 장면", spine.image],
-    ...(spine.keywords.length ? ([["성향 키워드", spine.keywords.join(" · ")]] as [string, string][]) : []),
+    ["인생 테마", spine.theme],
+    ["겉과 속", spine.contradiction],
     ["일간의 힘", detail.strength.label],
     ["필요한 기운", EL_WORD[detail.need.primary]],
     ...(now ? ([["지금 대운", `${now.name} 대운 · ${now.mood.label}`]] as [string, string][]) : []),
-    ...(year ? ([["올해", `${year.year}년 ${year.name}년 · ${year.mood.label}${spine.yearLine ? ` — ${spine.yearLine}` : ""}`]] as [string, string][]) : []),
-    ...(showAnswer && spine.answer ? ([["내 고민에 한 줄 답", spine.answer]] as [string, string][]) : []),
+    ...(year ? ([["올해", `${year.year}년 ${year.name}년 · ${year.mood.label}`]] as [string, string][]) : []),
+    ...(showAnswer && spine.concern?.conclusion ? ([["내 고민에 한 줄 답", spine.concern.conclusion]] as [string, string][]) : []),
   ];
   return (
     <section className="hj-card mt-4 bg-[#fff3cf] px-5 py-4" aria-label="한눈에 보기">
