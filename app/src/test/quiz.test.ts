@@ -2,7 +2,12 @@ import { describe, expect, it } from "vitest";
 import { ELEMENTS } from "@/lib/reading";
 import {
   BOARD_MAX,
+  DEEP_TEXT,
   QUESTIONS,
+  TYPE_TEXT,
+  comboTitle,
+  matchCards,
+  modeOn,
   addMember,
   chemistry,
   cleanName,
@@ -124,5 +129,39 @@ describe("케미 한 줄", () => {
       seen.add(c.title);
     }
     expect(seen.size).toBe(5);
+  });
+});
+
+describe("결과 화면 확장 내용", () => {
+  it("다섯 오행 모두 모든 항목이 채워져 있다", () => {
+    for (const e of ELEMENTS) {
+      const d = DEEP_TEXT[e];
+      expect(d.short.length).toBeGreaterThanOrEqual(5);
+      for (const v of [d.love, d.work, d.friends, d.money, d.stress, d.relief, d.mantra]) {
+        expect(v.length).toBeGreaterThan(14);
+      }
+      expect(d.tags).toHaveLength(3);
+      d.tags.forEach((t) => expect(t.startsWith("#")).toBe(true));
+      expect(Object.values(d.lucky).every((x) => x.length > 0)).toBe(true);
+      expect(TYPE_TEXT[e].traits).toHaveLength(3);
+    }
+  });
+  it("본캐×부캐 20가지 별명이 모두 다르다", () => {
+    const titles = new Set<string>();
+    for (const a of ELEMENTS)
+      for (const b of ELEMENTS) if (a !== b) titles.add(comboTitle(a, b));
+    expect(titles.size).toBe(20);
+    ELEMENTS.forEach((e) => expect(modeOn(e).length).toBeGreaterThan(5));
+  });
+  it("잘 맞는 친구 4장은 서로 다른 네 오행이고 나 자신은 없다", () => {
+    for (const me of ELEMENTS) {
+      const cards = matchCards(me);
+      expect(cards).toHaveLength(4);
+      const els = cards.map((c) => c.el);
+      expect(new Set(els).size).toBe(4);
+      expect(els).not.toContain(me);
+    }
+    // 상생: 물이 나무를 살린다 → 나무(솔이)의 '힘이 나는 친구'는 물(고부기)
+    expect(matchCards("목")[0]!.el).toBe("수");
   });
 });

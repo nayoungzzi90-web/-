@@ -123,11 +123,106 @@ body {
   animation: coin 1.6s ease-in-out infinite;
 }
 
+/* ── 퀴즈 결과 연출 ── */
+@keyframes pop-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.55);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.07);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.pop-in {
+  animation: pop-in 0.6s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+}
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.rise-in {
+  animation: rise-in 0.5s ease-out both;
+}
+@keyframes stamp-in {
+  0% {
+    opacity: 0;
+    transform: scale(2.4) rotate(-24deg);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(0.92) rotate(-9deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(-8deg);
+  }
+}
+.stamp-in {
+  animation: stamp-in 0.5s 0.5s cubic-bezier(0.2, 0.9, 0.3, 1) both;
+}
+@keyframes hop {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-14px);
+  }
+}
+.hop {
+  animation: hop 0.7s ease-in-out infinite;
+}
+@keyframes petal-fall {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, -20px, 0) rotate(0deg);
+  }
+  12% {
+    opacity: 0.95;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--dx, 20px), 420px, 0) rotate(300deg);
+  }
+}
+.petal {
+  position: absolute;
+  top: 0;
+  width: 12px;
+  height: 14px;
+  background: #f4a3b5;
+  border-radius: 80% 0 80% 0;
+  pointer-events: none;
+  animation: petal-fall 3.4s ease-in both;
+}
+.wiggle-walk {
+  transition: left 0.45s cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .bob,
   .sway,
-  .coin-toss {
+  .coin-toss,
+  .hop,
+  .petal,
+  .pop-in,
+  .rise-in,
+  .stamp-in {
     animation: none;
+  }
+  .wiggle-walk {
+    transition: none;
   }
 }
 

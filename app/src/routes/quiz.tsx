@@ -1,17 +1,21 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { Friend, FRIEND_IMG, FRIEND_INFO } from "@/components/Friends";
+import { Friend, FRIEND_IMG, FRIEND_INFO, type FriendKind } from "@/components/Friends";
 import { Page } from "@/components/Shell";
 import {
+  DEEP_TEXT,
   NAME_MAX,
   QUESTIONS,
   TYPE_TEXT,
   addMember,
   chemistry,
   cleanName,
+  comboTitle,
   decodeBoard,
   encodeBoard,
   friendName,
+  matchCards,
+  modeOn,
   scoreQuiz,
   summarizeBoard,
   type Member,
@@ -144,6 +148,90 @@ function Board({ members, me }: { members: Member[]; me?: Member }) {
   );
 }
 
+const WALKERS: FriendKind[] = ["seonbi", "ssi", "tiger", "rabbit", "turtle"];
+const CHEER = [
+  "가볍게 시작해 봐요!",
+  "좋아요, 술술~",
+  "벌써 세 번째예요!",
+  "솔직하게 골라 주세요",
+  "절반 가까이 왔어요!",
+  "슬슬 결과가 궁금하죠?",
+  "거의 다 왔어요",
+  "조금만 더 힘내요!",
+  "마지막 한 걸음 전!",
+  "마지막 문항이에요!",
+];
+const NUM = ["①", "②", "③", "④"];
+
+function Sticker({
+  icon,
+  title,
+  tint,
+  children,
+}: {
+  icon: string;
+  title: string;
+  tint: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="hj-card rise-in overflow-hidden bg-[#fffaf0] text-left">
+      <div
+        className="flex items-center gap-2 border-b-2 border-dashed border-[#c9a76e] px-4 py-2"
+        style={{ background: tint }}
+      >
+        <span className="text-xl" aria-hidden>
+          {icon}
+        </span>
+        <p className="font-display text-[17px]">{title}</p>
+      </div>
+      <div className="px-4 py-3 text-[15px] leading-relaxed">{children}</div>
+    </div>
+  );
+}
+
+function ScoreBars({ counts }: { counts: Record<Element, number> }) {
+  return (
+    <div className="space-y-1.5">
+      {ELEMENTS.map((e) => (
+        <div key={e} className="flex items-center gap-2 text-xs">
+          <span className="w-[68px] shrink-0 text-left font-bold">
+            {EL_HANJA[e]} {friendName(e)}
+          </span>
+          <div className="h-4 flex-1 overflow-hidden rounded-full bg-[#efe3c8]">
+            <div
+              className="h-full rounded-full"
+              style={{ width: `${(counts[e] / 8) * 100}%`, background: EL_COLOR[e] }}
+            />
+          </div>
+          <span className="w-7 text-right tabular-nums">{counts[e]}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function Petals() {
+  return (
+    <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 z-30 h-[430px] overflow-hidden">
+      {Array.from({ length: 18 }, (_, i) => (
+        <span
+          key={i}
+          className="petal"
+          style={
+            {
+              left: `${(i * 37 + 9) % 96}%`,
+              animationDelay: `${(i % 9) * 0.28}s`,
+              "--dx": `${((i % 5) - 2) * 28}px`,
+              transform: `scale(${0.7 + (i % 4) * 0.2})`,
+            } as React.CSSProperties
+          }
+        />
+      ))}
+    </div>
+  );
+}
+
 function Quiz() {
   const { b } = Route.useSearch();
   const incoming = useMemo(() => (b ? decodeBoard(b) : null), [b]);
@@ -158,6 +246,28 @@ function Quiz() {
   const [order, setOrder] = useState<number[][]>([]);
   const [answers, setAnswers] = useState<number[]>([]);
   const [note, setNote] = useState("");
+  const [revealed, setRevealed] = useState(false);
+  const [petals, setPetals] = useState(false);
+  // 마지막 문항 뒤 "두근두근" 연출 → 결과 등장. 움직임 줄이기 설정이면 기다리지 않는다.
+  useEffect(() => {
+    if (stage !== "done") {
+      setRevealed(false);
+      setPetals(false);
+      return;
+    }
+    const reduce =
+      typeof window !== "undefined" &&
+      !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    const a = window.setTimeout(() => {
+      setRevealed(true);
+      if (!reduce) setPetals(true);
+    }, reduce ? 0 : 2200);
+    const b = window.setTimeout(() => setPetals(false), reduce ? 0 : 6600);
+    return () => {
+      window.clearTimeout(a);
+      window.clearTimeout(b);
+    };
+  }, [stage]);
 
   const name = cleanName(nick);
   const score = stage === "done" ? scoreQuiz(answers) : null;
@@ -245,6 +355,7 @@ function Quiz() {
     const qi = answers.length;
     const q = QUESTIONS[qi]!;
     const ord = order[qi] ?? [0, 1, 2, 3];
+    const pct = Math.min(94, (qi / QUESTIONS.length) * 100);
     return (
       <Page active="홈">
         <section className="px-4 pt-5">
@@ -256,28 +367,43 @@ function Quiz() {
               {qi + 1} / {QUESTIONS.length}
             </span>
           </div>
-          <div
-            className="mt-2 h-2.5 overflow-hidden rounded-full bg-[#efe3c8]"
-            role="progressbar"
-            aria-valuemin={0}
-            aria-valuemax={QUESTIONS.length}
-            aria-valuenow={qi}
-          >
+          <div className="relative mt-9">
             <div
-              className="h-full rounded-full bg-[var(--stamp)] transition-all"
-              style={{ width: `${(qi / QUESTIONS.length) * 100}%` }}
-            />
+              className="wiggle-walk absolute -top-[42px] z-10"
+              style={{ left: `calc(${pct}% - 20px)` }}
+              aria-hidden
+            >
+              <Friend kind={WALKERS[qi % 5]!} size={44} className="hop" />
+            </div>
+            <div
+              className="h-3 overflow-hidden rounded-full border-2 border-[var(--line)] bg-[#efe3c8]"
+              role="progressbar"
+              aria-valuemin={0}
+              aria-valuemax={QUESTIONS.length}
+              aria-valuenow={qi}
+            >
+              <div
+                className="h-full rounded-full bg-[var(--stamp)] transition-all"
+                style={{ width: `${(qi / QUESTIONS.length) * 100}%` }}
+              />
+            </div>
           </div>
-          <h2 className="font-display mt-6 text-[22px] leading-snug">{q.q}</h2>
+          <p className="mt-2 text-center text-[13px] font-bold text-[var(--stamp)]">
+            {CHEER[qi]}
+          </p>
+          <h2 key={qi} className="font-display rise-in mt-4 text-[22px] leading-snug">
+            {q.q}
+          </h2>
           <ul className="mt-5 space-y-3">
-            {ord.map((oi) => (
-              <li key={oi}>
+            {ord.map((oi, k) => (
+              <li key={`${qi}-${oi}`} className="rise-in" style={{ animationDelay: `${k * 70}ms` }}>
                 <button
                   type="button"
                   onClick={() => choose(oi)}
-                  className="w-full rounded-2xl border-2 border-[var(--line)] bg-[#fffaf0] px-4 py-3.5 text-left text-[15px] leading-snug shadow-[3px_3px_0_var(--line)] active:translate-y-0.5 active:bg-[#f3e6c8]"
+                  className="flex w-full items-start gap-2.5 rounded-2xl border-2 border-[var(--line)] bg-[#fffaf0] px-3.5 py-3.5 text-left text-[15px] leading-snug shadow-[3px_3px_0_var(--line)] active:translate-y-0.5 active:bg-[#f3e6c8]"
                 >
-                  {q.options[oi]!.t}
+                  <span className="font-display mt-px text-[var(--stamp)]">{NUM[k]}</span>
+                  <span>{q.options[oi]!.t}</span>
                 </button>
               </li>
             ))}
@@ -286,6 +412,26 @@ function Quiz() {
       </Page>
     );
   }
+
+  // ── 결과 기다리는 연출 ──
+  if (stage === "done" && !revealed)
+    return (
+      <Page active="홈">
+        <section className="px-4 pt-16 text-center">
+          <p className="font-display text-[26px] leading-snug">
+            {name}님의 오행 친구를
+            <br />
+            찾는 중이에요…
+          </p>
+          <div className="mt-8 flex items-end justify-center gap-1" aria-hidden>
+            {WALKERS.map((k) => (
+              <Friend key={k} kind={k} size={70} className="hop" />
+            ))}
+          </div>
+          <p className="mt-6 text-sm text-[var(--ink-soft)]">두근두근 ♡</p>
+        </section>
+      </Page>
+    );
 
   // ── 결과 ──
   if (!score)
@@ -309,6 +455,10 @@ function Quiz() {
   const t = TYPE_TEXT[me.primary];
   const subKind = EL_FRIEND[me.secondary];
   const inviter = incoming?.at(-1);
+  const d = DEEP_TEXT[me.primary];
+  const ds = DEEP_TEXT[me.secondary];
+  const combo = comboTitle(me.primary, me.secondary);
+  const matches = matchCards(me.primary);
 
   async function sendBoard() {
     const text = `${name}님은 ${info.name}(${t.nick})! 너는 어떤 오행 친구야? 모임 판에 참여해 줘 👇`;
@@ -328,7 +478,7 @@ function Quiz() {
     const r = await shareCard(
       {
         kind,
-        title: t.nick,
+        title: combo,
         sub: `${EL_HANJA[me.primary]}${EL_WORD[me.primary]}의 기운 · 부캐 ${friendName(me.secondary)}`,
         name,
         url: link.split("?")[0]!,
@@ -346,53 +496,163 @@ function Quiz() {
     );
   }
 
+  const shareBtns = (
+    <div className="space-y-3">
+      <button type="button" onClick={() => void sendBoard()} className={btnMain}>
+        {incoming ? "내 결과 넣어서 다음 친구에게 넘기기" : "친구들에게 도전장 보내기"}
+      </button>
+      <button type="button" onClick={() => void saveCard()} className={btnSub}>
+        결과 카드 이미지로 저장·공유
+      </button>
+    </div>
+  );
+
   return (
-    <Page active="홈">
-      <section className="px-4 pt-5 text-center">
+    <Page active="홈" blossom>
+      {petals && <Petals />}
+      <section className="relative z-10 px-4 pt-5 text-center">
         <span className="rounded-full border-2 border-[var(--ink-soft)] px-2 py-0.5 text-[11px] font-bold text-[var(--ink-soft)]">
           재미용 성향 놀이 · 사주 풀이 아님
         </span>
-        <h1 className="font-display mt-2 text-[24px] leading-tight">
+        <h1 className="font-display pop-in mt-2 text-[24px] leading-tight">
           {name}님의 오행 친구는
           <br />
           {info.name}!
         </h1>
         <div
-          className="hj-card mx-auto mt-4 px-4 pb-4 pt-5"
+          className="hj-card pop-in relative mx-auto mt-4 px-4 pb-4 pt-5"
           style={{ background: info.tint }}
         >
+          <span className="stamp-in font-display absolute right-3 top-3 rounded-lg border-[3px] border-[var(--stamp)] bg-[#fffaf0]/90 px-2 py-0.5 text-lg text-[var(--stamp)]">
+            福
+          </span>
           <Friend kind={kind} size={170} className="bob mx-auto" />
-          <p className="font-display mt-1 text-xl">{t.nick}</p>
-          <p className="text-sm">
+          <p className="font-display mt-1 text-[22px] leading-tight">{combo}</p>
+          <p className="mt-0.5 text-sm">
             {EL_HANJA[me.primary]} {EL_WORD[me.primary]}의 기운 · {t.line}
+          </p>
+          <p className="mt-2 flex flex-wrap justify-center gap-1.5">
+            {d.tags.map((tag) => (
+              <span
+                key={tag}
+                className="rounded-full border-2 border-[var(--line)] bg-[#fffaf0] px-2 py-0.5 text-[12px] font-bold"
+              >
+                {tag}
+              </span>
+            ))}
           </p>
         </div>
 
-        <div className="hj-card mt-4 bg-[#fffaf0] p-4 text-left text-[15px] leading-relaxed">
-          <ul className="space-y-1.5">
-            {t.traits.map((x) => (
-              <li key={x}>• {x}</li>
-            ))}
-          </ul>
-          <p className="mt-3">
-            <b>✨ 이럴 때 빛나요</b>
-            <br />
-            {t.shine}
+        <div className="mt-4">{shareBtns}</div>
+        {note && (
+          <p role="status" className="mt-3 text-sm font-bold text-[var(--stamp)]">
+            {note}
           </p>
-          <p className="mt-2">
-            <b>🌱 조심하면 좋은 점</b>
-            <br />
-            {t.care}
-          </p>
-          <p className="mt-2">
-            <b>🍀 오늘의 작은 미션</b>
-            <br />
-            {t.tip}
-          </p>
-          <div className="mt-3 flex items-center gap-2 rounded-xl bg-[#f3e6c8] p-2.5 text-sm">
-            <Friend kind={subKind} size={44} />
+        )}
+
+        <div className="mt-5 space-y-4">
+          <Sticker icon="📊" title="내 오행 점수 (10문항)" tint="#f3e6c8">
+            <ScoreBars counts={score.counts} />
+          </Sticker>
+
+          <Sticker icon="🌟" title={`${info.name}는 이런 친구예요`} tint={info.tint}>
+            <ul className="space-y-1.5">
+              {t.traits.map((x) => (
+                <li key={x}>• {x}</li>
+              ))}
+            </ul>
+            <p className="mt-3">
+              <b>✨ 이럴 때 빛나요</b>
+              <br />
+              {t.shine}
+            </p>
+            <p className="mt-2">
+              <b>🌱 조심하면 좋은 점</b>
+              <br />
+              {t.care}
+            </p>
+          </Sticker>
+
+          <Sticker icon="💘" title="연애할 때" tint="#fbd9d4">
+            {d.love}
+          </Sticker>
+          <Sticker icon="💼" title="일하고 공부할 때" tint="#d3ead9">
+            {d.work}
+          </Sticker>
+          <Sticker icon="🫶" title="친구 사이에서" tint="#f8e4ae">
+            {d.friends}
+          </Sticker>
+          <Sticker icon="👛" title="돈 쓰는 스타일" tint="#d5e1f3">
+            {d.money}
+          </Sticker>
+
+          <Sticker icon="🌧️" title="마음이 지칠 때" tint="#e4e2ee">
             <p>
-              <b>부캐 {friendName(me.secondary)}</b> — {TYPE_TEXT[me.secondary].sub}
+              <b>이럴 때 힘들어요</b>
+              <br />
+              {d.stress}
+            </p>
+            <p className="mt-2">
+              <b>이렇게 풀어 보세요</b>
+              <br />
+              {d.relief}
+            </p>
+          </Sticker>
+
+          <Sticker icon="🎭" title={`숨은 부캐 ${friendName(me.secondary)}`} tint={FRIEND_INFO[subKind].tint}>
+            <div className="flex items-start gap-3">
+              <Friend kind={subKind} size={72} className="shrink-0" />
+              <div>
+                <p>{TYPE_TEXT[me.secondary].sub}.</p>
+                <p className="mt-1.5">
+                  <b>깨어나는 순간</b>
+                  <br />
+                  {modeOn(me.secondary)}
+                </p>
+                <p className="mt-1.5 text-sm text-[var(--ink-soft)]">
+                  “{ds.short}” 모습이 가끔 튀어나와요.
+                </p>
+              </div>
+            </div>
+          </Sticker>
+
+          <Sticker icon="🤝" title="나와 어울리는 친구들" tint="#f3e6c8">
+            <ul className="space-y-3">
+              {matches.map((m) => (
+                <li key={m.label} className="flex items-start gap-2.5">
+                  <Friend kind={EL_FRIEND[m.el]} size={52} className="shrink-0" />
+                  <p className="text-[14px] leading-snug">
+                    <b>{m.label}</b>
+                    <br />
+                    {m.text}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </Sticker>
+
+          <div className="hj-card rise-in border-dashed bg-[#fffdf4] p-4 text-left">
+            <p className="font-display text-lg">🍀 오늘의 주문 · 행운 놀이</p>
+            <p className="font-display mt-2 text-center text-[19px] leading-snug text-[var(--stamp)]">
+              “{d.mantra}”
+            </p>
+            <dl className="mt-3 grid grid-cols-2 gap-2 text-sm">
+              {(
+                [
+                  ["행운의 색", d.lucky.color],
+                  ["행운의 소품", d.lucky.item],
+                  ["행운의 간식", d.lucky.food],
+                  ["행운의 한마디", d.lucky.word],
+                ] as const
+              ).map(([k, v]) => (
+                <div key={k} className="rounded-xl bg-[#f3e6c8] px-3 py-2">
+                  <dt className="text-[11px] text-[var(--ink-soft)]">{k}</dt>
+                  <dd className="font-bold">{v}</dd>
+                </div>
+              ))}
+            </dl>
+            <p className="mt-2 text-[11px] text-[var(--ink-soft)]">
+              🍀 오늘의 작은 미션: {t.tip}
             </p>
           </div>
         </div>
@@ -412,19 +672,7 @@ function Quiz() {
           <Board members={board} me={me} />
         </div>
 
-        <div className="mt-5 space-y-3">
-          <button type="button" onClick={() => void sendBoard()} className={btnMain}>
-            {incoming ? "내 결과 넣어서 다음 친구에게 넘기기" : "친구들에게 도전장 보내기"}
-          </button>
-          <button type="button" onClick={() => void saveCard()} className={btnSub}>
-            결과 카드 이미지로 저장·공유
-          </button>
-        </div>
-        {note && (
-          <p role="status" className="mt-3 text-sm font-bold text-[var(--stamp)]">
-            {note}
-          </p>
-        )}
+        <div className="mt-5">{shareBtns}</div>
         <p className="mt-2 break-all text-[11px] text-[var(--ink-soft)]">{link}</p>
 
         <div className="hj-card mt-6 bg-[var(--su)] p-4 text-left text-[#fffaf0]">
@@ -460,8 +708,7 @@ function Quiz() {
           처음부터 다시 하기
         </button>
         <p className="mt-3 text-[11px] leading-relaxed text-[var(--ink-soft)]">
-          이 테스트는 사주 계산이 아니라 일상 선택으로 보는 성향 놀이예요. 결과는
-          재미로만 봐 주세요.
+          이 테스트는 사주 계산이 아니라 일상 선택으로 보는 성향 놀이예요. 행운 색·소품 같은 항목도 재미로만 봐 주세요.
         </p>
       </section>
     </Page>
