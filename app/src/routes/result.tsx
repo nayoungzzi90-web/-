@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Friend, FRIEND_INFO } from "@/components/Friends";
+import { ManseExtra } from "@/components/ManseExtra";
 import { Basis, Fold, Locked, ManseTable } from "@/components/ResultParts";
 import { Page } from "@/components/Shell";
 import {
@@ -202,6 +203,7 @@ function Result() {
         </div>
 
         <ManseTable pillars={preview.pillars} />
+        <ManseExtra me={me} pillars={preview.pillars} />
 
         <section
           className="mt-4 hj-card bg-[#fffaf0] p-4"
