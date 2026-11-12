@@ -368,9 +368,9 @@ describe("기본(10카드, 카드당 450~550자) 구성", () => {
       expect(s.min).toBe(s.id === "flow" ? 450 : 400);
       expect(s.minParas).toBe(2);
       expect(s.maxParas).toBe(s.id === "flow" ? 3 : 2);
-      expect(s.headlineLen).toEqual([18, 28]);
+      expect(s.headlineLen).toEqual([18, 30]);
       expect(Math.round(s.target! * 0.8)).toBeGreaterThanOrEqual(440);
-      expect(Math.round(s.target! * 0.8)).toBeLessThanOrEqual(s.id === "flow" ? 640 : 520);
+      expect(Math.round(s.target! * 0.8)).toBeLessThanOrEqual(s.id === "flow" ? 640 : s.comfort ? 580 : 520);
     }
     expect(BASIC_SECTIONS.find((s) => s.id === "elements")!.requires).toContain("needName");
     expect(BASIC_SECTIONS.find((s) => s.id === "flow")!.requires).toEqual(expect.arrayContaining(["years", "daeun"]));
@@ -531,8 +531,8 @@ describe("story-6 새 검수(호칭 시작·방어 문장·일상 장면·코칭
     const all = ["괴강살", "금여록", "홍염살", "과숙살", "공망", "현침살", "태극귀인"];
     const used = BASIC_SECTIONS.flatMap((x) => sinsalFor(x.id, all));
     expect([...new Set(used)].sort()).toEqual([...all].sort());
-    expect(used.filter((n) => n === "금여록")).toHaveLength(2); // 재물복·나만의 매력(귀인으로 격려)에서만
-    expect(used.length - new Set(used).size).toBe(1);
+    expect(used.filter((n) => n === "금여록")).toHaveLength(2);
+    expect(used.length - new Set(used).size).toBe(2); // 금여록(재물복·매력), 홍염살(연애운·매력)
   });
   it("프롬프트가 새 규칙(호칭·방어 문구 금지·장면/팁 금지·풍경 제목 금지·구조 태그)을 담는다", () => {
     const p = buildStorySystemPrompt();

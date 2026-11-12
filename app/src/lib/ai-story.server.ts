@@ -37,18 +37,18 @@ export interface StorySection {
 
 // 기본(story-7): 10카드, 카드당 2문단·공백 뺀 400~520자(지금의 흐름만 3문단까지). AI 는 알려 준 목표의 약 80%를 쓰는 경향이 있어 목표(target)를 높게 알려 주고 최솟값은 400으로 둔다.
 // 제목은 공백 포함 18~28자(headlineLen).
-const HL: [number, number] = [18, 28];
-const BASE = { min: 400, max: 640, target: 600, minParas: 2, maxParas: 2, headlineLen: HL, needEvidence: 2 } as const;
+const HL: [number, number] = [18, 30];
+const BASE = { min: 400, max: 660, target: 650, minParas: 2, maxParas: 2, headlineLen: HL, needEvidence: 2 } as const;
 export const BASIC_SECTIONS: StorySection[] = [
   { id: "summary", title: "한마디로", purpose: "JSON의 「일주핵심이미지」로 이 사람을 한 이미지로 정의하고(이 이미지는 이 카드에서만 쓴다) 인생 테마를 단언한다. 일간의 힘(신강·신약)과 계절의 쏠림, 가장 큰 강점과 가장 큰 긴장을 사주 근거와 함께 말한다. 고민은 사주 전체의 방향에서 본 각도로 한 번 연결한다.", ...BASE, useConcern: true, concernMust: true },
-  { id: "inner", title: "나라는 사람", purpose: "겉(연주·월주)과 속(일지·시주)의 대비, 나이 들며 달라지는 면, 바라는 모습과 경계할 기질을 사주 근거로 단언한다. 위로와 인정이 배어 있어야 한다. 고민은 자연스러울 때만 연결한다.", ...BASE, useConcern: true, comfort: true },
+  { id: "inner", title: "나라는 사람", purpose: "겉(연주·월주)과 속(일지·시주)의 대비, 나이 들며 달라지는 면, 바라는 모습과 경계할 기질을 사주 근거로 단언한다. 위로와 인정이 배어 있어야 한다. 고민은 자연스러울 때만 연결한다.", ...BASE, target: 720, useConcern: true, comfort: true },
   { id: "elements", title: "오행", purpose: "JSON의 「오행개수」·「오행요약」으로 오행의 분포와 강약을 밝히고, JSON의 「균형과필요한기운」(필요한기운·희신, 십성표기)으로 사주를 풀어 주는 열쇠 글자를 말한 뒤, 그 기운을 고민과 연결해 쓰는 법을 쓴다. 생활 처방은 쓰지 않는다.", ...BASE, needEvidence: 1, useConcern: true, concernMust: true, requires: ["needName"] },
   { id: "ilju", title: "일주와 십성", purpose: "일주가 만드는 기질과 월주 십성이 만드는 야심과 방향을 말한다. JSON의 「구조패턴태그」와 「네기둥」의 위치의미를 근거로 쓰고, 태그에 있는 구조만 말한다. 고민은 이 기질이 어떤 방향으로 쓰이면 좋은지로 연결한다.", ...BASE, useConcern: true, concernMust: true },
   { id: "work", title: "나에게 맞는 일", purpose: "고민에 결론부터 답한다. 사주 근거로 맞는 일의 방식과 안 맞는 방식, 시작하는 방법을 말한다. 직무 이름만 나열하는 문단은 쓰지 않는다.", ...BASE, useConcern: true, concernMust: true },
   { id: "money", title: "재물복", purpose: "재성의 위치와 종류(편재·정재), 과거의 돈 흐름(지나간 대운), 버는 방식, 돈이 새는 구조와 막는 법을 사주 근거로 말한다. 수익을 보장하지 않고 「그럴 바탕」, 「그릇」으로 말한다. 고민의 돈 문제에 결론부터 답한다.", ...BASE, useConcern: true, concernMust: true },
   { id: "love", title: "연애운", purpose: "일지 십성으로 본 관계 방식, 끌리는 상대, 갈등 지점과 해법을 말한다. 이혼·사별 같은 사건은 예언하지 않는다. 고민은 자연스러울 때만 연결한다.", ...BASE, useConcern: true },
   { id: "blunt", title: "쓴소리", purpose: "가장 큰 약점 하나만 사주 근거(예: 비견·겁재가 강해 주도권 다툼, 편관이 겹쳐 혼자 떠안음)로 직설한다. 악담·낙인 없이 고치는 방향으로 끝낸다. 고민은 자연스러울 때만 연결한다.", ...BASE, useConcern: true },
-  { id: "charm", title: "나만의 매력", purpose: "지금까지 버텨 온 것을 먼저 인정하고 위로한다. 귀인 등 JSON에 있는 길한 신살과 십이운성으로 이 사람이 지닌 매력과 그릇을 격려한다. 고민은 자연스러울 때만 연결한다.", ...BASE, useConcern: true, comfort: true },
+  { id: "charm", title: "나만의 매력", purpose: "지금까지 버텨 온 것을 먼저 인정하고 위로한다. 귀인 등 JSON에 있는 길한 신살과 십이운성으로 이 사람이 지닌 매력과 그릇을 격려한다. 고민은 자연스러울 때만 연결한다.", ...BASE, target: 720, useConcern: true, comfort: true },
   { id: "flow", title: "지금의 흐름", purpose: "현재 대운(JSON 「대운」)의 의미와 구간 판정, 다음 대운으로 바뀌는 때를 말하고, 「향후5년」을 「2026년 병오년」처럼 연도와 간지 이름으로 해마다 한 줄씩 모두 쓴다. 각 해는 분위기와 원국관계(충·합)를 근거로 하고, 충이 있는 해는 사건이 아니라 변화·이동이 큰 해로 말한다. 고민을 실행하기 좋은 시기를 연도로 짚는다.", ...BASE, min: 450, max: 900, target: 760, maxParas: 3, needEvidence: 0, useConcern: true, concernMust: true, requires: ["years", "daeun"] },
 ];
 
@@ -58,9 +58,9 @@ export const SINSAL_CARD: Record<string, string[]> = {
   ilju: ["양인살", "천라", "지망", "귀문관살", "원진살"],
   work: ["역마살", "문창귀인", "학당귀인"],
   money: ["금여록", "암록"], // 금여록·암록은 나만의 매력 카드에서도 쓸 수 있다(귀인으로 격려)
-  love: ["홍염살", "도화살", "과숙살"],
+  love: ["홍염살", "도화살", "과숙살"], // 홍염살·도화살은 나만의 매력 카드와 공유한다
   blunt: ["공망", "현침살"],
-  charm: ["태극귀인", "천을귀인", "천덕귀인", "월덕귀인", "금여록", "암록"],
+  charm: ["태극귀인", "천을귀인", "천덕귀인", "월덕귀인", "금여록", "암록", "홍염살", "도화살"],
 };
 export const sinsalFor = (sectionId: string, names: string[]) => (SINSAL_CARD[sectionId] ?? []).filter((n) => names.includes(n));
 
@@ -173,7 +173,7 @@ export function buildStoryUser(
     `이 섹션의 목적: ${section.purpose}`,
     ctx.spine && ctx.sections ? spineBlockFor(ctx.spine, section.id, ctx.sections) : "",
     `분량: 공백을 뺀 글자 수로 약 ${targetChars(section)}자를 목표로 쓴다(${section.min}자 미만이면 다시 써야 하고 ${section.max}자를 넘기면 안 된다). ${basic ? paras : "5~6문단"}, 문단마다 3~4문장.`,
-    basic ? `제목(title): 공백 포함 ${section.headlineLen![0] + 2}~${section.headlineLen![1]}자, 「이 사람의 이야기 + 비유」 형태${plan?.motif ? `, 제목 소재는 「${plan.motif}」` : ", 카드 주제에 맞는 소재"}로 새로 짓는다. 풍경만 묘사하지 않고, 십성 용어와 숫자는 제목에 쓰지 않으며, 다른 카드 제목과 소재가 겹치지 않게 한다.` : "",
+    basic ? `제목(title): 공백 포함 ${section.headlineLen![0] + 2}~${section.headlineLen![1] - 2}자, 「이 사람의 이야기 + 비유」 형태${plan?.motif ? `, 제목 소재는 「${plan.motif}」` : ", 카드 주제에 맞는 소재"}로 새로 짓는다. 풍경만 묘사하지 않고, 십성 용어와 숫자는 제목에 쓰지 않으며, 다른 카드 제목과 소재가 겹치지 않게 한다.` : "",
     basic ? `호칭: 「${name}님」. 문단 1은 「${name}님은」 또는 「${name}님의 사주는」으로 시작해 위치가 붙은 사주 근거(서로 다른 위치 두 가지 이상${section.needEvidence === 1 ? ", 이 카드는 한 가지 이상" : ""}${section.needEvidence === 0 ? ", 이 카드는 대운·세운 이름으로 근거를 댄다" : ""})를 대고 성향을 단언한다. 문단 2는 ${askConcern ? "고민과 연결한 결론(결론을 먼저)" : "조언과 경고"}을 쓴다. 일상 장면 예시와 생활 팁은 쓰지 않는다.` : "",
     basic ? (ctx.sinsal?.length ? `이 카드에서 다룰 신살(JSON에 있는 것, 이름 뒤에 바로 한 구절로 뜻을 붙이고 이 카드에서 반드시 쓴다): ${ctx.sinsal.join(", ")}` : "이 카드에서는 신살을 언급하지 않는다.") : "",
     `용어: 십성·신살·구조 이름은 한글 그대로 쓰고 바로 뒤에 한 구절로 뜻을 붙인다. 일주·일간 같은 기초 개념의 입문 설명은 하지 않는다.${basic ? " 「~일 수 있어요」는 한 번 이하." : ""}`,
@@ -316,14 +316,14 @@ export function checkStory(
     if (n < lo || n > hi) f("HEADLINE", `제목은 공백 포함 ${n}자예요. ${lo}~${hi}자 비유 한 줄로 써요.`);
     if (/[0-9]|십성|신강|신약|사주|비견|겁재|식신|상관|편재|정재|편관|정관|편인|정인|일간|일지|대운|운성/.test(headline)) f("HEADLINE_PLAIN", "제목에는 용어와 숫자를 쓰지 않고, 장면이 보이는 비유로만 써요.");
     // 앞 카드 제목과 두 낱말 이상 겹치면 같은 그림을 되풀이한 것으로 본다
-    const words = (t: string) => new Set((t.match(/[가-힣]+/g) ?? []).map((w) => (w.length > 1 ? w.replace(/(에서|처럼|으로|은|는|이|가|을|를|의|에|로|과|와|도)$/, "") : w)).filter((w) => w.length >= 1 && !["그", "더", "한", "두", "속"].includes(w)));
+    const words = (t: string) => new Set((t.match(/[가-힣]+/g) ?? []).map((w) => (w.length > 1 ? w.replace(/(에서|처럼|으로|은|는|이|가|을|를|의|에|로|과|와|도)$/, "") : w)).filter((w) => w.length >= 1 && !["그", "더", "한", "두", "속", "사람", "자기", "이야기", "나의", "삶", "길", "배움", "자신", "나", "내"].includes(w)));
     const mine = words(headline);
     for (const p of opts.priorHeadlines ?? []) {
       const pw = words(p);
       const shared = [...pw].filter((w) => mine.has(w));
       const long = shared.filter((w) => w.length >= 2);
       const firstEq = (headline.match(/[가-힣]{2,}/)?.[0] ?? "x") === (p.match(/[가-힣]{2,}/)?.[0] ?? "y");
-      if (long.length >= 2 || firstEq || (shared.length >= 3 && long.length >= 1)) { f("HEADLINE_REPEAT", `제목이 앞 카드 제목과 「${shared.join(" ")}」이(가) 겹쳐요. 다른 소재로 새로 지어요.`); break; }
+      if (long.length >= 2 || firstEq || (shared.length >= 3 && long.length >= 1)) { f("HEADLINE_REPEAT", `제목이 앞 카드 제목과 「${(shared.length ? shared : [headline.match(/[가-힣]{2,}/)?.[0] ?? ""]).join(" ")}」이(가) 겹쳐요(첫 낱말이 같아요). 다른 소재로 새로 지어요.`); break; }
     }
   } else {
     const hl = headline.replace(/\s/g, "").length;
