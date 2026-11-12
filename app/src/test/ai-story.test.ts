@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { buildStoryFacts } from "@/lib/ai-story-facts";
-import { BASIC_SECTIONS, STORY_SECTIONS, buildStorySystemPrompt, buildStoryUser, checkStory, explainedTerms, runAiStory, runAiStorySection, runAiStorySpine } from "@/lib/ai-story.server";
+import { BASIC_SECTIONS, STORY_SECTIONS, targetChars, buildStorySystemPrompt, buildStoryUser, checkStory, explainedTerms, runAiStory, runAiStorySection, runAiStorySpine } from "@/lib/ai-story.server";
 import { STORY_TOTALS } from "@/lib/ai-trial-fns";
 import { readTrialConfig } from "@/lib/ai-trial.server";
 import { ScriptedLlm } from "@/lib/reading-core/src/lib/report/llm";
@@ -329,12 +329,16 @@ describe("기본(7카드, 약 4,500자) 구성", () => {
   };
   it("7개 섹션이고 분량 합이 약 4,500자를 겨냥한다", () => {
     expect(BASIC_SECTIONS.map((s) => s.id)).toEqual(["summary", "inner", "balance", "work", "love", "flow", "advice"]);
-    const total = BASIC_SECTIONS.reduce((a, s) => a + mid(s), 0);
-    expect(total).toBeGreaterThan(4000);
-    expect(total).toBeLessThan(5000);
+    // AI 는 알려 준 목표의 약 65%를 쓰는 경향이 있어(실측), 목표 합 6,700~7,100자가 약 4,500자를 겨냥한다
+    const targets = BASIC_SECTIONS.reduce((a, s) => a + targetChars(s), 0);
+    expect(targets).toBeGreaterThan(6600);
+    expect(targets).toBeLessThan(7200);
+    expect(Math.round(targets * 0.65)).toBeGreaterThan(4200);
+    expect(Math.round(targets * 0.65)).toBeLessThan(4800);
     for (const s of BASIC_SECTIONS) {
       expect(s.min).toBeGreaterThanOrEqual(400);
-      expect(s.max).toBeLessThanOrEqual(900);
+      expect(s.min).toBeLessThan(s.target! * 0.6); // 자연스럽게 나오는 길이가 최솟값 아래로 떨어지지 않게
+      expect(s.max).toBeGreaterThanOrEqual(s.target!);
       expect(s.minParas).toBe(3);
     }
     expect(BASIC_SECTIONS.find((s) => s.id === "balance")!.requires).toContain("needName");
@@ -424,7 +428,7 @@ describe("새 검수: 방어 문구·옛 용어·권유 과다·긴 문단·반�
   });
   it("지시문이 중심 메시지·방어 문구 금지·한글 전문용어·짧은 문단을 담는다", () => {
     const s = buildStorySystemPrompt();
-    for (const w of ["중심 메시지", "방어적인 말", "천간, 지지", "2~3문장", "아라비아 숫자"]) expect(s).toContain(w);
+    for (const w of ["중심 메시지", "방어적인 말", "천간, 지지", "3~4문장", "아라비아 숫자"]) expect(s).toContain(w);
     expect(s).not.toMatch(/[㐀-䶿一-鿿]/);
   });
 });
