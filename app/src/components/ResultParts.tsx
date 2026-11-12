@@ -94,6 +94,46 @@ export function Fold({
   );
 }
 
+/** 접지 않고 바로 읽는 풀이 카드 */
+export function ReadingCard({
+  eyebrow,
+  title,
+  friend,
+  summary,
+  children,
+}: {
+  eyebrow: string;
+  title: string;
+  friend: FriendKind;
+  summary: string[];
+  children: ReactNode;
+}) {
+  return (
+    <article className="hj-card mt-3 bg-[#fffaf0] px-4 pb-4 pt-3.5">
+      <header className="flex items-center gap-3">
+        <span className="shrink-0 rounded-2xl bg-[var(--paper-2)] p-0.5">
+          <Friend kind={friend} size={44} />
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="text-[11px] font-extrabold text-[var(--stamp)]">{eyebrow}</p>
+          <h3 className="font-display text-[18px] leading-snug">{title}</h3>
+        </div>
+      </header>
+      <ul className="mt-3 space-y-1 rounded-xl bg-[var(--paper-2)] px-3 py-2.5 text-[14px] font-bold leading-relaxed">
+        {summary.map((s) => (
+          <li key={s} className="flex gap-2">
+            <span className="text-[var(--stamp)]" aria-hidden>
+              ·
+            </span>
+            {s}
+          </li>
+        ))}
+      </ul>
+      <div className="mt-3 space-y-3 text-[15px] leading-[1.8]">{children}</div>
+    </article>
+  );
+}
+
 export function Locked({
   eyebrow,
   title,

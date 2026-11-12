@@ -33,23 +33,18 @@ function Ref({
   children: ReactNode;
 }) {
   return (
-    <details className="hj-card group mt-3 overflow-hidden bg-[#fffaf0]">
-      <summary className="flex cursor-pointer list-none items-center gap-2 px-4 py-3">
-        <span className="font-display flex-1 text-[17px]">{title}</span>
+    <section className="hj-card mt-3 bg-[#fffaf0] px-3 pb-4 pt-3">
+      <div className="mb-2 flex items-center gap-2">
+        <h3 className="font-display flex-1 text-[17px]">{title}</h3>
         <span className="rounded-md border-[1.5px] border-[var(--stamp)] px-1.5 py-0.5 text-[11px] font-extrabold text-[var(--stamp)]">
           {badge}
         </span>
-        <span className="text-xl transition-transform group-open:rotate-180" aria-hidden>
-          ⌄
-        </span>
-      </summary>
-      <div className="px-3 pb-4">
-        <p className="mb-3 rounded-lg bg-[#f3e6c8] px-3 py-2 text-[12px] leading-relaxed">
-          {note}
-        </p>
-        {children}
       </div>
-    </details>
+      <p className="mb-3 rounded-lg bg-[#f3e6c8] px-3 py-2 text-[12px] leading-relaxed">
+        {note}
+      </p>
+      {children}
+    </section>
   );
 }
 
@@ -107,7 +102,18 @@ export function ManseExtra({ me, pillars }: { me: BirthInput; pillars: Pillars }
   });
 
   return (
-    <section aria-label="만세력 참고 표" className="mt-2">
+    <details aria-label="만세력 참고 표" className="group mt-6">
+      <summary className="hj-card flex cursor-pointer list-none items-center gap-2 bg-[#f3e6c8] px-4 py-3">
+        <span className="min-w-0 flex-1">
+          <span className="font-display block text-[16px]">전문가용 참고 표 보기</span>
+          <span className="block text-[12px] text-[var(--ink-soft)]">
+            십성 · 지장간 · 12운성 · 신살 · 대운 (검증 전 참고 자료)
+          </span>
+        </span>
+        <span className="text-xl transition-transform group-open:rotate-180" aria-hidden>
+          ⌄
+        </span>
+      </summary>
       <Ref
         title="십성 표"
         badge="참고"
@@ -308,6 +314,6 @@ export function ManseExtra({ me, pillars }: { me: BirthInput; pillars: Pillars }
           </p>
         </Ref>
       )}
-    </section>
+    </details>
   );
 }

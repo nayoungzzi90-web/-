@@ -3,7 +3,7 @@ import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Friend, FRIEND_INFO } from "@/components/Friends";
 import { ManseExtra } from "@/components/ManseExtra";
 import { computeDaeunForBirth } from "@/lib/daeun";
-import { Basis, Fold, Locked, ManseTable } from "@/components/ResultParts";
+import { Basis, Locked, ManseTable, ReadingCard } from "@/components/ResultParts";
 import { Page } from "@/components/Shell";
 import {
   buildReading,
@@ -62,6 +62,23 @@ function Result() {
         </section>
       </Page>
     );
+
+  const CHAPTER_DEF = [
+    { id: "ch-me", title: "나는 어떤 사람일까", ids: ["summary", "inner", "elements", "day", "season"] },
+    { id: "ch-stage", title: "인생 무대와 사랑·일·사람", ids: ["stage", "love", "work", "people"] },
+    { id: "ch-now", title: "올해와 앞으로", ids: ["year", "daeun"] },
+    { id: "ch-tip", title: "쓴소리와 작은 처방", ids: ["advice", "charm", "habit"] },
+  ];
+  const known = new Set(CHAPTER_DEF.flatMap((c) => c.ids));
+  const chapters = CHAPTER_DEF.map((c, i) => ({
+    id: c.id,
+    title: c.title,
+    items: [
+      ...rd.sections.filter((s) => c.ids.includes(s.id)),
+      // 새 섹션이 생겨도 빠지지 않게 마지막 장 끝에 붙인다
+      ...(i === CHAPTER_DEF.length - 1 ? rd.sections.filter((s) => !known.has(s.id)) : []),
+    ],
+  })).filter((c) => c.items.length > 0);
 
   const info = FRIEND_INFO[rd.friend];
   const [yy, mm, dd] = me.date.split("-");
@@ -216,7 +233,6 @@ function Result() {
         </div>
 
         <ManseTable pillars={preview.pillars} />
-        <ManseExtra me={me} pillars={preview.pillars} />
 
         <section
           className="mt-4 hj-card bg-[#fffaf0] p-4"
@@ -245,21 +261,46 @@ function Result() {
         </section>
 
         <h2 className="font-display mt-7 px-1 text-xl">오행 친구의 풀이</h2>
-        {rd.sections.map((s, i) => (
-          <Fold
-            key={s.id}
-            open={i === 0}
-            eyebrow={s.eyebrow}
-            title={s.title}
-            friend={s.friend}
-            summary={s.summary}
-          >
-            {s.body.map((b) => (
-              <p key={b}>{b}</p>
+        <nav
+          aria-label="풀이 바로가기"
+          className="mt-2 flex flex-wrap gap-1.5 px-1"
+        >
+          {chapters.map((c, i) => (
+            <a
+              key={c.id}
+              href={`#${c.id}`}
+              className="rounded-full border-2 border-[var(--line)] bg-[#fffaf0] px-3 py-1 text-[12px] font-extrabold"
+            >
+              {i + 1}. {c.title}
+            </a>
+          ))}
+        </nav>
+        {chapters.map((c, ci) => (
+          <section key={c.id} id={c.id} className="scroll-mt-4">
+            <h3 className="font-display mt-6 px-1 text-[19px]">
+              <span className="mr-1.5 inline-block rounded-md bg-[var(--stamp)] px-1.5 text-[14px] text-white">
+                {ci + 1}
+              </span>
+              {c.title}
+            </h3>
+            {c.items.map((s) => (
+              <ReadingCard
+                key={s.id}
+                eyebrow={s.eyebrow}
+                title={s.title}
+                friend={s.friend}
+                summary={s.summary}
+              >
+                {s.body.map((b) => (
+                  <p key={b}>{b}</p>
+                ))}
+                <Basis items={s.basis} />
+              </ReadingCard>
             ))}
-            <Basis items={s.basis} />
-          </Fold>
+          </section>
         ))}
+
+        <ManseExtra me={me} pillars={preview.pillars} />
 
         <Locked
           eyebrow="연애운"
