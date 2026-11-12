@@ -51,7 +51,7 @@ export const FRIENDS: Record<
     img: "/restore/characters/dalto.png",
   },
   geobuki: {
-    name: "거북기",
+    name: "고부기",
     element: "수",
     hanja: "水",
     role: "아기 거북",

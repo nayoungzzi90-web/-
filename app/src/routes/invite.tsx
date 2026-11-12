@@ -47,7 +47,7 @@ function Invite() {
         <h1 className="font-display mt-1 text-[26px] leading-tight">
           {p.name}님의 오행 친구는
           <br />
-          {info.name}이에요!
+          {info.name}!
         </h1>
         <div
           className="hj-card mx-auto mt-5 max-w-[300px] px-4 pb-4 pt-5"

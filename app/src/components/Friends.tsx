@@ -22,7 +22,7 @@ export const FRIEND_INFO: Record<
     tint: "#f7e0a8",
   },
   rabbit: { name: "달토", role: "달토끼", element: "금", tint: "#e4e2ee" },
-  turtle: { name: "거북기", role: "아기 거북", element: "수", tint: "#cdddf3" },
+  turtle: { name: "고부기", role: "아기 거북", element: "수", tint: "#cdddf3" },
 };
 
 // 몸통 아래(옷·목도리) 색
