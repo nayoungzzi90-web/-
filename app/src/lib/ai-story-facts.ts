@@ -2,13 +2,13 @@
 // 계산은 앱 엔진이 한 것 그대로이며, AI 는 여기 없는 간지·십성·12운성·신살·대운을 만들거나 바꾸지 못한다.
 import { computeDaeunForBirth } from "./daeun";
 import { mainStemOf, hiddenStemsOf } from "./hidden-stems";
-import { ganjiYearAt, yearGanji, EL_WORD, ELEMENTS, branchElement, stemElement } from "./reading";
+import { EL_WORD, ELEMENTS, branchElement, stemElement } from "./reading";
 import { kstToday, type BirthInput } from "./saju";
 import { BRANCH_KO, previewFromBirthInput } from "./saju-engine";
 import { computeSinsal, twelveSinsal, SINSAL12 } from "./sinsal";
-import { branchLinks, computeNeed, computeStrength, elementSignal, moodOf, stageSignal } from "./ai-story-judgment";
+import { computeDetail, signalWord } from "./saju-detail";
 import { tenGodOf, type TenGod } from "./ten-gods";
-import { STAGE_KO, stageIndex, stageOf } from "./twelve-stages";
+import { stageOf } from "./twelve-stages";
 
 export const STEM_NAME = ["갑목", "을목", "병화", "정화", "무토", "기토", "경금", "신금", "임수", "계수"] as const;
 const GROUP: Record<TenGod, string> = {
@@ -113,9 +113,9 @@ export function buildStoryFacts(me: BirthInput, now: Date = new Date()): StoryFa
   L.push("[태어난 달]");
   L.push(`- 월지 ${BRANCH_KO[mb]}, 대략 양력 ${MONTH_OF_BRANCH[mb]}월 무렵의 절기 달(달력의 달과 절기 달은 다를 수 있다)`);
 
-  // ── 일반 이론 판정(점수 합산 없음, 전문가 검증 전) ──
-  const st = computeStrength(pil);
-  const need = computeNeed(pil, counts, st);
+  // ── 일반 이론 판정(점수 합산 없음, 전문가 검증 전). 화면의 상세 분석 보기와 같은 계산(saju-detail)을 쓴다 ──
+  const dt = computeDetail(pil, counts, computeDaeunForBirth(me), now);
+  const { strength: st, need, effect: eff } = dt;
   L.push("[일간 강약 관찰(일반 이론, 전문가 검증 전인 후보 판정)]");
   for (const e of st.evidence) L.push(`- ${e}`);
   L.push(`- 결과: ${st.label} (득령·득지·득세 가운데 ${[st.ryeong, st.ji, st.se].filter(Boolean).length}개가 예). 이 계산은 종격 같은 특수 구조와 합충의 변화는 반영하지 않는다`);
@@ -123,8 +123,11 @@ export function buildStoryFacts(me: BirthInput, now: Date = new Date()): StoryFa
   L.push(`- 억부 관점: ${need.eokbuNote}`);
   L.push(`- 조후 관점: ${need.johuNote}`);
   L.push(`- 생활 처방용 필요한 기운(용신 후보): ${EL_WORD[need.primary]} — ${need.primaryReason}`);
+  L.push(`- 필요한 기운의 원국 내 작용 관찰(있다와 힘을 쓴다는 다르다): ${eff.evidence}`);
   L.push(`- 필요한 기운을 낳아 주는 기운(희신 후보): ${EL_WORD[need.hee]} / 필요한 기운을 누르는 기운(기신 후보): ${EL_WORD[need.gi]}`);
   L.push(`- 넘치는 기운: ${need.excess.length ? need.excess.map((e) => EL_WORD[e]).join("·") : "뚜렷하게 넘치는 오행은 없음"} / 가장 적은 기운: ${need.least.map((e) => EL_WORD[e]).join("·")}`);
+  L.push("[원국의 합·충·형·파·해 관계(발견만 한다. 합화·삼합이 실제로 성립했는지와 충이 풀렸는지는 판정하지 않는다)]");
+  L.push(dt.natal.length ? dt.natal.map((x) => `- ${x}`).join("\n") : "- 발견된 관계 없음");
   L.push("[오행 상징 대응(일반 표, 생활 처방 재료. 의학·종교적 주장이 아니다)]");
   L.push("- 나무: 초록·청록색, 동쪽, 봄, 신맛, 걷기·스트레칭·식물 가꾸기, 전통적으로 간·눈·근육 쪽 관리와 연결");
   L.push("- 불: 붉은색·주황색, 남쪽, 여름, 쓴맛, 햇볕 쬐기·활동적인 운동·사람 만나기, 전통적으로 심장·혈압·혈액순환 쪽 관리와 연결");
@@ -132,39 +135,16 @@ export function buildStoryFacts(me: BirthInput, now: Date = new Date()): StoryFa
   L.push("- 쇠: 흰색·은색, 서쪽, 가을, 매운맛, 정리정돈·호흡 운동, 전통적으로 폐·호흡기·피부 쪽 관리와 연결");
   L.push("- 물: 검은색·남색, 북쪽, 겨울, 짠맛, 충분한 수면과 수분·수영·휴식, 전통적으로 신장·방광·귀·허리 쪽 관리와 연결");
 
-  const d = computeDaeunForBirth(me);
-  let daeunNow: string | null = null;
-  if (d) {
-    const nowAge = (now.getTime() - d.birthUtcMs) / (365.2425 * 86_400_000);
-    let idx = -1;
-    d.pillars.forEach((x, i) => { if (x.startAgeYears <= nowAge) idx = i; });
+  const line = (r: (typeof dt.daeun)[number]) =>
+    `하늘 글자 ${STEM_NAME[r.stem]}=${r.stemTenGod}, 땅 글자 ${BRANCH_KO[r.branch]}, 일간의 12운성 ${r.stage}, 하늘 글자 기운은 필요한 기운 쪽으로 ${signalWord(r.stemSignal)}, 땅 글자 기운은 ${signalWord(r.branchSignal)}, 원국과: ${r.links.length ? r.links.join("; ") : "발견된 관계 없음"}${r.links.some((l) => l.endsWith(": 충")) ? " (충은 사건이 아니라 변화·이동이 큰 신호)" : ""} → 분위기 판정: ${r.mood.label}`;
+  if (dt.daeun.length) {
     L.push("[10년 단위 인생 흐름(대운, 참고용) — 분위기는 12운성 단계와 필요한 기운 여부를 센 판정]");
-    L.push(`- ${d.forward ? "순행" : "역행"}, 첫 흐름은 만 ${d.startAge.years}세 무렵에 시작`);
-    d.pillars.forEach((x, i) => {
-      const stg = stageIndex(dm, x.branch);
-      const mood = moodOf([stageSignal(stg), elementSignal(stemElement(x.stem), need), elementSignal(branchElement(x.branch), need)]);
-      const next = d.pillars[i + 1];
-      const links = branchLinks(x.branch, pil);
-      L.push(`- ${i === idx ? "[지금] " : ""}${x.ko} 대운 만 ${x.startAge.years}세~${next ? next.startAge.years : x.startAge.years + 10}세(${x.startYear}년경~): 하늘 글자 ${STEM_NAME[x.stem]}=${x.tenGod}, 땅 글자 ${BRANCH_KO[x.branch]}, 일간의 12운성 ${STAGE_KO[stg]}, 하늘 글자 기운은 필요한 기운 쪽으로 ${elementSignal(stemElement(x.stem), need) === "+" ? "도움" : elementSignal(stemElement(x.stem), need) === "-" ? "부담" : "중립"}, 땅 글자 기운은 ${elementSignal(branchElement(x.branch), need) === "+" ? "도움" : elementSignal(branchElement(x.branch), need) === "-" ? "부담" : "중립"}, 원국과: ${links.length ? links.join(", ") : "충·육합 없음"} → 분위기 판정: ${mood.label}`);
-    });
-    const cur = d.pillars[Math.max(idx, 0)]!;
-    daeunNow = cur.ko;
-    const nxt = d.pillars[Math.max(idx, 0) + 1];
-    if (nxt) L.push(`- 다음 대운으로 바뀌는 때(교운기): ${nxt.startYear}년경, 만 ${nxt.startAge.years}세 무렵. 바뀌기 전후 1~2년은 환경·마음이 전환되기 쉬운 시기로 본다`);
+    for (const r of dt.daeun) L.push(`- ${r.now ? "[지금] " : ""}${r.name} 대운 ${r.range}: ${line(r)}`);
+    if (dt.nextChange) L.push(`- 다음 대운으로 바뀌는 때(교운기): ${dt.nextChange.year}년경, 만 ${dt.nextChange.age}세 무렵. 바뀌기 전후 1~2년은 환경·마음이 전환되기 쉬운 시기로 본다`);
   }
-
-  const y1 = yearGanji(ganjiYearAt(now));
-  const years = [0, 1, 2, 3, 4].map((k) => yearGanji(y1.year + k));
   L.push("[향후 5년(입춘 기준 해의 간지) — 분위기는 12운성 단계와 필요한 기운 여부를 센 판정]");
-  for (const y of years) {
-    const stg = stageIndex(dm, y.branch);
-    const sSig = elementSignal(stemElement(y.stem), need);
-    const bSig = elementSignal(branchElement(y.branch), need);
-    const mood = moodOf([stageSignal(stg), sSig, bSig]);
-    const links = branchLinks(y.branch, pil);
-    L.push(`- ${y.year}년 ${y.ko}년: 하늘 글자 ${STEM_NAME[y.stem]}=${tenGodOf(dm, y.stem)}, 땅 글자 ${BRANCH_KO[y.branch]}(${EL_WORD[branchElement(y.branch)]}), 일간의 12운성 ${STAGE_KO[stg]}, 하늘 글자 기운은 필요한 기운 쪽으로 ${sSig === "+" ? "도움" : sSig === "-" ? "부담" : "중립"}, 땅 글자 기운은 ${bSig === "+" ? "도움" : bSig === "-" ? "부담" : "중립"}, 원국과: ${links.length ? links.join(", ") : "충·육합 없음"}${links.some((l) => l.endsWith("충")) ? " (충은 변화·이동이 큰 신호)" : ""} → 분위기 판정: ${mood.label}`);
-  }
+  for (const r of dt.years) L.push(`- ${r.year}년 ${r.name}년: ${line(r)}`);
 
-  return { text: L.join("\n"), dayStemName: STEM_NAME[dm]!, hasHour: !!pil.hour, sinsalNames, strengthLabel: st.label, years: years.map((y) => y.year), yearNames: years.map((y) => y.ko), daeunNow, needName: EL_WORD[need.primary] };
+  return { text: L.join("\n"), dayStemName: STEM_NAME[dm]!, hasHour: !!pil.hour, sinsalNames, strengthLabel: st.label, years: dt.years.map((y) => y.year!), yearNames: dt.years.map((y) => y.name), daeunNow: dt.daeunNowName, needName: EL_WORD[need.primary] };
 }
 

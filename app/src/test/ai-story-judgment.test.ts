@@ -90,8 +90,8 @@ describe("분위기 판정과 충·육합", () => {
   });
   it("지지 충·육합 찾기: 사해충, 오미합", () => {
     const p = pre({ date: "1995-07-15", time: "10:20" }); // 연지 해, 월지 미, 일지 미, 시지 사
-    expect(branchLinks(5, p.pillars!)).toContain("연지 해와 충"); // 사(5) ↔ 해(11)
-    expect(branchLinks(6, p.pillars!)).toEqual(expect.arrayContaining(["월지 미와 육합", "일지 미와 육합"])); // 오(6) ↔ 미(7)
+    expect(branchLinks(5, p.pillars!)).toContain("연지 해 ↔ 충"); // 사(5) ↔ 해(11)
+    expect(branchLinks(6, p.pillars!)).toEqual(expect.arrayContaining(["월지 미 ↔ 육합", "일지 미 ↔ 육합"])); // 오(6) ↔ 미(7)
   });
 });
 
@@ -112,5 +112,82 @@ describe("사실 블록의 새 내용", () => {
   });
   it("판정 용어 '격국'은 사실에 없다", () => {
     expect(f.text).not.toContain("격국");
+  });
+});
+
+import { branchRelations, positionsOf, stemRelations } from "@/lib/ai-story-relations";
+import { observeNeed } from "@/lib/ai-story-judgment";
+
+describe("합·충·형·파·해 발견 계층(성립은 판정하지 않음)", () => {
+  const p = pre({ date: "1995-07-15", time: "10:20" }).pillars!; // 을해 계미 정미 을사
+  const base = positionsOf(p);
+  it("원국: 월간 계↔일간 정 천간충 후보, 연지 해↔시지 사 충", () => {
+    expect(stemRelations(base)).toContain("월간 계 ↔ 일간 정: 천간충(부딪힘) 후보");
+    expect(branchRelations(base)).toContain("연지 해 ↔ 시지 사: 충");
+  });
+  it("천간충은 정책으로 끌 수 있다", () => {
+    expect(stemRelations(base, undefined, { stemClash: false }).some((x) => x.includes("천간충"))).toBe(false);
+  });
+  it("세운 오(午): 월지·일지 미와 육합 후보, 사·미와 사오미 방합 후보(세 글자)", () => {
+    const r = branchRelations(base, { label: "세운 땅", branch: 6 });
+    expect(r).toEqual(expect.arrayContaining(["세운 땅 오 ↔ 월지 미: 육합 후보", "세운 땅 오 ↔ 일지 미: 육합 후보"]));
+    expect(r.some((x) => x.startsWith("사오미 방합 후보"))).toBe(true);
+    expect(r.every((x) => !x.includes("성립했") && !x.includes("합화되"))).toBe(true);
+  });
+  it("세운 유(酉): 사유축 반합 후보(왕지 유 포함), 신(申)+사: 육합·파·형이 함께 발견된다", () => {
+    expect(branchRelations(base, { label: "세운 땅", branch: 9 }).some((x) => x.startsWith("사유축 반합 후보"))).toBe(true);
+    const r = branchRelations(base, { label: "세운 땅", branch: 8 });
+    for (const k of ["육합 후보", "파", "형 후보"]) expect(r.some((x) => x.includes("시지 사") && x.endsWith(k))).toBe(true);
+  });
+  it("천간합 후보: 무(戊)↔계(癸) 이고 합화 성립은 쓰지 않는다", () => {
+    const r = stemRelations(base, { label: "세운 하늘", stem: 4 });
+    expect(r.some((x) => x.includes("무 ↔ 월간 계") && x.includes("천간합 후보") && x.includes("판정하지 않음"))).toBe(true);
+  });
+  it("삼합: 원국에 인·오·술 세 글자가 모두 있으면 삼합 후보", () => {
+    const fake = [{ label: "연", stem: 0, branch: 2 }, { label: "월", stem: 1, branch: 6 }, { label: "일", stem: 2, branch: 10 }];
+    expect(branchRelations(fake).some((x) => x.startsWith("인오술 삼합 후보"))).toBe(true);
+  });
+  it("자형 후보: 같은 글자(오오)", () => {
+    const fake = [{ label: "연", stem: 0, branch: 6 }, { label: "월", stem: 1, branch: 6 }];
+    expect(branchRelations(fake)).toContain("연지 오 ↔ 월지 오: 자형 후보");
+  });
+});
+
+describe("필요한 기운의 실제 작용 관찰", () => {
+  it("1995-07-15: 물이 하늘 글자 1개·땅 글자 뿌리 1개, 그 뿌리(해)는 시지 사와 충 → 힘을 쓸 가능성 보통", () => {
+    const p = pre({ date: "1995-07-15", time: "10:20" }).pillars!;
+    const e = observeNeed(p, "수");
+    expect(e.stemCount).toBe(1);
+    expect(e.rootCount).toBe(1);
+    expect(e.clashedRoots).toBe(1);
+    expect(e.level).toBe("보통");
+  });
+  it("모든 표본에서 등급이 개수·충 상태와 일관된다", () => {
+    for (const c of charts) {
+      const p = pre(c);
+      if (!p.ok || !p.pillars) continue;
+      for (const el of ELEMENTS) {
+        const e = observeNeed(p.pillars, el);
+        const live = e.rootCount - e.clashedRoots;
+        expect(e.level).toBe(e.stemCount > 0 && live > 0 ? "튼튼" : e.stemCount > 0 || live > 0 ? "보통" : "약함");
+        expect(e.clashedRoots).toBeLessThanOrEqual(e.rootCount);
+      }
+    }
+  });
+});
+
+describe("문장 품질: 조사 자리 표시가 없다", () => {
+  it("판정 설명 문장 전체에 (을)(를)(이)(가) 같은 자리 표시가 없다", () => {
+    for (const c of charts) {
+      const p = pre(c);
+      if (!p.ok || !p.pillars || !p.elements) continue;
+      const st = computeStrength(p.pillars);
+      const need = computeNeed(p.pillars, p.elements, st);
+      const texts = [...st.evidence, need.eokbuNote, need.johuNote, need.primaryReason, observeNeed(p.pillars, need.primary).evidence];
+      for (const t of texts) {
+        expect(t).not.toMatch(/\((을|를|이|가|은|는|와|과)\)|을\(를\)|이\(가\)/);
+        expect(t).not.toMatch(/[\u3400-\u4DBF\u4E00-\u9FFF]/);
+      }
+    }
   });
 });

@@ -4,6 +4,7 @@ import { computeDaeunForBirth } from "@/lib/daeun";
 import { hiddenStemsOf, mainStemOf } from "@/lib/hidden-stems";
 import { EL_WORD, stemElement } from "@/lib/reading";
 import type { BirthInput, Pillar } from "@/lib/saju";
+import { computeDetail, countElements, signalWord, type TimeRow } from "@/lib/saju-detail";
 import { SINSAL12, SINSAL12_HANJA, computeSinsal, twelveSinsal } from "@/lib/sinsal";
 import { STAGE_HANJA, STAGE_KO, stageIndex } from "@/lib/twelve-stages";
 import { TEN_GOD_NOTE, tenGodOf, type TenGod } from "@/lib/ten-gods";
@@ -60,6 +61,26 @@ function StemChip({ stem, small }: { stem: number; small?: boolean }) {
   );
 }
 
+function TimeLine({ r }: { r: TimeRow }) {
+  const tone = r.mood.label === "오르는 구간" ? "bg-[#d9ecd9]" : r.mood.label === "쉬어가는 구간" ? "bg-[#e6e1ee]" : "bg-[#f3e6c8]";
+  return (
+    <li className="rounded-lg border border-[#c9a76e] bg-white px-2.5 py-1.5">
+      <p className="flex flex-wrap items-center gap-x-2">
+        <b>
+          {r.now ? "지금 · " : ""}
+          {r.name} {r.kind}
+        </b>
+        <span className="text-[11px] text-[var(--ink-soft)]">{r.range}</span>
+        <span className={`rounded-md px-1.5 py-0.5 text-[11px] font-bold ${tone}`}>{r.mood.label}</span>
+      </p>
+      <p className="mt-0.5 text-[12px] text-[var(--ink-soft)]">
+        {r.stemTenGod} · 12운성 {r.stage} · 필요한 기운 쪽: 하늘 {signalWord(r.stemSignal)}, 땅 {signalWord(r.branchSignal)}
+        {r.links.length ? ` · ${r.links.join("; ")}` : ""}
+      </p>
+    </li>
+  );
+}
+
 function Legend({ names }: { names: TenGod[] }) {
   const uniq = [...new Set(names)];
   return (
@@ -81,6 +102,7 @@ export function ManseExtra({ me, pillars }: { me: BirthInput; pillars: Pillars }
   const cols = columns(pillars);
 
   const daeun = useMemo(() => computeDaeunForBirth(me), [me]);
+  const detail = useMemo(() => computeDetail(pillars, countElements(pillars), daeun, new Date()), [pillars, daeun]);
   const sinsal = computeSinsal(pillars);
   const sinsal12 = twelveSinsal(pillars);
   // 현재 나이(만, 소수): 출생 순간부터 지금까지
@@ -114,6 +136,67 @@ export function ManseExtra({ me, pillars }: { me: BirthInput; pillars: Pillars }
           ⌄
         </span>
       </summary>
+      <Ref
+        title="명리 상세 분석"
+        badge="일반 이론 · 검증 전"
+        note="일간의 힘, 필요한 기운, 합·충 관계, 대운과 세운의 분위기를 근거와 함께 모았어요. 입문서에서 흔히 쓰는 일반 이론을 점수 합산 없이 예·아니오 조건으로 옮긴 후보 판정이고, 원문 규칙(R-006·R-011~R-014)은 아직 구현·검증 전이에요. 격국과 합화·삼합의 성립은 판정하지 않았고, 학파·책에 따라 달라질 수 있어요."
+      >
+        <h4 className="font-display text-[15px]">일간의 힘 — {detail.strength.label}</h4>
+        <p className="mt-0.5 text-[11px] text-[var(--ink-soft)]">
+          상태: {detail.strength.status === "CONDITIONAL" ? "조건부 후보" : "후보"} (득령·득지·득세를 각각 따짐)
+        </p>
+        <ul className="mt-1.5 space-y-1 text-[13px] leading-snug">
+          {detail.strength.evidence.map((e) => (
+            <li key={e}>· {e}</li>
+          ))}
+        </ul>
+
+        <h4 className="font-display mt-4 text-[15px]">필요한 기운 — {EL_WORD[detail.need.primary]}</h4>
+        <p className="mt-0.5 text-[11px] text-[var(--ink-soft)]">상태: 후보 (생활 처방용 우선 순위는 임시 규칙)</p>
+        <ul className="mt-1.5 space-y-1 text-[13px] leading-snug">
+          <li>· 억부 관점: {detail.need.eokbuNote}</li>
+          <li>· 조후 관점: {detail.need.johuNote}</li>
+          <li>· {detail.need.primaryReason}</li>
+          <li>· 원국 안에서의 작용: {detail.effect.evidence}</li>
+          <li>
+            · 돕는 기운(희신 후보) {EL_WORD[detail.need.hee]} / 누르는 기운(기신 후보) {EL_WORD[detail.need.gi]}
+          </li>
+        </ul>
+
+        <h4 className="font-display mt-4 text-[15px]">원국의 합·충·형·파·해 (발견만)</h4>
+        <p className="mt-0.5 text-[11px] text-[var(--ink-soft)]">
+          관계가 있다는 것과 실제로 성립해 작용하는 것은 달라요. 성립 여부는 판정하지 않았어요.
+        </p>
+        <ul className="mt-1.5 space-y-1 text-[13px] leading-snug">
+          {detail.natal.length ? detail.natal.map((n) => <li key={n}>· {n}</li>) : <li>· 발견된 관계 없음</li>}
+        </ul>
+
+        {detail.daeun.length > 0 && (
+          <>
+            <h4 className="font-display mt-4 text-[15px]">대운 10개의 분위기</h4>
+            <ul className="mt-1.5 space-y-1.5 text-[13px] leading-snug">
+              {detail.daeun.map((r) => (
+                <TimeLine key={r.name + r.range} r={r} />
+              ))}
+            </ul>
+            {detail.nextChange && (
+              <p className="mt-1.5 text-[12px] text-[var(--ink-soft)]">
+                다음 대운으로 바뀌는 때: {detail.nextChange.year}년경(만 {detail.nextChange.age}세 무렵). 전후 1~2년은 환경과 마음이 전환되기 쉬운 시기로 봐요.
+              </p>
+            )}
+          </>
+        )}
+        <h4 className="font-display mt-4 text-[15px]">향후 5년의 분위기</h4>
+        <ul className="mt-1.5 space-y-1.5 text-[13px] leading-snug">
+          {detail.years.map((r) => (
+            <TimeLine key={r.name + r.range} r={r} />
+          ))}
+        </ul>
+        <p className="mt-3 text-[11px] leading-snug text-[var(--ink-soft)]">
+          분위기는 12운성 단계와 필요한 기운 쪽 도움·부담을 세어 정한 일반 이론 판정이에요. 길흉이나 사건을 예언하지 않아요.
+        </p>
+      </Ref>
+
       <Ref
         title="십성 표"
         badge="참고"

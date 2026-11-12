@@ -79,6 +79,7 @@ export interface NeedResult {
   status: JudgmentStatus;
 }
 
+const EUL: Record<Element, string> = { 목: "나무를", 화: "불을", 토: "흙을", 금: "쇠를", 수: "물을" };
 const SEASON_OF = ["겨울", "겨울", "봄", "봄", "봄", "여름", "여름", "여름", "가을", "가을", "가을", "겨울"] as const; // 자~해
 
 export function computeNeed(p: P4, counts: Record<Element, number>, st: StrengthResult): NeedResult {
@@ -110,8 +111,8 @@ export function computeNeed(p: P4, counts: Record<Element, number>, st: Strength
       : `태어난 달이 ${season}이라 계절의 차갑고 뜨거운 쏠림은 크지 않음(조후는 급하지 않음)`,
     primary,
     primaryReason: johu
-      ? `조후가 급한 계절이라 ${EL_WORD[johu]}을(를) 먼저 두고, 억부 후보는 보조로 본다(임시 우선 규칙)`
-      : `조후가 급하지 않아 억부 후보 중 원국에 가장 적은 ${EL_WORD[fewest]}을(를) 먼저 둔다(임시 우선 규칙)`,
+      ? `조후가 급한 계절이라 ${EUL[johu]} 먼저 두고, 억부 후보는 보조로 본다(임시 우선 규칙)`
+      : `조후가 급하지 않아 억부 후보 중 원국에 가장 적은 ${EUL[fewest]} 먼저 둔다(임시 우선 규칙)`,
     hee, gi,
     excess: ELEMENTS.filter((e) => counts[e] === max && max >= 3),
     least: ELEMENTS.filter((e) => counts[e] === min),
@@ -146,10 +147,31 @@ export function branchLinks(branch: number, p: P4): string[] {
   const has = (set: [number, number][], a: number, b: number) => set.some(([x, y]) => (x === a && y === b) || (x === b && y === a));
   const out: string[] = [];
   for (const c of cols) {
-    if (has(CHUNG, branch, c.b)) out.push(`${c.n} ${KO[c.b]}와 충`);
-    if (has(HAP6, branch, c.b)) out.push(`${c.n} ${KO[c.b]}와 육합`);
+    if (has(CHUNG, branch, c.b)) out.push(`${c.n} ${KO[c.b]} ↔ 충`);
+    if (has(HAP6, branch, c.b)) out.push(`${c.n} ${KO[c.b]} ↔ 육합`);
   }
   return out;
 }
 
 export const tenGodName = (dm: number, stem: number): TenGod => tenGodOf(dm, stem);
+
+export interface NeedEffect {
+  stemCount: number; // 하늘 글자에 드러난(투출) 필요한 기운 글자 수
+  rootCount: number; // 땅 글자 본기에 뿌리가 있는 수
+  clashedRoots: number; // 그 뿌리 중 원국에서 충을 맞은 수
+  level: "튼튼" | "보통" | "약함";
+  evidence: string;
+}
+/** 후보가 원국에 '있다'와 '실제로 힘을 쓴다'는 다르다 — 투출·뿌리·충을 따로 본다(후보 관찰, 판정이 아님) */
+export function observeNeed(p: P4, el: Element): NeedEffect {
+  const stems = [p.year.stem, p.month.stem, ...(p.hour ? [p.hour.stem] : [])].filter((s) => stemElement(s) === el).length;
+  const branches = [p.year, p.month, p.day, ...(p.hour ? [p.hour] : [])].map((x) => x.branch);
+  const roots = branches.filter((b) => branchElement(b) === el);
+  const clashed = roots.filter((b) => CHUNG.some(([x, y]) => (x === b && branches.includes(y)) || (y === b && branches.includes(x)))).length;
+  const live = roots.length - clashed;
+  const level = stems > 0 && live > 0 ? "튼튼" : stems > 0 || live > 0 ? "보통" : "약함";
+  return {
+    stemCount: stems, rootCount: roots.length, clashedRoots: clashed, level,
+    evidence: `하늘 글자에 ${EL_WORD[el]} ${stems}개(드러남), 땅 글자 본기에 ${EL_WORD[el]} ${roots.length}개(뿌리)${clashed ? `, 그중 ${clashed}개는 원국에서 충을 맞음` : ""} → 실제로 힘을 쓸 가능성: ${level}`,
+  };
+}

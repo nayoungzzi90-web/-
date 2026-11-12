@@ -95,6 +95,10 @@ describe("코드 검수", () => {
     expect(c2("balance", `${goodBody(1300)}\n\n물 기운은 반드시 챙겨 보세요. 일반 이론이라 참고만 하세요. 필요한 기운은 물이에요.`)).not.toContain("OVERCLAIM");
     expect(c2("work", `${goodBody(1300)}\n\n이 일은 반드시 성공해요.`)).toContain("OVERCLAIM");
     expect(c2("love", `${goodBody(1300)}\n\n무조건 이혼합니다.`)).toContain("OVERCLAIM");
+    expect(c2("now", `${goodBody(1300)}\n\n병오년에는 합화가 성립해서 불로 바뀌어요.`)).toContain("RELATION_CLAIM");
+    expect(c2("now", `${goodBody(1300)}\n\n삼합이 성립합니다.`)).toContain("RELATION_CLAIM");
+    expect(c2("now", `${goodBody(1300)}\n\n충이 풀려요.`)).toContain("RELATION_CLAIM");
+    expect(c2("now", `${goodBody(1300)}\n\n오와 미가 합을 이루는 관계 후보가 있어요.`)).not.toContain("RELATION_CLAIM");
     expect(c2("health", goodBody(1300))).toContain("NO_MEDICAL_NOTE");
     expect(c2("balance", goodBody(1300))).toEqual(expect.arrayContaining(["NO_DISCLAIMER", "NEED_MISSING"]));
     expect(c2("now", goodBody(1300))).toContain("YEARS_MISSING");

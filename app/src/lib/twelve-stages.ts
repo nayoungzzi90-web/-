@@ -31,3 +31,26 @@ export function stageIndex(stem: number, branch: number): number {
 export function stageOf(stem: number, branch: number): Stage {
   return STAGE_KO[stageIndex(stem, branch)]!;
 }
+
+// ── 학파 정책(설정 값). 기본값은 지금까지의 표(양생음사, 戊·己는 丙·丁과 같은 자리)이며 화면·풀이에는 기본값만 쓴다. ──
+export interface StagePolicy {
+  /** reverse: 음간은 장생부터 거꾸로(양생음사) / same-as-yang: 음간도 짝 양간과 같은 장생지에서 순행(음양동행) */
+  yin: "reverse" | "same-as-yang";
+  /** fire: 戊·己를 丙·丁과 같은 자리(화토동궁) / water: 壬·癸와 같은 자리(수토동궁) */
+  earth: "fire" | "water";
+}
+export const DEFAULT_STAGE_POLICY: StagePolicy = { yin: "reverse", earth: "fire" };
+
+/** 정책에 따른 장생 지지와 진행 방향. 기본 정책은 stageIndex 와 같은 값을 낸다. */
+export function stageIndexWith(stem: number, branch: number, policy: StagePolicy = DEFAULT_STAGE_POLICY): number {
+  let start = JANGSAENG_BRANCH[stem]!;
+  const yangStem = stem % 2 === 0;
+  if (policy.earth === "water" && (stem === 4 || stem === 5)) start = stem === 4 ? 8 : 3; // 戊 申, 己 卯
+  if (policy.yin === "same-as-yang" && !yangStem) {
+    // 음간의 장생지를 짝 양간(바로 앞 천간)과 같게 하고 순행한다(戊·己는 위 earth 정책을 따른다)
+    const partner = stem - 1;
+    start = partner === 4 && policy.earth === "water" ? 8 : JANGSAENG_BRANCH[partner]!;
+    return mod(branch - start, 12);
+  }
+  return yangStem ? mod(branch - start, 12) : mod(start - branch, 12);
+}
