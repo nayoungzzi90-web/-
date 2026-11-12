@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { buildStoryFacts } from "@/lib/ai-story-facts";
-import { STORY_SECTIONS, buildStorySystemPrompt, buildStoryUser, checkStory, explainedTerms, runAiStory } from "@/lib/ai-story.server";
+import { STORY_SECTIONS, buildStorySystemPrompt, buildStoryUser, checkStory, explainedTerms, runAiStory, runAiStorySection } from "@/lib/ai-story.server";
+import { STORY_TOTAL } from "@/lib/ai-trial-fns";
 import { readTrialConfig } from "@/lib/ai-trial.server";
 import { ScriptedLlm } from "@/lib/reading-core/src/lib/report/llm";
 
@@ -140,5 +141,65 @@ describe("반복 줄이기 도우미", () => {
     expect(explainedTerms(["편인은 배우는 힘이에요.", "식신과 화개살이 보여요."]).sort()).toEqual(["식신", "편인", "화개살"].sort());
     expect(buildStoryUser(sec, [], undefined, ["편인", "식신"])).toContain("다시 정의하지 않는다");
     expect(buildStoryUser(sec, [], undefined, [])).not.toContain("다시 정의하지 않는다");
+  });
+});
+
+describe("섹션 한 장씩 실행", () => {
+  const goodJson = JSON.stringify({ headline: "봄바람을 기다리며 단단히 뿌리내린 나무", body: goodBody(1000) });
+  const base = { me: ME, token: ENV.AI_TRIAL_TOKEN, index: 0, prior: [] as { id: string; title: string; headline: string; body: string }[] };
+  it("화면이 쓰는 섹션 개수 상수가 실제 개수와 같다", () => {
+    expect(STORY_TOTAL).toBe(STORY_SECTIONS.length);
+  });
+  it("꺼져 있거나 토큰이 틀리면 AI를 부르지 않는다", async () => {
+    const llm = new ScriptedLlm(() => goodJson);
+    expect(await runAiStorySection(base, { config: readTrialConfig({}), writer: () => llm })).toMatchObject({ ok: true, state: "unavailable" });
+    expect(await runAiStorySection({ ...base, token: "x" }, { config: readTrialConfig(ENV), writer: () => llm })).toEqual({ ok: false, error: "사용할 수 없어요." });
+    expect(llm.calls).toHaveLength(0);
+  });
+  it("한 장만 쓰고 한 번에 한 섹션만 호출한다", async () => {
+    const llm = new ScriptedLlm(() => goodJson);
+    const r = await runAiStorySection({ ...base, index: 3 }, { config: readTrialConfig(ENV), now: NOW, writer: () => llm });
+    expect(r.ok && r.state === "ready").toBe(true);
+    if (r.ok && r.state === "ready") {
+      expect(r.section.id).toBe("work");
+      expect(r.total).toBe(8);
+    }
+    expect(llm.calls).toHaveLength(1);
+  });
+  it("없는 섹션 번호는 거절한다", async () => {
+    const llm = new ScriptedLlm(() => goodJson);
+    expect(await runAiStorySection({ ...base, index: 8 }, { config: readTrialConfig(ENV), writer: () => llm })).toEqual({ ok: false, error: "없는 섹션이에요." });
+  });
+  it("앞 섹션 글에 이름이 채워져 있어도 모델에는 이름이 나가지 않는다", async () => {
+    const llm = new ScriptedLlm(() => goodJson);
+    const prior = [{ id: "summary", title: "한마디로", headline: "테스트님의 봄바람 이야기", body: "테스트님은 편인이 두 번 보여요. 식신도 있어요." }];
+    await runAiStorySection({ ...base, index: 1, prior }, { config: readTrialConfig(ENV), now: NOW, writer: () => llm });
+    const sent = JSON.stringify(llm.calls);
+    expect(sent).not.toContain("테스트님");
+    expect(sent).toContain("{{이름}}님의 봄바람 이야기");
+    expect(sent).toContain("이미 뜻을 풀어 준 용어");
+  });
+  it("검수에 걸리면 한 요청은 한 번만 쓰고 고칠 이유를 돌려주며, 이유를 붙여 다시 요청하면 그 이유를 모델에 전한다", async () => {
+    const bad = new ScriptedLlm(() => JSON.stringify({ headline: "봄바람을 기다리며 단단히 뿌리내린 나무", body: `${goodBody(1000)}\n\n木` }));
+    const r1 = await runAiStorySection(base, { config: readTrialConfig(ENV), now: NOW, writer: () => bad });
+    expect(r1).toMatchObject({ ok: true, state: "retry" });
+    expect(bad.calls).toHaveLength(1);
+    const fix = r1.ok && r1.state === "retry" ? r1.fix : "";
+    expect(fix).toContain("한자");
+    const good = new ScriptedLlm(() => goodJson);
+    const r2 = await runAiStorySection({ ...base, fix }, { config: readTrialConfig(ENV), now: NOW, writer: () => good });
+    expect(r2).toMatchObject({ ok: true, state: "ready" });
+    expect(good.calls[0]!.user).toContain("직전 글을 이렇게 고쳐 다시 써요");
+  });
+  it("마지막 시도(giveUp)에서도 통과하지 못하면 그 장만 건너뛴다고 알린다", async () => {
+    const bad = new ScriptedLlm(() => JSON.stringify({ headline: "봄바람을 기다리며 단단히 뿌리내린 나무", body: `${goodBody(1000)}\n\n木` }));
+    const r = await runAiStorySection({ ...base, giveUp: true }, { config: readTrialConfig(ENV), now: NOW, writer: () => bad });
+    expect(r).toMatchObject({ ok: true, state: "skipped" });
+  });
+  it("원가 상한에 걸리면 멈춘다", async () => {
+    const llm = new ScriptedLlm(() => ({ text: goodJson, usage: { inputTokens: 1_000_000, outputTokens: 500_000 } }));
+    const r = await runAiStorySection(base, { config: readTrialConfig({ ...ENV, LLM_REPORT_BUDGET_USD: "0.001", LLM_DAILY_BUDGET_USD: "0.001" }), now: NOW, writer: () => llm });
+    expect(r).toMatchObject({ ok: true, state: "unavailable" });
+    expect(llm.calls).toHaveLength(0); // 한 번 부르기 전부터 상한을 넘을 것 같으면 호출하지 않는다
   });
 });

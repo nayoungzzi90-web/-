@@ -130,70 +130,131 @@ export interface StoryDeps {
 }
 const OFF_MSG = "AI 풀이는 아직 준비 중이에요.";
 const DENIED = "사용할 수 없어요.";
-
 export type StoryMe = Omit<BirthInput, "name"> & { name?: string };
+export interface WrittenSection { id: string; title: string; headline: string; body: string }
+
+/** 섹션 하나를 쓰고(검수에 걸리면 고쳐 쓰게 최대 3번) 통과한 글을 돌려준다. 끝내 못 쓰면 null. */
+async function writeSection(
+  llm: LlmClient,
+  system: string,
+  factsBlock: string,
+  facts: StoryFacts,
+  section: StorySection,
+  prior: WrittenSection[],
+  concern?: string,
+  maxAttempts = 3,
+  firstExtra = "",
+): Promise<{ section: WrittenSection | null; fix: string }> {
+  let extra = firstExtra;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    let res;
+    try {
+      res = await llm.complete({
+        system, factsBlock, maxTokens: 3800, schema: SECTION_SCHEMA,
+        user: buildStoryUser(section, prior.map((d) => ({ title: d.title, headline: d.headline })), concern, explainedTerms(prior.map((d) => d.body))) + extra,
+      });
+    } catch (e) {
+      if (e instanceof LlmError && (e.kind === "budget" || e.kind === "auth" || e.kind === "bad_request")) throw e;
+      extra = "\n직전 응답이 처리되지 않았어요. 같은 요청에 JSON으로 다시 답해요.";
+      continue;
+    }
+    let parsed: { headline?: unknown; body?: unknown } | null = null;
+    try { parsed = JSON.parse(res.text); } catch { parsed = null; }
+    if (!parsed || typeof parsed.headline !== "string" || typeof parsed.body !== "string") {
+      extra = "\n지정한 JSON(headline, body)으로만 답해요.";
+      continue;
+    }
+    const body = parsed.body.replace(/\\n/g, "\n").trim();
+    const headline = parsed.headline.trim();
+    const issues = checkStory(headline, body, section, facts);
+    if (!issues.length) return { section: { id: section.id, title: section.title, headline, body }, fix: "" };
+    extra = `\n직전 글을 이렇게 고쳐 다시 써요: ${issues.map((i) => i.message).join(" ")}`;
+  }
+  return { section: null, fix: extra.replace(/^\n직전 글을 이렇게 고쳐 다시 써요: /, "").slice(0, 600) };
+}
+
+function setup(
+  input: { me: StoryMe; token: string },
+  deps: StoryDeps,
+): { ok: true; c: TrialConfig; facts: StoryFacts } | { ok: false; res: TrialResponse } {
+  if (!deps.config.ok) return { ok: false, res: { ok: true, state: "unavailable", message: OFF_MSG } };
+  const c = deps.config.config;
+  if (!tokenMatches(input.token, c.token)) return { ok: false, res: { ok: false, error: DENIED } };
+  const facts = buildStoryFacts({ ...input.me, name: input.me.name ?? "" }, deps.now);
+  if (!facts) return { ok: false, res: { ok: false, error: "올바른 생년월일을 입력해 주세요." } };
+  return { ok: true, c, facts };
+}
+const mkConcern = (input: { concern?: string; sendConcern?: boolean }) =>
+  input.sendConcern && input.concern?.trim() ? input.concern.trim().slice(0, 300) : undefined;
+
 export async function runAiStory(
   input: { me: StoryMe; token: string; concern?: string; sendConcern?: boolean },
   deps: StoryDeps,
 ): Promise<TrialResponse> {
-  if (!deps.config.ok) return { ok: true, state: "unavailable", message: OFF_MSG };
-  const c = deps.config.config;
-  if (!tokenMatches(input.token, c.token)) return { ok: false, error: DENIED };
-  const facts = buildStoryFacts({ ...input.me, name: input.me.name ?? "" }, deps.now);
-  if (!facts) return { ok: false, error: "올바른 생년월일을 입력해 주세요." };
+  const st = setup(input, deps);
+  if (!st.ok) return st.res;
+  const { c, facts } = st;
   const llm = new BudgetedLlm(deps.writer ? deps.writer(c) : new OpenAiLlm({ apiKey: c.openaiKey, model: c.model }), c.budget);
   const system = buildStorySystemPrompt();
   const factsBlock = `[계산된 사실]\n${facts.text}`;
-  const concern = input.sendConcern && input.concern?.trim() ? input.concern.trim().slice(0, 300) : undefined;
-  const done: { id: string; title: string; headline: string; body: string }[] = [];
-  let cost = 0;
+  const concern = mkConcern(input);
+  const done: WrittenSection[] = [];
   try {
     for (const section of STORY_SECTIONS) {
-      let extra = "";
-      let ok = false;
-      for (let attempt = 1; attempt <= 3 && !ok; attempt++) {
-        let res;
-        try {
-          res = await llm.complete({
-            system, factsBlock, maxTokens: 3800, schema: SECTION_SCHEMA,
-            user: buildStoryUser(section, done.map((d) => ({ title: d.title, headline: d.headline })), concern, explainedTerms(done.map((d) => d.body))) + extra,
-          });
-        } catch (e) {
-          if (e instanceof LlmError && (e.kind === "budget" || e.kind === "auth" || e.kind === "bad_request")) throw e;
-          extra = "\n직전 응답이 처리되지 않았어요. 같은 요청에 JSON으로 다시 답해요.";
-          continue;
-        }
-        let parsed: { headline?: unknown; body?: unknown } | null = null;
-        try { parsed = JSON.parse(res.text); } catch { parsed = null; }
-        if (!parsed || typeof parsed.headline !== "string" || typeof parsed.body !== "string") {
-          extra = "\n지정한 JSON(headline, body)으로만 답해요.";
-          continue;
-        }
-        const body = parsed.body.replace(/\\n/g, "\n").trim();
-        const headline = parsed.headline.trim();
-        const issues = checkStory(headline, body, section, facts);
-        if (!issues.length) {
-          done.push({ id: section.id, title: section.title, headline, body });
-          ok = true;
-        } else {
-          extra = `\n직전 글을 이렇게 고쳐 다시 써요: ${issues.map((i) => i.message).join(" ")}`;
-        }
-      }
+      const { section: w } = await writeSection(llm, system, factsBlock, facts, section, done, section.useConcern ? concern : undefined);
+      if (w) done.push(w);
     }
-    cost = llm.spentUsd;
   } catch (e) {
-    cost = llm.spentUsd;
-    if (e instanceof LlmError && e.kind === "budget") {
-      if (done.length < 5) return { ok: true, state: "unavailable", message: "원가 상한에 걸려 AI 풀이를 끝내지 못했어요." };
-    } else if (done.length < 5) {
-      return { ok: true, state: "unavailable", message: "AI 풀이를 만드는 중 문제가 생겼어요." };
-    }
+    if (done.length < 5)
+      return { ok: true, state: "unavailable", message: e instanceof LlmError && e.kind === "budget" ? "원가 상한에 걸려 AI 풀이를 끝내지 못했어요." : "AI 풀이를 만드는 중 문제가 생겼어요." };
   }
   if (done.length < 5) return { ok: true, state: "unavailable", message: "AI 풀이를 만들지 못했어요." };
   const nm = input.me.name?.trim() || undefined;
   return {
     ok: true, state: "ready", reviewed: false, verdict: null,
-    costUsd: Math.round(cost * 1e5) / 1e5,
+    costUsd: Math.round(llm.spentUsd * 1e5) / 1e5,
     sections: done.map((s) => ({ id: s.id, title: s.title, headline: fillName(s.headline, nm), body: fillName(s.body, nm) })),
   };
+}
+
+// ── 섹션 한 장씩(휴대폰 브라우저가 1분 넘는 응답을 끊는 문제를 피하려고 화면이 한 장씩 요청한다) ──
+export type StorySectionResponse =
+  | { ok: true; state: "ready"; section: WrittenSection; costUsd: number; total: number }
+  | { ok: true; state: "retry"; costUsd: number; fix: string; total: number }
+  | { ok: true; state: "skipped"; costUsd: number; message: string; total: number }
+  | { ok: true; state: "unavailable"; message: string }
+  | { ok: false; error: string };
+
+export async function runAiStorySection(
+  input: {
+    me: StoryMe; token: string; concern?: string; sendConcern?: boolean;
+    index: number; prior: WrittenSection[];
+    /** 직전 시도가 검수에 걸렸을 때 그 이유(서버가 돌려준 문장). 한 요청은 한 번만 쓴다 — 휴대폰 브라우저가 1분 넘는 요청을 끊기 때문이다. */
+    fix?: string; giveUp?: boolean;
+  },
+  deps: StoryDeps,
+): Promise<StorySectionResponse> {
+  const st = setup(input, deps);
+  if (!st.ok) return st.res.ok ? { ok: true, state: "unavailable", message: st.res.state === "unavailable" ? st.res.message : OFF_MSG } : st.res;
+  const { c, facts } = st;
+  const section = STORY_SECTIONS[input.index];
+  if (!section) return { ok: false, error: "없는 섹션이에요." };
+  const llm = new BudgetedLlm(deps.writer ? deps.writer(c) : new OpenAiLlm({ apiKey: c.openaiKey, model: c.model }), c.budget);
+  const nm = input.me.name?.trim() || undefined;
+  try {
+    // 화면이 돌려준 앞 섹션 글에는 이름이 채워져 있다. 모델에 이름이 나가지 않게 다시 자리표시로 되돌린다.
+    const hide = (t: string) => (nm ? t.split(nm).join("{{이름}}") : t);
+    const prior = input.prior.slice(0, STORY_SECTIONS.length).map((x) => ({ ...x, headline: hide(x.headline), body: hide(x.body) }));
+    const { section: w, fix } = await writeSection(
+      llm, buildStorySystemPrompt(), `[계산된 사실]\n${facts.text}`, facts, section, prior,
+      section.useConcern ? mkConcern(input) : undefined,
+      1, input.fix ? `\n직전 글을 이렇게 고쳐 다시 써요: ${input.fix.slice(0, 600)}` : "",
+    );
+    const costUsd = Math.round(llm.spentUsd * 1e5) / 1e5;
+    if (!w && !input.giveUp) return { ok: true, state: "retry", costUsd, total: STORY_SECTIONS.length, fix: fix || "형식을 지켜 다시 써요." };
+    if (!w) return { ok: true, state: "skipped", costUsd, total: STORY_SECTIONS.length, message: `"${section.title}"은(는) 검수를 통과하지 못해 건너뛰었어요.` };
+    return { ok: true, state: "ready", costUsd, total: STORY_SECTIONS.length, section: { ...w, headline: fillName(w.headline, nm), body: fillName(w.body, nm) } };
+  } catch (e) {
+    return { ok: true, state: "unavailable", message: e instanceof LlmError && e.kind === "budget" ? "원가 상한에 걸려 멈췄어요." : "AI 풀이를 만드는 중 문제가 생겼어요." };
+  }
 }

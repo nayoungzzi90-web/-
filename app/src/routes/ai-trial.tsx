@@ -3,7 +3,7 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { Friend, type FriendKind } from "@/components/Friends";
 import { ReadingCard } from "@/components/ResultParts";
 import { Page } from "@/components/Shell";
-import { runAiStoryFn, runAiTrialFn } from "@/lib/ai-trial-fns";
+import { STORY_TOTAL, runAiStorySectionFn, runAiTrialFn } from "@/lib/ai-trial-fns";
 import type { TrialResponse } from "@/lib/ai-trial.server";
 import { useStore } from "@/lib/store";
 
@@ -19,6 +19,15 @@ export const Route = createFileRoute("/ai-trial")({
 });
 
 const FRIENDS: FriendKind[] = ["seonbi", "ssi", "tiger", "rabbit", "turtle"];
+type SecRes = Awaited<ReturnType<typeof runAiStorySectionFn>>;
+interface StoryView {
+  sections: { id: string; title: string; headline: string; body: string }[];
+  cost: number;
+  notes: string[];
+  step: number;
+  done: boolean;
+  error: string | null;
+}
 const KEY = "ohaeng:ai-trial-token"; // 이 탭에서만 기억(sessionStorage)
 function loadToken() {
   try {
@@ -35,11 +44,13 @@ function AiTrial() {
   const [busy, setBusy] = useState(false);
   const [mode, setMode] = useState<"story" | "claims">("story");
   const [res, setRes] = useState<TrialResponse | null>(null);
+  const [story, setStory] = useState<StoryView | null>(null);
 
   async function run() {
     if (!me) return;
     setBusy(true);
     setRes(null);
+    setStory(null);
     try {
       sessionStorage.setItem(KEY, token);
     } catch {
@@ -51,16 +62,76 @@ function AiTrial() {
         token,
         ...(concern ? { concern, sendConcern: send } : {}),
       };
-      const r =
-        mode === "story"
-          ? await runAiStoryFn({ data })
-          : await runAiTrialFn({ data });
-      setRes(r);
+      if (mode === "story") {
+        await runStory(data);
+        return;
+      }
+      setRes(await runAiTrialFn({ data }));
     } catch {
       setRes({ ok: false, error: "요청에 실패했어요." });
     } finally {
       setBusy(false);
     }
+  }
+
+  // 섹션을 한 장씩 요청한다(휴대폰 브라우저가 1분 넘게 응답 없는 요청을 끊는 문제를 피한다)
+  async function runStory(data: {
+    me: NonNullable<typeof me>;
+    token: string;
+    concern?: string;
+    sendConcern?: boolean;
+  }) {
+    const prior: StoryView["sections"] = [];
+    let cost = 0;
+    const notes: string[] = [];
+    const show = (extra: Partial<StoryView>) =>
+      setStory({ sections: [...prior], cost, notes: [...notes], step: prior.length, done: false, error: null, ...extra });
+    show({ step: 0 });
+    for (let i = 0; i < STORY_TOTAL; i++) {
+      show({ step: i });
+      let r: SecRes | null = null;
+      let fix = "";
+      // 한 요청은 한 번만 쓰게 하고(1분 넘는 요청을 폰이 끊는다), 검수에 걸리면 이유를 붙여 다시 요청한다(최대 3번).
+      for (let attempt = 0; attempt < 3; attempt++) {
+        let got: SecRes | null = null;
+        for (let net = 0; net < 2 && !got; net++) {
+          try {
+            got = await runAiStorySectionFn({
+              data: { ...data, index: i, prior, ...(fix ? { fix } : {}), ...(attempt === 2 ? { giveUp: true } : {}) },
+            });
+          } catch {
+            got = null;
+          }
+        }
+        if (!got) {
+          r = null;
+          break;
+        }
+        if (got.ok && got.state === "retry") {
+          cost += got.costUsd;
+          fix = got.fix;
+          continue;
+        }
+        r = got;
+        break;
+      }
+      if (!r) {
+        show({ error: `${i + 1}번째 글을 받아 오다가 연결이 끊겼어요. 지금까지 쓴 ${prior.length}장은 아래에 남겨 두었어요. 다시 누르면 처음부터 만들어요.` });
+        return;
+      }
+      if (!r.ok) {
+        show({ error: r.error });
+        return;
+      }
+      if (r.state === "unavailable") {
+        show({ error: r.message });
+        return;
+      }
+      cost += r.costUsd;
+      if (r.state === "ready") prior.push(r.section);
+      else notes.push(r.message);
+    }
+    show({ done: true, step: STORY_TOTAL });
   }
 
   return (
@@ -148,6 +219,37 @@ function AiTrial() {
           </>
         )}
 
+        {story && (
+          <div className="mt-5">
+            <p role="status" className="text-xs font-bold text-[var(--ink-soft)]">
+              {story.done
+                ? `${story.sections.length}장 완성 · 시범 · 검수 전 · 이번 원가 약 $${Math.round(story.cost * 1e4) / 1e4}`
+                : story.error
+                  ? `중단됨 · 지금까지 원가 약 $${Math.round(story.cost * 1e4) / 1e4}`
+                  : `${Math.min(story.step + 1, STORY_TOTAL)}/${STORY_TOTAL} 쓰는 중이에요… (한 장에 15초쯤 걸려요. 화면을 켜 두세요)`}
+            </p>
+            {story.error && (
+              <p role="alert" className="mt-2 rounded-xl border-2 border-[var(--stamp)] bg-[#fde4e1] px-3 py-2 text-sm font-bold text-[var(--stamp)]">
+                {story.error}
+              </p>
+            )}
+            {story.notes.map((n) => (
+              <p key={n} className="mt-2 text-xs text-[var(--ink-soft)]">{n}</p>
+            ))}
+            {story.sections.map((s, i) => (
+              <ReadingCard key={s.id} eyebrow={s.title} title={s.headline} friend={FRIENDS[i % FRIENDS.length]!}>
+                {s.body.split(/\n{2,}/).map((p) => (
+                  <p key={p}>{p}</p>
+                ))}
+              </ReadingCard>
+            ))}
+            {story.done && (
+              <p className="mt-4 rounded-xl bg-[var(--paper-2)] px-3 py-2 text-[12px] leading-relaxed">
+                일반적으로 알려진 명리 해석을 쉬운 말로 풀어 쓴 글이에요. 책·학파마다 다를 수 있고 전문가 검증 전이라, 재미와 참고로만 읽어 주세요.
+              </p>
+            )}
+          </div>
+        )}
         {res && !res.ok && (
           <p
             role="alert"
