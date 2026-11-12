@@ -231,6 +231,39 @@ function Home() {
         </div>
       </section>
 
+      <section className="mt-7 px-4">
+        <Link
+          to="/quiz"
+          className="hj-card relative block overflow-hidden bg-[#f8e4ae] p-4 pr-28 text-left active:translate-y-0.5"
+        >
+          <span className="rounded-full bg-[var(--stamp)] px-2 py-0.5 text-[11px] font-bold text-white">
+            NEW · 생년월일 없이 30초
+          </span>
+          <p className="font-display mt-1.5 text-xl leading-snug">
+            나의 오행 친구 찾기
+          </p>
+          <p className="mt-0.5 text-[13px] leading-snug text-[var(--ink-soft)]">
+            10문항 테스트 후 단톡방에 도전장을 보내
+            <br />
+            우리 모임의 오행 지도를 만들어 보세요
+          </p>
+          <img
+            src={FRIEND_IMG.tiger}
+            alt=""
+            aria-hidden
+            className="absolute -bottom-1 right-2 h-24 w-auto"
+            draggable={false}
+          />
+          <img
+            src={FRIEND_IMG.rabbit}
+            alt=""
+            aria-hidden
+            className="absolute -bottom-1 right-14 h-20 w-auto"
+            draggable={false}
+          />
+        </Link>
+      </section>
+
       <section className="mt-8 px-4">
         <h2 className="font-display text-xl">오늘의 메뉴</h2>
         <div className="mt-3 grid grid-cols-2 gap-3">

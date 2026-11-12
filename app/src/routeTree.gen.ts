@@ -15,6 +15,7 @@ import { Route as CompatRouteImport } from './routes/compat'
 import { Route as ConcernRouteImport } from './routes/concern'
 import { Route as InputRouteImport } from './routes/input'
 import { Route as InviteRouteImport } from './routes/invite'
+import { Route as QuizRouteImport } from './routes/quiz'
 import { Route as ResultRouteImport } from './routes/result'
 import { Route as SampleRouteImport } from './routes/sample'
 import { Route as StyleRouteImport } from './routes/style'
@@ -53,6 +54,11 @@ const InputRoute = InputRouteImport.update({
 const InviteRoute = InviteRouteImport.update({
   id: '/invite',
   path: '/invite',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const QuizRoute = QuizRouteImport.update({
+  id: '/quiz',
+  path: '/quiz',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResultRoute = ResultRouteImport.update({
@@ -108,6 +114,7 @@ export interface FileRoutesByFullPath {
   '/concern': typeof ConcernRoute
   '/input': typeof InputRoute
   '/invite': typeof InviteRoute
+  '/quiz': typeof QuizRoute
   '/result': typeof ResultRoute
   '/sample': typeof SampleRoute
   '/style': typeof StyleRoute
@@ -125,6 +132,7 @@ export interface FileRoutesByTo {
   '/concern': typeof ConcernRoute
   '/input': typeof InputRoute
   '/invite': typeof InviteRoute
+  '/quiz': typeof QuizRoute
   '/result': typeof ResultRoute
   '/sample': typeof SampleRoute
   '/style': typeof StyleRoute
@@ -143,6 +151,7 @@ export interface FileRoutesById {
   '/concern': typeof ConcernRoute
   '/input': typeof InputRoute
   '/invite': typeof InviteRoute
+  '/quiz': typeof QuizRoute
   '/result': typeof ResultRoute
   '/sample': typeof SampleRoute
   '/style': typeof StyleRoute
@@ -162,6 +171,7 @@ export interface FileRouteTypes {
     | '/concern'
     | '/input'
     | '/invite'
+    | '/quiz'
     | '/result'
     | '/sample'
     | '/style'
@@ -179,6 +189,7 @@ export interface FileRouteTypes {
     | '/concern'
     | '/input'
     | '/invite'
+    | '/quiz'
     | '/result'
     | '/sample'
     | '/style'
@@ -196,6 +207,7 @@ export interface FileRouteTypes {
     | '/concern'
     | '/input'
     | '/invite'
+    | '/quiz'
     | '/result'
     | '/sample'
     | '/style'
@@ -214,6 +226,7 @@ export interface RootRouteChildren {
   ConcernRoute: typeof ConcernRoute
   InputRoute: typeof InputRoute
   InviteRoute: typeof InviteRoute
+  QuizRoute: typeof QuizRoute
   ResultRoute: typeof ResultRoute
   SampleRoute: typeof SampleRoute
   StyleRoute: typeof StyleRoute
@@ -267,6 +280,13 @@ declare module '@tanstack/react-router' {
       path: '/invite'
       fullPath: '/invite'
       preLoaderRoute: typeof InviteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/quiz': {
+      id: '/quiz'
+      path: '/quiz'
+      fullPath: '/quiz'
+      preLoaderRoute: typeof QuizRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/result': {
@@ -342,6 +362,7 @@ const rootRouteChildren: RootRouteChildren = {
   ConcernRoute: ConcernRoute,
   InputRoute: InputRoute,
   InviteRoute: InviteRoute,
+  QuizRoute: QuizRoute,
   ResultRoute: ResultRoute,
   SampleRoute: SampleRoute,
   StyleRoute: StyleRoute,
