@@ -142,3 +142,23 @@ describe("고민 직답 분담", () => {
     }
   });
 });
+
+describe("고객 단어 분배·유보 표현", () => {
+  it("고민 연결 카드마다 서로 다른 단어를 인용하게 나눠 준다", async () => {
+    const { assignedQuotes } = await import("../lib/ai-story-plan");
+    const sp = validateSpine({
+      theme: "혼자 길을 열어 온 사람의 이야기", contradiction: "겉으로는 단단하고 속으로는 여려요", past: ["어린 시절 이야기예요.", "청년기 이야기예요."],
+      concern: { conclusion: "부업은 잘 맞아요", evidence: [], caution: "동업이에요", action: "작게 시작해요", quotes: ["부업", "사주 사이트", "돈 벌 수 있을까요"] },
+      cards: sections.map((s) => ({ id: s.id, evidence: [], angle: `${s.title}각도`, concernLink: !!s.concernMust, concernSentence: "연결", contrast: "없음", motif: `${s.title}소재` })),
+    }, sections, pk, CONCERN)!;
+    const picks = sections.filter((s) => s.concernMust).map((s) => assignedQuotes(sp, s.id, sections)[0]);
+    expect(new Set(picks).size).toBeGreaterThanOrEqual(3);
+    expect(picks.every((p) => p && p.length > 0)).toBe(true);
+  });
+  it("기본 카드 본문에 후보·임시·잠정 같은 유보 표현이 있으면 막는다", () => {
+    const s = BASIC_SECTIONS[2]!;
+    const body = `김나영님은 월지에 자리한 편재가 중심이에요. 연주의 상관도 있어요. 필요한 불은 후보 판정이에요.\n\n결론이에요. ${"가나다라마바사아자차카타파하".repeat(22)}이에요.`;
+    const codes = checkStory("묵묵히 버텨 온 사람이 끝내 길을 얻는 이야기", body, s, { ...facts, sinsalNames: [] }, { callName: "김나영" }).map((i) => i.code);
+    expect(codes).toContain("META_PHRASE");
+  });
+});

@@ -13,7 +13,7 @@ import { fillName } from "./reading-core/src/lib/report/pipeline";
 import { tokenMatches, type TrialConfig, type TrialConfigResult, type TrialResponse } from "./ai-trial.server";
 import { buildStoryFacts, type StoryFacts } from "./ai-story-facts";
 import type { BirthInput } from "./saju";
-import { buildSpineSystemPrompt as buildPlanPrompt, concernKeywords, spineBlockFor, validateSpine, SPINE_SCHEMA as PLAN_SCHEMA, type CardPlan, type StorySpine } from "./ai-story-plan";
+import { assignedQuotes, buildSpineSystemPrompt as buildPlanPrompt, concernKeywords, spineBlockFor, validateSpine, SPINE_SCHEMA as PLAN_SCHEMA, type CardPlan, type StorySpine } from "./ai-story-plan";
 
 export const STORY_PROMPT_VERSION = "story-7";
 
@@ -90,6 +90,7 @@ const RULES = [
   "신살: JSON의 「신살」에 있는 것을 적극적으로 쓰되, 사용자 메시지가 이 카드에 배정한 신살을 쓰고 다른 카드의 신살은 쓰지 않는다. 같은 신살을 여러 카드에서 되풀이하지 않는다.",
   "단언의 범위: 성향과 구조는 단언한다. 미래의 결과는 「그럴 바탕」, 「그릇」, 「흐름」으로 말한다. 「~일 수 있어요」는 카드당 한 번 이하. 미래의 사건, 성공·실패, 수익 보장, 건강·수명·사고·이혼 같은 단정은 하지 않는다. 「반드시 성공해요」 대신 「그럴 바탕이 충분해요」, 「이런 점만 조심하면 길이 열려요」로 쓴다.",
   "대운과 연도: JSON의 「대운」과 「향후5년」의 「분위기」(오르는 구간·엇갈리는 구간·쉬어가는 구간)는 엔진이 정한 결과이므로 그대로 쓰고 바꾸지 않는다. 이유는 12운성 단계, 필요한 기운 쪽 도움·부담, 충·육합으로 설명한다. 충이 있는 해는 사건이 아니라 변화·이동이 큰 해로 말한다. 합·충·형·파·해는 JSON에 적힌 관계만 말하고 합화·삼합이 성립했다거나 충이 풀렸다고 단정하지 않는다. 지나간 대운은 JSON의 「지나간대운」으로 과거 서사를 쓴다.",
+  "JSON에 「후보」, 「조건부」, 「임시」, 「성립 여부는 판정하지 않음」 같은 표기가 있어도 글에는 옮기지 않고 판정 결과만 단언한다(합·충 관계는 「관계가 있다」까지만).",
   "한글만 쓴다. 한자(병기 포함), 알파벳, 이모지, 마크다운 기호, 번호·글머리표를 쓰지 않는다. 연도와 나이는 아라비아 숫자로 쓴다(예: 2026년, 만 37세).",
   "위치: 사주 근거는 위치를 붙여 말한다(예: 「월지에 자리한 편재」). JSON의 「네기둥」 위치의미를 따른다: 연주=어린 시절·바깥 인상, 월주=사회·직업, 일지=배우자 자리·속마음, 시주=말년·결과물.",
   "제목(title): 「이 사람의 이야기 + 비유」 형태의 한 줄. 카드 주제에 맞는 소재(사용자 메시지의 제목 소재)를 쓰고 카드끼리 소재가 겹치지 않게 한다. 풍경 묘사만 있는 제목은 쓰지 않는다. 글자 수는 사용자 메시지를 따른다. 십성 용어·숫자·한자·이모지 없이.",
@@ -287,7 +288,7 @@ export function checkStory(
     const theirs = grams(strip(opts.prior.join("\n")));
     let shared = 0;
     for (const g of mine) if (theirs.has(g)) shared++;
-    if (shared >= (section.headlineLen ? 8 : 4)) f("REPEAT_PRIOR", `앞 섹션과 같은 구절이 ${shared}개 겹쳐요. 이 카드의 각도와 근거로 새로 써요.`);
+    if (shared >= (section.id === "flow" ? 12 : section.headlineLen ? 6 : 4)) f("REPEAT_PRIOR", `앞 섹션과 같은 구절이 ${shared}개 겹쳐요. 이 카드의 각도와 근거로 새로 써요.`);
   }
   for (const m of opts.motifs ?? []) {
     const key = m.trim();
@@ -337,6 +338,8 @@ export function checkStory(
     if (wrong.length) f("STRUCT_UNKNOWN", `이 사주의 구조 패턴 태그에 없는 구조(${wrong.join(", ")})는 말하지 않아요.`);
   }
   if (section.headlineLen) {
+    const hedgeWord = /후보|임시로|잠정/.exec(all);
+    if (hedgeWord) f("META_PHRASE", `"${hedgeWord[0]}" 같은 유보 표현은 글에 옮기지 않아요(JSON의 후보 표기는 글에 쓰지 않아요). 판정 결과를 그대로 단언해요.`);
     const first = body.trim().split(/\n/)[0] ?? "";
     if (!first.startsWith(`${cn}님은`) && !first.startsWith(`${cn}님의 사주는`)) f("NAME_START", `첫 문장은 「${cn}님은 ~」 또는 「${cn}님의 사주는 ~」으로 시작해 위치가 붙은 사주 근거와 함께 성향을 단언해요.`);
     const sc = SCENE.exec(body);
@@ -417,7 +420,7 @@ async function writeSection(
   const list = sectionsFor(depth);
   const plan = spine?.cards[section.id];
   const wantConcern = wantsConcern(section, plan, concern);
-  const concernKeys = wantConcern ? concernKeywords(concern!, spine?.concern?.quotes) : undefined;
+  const concernKeys = wantConcern ? (spine?.concern?.quotes.length ? assignedQuotes(spine, section.id, list) : concernKeywords(concern!)) : undefined;
   const priorBodies = prior.map((d) => d.body);
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     let res;

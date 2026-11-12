@@ -199,6 +199,15 @@ export function validateSpine(raw: unknown, sections: PlanSection[], packet: Cha
 /** 고민 직답의 몫: 결론+시작 방법은 일 카드, 조심할 점은 재물 카드, 시기는 흐름 카드. 나머지는 연결 문장만 */
 const DIRECT_ROLE: Record<string, "answer" | "caution" | "timing"> = { work: "answer", money: "caution", flow: "timing" };
 
+/** 고민에 연결하는 카드마다 인용할 고객 단어를 나눠 준다(같은 문장을 여러 카드가 통째로 따오지 않게) */
+export function assignedQuotes(sp: StorySpine, sectionId: string, sections: PlanSection[]): string[] {
+  const qs = sp.concern?.quotes ?? [];
+  if (!qs.length) return [];
+  const linked = sections.filter((s) => sp.cards[s.id]?.concernLink).map((s) => s.id);
+  const i = Math.max(0, linked.indexOf(sectionId));
+  return [qs[i % qs.length]!];
+}
+
 /** 한 카드에 보여 주는 계획 블록 */
 export function spineBlockFor(sp: StorySpine, sectionId: string, sections: PlanSection[]): string {
   const c = sp.cards[sectionId];
@@ -222,7 +231,8 @@ export function spineBlockFor(sp: StorySpine, sectionId: string, sections: PlanS
       else if (role === "timing") lines.push(`- 고민에서 이 카드가 맡은 몫: 실행하기 좋은 시기를 연도로 짚는다(결론과 시작 방법은 되풀이하지 않고 「${cn.action}」은 시기와 연결해 한 구절로만 언급)`);
       else lines.push("- 고민에서 이 카드가 맡은 몫: 아래 연결 문장 하나뿐이다. 고민의 결론·조심할 점·시작 방법은 다른 카드가 맡으니 되풀이하지 않는다");
       if (c.concernSentence) lines.push(`- 고민 연결 문장 계획: ${c.concernSentence}`);
-      if (sp.concern.quotes.length) lines.push(`- 고객이 쓴 단어(글에 그대로 인용): ${sp.concern.quotes.join(", ")}`);
+      const aq = assignedQuotes(sp, sectionId, sections);
+      if (aq.length) lines.push(`- 고객이 쓴 단어(글에 그대로 인용): ${aq.join(", ")} (다른 단어나 고객 문장 전체를 통째로 옮기지 않는다)`);
     }
   }
   const others = sections.filter((s) => s.id !== sectionId).map((s) => sp.cards[s.id]?.angle).filter(Boolean);
