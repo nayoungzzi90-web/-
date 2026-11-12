@@ -18,7 +18,7 @@ function dates(): string[] {
 }
 
 describe("풀이 심화(2단계)", () => {
-  it("시간 포함: 섹션 12개, 모든 문장이 채워지고 금지 용어가 없다", () => {
+  it("시간 포함: 섹션 13개, 모든 문장이 채워지고 금지 용어가 없다", () => {
     const stems = new Set<number>();
     const branches = new Set<number>();
     let n = 0;
@@ -38,7 +38,7 @@ describe("풀이 심화(2단계)", () => {
       branches.add(p.pillars.month.branch);
       expect(rd!.sections.map((s) => s.id)).toEqual([
         "summary", "inner", "elements", "day", "season", "stage",
-        "love", "work", "people", "advice", "charm", "habit",
+        "love", "work", "people", "year", "advice", "charm", "habit",
       ]);
       for (const s of rd!.sections) {
         const all = [s.eyebrow, s.title, ...s.summary, ...s.body, ...s.basis];

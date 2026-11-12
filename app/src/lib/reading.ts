@@ -1,9 +1,11 @@
 import type { Element, Pillar, SajuPreview } from "./saju";
 export type { Element };
 import type { FriendKind } from "@/components/Friends";
+import { BRANCHES, BRANCH_KO, STEMS, STEM_KO, solarTermsUtc } from "./saju-engine";
 
 // 규칙 기반 무료 풀이(결정론). 쓰는 근거: 천간·지지의 오행, 오행 개수, 오행 상생·상극.
-// 쓰지 않는 것(검증 전): 십성 판정, 신강·신약, 격국, 용신, 대운·세운.
+// 쓰지 않는 것(검증 전): 십성 판정, 신강·신약, 격국, 용신, 대운·세운 해석.
+// 올해·내년 흐름은 해의 간지(입춘 기준, 달력 사실)의 오행을 내 일간과 상생·상극으로만 견준 분위기 비유다.
 export const ELEMENTS: Element[] = ["목", "화", "토", "금", "수"];
 export const EL_WORD: Record<Element, string> = {
   목: "나무",
@@ -422,9 +424,66 @@ function hasBatchim(word: string): boolean {
 const iga = (w: string) => `${w}${hasBatchim(w) ? "이" : "가"}`;
 const gwawa = (w: string) => `${w}${hasBatchim(w) ? "과" : "와"}`;
 
+
+// ── 올해·내년 흐름: 입춘 기준 해의 간지(결정론). 길흉 판정이 아니라 오행 관계 비유다.
+export interface YearGanji {
+  year: number;
+  stem: number;
+  branch: number;
+  hanja: string;
+  ko: string;
+}
+// 한국 시각 기준 지금이 속한 해(입춘 전이면 전년)
+export function ganjiYearAt(now: Date): number {
+  const y = new Date(now.getTime() + 9 * 3_600_000).getUTCFullYear();
+  const ipchun = solarTermsUtc(y)[0]!; // 황경 315° = 입춘
+  return now.getTime() < ipchun.getTime() ? y - 1 : y;
+}
+export function yearGanji(year: number): YearGanji {
+  const stem = (((year - 4) % 10) + 10) % 10;
+  const branch = (((year - 4) % 12) + 12) % 12;
+  return {
+    year,
+    stem,
+    branch,
+    hanja: STEMS[stem]! + BRANCHES[branch]!,
+    ko: STEM_KO[stem]! + BRANCH_KO[branch]!,
+  };
+}
+const YEAR_MOOD: Record<Relation, { head: string; line: string; tip: string }> = {
+  same: {
+    head: "나다움이 선명해지는 분위기",
+    line: "나와 같은 기운이 곁에 앉는 해라서, 내 방식이 또렷해지는 대신 고집도 같이 커지기 쉬워요.",
+    tip: "내 방식을 밀어붙이기 전에 다른 사람 의견을 한 번만 더 들어 봐요.",
+  },
+  helps: {
+    head: "받쳐 주는 손이 많아지는 분위기",
+    line: "나를 살려 주는 기운이 들어오는 해라서, 배우고 도움받는 일이 자연스럽게 늘어나는 비유가 어울려요.",
+    tip: "도움을 받을 수 있을 때는 미루지 말고 먼저 물어봐요.",
+  },
+  gives: {
+    head: "꺼내 쓰는 기운이 많아지는 분위기",
+    line: "내가 기운을 내어 쓰는 쪽의 해라서, 표현하고 움직일 일이 늘어요. 대신 쉬는 시간을 챙겨야 지치지 않아요.",
+    tip: "일정을 채우는 만큼 아무것도 안 하는 칸을 하나씩 비워 둬요.",
+  },
+  rules: {
+    head: "해 볼 일이 눈에 들어오는 분위기",
+    line: "내가 다루는 쪽의 기운이 들어오는 해라서, 손에 잡히는 목표가 보이기 쉬워요. 욕심이 앞서면 무리가 되니 속도 조절이 필요해요.",
+    tip: "목표를 세 개 이하로 줄이고, 하나를 끝내고 다음으로 가요.",
+  },
+  pressed: {
+    head: "속도를 조절하게 되는 분위기",
+    line: "나를 누르는 쪽의 기운이 들어오는 해라서, 신경 쓸 일이 늘고 마음이 바빠지기 쉬워요. 천천히 정리하며 가면 충분히 넘어가는 비유예요.",
+    tip: "급한 일과 중요한 일을 나눠 적고, 급하지만 안 중요한 일은 과감히 미뤄요.",
+  },
+};
+
 const label = (p: Pillar) => `${p.hanja}(${p.ko})`;
 
-export function buildReading(p: SajuPreview): ReadingData | null {
+export function buildReading(
+  p: SajuPreview,
+  now: Date = new Date(),
+): ReadingData | null {
   if (!p.ok || !p.pillars || !p.elements) return null;
   const { year, month, day, hour } = p.pillars;
   const counts = p.elements;
@@ -632,6 +691,49 @@ export function buildReading(p: SajuPreview): ReadingData | null {
     ],
     basis: [chipDay, chipCount],
   });
+
+  {
+    const y1 = yearGanji(ganjiYearAt(now));
+    const y2 = yearGanji(y1.year + 1);
+    const part = (g: YearGanji) => {
+      const se = stemElement(g.stem);
+      const be = branchElement(g.branch);
+      const rel = relation(dayEl, se);
+      const fills =
+        (se === lackEl ? 1 : 0) + (be === lackEl ? 1 : 0);
+      return { g, se, be, rel, mood: YEAR_MOOD[rel], fills };
+    };
+    const a = part(y1);
+    const b = part(y2);
+    const fillText = (x: ReturnType<typeof part>) =>
+      x.fills > 0
+        ? `${x.g.ko}년에는 내게 적은 ${EL_WORD[lackEl]} 기운이 ${x.fills === 2 ? "두 글자 모두" : "한 글자"} 들어와요.`
+        : `${x.g.ko}년의 글자에는 내게 적은 ${EL_WORD[lackEl]} 기운이 없어서, 균형 처방 습관으로 직접 채워 봐요.`;
+    const yearBody = (x: ReturnType<typeof part>, which: string) =>
+      `${which} ${x.g.hanja}(${x.g.ko})년은 ${EL_WORD[x.se]}(${EL_HANJA[x.se]}) 기운 위에 ${EL_WORD[x.be]}(${EL_HANJA[x.be]}) 기운이 얹힌 해예요. ${x.mood.line} ${fillText(x)}`;
+    sections.push({
+      id: "year",
+      eyebrow: "올해·내년 흐름",
+      title: `${a.g.ko}년은 ${a.mood.head}`,
+      friend: EL_FRIEND[a.se],
+      summary: [
+        `${a.g.hanja}(${a.g.ko})년 — ${a.mood.head}`,
+        `${b.g.hanja}(${b.g.ko})년 — ${b.mood.head}`,
+        `올해 한 가지: ${a.mood.tip}`,
+      ],
+      body: [
+        yearBody(a, "올해"),
+        yearBody(b, "내년"),
+        `내년을 미리 준비한다면: ${b.mood.tip}`,
+        "해가 바뀌는 기준은 입춘(2월 초)이에요. 길흉을 맞히는 풀이가 아니라, 해의 오행과 내 일간을 견준 분위기 비유예요.",
+      ],
+      basis: [
+        chipDay,
+        `올해 ${a.g.hanja}(${a.g.ko})`,
+        `내년 ${b.g.hanja}(${b.g.ko})`,
+      ],
+    });
+  }
 
   sections.push({
     id: "advice",
