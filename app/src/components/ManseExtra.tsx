@@ -4,6 +4,7 @@ import { computeDaeunForBirth } from "@/lib/daeun";
 import { hiddenStemsOf, mainStemOf } from "@/lib/hidden-stems";
 import { EL_WORD, stemElement } from "@/lib/reading";
 import type { BirthInput, Pillar } from "@/lib/saju";
+import { computeSinsal } from "@/lib/sinsal";
 import { STAGE_HANJA, STAGE_KO, stageIndex } from "@/lib/twelve-stages";
 import { TEN_GOD_NOTE, tenGodOf, type TenGod } from "@/lib/ten-gods";
 
@@ -85,6 +86,7 @@ export function ManseExtra({ me, pillars }: { me: BirthInput; pillars: Pillars }
   const cols = columns(pillars);
 
   const daeun = useMemo(() => computeDaeunForBirth(me), [me]);
+  const sinsal = computeSinsal(pillars);
   // 현재 나이(만, 소수): 출생 순간부터 지금까지
   const nowAge = daeun ? (Date.now() - daeun.birthUtcMs) / (365.2425 * 86_400_000) : -1;
 
@@ -211,6 +213,29 @@ export function ManseExtra({ me, pillars }: { me: BirthInput; pillars: Pillars }
         <p className="mt-3 text-[12px] leading-snug text-[var(--ink-soft)]">
           단계 순서: {STAGE_KO.join(" → ")}
         </p>
+      </Ref>
+
+      <Ref
+        title="신살 표"
+        badge="일반 표 · 참고"
+        note="천을귀인·도화살·역마살·화개살·공망 다섯 가지만, 입문서에서 흔히 쓰는 계산법으로 찾았어요. 《연해자평》 등 고전 원문과 대조하지 않았고 전문가 검증 전이에요. 책·학파마다 기준이 다르고(도화·역마·화개는 일지·연지를 모두 보여 드려요), 그 뜻을 푸는 문장은 쓰지 않았어요."
+      >
+        <ul className="space-y-2">
+          {sinsal.map((r) => (
+            <li key={r.key} className="rounded-lg border border-[#c9a76e] bg-white px-3 py-2 text-[13px]">
+              <p className="flex flex-wrap items-baseline gap-x-2">
+                <b>{r.name}</b>
+                <span className="font-display text-[15px]">{r.hanja}</span>
+              </p>
+              <p className="mt-0.5 text-[11px] text-[var(--ink-soft)]">
+                {r.rule} → 찾는 지지 {r.targets}
+              </p>
+              <p className="mt-1 text-[13px] font-bold">
+                {r.hits.length ? `내 사주에서: ${r.hits.join("·")}에 있어요` : "내 사주에서: 해당 없음"}
+              </p>
+            </li>
+          ))}
+        </ul>
       </Ref>
 
       {daeun && (
