@@ -5,3 +5,6 @@ node_modules
 .tanstack
 public/mock
 src/routes/mock.tsx
+.dev.vars
+.env
+.env.local
