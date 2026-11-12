@@ -209,9 +209,9 @@ function Result() {
                   title: rd.image,
                   sub: `${EL_HANJA[rd.dayEl]} ${EL_WORD[rd.dayEl]}의 기운`,
                   name: me.name,
-                  url: location.origin,
+                  url: `${location.origin}/quiz`,
                 },
-                `${text} ${location.origin}`,
+                `${text} 너는 어떤 오행 친구야? 생년월일 없이 30초면 알 수 있어요 ${location.origin}/quiz`,
               );
               setMsg(
                 r === "shared"
