@@ -7,6 +7,10 @@ export interface CardInput {
   sub: string; // 예: 쇠(金)의 기운
   name: string;
   url: string;
+  /** 부캐(둘째 오행 친구). 주면 그림 왼쪽 아래에 작은 원으로 넣는다. */
+  subKind?: FriendKind;
+  /** 모임 판 인원. 2명 이상이면 오른쪽 위에 "n명이 모였어요" 도장을 찍는다. */
+  count?: number;
 }
 
 const BG: Record<FriendKind, string> = {
@@ -72,6 +76,54 @@ export async function renderShareCard(c: CardInput): Promise<Blob> {
   } catch {
     /* 그림을 못 그려도 글자 카드는 만든다 */
   }
+  // 부캐: 왼쪽 아래 작은 원
+  if (c.subKind) {
+    const cx = 190,
+      cy = 722,
+      r = 78;
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.fillStyle = "#fffaf0";
+    ctx.fill();
+    ctx.lineWidth = 6;
+    ctx.strokeStyle = "#2b2233";
+    ctx.stroke();
+    ctx.clip();
+    try {
+      const sub = await loadImg(FRIEND_IMG[c.subKind]);
+      const sh = 190;
+      const sw = (sub.width / sub.height) * sh;
+      ctx.drawImage(sub, cx - sw / 2, cy - r + 12, sw, sh);
+    } catch {
+      /* 부캐 그림이 없어도 카드는 만든다 */
+    }
+    ctx.restore();
+    ctx.fillStyle = "#2b2233";
+    ctx.textAlign = "center";
+    ctx.font = "700 28px 'Jua', 'Apple SD Gothic Neo', sans-serif";
+    ctx.fillText(`부캐 ${FRIEND_INFO[c.subKind].name}`, cx, cy + r + 34);
+  }
+  // 모임 도장: 오른쪽 위
+  if (c.count && c.count >= 2) {
+    ctx.save();
+    ctx.translate(860, 205);
+    ctx.rotate((-6 * Math.PI) / 180);
+    ctx.fillStyle = "#f7f0e1";
+    ctx.strokeStyle = "#c2372b";
+    ctx.lineWidth = 7;
+    ctx.beginPath();
+    ctx.roundRect(-130, -48, 260, 96, 18);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = "#c2372b";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.font = "700 42px 'Jua', 'Apple SD Gothic Neo', sans-serif";
+    ctx.fillText(`${c.count}명이 모였어요`, 0, 2);
+    ctx.restore();
+  }
+  ctx.textBaseline = "alphabetic";
   ctx.fillStyle = "#2b2233";
   ctx.textAlign = "center";
   ctx.font =

@@ -332,6 +332,8 @@ function Quiz() {
         sub: `${EL_HANJA[me.primary]}${EL_WORD[me.primary]}의 기운 · 부캐 ${friendName(me.secondary)}`,
         name,
         url: link.split("?")[0]!,
+        subKind: subKind,
+        count: board.length,
       },
       `${name}님은 ${info.name}! 너의 오행 친구도 찾아봐 → ${link}`,
     );
