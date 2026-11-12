@@ -135,6 +135,12 @@ function Result() {
             <p className="mt-2 text-sm leading-relaxed text-[#e6e2f3]">
               {verdict.text}
             </p>
+            <p className="mt-2 rounded-xl bg-white/10 p-3 text-sm leading-relaxed text-[#e6e2f3]">
+              <span className="font-extrabold text-[var(--to)]">
+                이 고민에서 나는{" "}
+              </span>
+              {verdict.personal}
+            </p>
             <div className="mt-3 rounded-xl bg-white/10 p-3 text-sm">
               <p className="font-extrabold text-[var(--to)]">이번 주 해볼 일</p>
               <ul className="mt-1 space-y-0.5">

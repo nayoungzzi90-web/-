@@ -399,6 +399,7 @@ export interface Verdict {
   category: string;
   headline: string;
   text: string;
+  personal: string; // 내 일간이 이 고민에서 보이는 모습(고민 분류별)
   todo: string[];
   basis: string[];
 }
@@ -891,6 +892,10 @@ const CATS: { key: string; words: string[]; head: [string, string] }[] = [
   {
     key: "이직·일",
     words: [
+      "전직",
+      "휴직",
+      "직업",
+      "일자리",
       "이직",
       "퇴사",
       "직장",
@@ -909,6 +914,13 @@ const CATS: { key: string; words: string[]; head: [string, string] }[] = [
   {
     key: "연애·결혼",
     words: [
+      "이성",
+      "고백",
+      "애인",
+      "헤어",
+      "남자친구",
+      "여자친구",
+      "권태기",
       "연애",
       "결혼",
       "남친",
@@ -926,7 +938,12 @@ const CATS: { key: string; words: string[]; head: [string, string] }[] = [
   },
   {
     key: "돈·재물",
-    words: ["돈", "재물", "투자", "주식", "월급", "빚", "사업", "매출", "창업"],
+    words: [
+      "대출",
+      "적금",
+      "부동산",
+      "연봉",
+      "저축","돈", "재물", "투자", "주식", "월급", "빚", "사업", "매출", "창업"],
     head: [
       "벌 힘은 있고, 새는 구멍을 먼저 막아요.",
       "크게 벌기 전에 지키는 습관이 먼저예요.",
@@ -934,12 +951,21 @@ const CATS: { key: string; words: string[]; head: [string, string] }[] = [
   },
   {
     key: "시험·공부",
-    words: ["시험", "공부", "합격", "자격증", "수능", "면접", "학교"],
+    words: [
+      "입시",
+      "대학",
+      "임용",
+      "고시",
+      "토익","시험", "공부", "합격", "자격증", "수능", "면접", "학교"],
     head: ["꾸준함이 이기는 판이에요.", "몰아치기보다 매일 조금씩이 점괘예요."],
   },
   {
     key: "관계·가족",
     words: [
+      "형제",
+      "자매",
+      "시댁",
+      "처가",
       "친구",
       "가족",
       "부모",
@@ -957,7 +983,11 @@ const CATS: { key: string; words: string[]; head: [string, string] }[] = [
   },
   {
     key: "건강·마음",
-    words: ["건강", "우울", "불안", "스트레스", "번아웃", "잠", "피곤"],
+    words: [
+      "무기력",
+      "멘탈",
+      "외로",
+      "슬럼프","건강", "우울", "불안", "스트레스", "번아웃", "잠", "피곤"],
     head: ["먼저 쉬어야 길이 보여요.", "몸과 마음의 기운부터 채워요."],
   },
 ];
@@ -968,30 +998,90 @@ export function classifyConcern(text: string): string {
   return "기타";
 }
 
-export function buildVerdict(p: SajuPreview, concern: string): Verdict | null {
+const STUDY_STYLE: Record<Element, string> = {
+  목: "한 군데에 오래 박혀 있기보다 새 단원을 넓혀 갈 때 흥이 나는 공부 스타일이에요. 계획표에 '새로 배우는 칸'과 '복습 칸'을 섞어 두면 질리지 않아요.",
+  화: "의욕이 불붙으면 몰아치다가 금방 식기 쉬워요. 짧게 자주, 소리 내어 설명해 보는 공부가 잘 맞아요.",
+  토: "느리지만 한 번 익히면 오래 가는 공부 스타일이에요. 매일 같은 시간·같은 자리에서 하는 루틴이 가장 큰 무기예요.",
+  금: "정리와 오답 노트에서 힘이 나요. 다만 완벽하게 끝내려다 시작이 늦어지기 쉬우니 70%에서 일단 넘어가 봐요.",
+  수: "흐름을 이해하면 빠르게 느는 대신 잡생각이 많아 집중이 흩어지기 쉬워요. 공부 전에 오늘 할 일 세 줄을 적어 머리를 비워 봐요.",
+};
+const CAT_TODO: Record<string, [string, string]> = {
+  "이직·일": [
+    "지금 일에서 싫은 것과 지키고 싶은 것을 세 가지씩 적어 보기",
+    "가고 싶은 곳에 있는 사람 한 명의 실제 이야기 들어 보기",
+  ],
+  "연애·결혼": [
+    "상대에게 바라는 것 말고, 내가 편안했던 순간 세 가지 적어 보기",
+    "서운한 점은 그날 한 문장으로만 전해 보기",
+  ],
+  "돈·재물": [
+    "지난달 지출을 고정비와 변동비로 나눠 적어 보기",
+    "새는 구멍 한 곳만 골라 이번 주에 막아 보기",
+  ],
+  "시험·공부": [
+    "오늘 분량을 시간이 아니라 쪽수·문제 수로 정해 보기",
+    "하루 끝에 오늘 배운 것을 한 줄로 적어 보기",
+  ],
+  "관계·가족": [
+    "그 사람에게 바라는 것과 내가 줄 수 있는 것을 따로 적어 보기",
+    "대화를 '나는 ~했어'로 시작해 보기",
+  ],
+  "건강·마음": [
+    "잠드는 시간과 일어나는 시간을 이번 주만 고정해 보기",
+    "힘든 점을 하루 5분만 글로 꺼내 놓기(몸이 계속 불편하면 전문가 상담)",
+  ],
+};
+const DEFAULT_TODO: [string, string] = [
+  "고민을 세 줄로 적어 보기: 무엇이, 왜, 언제까지",
+  "결정은 서두르지 말고 하루 뒤에 다시 읽어 보기",
+];
+
+export function buildVerdict(
+  p: SajuPreview,
+  concern: string,
+  now: Date = new Date(),
+): Verdict | null {
   const t = concern.trim();
   if (!t || !p.ok || !p.pillars || !p.elements) return null;
-  const rd = buildReading(p);
+  const rd = buildReading(p, now);
   if (!rd) return null;
   const key = classifyConcern(t);
   const cat = CATS.find((c) => c.key === key);
   const lackEl = (rd.missing[0] ??
     ELEMENTS.reduce((a, b) => (p.elements![a] <= p.elements![b] ? a : b)))!;
+  const deep = STEM_DEEP[rd.dayStem]!;
+  const personal =
+    key === "이직·일"
+      ? deep.work
+      : key === "연애·결혼"
+        ? deep.love
+        : key === "돈·재물"
+          ? deep.money
+          : key === "관계·가족"
+            ? deep.people
+            : key === "시험·공부"
+              ? STUDY_STYLE[rd.dayEl]
+              : deep.inner;
+  const yg = yearGanji(ganjiYearAt(now));
+  const yearMood = YEAR_MOOD[relation(rd.dayEl, stemElement(yg.stem))];
   const head = cat ? cat.head[0] : "서두르지 말고, 빈 곳부터 채워요.";
-  const text = `${cat ? cat.head[1] : "고민의 결을 더 알려주면 점괘가 선명해져요."} 사주에는 ${EL_WORD[lackEl]}(${EL_HANJA[lackEl]}) 기운이 ${rd.missing.includes(lackEl) ? "없고" : "적고"}, ${EL_WORD[rd.dominant[0]!]} 기운이 가장 많아요. 그래서 ${MISSING_TIP[lackEl]}을 곁들이면 균형이 좋아져요.`;
+  const todo = CAT_TODO[key] ?? DEFAULT_TODO;
+  const text = `${cat ? cat.head[1] : "고민의 결을 더 알려주면 점괘가 선명해져요."} 사주에는 ${EL_WORD[lackEl]}(${EL_HANJA[lackEl]}) 기운이 ${rd.missing.includes(lackEl) ? "없고" : "적고"}, ${EL_WORD[rd.dominant[0]!]} 기운이 가장 많아요. 그래서 ${MISSING_TIP[lackEl]}을 곁들이면 균형이 좋아져요. 올해 ${yg.ko}년은 ${yearMood.head}이라, ${yearMood.tip}`;
   return {
     category: key,
     headline: head,
     text,
+    personal,
     todo: [
-      "고민을 세 줄로 적어보기: 무엇이, 왜, 언제까지",
+      todo[0],
+      todo[1],
       `${MISSING_TIP[lackEl].replace(/\(.*\)/, "")} 이번 주에 한 번 해보기`,
-      "결정은 서두르지 말고 하루 뒤에 다시 읽어보기",
     ],
     basis: [
       `일간 ${p.pillars.day.hanja.charAt(0)}(${EL_WORD[rd.dayEl]})`,
       `오행 ${EL_WORD[lackEl]} ${p.elements[lackEl]}개`,
       `고민 키워드: ${key}`,
+      `올해 ${yg.hanja}(${yg.ko})`,
     ],
   };
 }

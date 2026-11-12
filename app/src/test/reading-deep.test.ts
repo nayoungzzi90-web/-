@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { computeDaeunForBirth } from "@/lib/daeun";
-import { buildReading, ganjiYearAt, yearGanji } from "@/lib/reading";
+import { buildReading, buildVerdict, classifyConcern, ganjiYearAt, yearGanji } from "@/lib/reading";
 import { previewFromBirthInput } from "@/lib/saju-engine";
 
 // 2단계 풀이 심화: 모든 일간·월지 조합에서 빈 문장·깨진 문장이 없고,
@@ -167,5 +167,73 @@ describe("올해·내년 흐름", () => {
     expect(basis).toContain("丁未");
     const b = buildReading(p, new Date("2027-03-01T12:00:00+09:00"))!;
     expect(b.sections.find((s) => s.id === "year")!.basis.join(" ")).toContain("戊申");
+  });
+});
+
+describe("고민별 맞춤 풀이", () => {
+  const CONCERNS: [string, string][] = [
+    ["이직·일", "요즘 전직을 해야 할지 고민이에요"],
+    ["연애·결혼", "남자친구와 권태기가 온 것 같아요"],
+    ["돈·재물", "적금을 들지 부동산을 알아볼지 모르겠어요"],
+    ["시험·공부", "임용 시험 준비가 막막해요"],
+    ["관계·가족", "시댁과의 관계가 힘들어요"],
+    ["건강·마음", "요즘 무기력하고 잠이 안 와요"],
+    ["기타", "그냥 뭔가 답답해요"],
+  ];
+  const BAD = ["격국", "용신", "신강", "신약", "십성", "대운", "세운", "undefined", "NaN", "[object"];
+  const now = new Date("2026-11-12T12:00:00+09:00");
+
+  it("새 키워드가 맞는 분류로 들어간다(남자친구는 관계가 아니라 연애)", () => {
+    for (const [key, text] of CONCERNS) expect(classifyConcern(text)).toBe(key);
+  });
+
+  it("분류 7종 × 일간 10종: 문장이 채워지고, 같은 분류라도 일간마다 문장이 다르다", () => {
+    const byStem = new Map<string, Set<string>>();
+    const seenStems = new Set<number>();
+    for (const date of dates()) {
+      const p = previewFromBirthInput({
+        name: "테스트",
+        calendar: "solar",
+        leap: false,
+        date,
+        time: "10:20",
+        gender: "f",
+      });
+      if (!p.ok || !p.pillars) continue;
+      const stem = p.pillars.day.stem;
+      for (const [key, text] of CONCERNS) {
+        const v = buildVerdict(p, text, now)!;
+        expect(v.category).toBe(key);
+        expect(v.todo).toHaveLength(3);
+        expect(v.basis.join(" ")).toContain("丙午");
+        for (const tx of [v.headline, v.text, v.personal, ...v.todo, ...v.basis]) {
+          expect(tx.trim().length).toBeGreaterThan(1);
+          for (const bad of BAD) expect(tx).not.toContain(bad);
+        }
+        const k = `${key}`;
+        if (!byStem.has(k)) byStem.set(k, new Set());
+        byStem.get(k)!.add(`${stem}:${v.personal}`);
+      }
+      seenStems.add(stem);
+    }
+    expect(seenStems.size).toBe(10);
+    // 분류별로 일간 10종이 모두 서로 다른 개인 문장을 낸다(시험·공부는 오행 5종)
+    for (const [key] of CONCERNS) {
+      const distinct = new Set([...byStem.get(key)!].map((s) => s.split(":").slice(1).join(":")));
+      expect(distinct.size).toBeGreaterThanOrEqual(key === "시험·공부" ? 5 : 10);
+    }
+  });
+
+  it("분류마다 고민 맞춤 할 일 2개가 들어가고 서로 다르다", () => {
+    const p = previewFromBirthInput({
+      name: "테스트",
+      calendar: "solar",
+      leap: false,
+      date: "1995-07-15",
+      time: "10:20",
+      gender: "f",
+    });
+    const firsts = new Set(CONCERNS.map(([, text]) => buildVerdict(p, text, now)!.todo[0]));
+    expect(firsts.size).toBe(7);
   });
 });
