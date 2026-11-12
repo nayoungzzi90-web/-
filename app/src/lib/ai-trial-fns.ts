@@ -50,7 +50,7 @@ export const runAiStoryFn = createServerFn({ method: "POST" })
   });
 
 // 섹션 한 장씩 요청(휴대폰 브라우저가 1분 넘게 응답이 없는 요청을 끊는 문제를 피한다).
-export const STORY_TOTAL = 9; // ai-story.server.ts 의 STORY_SECTIONS 개수와 같아야 한다(시험이 확인)
+export const STORY_TOTAL = 12; // ai-story.server.ts 의 STORY_SECTIONS 개수와 같아야 한다(시험이 확인)
 const priorSchema = z.object({
   id: z.string().max(32),
   title: z.string().max(60),

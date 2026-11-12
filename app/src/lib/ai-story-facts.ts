@@ -6,6 +6,7 @@ import { ganjiYearAt, yearGanji, EL_WORD, ELEMENTS, branchElement, stemElement }
 import { kstToday, type BirthInput } from "./saju";
 import { BRANCH_KO, previewFromBirthInput } from "./saju-engine";
 import { computeSinsal, twelveSinsal, SINSAL12 } from "./sinsal";
+import { branchLinks, computeNeed, computeStrength, elementSignal, moodOf, stageSignal } from "./ai-story-judgment";
 import { tenGodOf, type TenGod } from "./ten-gods";
 import { STAGE_KO, stageIndex, stageOf } from "./twelve-stages";
 
@@ -29,6 +30,11 @@ export interface StoryFacts {
   dayStemName: string;
   hasHour: boolean;
   sinsalNames: string[]; // 이 사주에 실제로 해당하는 신살 이름(AI 가 다른 신살을 말하면 검수에서 막는다)
+  strengthLabel: string; // 신강 / 신강 경향 / 신약 경향 / 신약 (일반 이론 후보)
+  years: number[]; // 향후 5년(입춘 기준)
+  yearNames: string[]; // 그 해의 간지 읽기(예: 병오)
+  daeunNow: string | null; // 지금 대운 이름(예: 병술)
+  needName: string; // 생활 처방용 필요한 기운 이름(예: 불)
 }
 
 export function buildStoryFacts(me: BirthInput, now: Date = new Date()): StoryFacts | null {
@@ -107,26 +113,58 @@ export function buildStoryFacts(me: BirthInput, now: Date = new Date()): StoryFa
   L.push("[태어난 달]");
   L.push(`- 월지 ${BRANCH_KO[mb]}, 대략 양력 ${MONTH_OF_BRANCH[mb]}월 무렵의 절기 달(달력의 달과 절기 달은 다를 수 있다)`);
 
+  // ── 일반 이론 판정(점수 합산 없음, 전문가 검증 전) ──
+  const st = computeStrength(pil);
+  const need = computeNeed(pil, counts, st);
+  L.push("[일간 강약 관찰(일반 이론, 전문가 검증 전인 후보 판정)]");
+  for (const e of st.evidence) L.push(`- ${e}`);
+  L.push(`- 결과: ${st.label} (득령·득지·득세 가운데 ${[st.ryeong, st.ji, st.se].filter(Boolean).length}개가 예). 이 계산은 종격 같은 특수 구조와 합충의 변화는 반영하지 않는다`);
+  L.push("[균형과 필요한 기운(일반 이론, 전문가 검증 전인 후보)]");
+  L.push(`- 억부 관점: ${need.eokbuNote}`);
+  L.push(`- 조후 관점: ${need.johuNote}`);
+  L.push(`- 생활 처방용 필요한 기운(용신 후보): ${EL_WORD[need.primary]} — ${need.primaryReason}`);
+  L.push(`- 필요한 기운을 낳아 주는 기운(희신 후보): ${EL_WORD[need.hee]} / 필요한 기운을 누르는 기운(기신 후보): ${EL_WORD[need.gi]}`);
+  L.push(`- 넘치는 기운: ${need.excess.length ? need.excess.map((e) => EL_WORD[e]).join("·") : "뚜렷하게 넘치는 오행은 없음"} / 가장 적은 기운: ${need.least.map((e) => EL_WORD[e]).join("·")}`);
+  L.push("[오행 상징 대응(일반 표, 생활 처방 재료. 의학·종교적 주장이 아니다)]");
+  L.push("- 나무: 초록·청록색, 동쪽, 봄, 신맛, 걷기·스트레칭·식물 가꾸기, 전통적으로 간·눈·근육 쪽 관리와 연결");
+  L.push("- 불: 붉은색·주황색, 남쪽, 여름, 쓴맛, 햇볕 쬐기·활동적인 운동·사람 만나기, 전통적으로 심장·혈압·혈액순환 쪽 관리와 연결");
+  L.push("- 흙: 노란색·황토색, 중앙, 환절기, 단맛, 규칙적인 식사와 수면·텃밭·산책, 전통적으로 위장·소화 쪽 관리와 연결");
+  L.push("- 쇠: 흰색·은색, 서쪽, 가을, 매운맛, 정리정돈·호흡 운동, 전통적으로 폐·호흡기·피부 쪽 관리와 연결");
+  L.push("- 물: 검은색·남색, 북쪽, 겨울, 짠맛, 충분한 수면과 수분·수영·휴식, 전통적으로 신장·방광·귀·허리 쪽 관리와 연결");
+
   const d = computeDaeunForBirth(me);
+  let daeunNow: string | null = null;
   if (d) {
-    L.push("[10년 단위 흐름(대운, 참고용)]");
-    L.push(`- ${d.forward ? "순행" : "역행"}, 첫 흐름은 만 ${d.startAge.years}세 무렵에 시작`);
     const nowAge = (now.getTime() - d.birthUtcMs) / (365.2425 * 86_400_000);
     let idx = -1;
     d.pillars.forEach((x, i) => { if (x.startAgeYears <= nowAge) idx = i; });
+    L.push("[10년 단위 인생 흐름(대운, 참고용) — 분위기는 12운성 단계와 필요한 기운 여부를 센 판정]");
+    L.push(`- ${d.forward ? "순행" : "역행"}, 첫 흐름은 만 ${d.startAge.years}세 무렵에 시작`);
+    d.pillars.forEach((x, i) => {
+      const stg = stageIndex(dm, x.branch);
+      const mood = moodOf([stageSignal(stg), elementSignal(stemElement(x.stem), need), elementSignal(branchElement(x.branch), need)]);
+      const next = d.pillars[i + 1];
+      const links = branchLinks(x.branch, pil);
+      L.push(`- ${i === idx ? "[지금] " : ""}${x.ko} 대운 만 ${x.startAge.years}세~${next ? next.startAge.years : x.startAge.years + 10}세(${x.startYear}년경~): 하늘 글자 ${STEM_NAME[x.stem]}=${x.tenGod}, 땅 글자 ${BRANCH_KO[x.branch]}, 일간의 12운성 ${STAGE_KO[stg]}, 하늘 글자 기운은 필요한 기운 쪽으로 ${elementSignal(stemElement(x.stem), need) === "+" ? "도움" : elementSignal(stemElement(x.stem), need) === "-" ? "부담" : "중립"}, 땅 글자 기운은 ${elementSignal(branchElement(x.branch), need) === "+" ? "도움" : elementSignal(branchElement(x.branch), need) === "-" ? "부담" : "중립"}, 원국과: ${links.length ? links.join(", ") : "충·육합 없음"} → 분위기 판정: ${mood.label}`);
+    });
     const cur = d.pillars[Math.max(idx, 0)]!;
+    daeunNow = cur.ko;
     const nxt = d.pillars[Math.max(idx, 0) + 1];
-    const desc = (x: typeof cur) => `${x.ko}(만 ${x.startAge.years}세~, 하늘 글자 ${STEM_NAME[x.stem]}=${x.tenGod}, 땅 글자 ${BRANCH_KO[x.branch]})`;
-    L.push(`- ${idx < 0 ? "아직 첫 흐름 전, 곧 시작될 흐름" : "지금 흐름"}: ${desc(cur)}`);
-    if (nxt) L.push(`- 다음 흐름: ${desc(nxt)}`);
+    if (nxt) L.push(`- 다음 대운으로 바뀌는 때(교운기): ${nxt.startYear}년경, 만 ${nxt.startAge.years}세 무렵. 바뀌기 전후 1~2년은 환경·마음이 전환되기 쉬운 시기로 본다`);
   }
 
   const y1 = yearGanji(ganjiYearAt(now));
-  const y2 = yearGanji(y1.year + 1);
-  L.push("[올해와 내년(입춘 기준 해의 간지)]");
-  for (const [w, y] of [["올해", y1], ["내년", y2]] as const)
-    L.push(`- ${w} ${y.ko}년: 하늘 글자 ${STEM_NAME[y.stem]}=${tenGodOf(dm, y.stem)}, 땅 글자 ${BRANCH_KO[y.branch]}(${EL_WORD[branchElement(y.branch)]}), 일간이 그 땅 글자에서 ${STAGE_KO[stageIndex(dm, y.branch)]}`);
+  const years = [0, 1, 2, 3, 4].map((k) => yearGanji(y1.year + k));
+  L.push("[향후 5년(입춘 기준 해의 간지) — 분위기는 12운성 단계와 필요한 기운 여부를 센 판정]");
+  for (const y of years) {
+    const stg = stageIndex(dm, y.branch);
+    const sSig = elementSignal(stemElement(y.stem), need);
+    const bSig = elementSignal(branchElement(y.branch), need);
+    const mood = moodOf([stageSignal(stg), sSig, bSig]);
+    const links = branchLinks(y.branch, pil);
+    L.push(`- ${y.year}년 ${y.ko}년: 하늘 글자 ${STEM_NAME[y.stem]}=${tenGodOf(dm, y.stem)}, 땅 글자 ${BRANCH_KO[y.branch]}(${EL_WORD[branchElement(y.branch)]}), 일간의 12운성 ${STAGE_KO[stg]}, 하늘 글자 기운은 필요한 기운 쪽으로 ${sSig === "+" ? "도움" : sSig === "-" ? "부담" : "중립"}, 땅 글자 기운은 ${bSig === "+" ? "도움" : bSig === "-" ? "부담" : "중립"}, 원국과: ${links.length ? links.join(", ") : "충·육합 없음"}${links.some((l) => l.endsWith("충")) ? " (충은 변화·이동이 큰 신호)" : ""} → 분위기 판정: ${mood.label}`);
+  }
 
-  return { text: L.join("\n"), dayStemName: STEM_NAME[dm]!, hasHour: !!pil.hour, sinsalNames };
+  return { text: L.join("\n"), dayStemName: STEM_NAME[dm]!, hasHour: !!pil.hour, sinsalNames, strengthLabel: st.label, years: years.map((y) => y.year), yearNames: years.map((y) => y.ko), daeunNow, needName: EL_WORD[need.primary] };
 }
 
