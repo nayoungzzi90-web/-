@@ -1,340 +1,154 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
-import {
-  Friend,
-  type FriendKind,
-  FRIEND_IMG,
-  FRIEND_INFO,
-} from "@/components/Friends";
-import { Coin, Page } from "@/components/Shell";
+import { FRIEND_IMG, FRIEND_INFO, Friend, type FriendKind } from "@/components/Friends";
+import { Page } from "@/components/Shell";
 
 export const Route = createFileRoute("/")({ component: Home });
 
-// 서비스 카드마다 사진 한 장(없으면 오리 그림). 사진은 public/characters/ 에 넣는다(권리가 확인된 이미지만).
-type Shape = "arch" | "moon" | "hex" | "squircle";
-type Service = {
-  id: string;
-  title: string;
-  desc: string;
-  price: string;
-  photo: string;
-  fallback: FriendKind;
-  bg: string;
-  shape: Shape;
-  soon?: boolean;
-  to?: "/input" | "/today" | "/compat";
-};
-
-const SERVICES: Service[] = [
-  {
-    id: "basic",
-    title: "내 사주 보기",
-    desc: "내 사주 속 오행 친구 만나기",
-    price: "무료",
-    photo: "/characters/basic.jpg",
-    fallback: "seonbi",
-    bg: "#e9e5f6",
-    shape: "arch",
-    to: "/input",
-  },
-  {
-    id: "love",
-    title: "연애운",
-    desc: "썸·결혼운·재회운까지",
-    price: "2",
-    photo: "/characters/love.jpg",
-    fallback: "ssi",
-    bg: "#fbd9d4",
-    shape: "moon",
-    soon: true,
-  },
-  {
-    id: "compat",
-    title: "궁합",
-    desc: "우리 둘, 어떤 케미일까요?",
-    price: "무료",
-    photo: "/characters/compat.jpg",
-    fallback: "tiger",
-    bg: "#f8e4ae",
-    shape: "hex",
-    to: "/compat",
-  },
-  {
-    id: "today",
-    title: "오늘의 복주머니",
-    desc: "하루 한 번 공짜 운세",
-    price: "무료",
-    photo: "/characters/today.jpg",
-    fallback: "rabbit",
-    bg: "#d3ead9",
-    shape: "squircle",
-    to: "/today",
-  },
-  {
-    id: "date",
-    title: "택일",
-    desc: "좋은 날 골라드려요",
-    price: "2",
-    photo: "/characters/date.jpg",
-    fallback: "turtle",
-    bg: "#d5e1f3",
-    shape: "arch",
-    soon: true,
-  },
-  {
-    id: "deep",
-    title: "심층 사주",
-    desc: "평생 흐름까지 깊게",
-    price: "3",
-    photo: "/characters/deep.jpg",
-    fallback: "seonbi",
-    bg: "#e4e2ee",
-    shape: "moon",
-    soon: true,
-  },
+// 홈 v4(2026-11-12): 한옥 일러스트 히어로 + 캐릭터 5명 + 대표 버튼 1개. 가로 스크롤 없음(가로로 넘기는 영역을 두지 않고 모든 줄이 화면 폭 안에 들어간다).
+// 이전 홈은 /home-classic 에 그대로 남겨 둔다.
+const FRIENDS: { kind: FriendKind; el: string; bg: string }[] = [
+  { kind: "seonbi", el: "목", bg: "#3b8f7b" },
+  { kind: "ssi", el: "화", bg: "#d6463a" },
+  { kind: "tiger", el: "토", bg: "#e8b23a" },
+  { kind: "rabbit", el: "금", bg: "#ece8df" },
+  { kind: "turtle", el: "수", bg: "#4a4d78" },
 ];
 
-const CLIP: Record<Shape, React.CSSProperties> = {
-  arch: { borderRadius: "999px 999px 22px 22px" },
-  moon: { borderRadius: "50%" },
-  hex: {
-    clipPath: "polygon(25% 3%, 75% 3%, 100% 50%, 75% 97%, 25% 97%, 0 50%)",
-  },
-  squircle: { borderRadius: "34%" },
-};
-
-function Thumb({ s }: { s: Service }) {
-  return (
-    <div
-      className="mx-auto flex aspect-square w-[86%] items-end justify-center overflow-hidden bg-[#fffaf0]/80"
-      style={CLIP[s.shape]}
-    >
-      <Friend kind={s.fallback} size={118} className="mb-1" />
-    </div>
-  );
-}
-
-function Card({ s, children }: { s: Service; children: React.ReactNode }) {
-  const cls = "hj-card relative block min-w-0 px-2 pb-3 pt-4 text-left";
-  if (s.to && !s.soon)
-    return (
-      <Link to={s.to} className={cls} style={{ background: s.bg }}>
-        {children}
-      </Link>
-    );
-  return (
-    <div
-      className={`${cls} opacity-60`}
-      style={{ background: s.bg }}
-      aria-disabled="true"
-    >
-      {children}
-    </div>
-  );
-}
+const MORE = [
+  { title: "오늘의 복주머니", desc: "하루 한 번 공짜 운세", tag: "무료", tone: "#2f7068", to: "/today" as const },
+  { title: "연애운", desc: "썸·결혼운·재회운까지", tag: "준비 중", tone: "#8a7f72" },
+  { title: "택일", desc: "좋은 날 골라드려요", tag: "준비 중", tone: "#8a7f72" },
+  { title: "심층 사주", desc: "평생 흐름까지 깊게", tag: "준비 중", tone: "#8a7f72" },
+];
 
 function Home() {
   return (
     <Page>
-      <section>
-        {/* 시안의 한옥 그림(글자 제거본) 위에 제목·족자 글자·캐릭터를 얹는다 */}
-        <div
-          className="relative overflow-hidden"
-          style={{ containerType: "inline-size" }}
-        >
+      <div className="overflow-x-hidden">
+        {/* 1. 일러스트 히어로 */}
+        <div className="relative h-[300px] overflow-hidden">
           <img
             src="/restore/hero.jpg"
             alt=""
-            className="block w-full"
+            className="absolute inset-0 h-full w-full object-cover"
+            style={{ objectPosition: "70% 50%" }}
             draggable={false}
           />
-          <div
-            className="absolute left-0 top-0 px-5 pt-5"
-            style={{ fontSize: "min(100%, 16px)" }}
-          >
-            <p className="flex items-center gap-2 text-[15px]">
+          <div className="absolute left-5 top-6 w-[60%]">
+            <p className="flex items-center gap-1.5 text-[13px] font-bold text-[var(--ink-soft)]">
               조선시대 감성 사주풀이
-              <span className="rounded-[4px] bg-[var(--stamp)] px-1 text-[11px] text-white">
-                福
-              </span>
+              <span className="rounded-[4px] bg-[var(--stamp)] px-1 text-[11px] text-white">福</span>
             </p>
-            <h1 className="font-display mt-1 text-[40px] leading-none">
-              오행 친구들
-            </h1>
-            <p className="mt-3 text-[15px] leading-snug">
-              나무, 불, 흙, 쇠, 물 다섯 친구가
+            <h1 className="font-display mt-1.5 text-[32px] leading-[1.15]">
+              태어난 날에
               <br />
-              당신의 길을 안내해요.
-            </p>
-          </div>
-          <div
-            className="absolute flex flex-row-reverse whitespace-nowrap font-bold"
-            style={{
-              left: "79.5%",
-              width: "12.5%",
-              top: "54%",
-              height: "34%",
-              justifyContent: "center",
-              alignItems: "flex-start",
-              gap: "2.2cqw",
-              fontSize: "3.6cqw",
-              lineHeight: 1.25,
-            }}
-          >
-            {["복많이", "받으세요"].map((l) => (
-              <span key={l} className="flex flex-col items-center">
-                {[...l].map((ch, i) => (
-                  <span key={i}>{ch}</span>
-                ))}
-              </span>
-            ))}
+              숨겨진
+              <br />
+              <span className="text-[var(--stamp)]">나만의 이야기</span>
+            </h1>
           </div>
         </div>
-        <div className="relative bg-[#efe0bf] pb-3 pt-1">
-          <div className="relative z-10 flex items-end justify-center px-2">
-            {(
-              ["seonbi", "ssi", "tiger", "rabbit", "turtle"] as FriendKind[]
-            ).map((k) => (
-              <div
-                key={k}
-                className="flex flex-1 items-end justify-center"
-                style={{ height: 104 }}
-              >
-                <img
-                  src={FRIEND_IMG[k]}
-                  alt={FRIEND_INFO[k].name}
-                  className="max-h-full w-[19vw] max-w-[84px] object-contain"
-                  draggable={false}
-                />
-              </div>
-            ))}
-          </div>
+
+        {/* 2. 캐릭터 5명(히어로 아래쪽에 걸쳐 선다) */}
+        <div className="relative z-10 -mt-14 flex items-end justify-center px-2">
+          {FRIENDS.map((f) => (
+            <div key={f.kind} className="flex min-w-0 flex-1 items-end justify-center" style={{ height: 108 }}>
+              <img src={FRIEND_IMG[f.kind]} alt={FRIEND_INFO[f.kind].name} className="max-h-full max-w-[19vw] object-contain" draggable={false} />
+            </div>
+          ))}
         </div>
-        <div className="px-4 pt-4 text-center">
-          <p className="font-display text-[22px] leading-snug">
-            태어난 순간의 이야기,
+
+        {/* 3. 대표 버튼 */}
+        <section className="px-4 pt-3 text-center">
+          <p className="text-[15px] font-bold leading-snug">
+            다섯 오행 친구가 들려주는
             <br />
-            귀엽게 풀어드려요
+            나의 성향, 연애, 일 이야기
           </p>
           <Link
             to="/input"
-            className="font-display mt-4 block w-full rounded-[24px] border-2 border-[var(--line)] py-3.5 text-lg text-white shadow-[0_3px_0_rgba(43,35,32,0.55)] active:translate-y-0.5"
+            className="font-display mt-4 block w-full rounded-[24px] border-2 border-[var(--line)] py-3.5 text-lg text-white shadow-[0_3px_0_rgba(43,35,32,0.35)]"
             style={{ background: "linear-gradient(180deg,#c4452f,#a93421)" }}
           >
-            무료로 내 사주 보기 ›
+            무료로 내 사주 친구 만나기 ›
           </Link>
-          <Link
-            to="/sample"
-            className="mt-3 block text-sm text-[var(--ink-soft)] underline"
-          >
+          <p className="mt-2 text-xs text-[var(--ink-soft)]">회원가입 없이 먼저 체험할 수 있어요</p>
+          <Link to="/sample" className="mt-2 inline-block text-sm text-[var(--ink-soft)] underline">
             샘플 결과 먼저 구경하기
           </Link>
-        </div>
-      </section>
+        </section>
 
-      <section className="mt-7 px-4">
-        <Link
-          to="/quiz"
-          className="hj-card relative block overflow-hidden bg-[#f8e4ae] p-4 pr-28 text-left active:translate-y-0.5"
-        >
-          <span className="rounded-full bg-[var(--stamp)] px-2 py-0.5 text-[11px] font-bold text-white">
-            NEW · 생년월일 없이 30초
-          </span>
-          <p className="font-display mt-1.5 text-xl leading-snug">
-            나의 오행 친구 찾기
-          </p>
-          <p className="mt-0.5 text-[13px] leading-snug text-[var(--ink-soft)]">
-            10문항 테스트 후 단톡방에 도전장을 보내
-            <br />
-            우리 모임의 오행 지도를 만들어 보세요
-          </p>
-          <img
-            src={FRIEND_IMG.tiger}
-            alt=""
-            aria-hidden
-            className="absolute -bottom-1 right-2 h-24 w-auto"
-            draggable={false}
-          />
-          <img
-            src={FRIEND_IMG.rabbit}
-            alt=""
-            aria-hidden
-            className="absolute -bottom-1 right-14 h-20 w-auto"
-            draggable={false}
-          />
-        </Link>
-      </section>
-
-      <section className="mt-8 px-4">
-        <h2 className="font-display text-xl">오늘의 메뉴</h2>
-        <div className="mt-3 grid grid-cols-2 gap-3">
-          {SERVICES.map((s) => (
-            <Card key={s.id} s={s}>
-              <Thumb s={s} />
-              <div className="mt-2.5 flex items-start justify-between gap-1 px-1">
-                <p className="font-display text-[17px] leading-tight">
-                  {s.title}
-                </p>
-                {s.soon ? (
-                  <span className="shrink-0 rounded-md border-2 border-[var(--ink-soft)] px-1.5 text-[11px] font-extrabold text-[var(--ink-soft)]">
-                    준비중
-                  </span>
-                ) : (
-                  <span className="stamp shrink-0">
-                    {s.price === "무료" ? (
-                      "무료"
-                    ) : (
-                      <>
-                        <Coin size={12} />
-                        {s.price}
-                      </>
-                    )}
-                  </span>
-                )}
-              </div>
-              <p className="mt-0.5 px-1 text-xs text-[var(--ink-soft)]">
-                {s.desc}
-              </p>
-            </Card>
-          ))}
-        </div>
-      </section>
-
-      <section className="mt-8 px-4">
-        <div className="hj-card bg-[var(--su)] p-4 text-[#fffaf0]">
-          <p className="font-display text-lg">오행 친구는 다섯 마리</p>
-          <p className="mt-0.5 text-xs text-[#d8d4e6]">
-            나의 일간이 정하는 내 친구는 누구일까?
-          </p>
-          <div className="mt-3 flex justify-between">
-            {(
-              ["seonbi", "ssi", "tiger", "rabbit", "turtle"] as FriendKind[]
-            ).map((k, i) => (
-              <div key={k} className="text-center">
-                <div
-                  className="rounded-2xl p-1"
-                  style={{
-                    background: [
-                      "#3b8f7b",
-                      "#d6463a",
-                      "#e8b23a",
-                      "#ece8df",
-                      "#4a4d78",
-                    ][i],
-                  }}
-                >
-                  <Friend kind={k} size={52} />
+        {/* 4. 오행 친구 소개(한 줄에 5칸, 가로로 넘기지 않는다) */}
+        <section className="mt-8 px-4">
+          <h2 className="font-display text-xl">나는 어떤 오행 친구일까?</h2>
+          <div className="mt-3 grid grid-cols-5 gap-1.5">
+            {FRIENDS.map((f) => (
+              <Link key={f.kind} to="/quiz" className="min-w-0 text-center">
+                <div className="rounded-2xl p-1" style={{ background: f.bg }}>
+                  <Friend kind={f.kind} size={52} />
                 </div>
-                <p className="mt-1 text-[11px] font-bold">
-                  {["목", "화", "토", "금", "수"][i]}
-                </p>
-              </div>
+                <p className="mt-1 truncate text-[12px] font-extrabold">{FRIEND_INFO[f.kind].name}</p>
+                <p className="text-[11px] text-[var(--ink-soft)]">{f.el}</p>
+              </Link>
             ))}
           </div>
-        </div>
-        <p className="mt-6 text-center text-[11px] leading-relaxed text-[var(--ink-soft)]">
+        </section>
+
+        {/* 5. 친구랑 같이 */}
+        <section className="mt-7 px-4">
+          <h2 className="font-display text-xl">친구랑 같이 하면 더 재미있어요</h2>
+          <div className="mt-3 grid grid-cols-2 gap-3">
+            <Link to="/quiz" className="hj-card relative block min-w-0 overflow-hidden bg-[#e3efe6] p-3.5">
+              <span className="rounded-full bg-[var(--stamp)] px-2 py-0.5 text-[10.5px] font-bold text-white">생년월일 없이 30초</span>
+              <p className="font-display mt-1.5 text-[17px] leading-tight">나의 오행 친구 찾기</p>
+              <p className="mt-1 text-[12px] leading-snug text-[var(--ink-soft)]">단톡방에 도전장도 보내요</p>
+            </Link>
+            <Link to="/compat" className="hj-card relative block min-w-0 overflow-hidden bg-[#f7dfd8] p-3.5">
+              <span className="rounded-full bg-[#8a3a30] px-2 py-0.5 text-[10.5px] font-bold text-white">무료</span>
+              <p className="font-display mt-1.5 text-[17px] leading-tight">우리 둘의 케미</p>
+              <p className="mt-1 text-[12px] leading-snug text-[var(--ink-soft)]">친구·연인과 함께 보는 궁합</p>
+            </Link>
+          </div>
+        </section>
+
+        {/* 6. 더 깊이 보기 */}
+        <section className="mt-7 px-4">
+          <h2 className="font-display text-xl">더 깊이 보기</h2>
+          <ul className="mt-3 space-y-2.5">
+            {MORE.map((m) => {
+              const body = (
+                <>
+                  <div className="min-w-0">
+                    <p className="font-display truncate text-[16px]">{m.title}</p>
+                    <p className="truncate text-[12px] text-[var(--ink-soft)]">{m.desc}</p>
+                  </div>
+                  <span className="ml-2 shrink-0 rounded-full px-3 py-1 text-[12px] font-extrabold text-white" style={{ background: m.tone }}>
+                    {m.tag}
+                  </span>
+                </>
+              );
+              const cls = "hj-card flex items-center justify-between px-4 py-3";
+              return (
+                <li key={m.title}>
+                  {m.to ? (
+                    <Link to={m.to} className={cls}>
+                      {body}
+                    </Link>
+                  ) : (
+                    <div className={`${cls} opacity-70`} aria-disabled="true">
+                      {body}
+                    </div>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+
+        <p className="mt-6 px-4 pb-2 text-center text-[11px] leading-relaxed text-[var(--ink-soft)]">
           풀이는 참고용 재미예요. 계산 근거와 한계는 결과 화면에 함께 적어 둬요.
         </p>
-      </section>
+      </div>
     </Page>
   );
 }
