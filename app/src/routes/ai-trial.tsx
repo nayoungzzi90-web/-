@@ -354,7 +354,7 @@ function AiTrial() {
             ))}
             {story.done && (
               <p className="mt-4 px-1 text-[11px] leading-relaxed text-[var(--ink-soft)]">
-                이 풀이는 일반적으로 알려진 명리 해석을 쉬운 말로 풀어 쓴 글이에요. 책·학파마다 다를 수 있고 전문가 검증 전이라 재미와 참고로만 읽어 주세요.
+                이 풀이는 일반 명리 해석이며 책·학파마다 다를 수 있고 전문가 검증 전이라, 결과를 정하는 말이 아닌 참고와 재미로만 읽어 주세요.
               </p>
             )}
           </div>

@@ -22,6 +22,7 @@ export interface StoryFacts {
   json: string; // AI 에 보내는 계산 결과 JSON 패킷
   dayStemName: string;
   hasHour: boolean;
+  tags: string[]; // 구조 패턴 태그 이름(AI 가 태그에 없는 구조를 말하면 검수에서 막는다)
   sinsalNames: string[]; // 이 사주에 실제로 해당하는 신살 이름(AI 가 다른 신살을 말하면 검수에서 막는다)
   strengthLabel: string; // 신강 / 신강 경향 / 신약 경향 / 신약 (일반 이론 후보)
   years: number[]; // 향후 5년(입춘 기준)
@@ -140,6 +141,6 @@ export function buildStoryFacts(me: BirthInput, now: Date = new Date()): StoryFa
 
   const built = buildChartPacket(me, now);
   if (!built) return null;
-  return { text: L.join("\n"), json: packetJson(built.packet), dayStemName: STEM_NAME[dm]!, hasHour: !!pil.hour, sinsalNames, strengthLabel: st.label, years: dt.years.map((y) => y.year!), yearNames: dt.years.map((y) => y.name), daeunNow: dt.daeunNowName, needName: EL_WORD[need.primary] };
+  return { text: L.join("\n"), json: packetJson(built.packet), tags: built.tags, dayStemName: STEM_NAME[dm]!, hasHour: !!pil.hour, sinsalNames: built.sinsalNames, strengthLabel: st.label, years: dt.years.map((y) => y.year!), yearNames: dt.years.map((y) => y.name), daeunNow: dt.daeunNowName, needName: EL_WORD[need.primary] };
 }
 

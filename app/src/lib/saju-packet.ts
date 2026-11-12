@@ -12,6 +12,7 @@ import { BRANCH_KO, previewFromBirthInput } from "./saju-engine";
 import { computeDetail, countElements, signalWord, type TimeRow } from "./saju-detail";
 import { SINSAL12, computeSinsal, twelveSinsal } from "./sinsal";
 import { tenGodOf, type TenGod } from "./ten-gods";
+import { buildPatternTags, findHyeonchim, type PatternTag } from "./saju-patterns";
 import { stageOf } from "./twelve-stages";
 
 export const PACKET_VERSION = "packet-1";
@@ -65,6 +66,7 @@ export interface ChartPacket {
     상태: string; 억부관점: string; 조후관점: string; 필요한기운: string; 우선규칙: string; 원국내작용: string;
     희신: string; 기신: string; 넘치는기운: string[]; 가장적은기운: string[];
   };
+  구조패턴태그: PatternTag[]; // 일반 명리 이론으로 코드가 판정한 구조. 여기 없는 구조는 말하지 않는다
   원국의합충형파해: string[];
   신살: { 해당: { 이름: string; 위치: string[] }[]; 십이신살_일지기준: Record<string, string> };
   대운: { 방향: string; 첫시작나이: number; 목록: TimePacket[]; 교운기: { 연도: number; 나이: number; 안내: string } | null };
@@ -102,6 +104,7 @@ const timeRow = (r: TimeRow): TimePacket => ({
 export interface BuiltPacket {
   packet: ChartPacket;
   // 검수가 쓰는 값(패킷과 같은 계산에서 나온 것)
+  tags: string[];
   sinsalNames: string[];
   strengthLabel: string;
   years: number[];
@@ -191,6 +194,7 @@ export function buildChartPacket(me: BirthInput, now: Date = new Date()): BuiltP
       넘치는기운: excess,
       가장적은기운: need.least.map((e) => EL_WORD[e]),
     },
+    구조패턴태그: [],
     원국의합충형파해: dt.natal,
     신살: { 해당: [...byName.entries()].map(([이름, 위치]) => ({ 이름, 위치 })), 십이신살_일지기준: sinsal12 },
     대운: {
@@ -203,8 +207,16 @@ export function buildChartPacket(me: BirthInput, now: Date = new Date()): BuiltP
     오행상징대응: SYMBOLS,
     해석주의: NOTES,
   };
+  packet.구조패턴태그 = buildPatternTags(packet);
+  const hc = findHyeonchim(packet);
+  if (hc) {
+    packet.신살.해당.push({ 이름: "현침살", 위치: hc });
+    packet.구조패턴태그.push({ 태그: "현침살", 뜻: "날카롭고 정확한 감각(말·손끝·판단)을 뜻하는 일반 신살", 근거: hc });
+    byName.set("현침살", hc);
+  }
   return {
     packet,
+    tags: packet.구조패턴태그.map((t) => t.태그),
     sinsalNames: [...byName.keys()],
     strengthLabel: st.label,
     years: dt.years.map((y) => y.year!),

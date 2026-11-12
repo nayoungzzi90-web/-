@@ -30,6 +30,8 @@ export const PATTERN_CRITERIA: { 태그: string; 기준: string }[] = [
   { 태그: "군비쟁재", 기준: "비겁이 3곳 이상이고 재성이 1~2곳(재성이 아예 없거나 3곳 이상이면 해당 없음). 식상이 있으면 근거에 '통관 역할 가능'을 덧붙이고 태그는 유지" },
   { 태그: "식상생재", 기준: "식상과 재성이 서로 인접한 자리에 있음(같은 기둥 또는 이웃 기둥)" },
   { 태그: "관인상생", 기준: "관성과 인성이 서로 인접한 자리에 있음" },
+  { 태그: "재생관", 기준: "재성과 관성이 서로 인접한 자리에 있음(재물·현실의 힘이 직책·책임으로 이어지는 흐름)" },
+  { 태그: "현침살", 기준: "신살 일반 표: 원국 글자 중 천간 갑·신, 지지 묘·오·미·신에 해당하는 글자가 3개 이상(출생 시간을 모르면 시주 제외). 책마다 기준이 달라 일반적으로 쓰이는 형태로 정했다" },
   { 태그: "관살혼잡", 기준: "편관과 정관이 모두 있음(위치 무관)" },
   { 태그: "상관견관", 기준: "상관과 정관이 서로 인접한 자리에 있음" },
   { 태그: "식신제살", 기준: "식신과 편관이 서로 인접한 자리에 있음" },
@@ -71,6 +73,8 @@ export function buildPatternTags(packet: ChartPacket): PatternTag[] {
   }
   const sg = pairs(of("식상"), of("재성"));
   if (sg.length) add("식상생재", "재능과 표현이 재물·성과로 이어지는 흐름의 구조", sg);
+  const jg2 = pairs(of("재성"), of("관성"));
+  if (jg2.length) add("재생관", "재물·현실의 힘이 직책과 책임으로 이어져 자리를 얻어 가는 흐름의 구조", jg2);
   const gi = pairs(of("관성"), of("인성"));
   if (gi.length) add("관인상생", "책임과 규칙이 배움·보호로 이어져 자리를 잡아 가는 구조", gi);
   const pg = of("관성").filter((s) => s.십성 === "편관"), jg = of("관성").filter((s) => s.십성 === "정관");
@@ -80,4 +84,17 @@ export function buildPatternTags(packet: ChartPacket): PatternTag[] {
   const ss = pairs(of("식상").filter((s) => s.십성 === "식신"), pg);
   if (ss.length) add("식신제살", "식신이 편관 곁에서 압박을 다스리는 구조", ss);
   return out;
+}
+
+const HYEONCHIM_STEM = new Set(["갑", "신"]);
+const HYEONCHIM_BRANCH = new Set(["묘", "오", "미", "신"]);
+/** 현침살(신살 일반 표). 해당하면 위치 목록, 아니면 null. 엔진(sinsal.ts)은 건드리지 않고 이 파일에서만 판정한다. */
+export function findHyeonchim(packet: ChartPacket): string[] | null {
+  const hits: string[] = [];
+  for (const p of packet.네기둥) {
+    const pre = p.기둥[0]!;
+    if (HYEONCHIM_STEM.has(p.간지[0]!)) hits.push(`${pre}간 ${p.간지[0]}`);
+    if (HYEONCHIM_BRANCH.has(p.간지[1]!)) hits.push(`${pre}지 ${p.간지[1]}`);
+  }
+  return hits.length >= 3 ? hits : null;
 }

@@ -16,11 +16,25 @@ describe("구조 패턴 태그", () => {
     expect(t.find((x) => x.태그 === "식상생재")?.근거.join()).toMatch(/월지 편재/);
   });
   it("기준 목록의 태그와 판정 가능한 태그가 같다", () => {
-    expect(PATTERN_CRITERIA.map((c) => c.태그)).toHaveLength(12);
+    expect(PATTERN_CRITERIA.map((c) => c.태그)).toHaveLength(14);
   });
   it("여러 사주에서 태그가 갈리고 모두 기준 목록에 있는 이름이다", () => {
     const all = ["1990-04-19", "1985-03-05", "1978-11-30", "2001-07-21", "1969-12-02", "1996-09-14"].flatMap((d) => tags(d, "10:00", "m").map((x) => x.태그));
     expect(new Set(all).size).toBeGreaterThan(1);
     for (const x of all) expect(PATTERN_CRITERIA.map((c) => c.태그)).toContain(x);
+  });
+});
+
+describe("재생관·현침살·패킷 연결", () => {
+  it("검증 사례: 패킷에 구조패턴태그와 현침살이 들어가고, 태그 이름이 facts와 같다", () => {
+    const b = buildChartPacket({ name: "", calendar: "solar", leap: false, date: "1990-04-19", time: "01:10", gender: "f" }, NOW)!;
+    expect(b.packet.구조패턴태그.map((t) => t.태그)).toEqual(expect.arrayContaining(["간여지동", "식상생재", "현침살"]));
+    expect(b.packet.신살.해당.map((x) => x.이름)).toContain("현침살");
+    expect(b.sinsalNames).toContain("현침살");
+    expect(b.tags).toEqual(b.packet.구조패턴태그.map((t) => t.태그));
+  });
+  it("재생관: 재성과 관성이 인접하면 태그가 붙는다", () => {
+    const names = ["1990-04-19", "1985-03-05", "1978-11-30", "2001-07-21", "1969-12-02", "1996-09-14", "1988-08-08", "1975-01-25"].flatMap((d) => tags(d, "10:00", "m").map((x) => x.태그));
+    expect(names).toContain("재생관");
   });
 });
