@@ -1,10 +1,9 @@
 import { useMemo, type ReactNode } from "react";
 import { EL_BG, EL_FG } from "@/components/ResultParts";
-import { computeDaeun } from "@/lib/daeun";
+import { computeDaeunForBirth } from "@/lib/daeun";
 import { hiddenStemsOf, mainStemOf } from "@/lib/hidden-stems";
 import { EL_WORD, stemElement } from "@/lib/reading";
-import { parseBirthInput } from "@/lib/saju-engine";
-import { kstToday, type BirthInput, type Pillar } from "@/lib/saju";
+import type { BirthInput, Pillar } from "@/lib/saju";
 import { TEN_GOD_NOTE, tenGodOf, type TenGod } from "@/lib/ten-gods";
 
 const HAN = "甲乙丙丁戊己庚辛壬癸";
@@ -84,11 +83,7 @@ export function ManseExtra({ me, pillars }: { me: BirthInput; pillars: Pillars }
   const dm = pillars.day.stem;
   const cols = columns(pillars);
 
-  const daeun = useMemo(() => {
-    const parsed = parseBirthInput(me, { today: kstToday() });
-    if (!parsed.ok) return null;
-    return computeDaeun(parsed.parsed, me.gender);
-  }, [me]);
+  const daeun = useMemo(() => computeDaeunForBirth(me), [me]);
   // 현재 나이(만, 소수): 출생 순간부터 지금까지
   const nowAge = daeun ? (Date.now() - daeun.birthUtcMs) / (365.2425 * 86_400_000) : -1;
 

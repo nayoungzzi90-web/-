@@ -1,6 +1,7 @@
 import type { Element, Pillar, SajuPreview } from "./saju";
 export type { Element };
 import type { FriendKind } from "@/components/Friends";
+import type { Daeun } from "./daeun";
 import { BRANCHES, BRANCH_KO, STEMS, STEM_KO, solarTermsUtc } from "./saju-engine";
 
 // 규칙 기반 무료 풀이(결정론). 쓰는 근거: 천간·지지의 오행, 오행 개수, 오행 상생·상극.
@@ -478,11 +479,36 @@ const YEAR_MOOD: Record<Relation, { head: string; line: string; tip: string }> =
   },
 };
 
+// 10년 단위 흐름(대운) 분위기 비유. 천간 오행과 내 일간의 관계만 쓰고 십성 의미·길흉은 쓰지 않는다.
+const DAEUN_MOOD: Record<Relation, { head: string; line: string }> = {
+  same: {
+    head: "나다움을 다지는 10년",
+    line: "나와 같은 기운이 오래 곁에 머무는 시기라서, 내 방식과 색깔이 단단해지는 비유가 어울려요. 같은 기운이 겹치는 만큼 고집이 굳지 않게 가끔 다른 시각을 빌려 봐요.",
+  },
+  helps: {
+    head: "기대며 자라는 10년",
+    line: "나를 살려 주는 기운이 오래 이어지는 시기라서, 배우고 도움받으며 자라는 비유가 어울려요. 받는 데 익숙해지기보다 배운 것을 직접 써 보면 더 남아요.",
+  },
+  gives: {
+    head: "꺼내 쓰며 펼치는 10년",
+    line: "내가 기운을 내어 쓰는 쪽의 시기라서, 표현하고 만들고 움직일 일이 많은 비유가 어울려요. 오래 달리는 구간이니 체력과 쉬는 시간을 일정에 먼저 넣어 둬요.",
+  },
+  rules: {
+    head: "목표를 손에 쥐는 10년",
+    line: "내가 다루는 쪽의 기운이 들어오는 시기라서, 해 볼 목표가 눈에 잘 들어오는 비유가 어울려요. 욕심이 앞서면 지치기 쉬우니 한 번에 하나씩 쌓아 가요.",
+  },
+  pressed: {
+    head: "기본기를 단단히 하는 10년",
+    line: "나를 누르는 쪽의 기운이 들어오는 시기라서, 신경 쓸 일이 늘고 마음이 바쁜 비유가 어울려요. 천천히 기본기를 다져 두면 이후에 버티는 힘이 커지는 쪽으로 읽어요.",
+  },
+};
+
 const label = (p: Pillar) => `${p.hanja}(${p.ko})`;
 
 export function buildReading(
   p: SajuPreview,
   now: Date = new Date(),
+  daeun: Daeun | null = null,
 ): ReadingData | null {
   if (!p.ok || !p.pillars || !p.elements) return null;
   const { year, month, day, hour } = p.pillars;
@@ -733,6 +759,60 @@ export function buildReading(
         `내년 ${b.g.hanja}(${b.g.ko})`,
       ],
     });
+  }
+
+  if (daeun && daeun.pillars.length > 0) {
+    const nowAge = (now.getTime() - daeun.birthUtcMs) / (365.2425 * 86_400_000);
+    const ps = daeun.pillars;
+    let idx = -1;
+    for (let i = 0; i < ps.length; i++)
+      if (ps[i]!.startAgeYears <= nowAge) idx = i;
+    const lastEnd = ps[ps.length - 1]!.startAgeYears + 10;
+    if (nowAge >= 0 && nowAge < lastEnd) {
+      const notYet = idx < 0;
+      const cur = notYet ? ps[0]! : ps[idx]!;
+      const nxt = notYet ? ps[1] : ps[idx + 1];
+      const se = stemElement(cur.stem);
+      const be = branchElement(cur.branch);
+      const mood = DAEUN_MOOD[relation(dayEl, se)];
+      const fills = (se === lackEl ? 1 : 0) + (be === lackEl ? 1 : 0);
+      const span = (d: (typeof ps)[number], next?: (typeof ps)[number]) =>
+        `만 ${d.startAge.years}세~${next ? next.startAge.years : d.startAge.years + 10}세(${d.startYear}년경~)`;
+      const lead = notYet
+        ? `아직 첫 10년 흐름이 시작되기 전이에요(약 만 ${cur.startAge.years}세 시작). 시작하면 ${cur.hanja}(${cur.ko}) 흐름이 먼저 와요.`
+        : `지금은 ${cur.hanja}(${cur.ko}) 흐름 위에 있어요. ${span(cur, nxt)}.`;
+      const body: string[] = [
+        lead,
+        `${EL_WORD[se]}(${EL_HANJA[se]}) 기운 위에 ${EL_WORD[be]}(${EL_HANJA[be]}) 기운이 얹힌 10년이에요. ${mood.line}`,
+        fills > 0
+          ? `이 흐름에는 내게 적은 ${EL_WORD[lackEl]} 기운이 ${fills === 2 ? "두 글자 모두" : "한 글자"} 들어 있어서, 부족한 쪽이 조금 채워지는 비유가 돼요.`
+          : `이 흐름의 글자에는 내게 적은 ${EL_WORD[lackEl]} 기운이 없어요. 균형 처방 습관으로 직접 채워 보면 좋아요.`,
+      ];
+      if (nxt) {
+        const ne = stemElement(nxt.stem);
+        body.push(
+          `다음 10년은 ${nxt.hanja}(${nxt.ko}) 흐름이고, ${DAEUN_MOOD[relation(dayEl, ne)].head}로 읽어요.(${span(nxt, ps[ps.indexOf(nxt) + 1])})`,
+        );
+      }
+      body.push(
+        `${daeun.timeKnown ? "" : "출생 시간을 몰라 정오로 가정해 계산해서 시작 나이가 달라질 수 있어요. "}10년 흐름은 만세력 참고 표와 같은 계산(3일=1년)이고 전문가 검증 전이에요. 길흉을 맞히는 풀이가 아니라 오행 관계로 읽은 분위기 비유예요.`,
+      );
+      sections.push({
+        id: "daeun",
+        eyebrow: "지금 10년의 계절",
+        title: `${cur.ko}, ${mood.head}`,
+        friend: EL_FRIEND[se],
+        summary: [
+          `${cur.hanja}(${cur.ko}) — ${mood.head}`,
+          nxt
+            ? `다음: ${nxt.hanja}(${nxt.ko}), ${DAEUN_MOOD[relation(dayEl, stemElement(nxt.stem))].head}`
+            : "마지막 10년 구간이에요",
+          "참고용 · 전문가 검증 전",
+        ],
+        body,
+        basis: [chipDay, `${notYet ? "첫" : "현재"} ${cur.hanja}(${cur.ko})`, daeun.rule],
+      });
+    }
   }
 
   sections.push({

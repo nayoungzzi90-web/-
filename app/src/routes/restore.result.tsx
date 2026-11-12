@@ -15,6 +15,7 @@ import {
   stemElement,
   EL_WORD,
 } from "@/lib/reading";
+import { computeDaeunForBirth } from "@/lib/daeun";
 import { previewFromBirthInput } from "@/lib/saju-engine";
 import type { BirthInput } from "@/lib/saju";
 import { useStore } from "@/lib/store";
@@ -45,7 +46,10 @@ function RestoreResult() {
   const input = me ?? SAMPLE;
   const isSample = !me;
   const preview = useMemo(() => previewFromBirthInput(input), [input]);
-  const rd = useMemo(() => buildReading(preview), [preview]);
+  const rd = useMemo(
+    () => buildReading(preview, new Date(), computeDaeunForBirth(input)),
+    [preview, input],
+  );
 
   if (!preview.ok || !preview.pillars || !rd)
     return (

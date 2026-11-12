@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { buildReading } from "@/lib/reading";
+import { computeDaeunForBirth } from "@/lib/daeun";
+import { buildReading, ganjiYearAt, yearGanji } from "@/lib/reading";
 import { previewFromBirthInput } from "@/lib/saju-engine";
 
 // 2단계 풀이 심화: 모든 일간·월지 조합에서 빈 문장·깨진 문장이 없고,
@@ -69,5 +70,102 @@ describe("풀이 심화(2단계)", () => {
     const stage = rd.sections.find((s) => s.id === "stage")!;
     expect(stage.body.join(" ")).toContain("시주");
     expect(stage.basis).toHaveLength(3);
+  });
+});
+
+describe("지금 10년의 계절(대운 연결)", () => {
+  const BAD = ["격국", "용신", "신강", "신약", "십성", "undefined", "NaN", "[object"];
+  const input = (date: string, gender: "f" | "m", time: string | null) => ({
+    name: "테스트",
+    calendar: "solar" as const,
+    leap: false,
+    date,
+    time,
+    gender,
+  });
+
+  it("대운 없이 부르면 섹션이 13개, 대운이 있으면 'year' 다음에 'daeun'이 들어간다", () => {
+    const me = input("1995-07-15", "f", "10:20");
+    const p = previewFromBirthInput(me);
+    const now = new Date("2026-11-12T12:00:00+09:00");
+    expect(buildReading(p, now)!.sections).toHaveLength(13);
+    const d = computeDaeunForBirth(me);
+    expect(d).not.toBeNull();
+    const rd = buildReading(p, now, d)!;
+    expect(rd.sections.map((s) => s.id)).toEqual([
+      "summary", "inner", "elements", "day", "season", "stage",
+      "love", "work", "people", "year", "daeun", "advice", "charm", "habit",
+    ]);
+  });
+
+  it("현재 대운은 엔진 대운표에서 나이에 맞는 칸이고, 문장에 십성 이름·단정 용어가 없다", () => {
+    let n = 0;
+    for (const date of ["1970-03-10", "1985-09-21", "1995-07-15", "2003-12-30", "2015-05-05"]) {
+      for (const gender of ["f", "m"] as const) {
+        for (const time of ["10:20", null]) {
+          const me = input(date, gender, time);
+          const d = computeDaeunForBirth(me)!;
+          const now = new Date("2026-11-12T12:00:00+09:00");
+          const age = (now.getTime() - d.birthUtcMs) / (365.2425 * 86_400_000);
+          const rd = buildReading(previewFromBirthInput(me), now, d)!;
+          const s = rd.sections.find((x) => x.id === "daeun");
+          let cur = -1;
+          d.pillars.forEach((p, i) => {
+            if (p.startAgeYears <= age) cur = i;
+          });
+          if (age >= d.pillars[9]!.startAgeYears + 10) {
+            expect(s).toBeUndefined();
+            continue;
+          }
+          expect(s).toBeDefined();
+          const want = d.pillars[Math.max(cur, 0)]!;
+          expect(s!.basis.join(" ")).toContain(want.hanja);
+          expect(s!.summary).toHaveLength(3);
+          for (const t of [s!.eyebrow, s!.title, ...s!.summary, ...s!.body, ...s!.basis]) {
+            expect(t.trim().length).toBeGreaterThan(1);
+            for (const bad of BAD) expect(t).not.toContain(bad);
+            for (const g of ["비견", "겁재", "식신", "상관", "편재", "정재", "편관", "정관", "편인", "정인"])
+              expect(t).not.toContain(g);
+          }
+          if (time === null) expect(s!.body.join(" ")).toContain("정오로 가정");
+          n++;
+        }
+      }
+    }
+    expect(n).toBeGreaterThanOrEqual(15);
+  });
+});
+
+describe("올해·내년 흐름", () => {
+  it("해의 간지: 2024 갑진, 2025 을사, 2026 병오, 2027 정미, 1984 갑자", () => {
+    expect(yearGanji(2024).ko).toBe("갑진");
+    expect(yearGanji(2025).hanja).toBe("乙巳");
+    expect(yearGanji(2026).hanja).toBe("丙午");
+    expect(yearGanji(2027).ko).toBe("정미");
+    expect(yearGanji(1984).ko).toBe("갑자");
+  });
+
+  it("해가 바뀌는 때는 입춘 (2026년은 2월 4일 새벽 전후)", () => {
+    expect(ganjiYearAt(new Date("2026-01-15T00:00:00+09:00"))).toBe(2025);
+    expect(ganjiYearAt(new Date("2026-02-03T12:00:00+09:00"))).toBe(2025);
+    expect(ganjiYearAt(new Date("2026-02-05T12:00:00+09:00"))).toBe(2026);
+    expect(ganjiYearAt(new Date("2026-11-12T12:00:00+09:00"))).toBe(2026);
+  });
+
+  it("섹션은 기준 시각의 올해·내년 간지를 쓰고, 시각이 바뀌면 간지도 바뀐다", () => {
+    const p = previewFromBirthInput({
+      name: "테스트",
+      calendar: "solar",
+      leap: false,
+      date: "1995-07-15",
+      time: "10:20",
+      gender: "f",
+    });
+    const a = buildReading(p, new Date("2026-11-12T12:00:00+09:00"))!;
+    const basis = a.sections.find((s) => s.id === "year")!.basis.join(" ");
+    expect(basis).toContain("丙午");
+    expect(basis).toContain("丁未");
+    const b = buildReading(p, new Date("2027-03-01T12:00:00+09:00"))!;
+    expect(b.sections.find((s) => s.id === "year")!.basis.join(" ")).toContain("戊申");
   });
 });

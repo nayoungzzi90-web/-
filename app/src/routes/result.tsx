@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Friend, FRIEND_INFO } from "@/components/Friends";
 import { ManseExtra } from "@/components/ManseExtra";
+import { computeDaeunForBirth } from "@/lib/daeun";
 import { Basis, Fold, Locked, ManseTable } from "@/components/ResultParts";
 import { Page } from "@/components/Shell";
 import {
@@ -26,7 +27,13 @@ function Result() {
     if (hydrated && !me) void nav({ to: "/input" });
   }, [hydrated, me, nav]);
   const preview = useMemo(() => (me ? previewFromBirthInput(me) : null), [me]);
-  const rd = useMemo(() => (preview ? buildReading(preview) : null), [preview]);
+  const rd = useMemo(
+    () =>
+      preview
+        ? buildReading(preview, new Date(), me ? computeDaeunForBirth(me) : null)
+        : null,
+    [preview, me],
+  );
   const verdict = useMemo(
     () => (preview ? buildVerdict(preview, concern) : null),
     [preview, concern],

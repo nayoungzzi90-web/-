@@ -4,6 +4,8 @@ import {
   solarTermsUtc,
   type EngineInput,
 } from "./saju-engine";
+import { parseBirthInput } from "./saju-engine";
+import { kstToday, type BirthInput } from "./saju";
 import { tenGodOf, type TenGod } from "./ten-gods";
 import { STEMS_KO_LIST } from "./daeun-names";
 
@@ -136,4 +138,11 @@ export function computeDaeun(
     pillars,
     birthUtcMs: birth,
   };
+}
+
+/** 화면용: 입력 그대로 받아 대운을 계산한다(실패하면 null). */
+export function computeDaeunForBirth(me: BirthInput): Daeun | null {
+  const parsed = parseBirthInput(me, { today: kstToday() });
+  if (!parsed.ok) return null;
+  return computeDaeun(parsed.parsed, me.gender);
 }
