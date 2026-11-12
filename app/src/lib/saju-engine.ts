@@ -17,14 +17,17 @@ import {
 
 export const ENGINE_VERSION = "r001-0.1";
 export const ENGINE_SOURCE = "astronomy-engine SearchSunLongitude (MIT)";
+// 30분 보정(2026-11-12 사용자 결정): 입력한 법정 시각을 절대시각으로 바꾼 뒤 UTC+8:30(한국 중앙 경도 127.5°)으로
+// 다시 읽어 일주·시주를 정한다. 연도·서머타임과 무관하게 항상 UTC+8:30이다(진태양시·균시차·출생지별 보정이 아님).
+export const CORRECTED_OFFSET_MIN = 510;
 export const CLOCK_POLICY =
-  "Asia/Seoul 법정시(역사 시차·서머타임 포함, Intl IANA). 子시는 23:00~00:59.";
+  "Asia/Seoul 법정시(역사 시차·서머타임 포함, Intl IANA)를 절대시각으로 환산한 뒤 UTC+8:30(30분 보정)으로 읽어 일주·시주를 정함. 子시는 시계 기준 23:30~01:29(보정 시각 23:00~00:59).";
 // R-001 기본 정책: 일주는 법정 달력 날짜 자정(00:00)에 교체('midnight').
 // 'zi23'(23시 익일 일주 전환)은 명시적 선택 정책으로만 계산 가능하며 UI/서비스에는 노출하지 않음.
 export type DayBoundaryPolicy = "midnight" | "zi23";
 export const DAY_BOUNDARY_POLICY =
   "r001-dayboundary-v1 (기본 midnight: 자정 00:00 일주 교체; zi23: 23:00 익일 일주 전환, 명시 선택 전용)";
-export const ACCURACY_NOTE = `지원 범위: 양력 환산 ${SUPPORT_RANGE_LABEL}년, 한국(Asia/Seoul) 출생만. 음력/윤달 입력은 서버에서 양력 날짜로만 변환한 뒤 계산합니다(연/월주=절입 태양황경, 일주=환산된 법정 양력 날짜; 음력 달력 간지는 사용하지 않음). 절입 시각은 KASI 공개 기준(2000~2027년 절기 336건)과 분 단위로 비교해 모두 1분 이내로 일치했고(2011년 입동 1건은 KASI가 자기 자료 오류로 확인·정정), 1900~1999년과 2028~2050년은 독립 구현과의 교차 검증만 마쳤으며, 절입 경계 ±120초 이내는 '검토 필요'로 표시합니다. 해외 출생, 진태양시 보정은 아직 지원하지 않습니다.`;
+export const ACCURACY_NOTE = `지원 범위: 양력 환산 ${SUPPORT_RANGE_LABEL}년, 한국(Asia/Seoul) 출생만. 음력/윤달 입력은 서버에서 양력 날짜로만 변환한 뒤 계산합니다(연/월주=절입 태양황경, 일주·시주=출생 시각에 30분 보정(UTC+8:30, 子시는 시계 23:30~01:29)을 적용한 날짜·시; 시각을 모르면 입력한 양력 날짜; 음력 달력 간지는 사용하지 않음). 절입 시각은 KASI 공개 기준(2000~2027년 절기 336건)과 분 단위로 비교해 모두 1분 이내로 일치했고(2011년 입동 1건은 KASI가 자기 자료 오류로 확인·정정), 1900~1999년과 2028~2050년은 독립 구현과의 교차 검증만 마쳤으며, 절입 경계 ±120초 이내는 '검토 필요'로 표시합니다. 해외 출생은 지원하지 않으며, 출생지별 경도·균시차를 쓰는 진짜 진태양시 보정은 하지 않고 모든 출생에 같은 30분 고정 보정만 적용합니다.`;
 
 export const STEMS = [
   "甲",
@@ -481,13 +484,22 @@ export function computeSaju(
   const monthStem = (MONTH_STEM_BASE[yearPillar.stem % 5]! + termIdx) % 10;
   const monthPillar = pillar(monthStem, monthBranch);
 
-  // 일주: 2000-01-07 = 甲子. 기본 정책 'midnight'은 자정(00:00) 교체 — 23:00~23:59도 당일 일주 유지.
-  // 명시적 선택 정책 'zi23'에서만 23시부터 익일 일주로 전환한다.
+  // 일주: 2000-01-07 = 甲子. 기본 정책 'midnight'은 보정 시각 자정(00:00) 교체 — 23:00~23:59도 당일 일주 유지.
+  // 명시적 선택 정책 'zi23'에서만 보정 시각 23시부터 익일 일주로 전환한다.
+  // 출생 시각을 알면 30분 보정 시각(UTC+8:30)의 날짜·시를 쓴다. 시각을 모르면 입력한 날짜 그대로다.
   let dy = year,
     dm = month,
     dd = day;
-  if (dayBoundary === "zi23" && hour !== null && hour >= 23) {
-    const next = new Date(Date.UTC(year, month - 1, day + 1));
+  let calcHour: number | null = null;
+  if (hour !== null) {
+    const c = new Date(utc.getTime() + CORRECTED_OFFSET_MIN * 60_000);
+    dy = c.getUTCFullYear();
+    dm = c.getUTCMonth() + 1;
+    dd = c.getUTCDate();
+    calcHour = c.getUTCHours();
+  }
+  if (dayBoundary === "zi23" && calcHour !== null && calcHour >= 23) {
+    const next = new Date(Date.UTC(dy, dm - 1, dd + 1));
     dy = next.getUTCFullYear();
     dm = next.getUTCMonth() + 1;
     dd = next.getUTCDate();
@@ -498,10 +510,10 @@ export function computeSaju(
   const dayIdx = ((dayDiff % 60) + 60) % 60;
   const dayPillar = pillar(dayIdx % 10, dayIdx % 12);
 
-  // 시주: 子시 23:00~00:59, 甲/己일 甲子 시작
+  // 시주: 보정 시각 기준 子시 23:00~00:59(= 시계 23:30~01:29), 甲/己일 甲子 시작
   let hourPillar: Pillar | null = null;
-  if (hour !== null) {
-    const bi = Math.floor(((hour + 1) % 24) / 2);
+  if (calcHour !== null) {
+    const bi = Math.floor(((calcHour + 1) % 24) / 2);
     hourPillar = pillar((dayPillar.stem * 2 + bi) % 10, bi);
   }
 

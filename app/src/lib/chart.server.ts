@@ -9,8 +9,16 @@ import { computeSaju, parseBirthInput } from "./saju-engine";
 
 type ManseValue = Extract<ReturnType<typeof calculate>, { ok: true }>["value"];
 
-/** 같은 정책으로 맞춘다: 자정 일주 경계, 서울 법정 벽시계(서머타임 포함) — 앱 R001 엔진과 동일 */
-const POLICY = { ziHour: "MIDNIGHT", timeBasis: "ERA_WALL_CLOCK" } as const;
+/**
+ * 같은 정책으로 맞춘다 — 앱 R001 엔진과 동일:
+ * 자정 일주 경계, 입력은 서울 법정 벽시계(서머타임 포함)로 읽어 절대시각으로 바꾼 뒤
+ * UTC+8:30(= UTC+9 시계 − 30분 고정 보정)으로 일주·시주를 정한다(2026-11-12 사용자 결정).
+ */
+const POLICY = {
+  ziHour: "MIDNIGHT",
+  timeBasis: "KST_PLUS9",
+  solarTime: { mode: "FIXED_OFFSET", fixedOffsetMinutes: -30 },
+} as const;
 
 export interface BuildDeps {
   /** 시험용: 앱 R001 엔진의 4주를 바꿔치기(불일치 시나리오) */
