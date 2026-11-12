@@ -262,7 +262,7 @@ describe("문장 품질(조사·중복)", () => {
               expect(t).not.toMatch(/이\(가\)|을\(를\)|은\(는\)|와\(과\)/);
               expect(t).not.toMatch(/쇠\(金\)이|쇠이 /);
               expect(t).not.toMatch(/ {2}|\.\./);
-              expect(t).not.toMatch(/10년로|분위기이라|\)\)/);
+              expect(t).not.toMatch(/10년로|분위기이라|\)\)|\) (이에요|예요)/);
             }
             if (s.id === "year") {
               const sents = s.body.join(" ").split(/(?<=[.!?])\s+/);

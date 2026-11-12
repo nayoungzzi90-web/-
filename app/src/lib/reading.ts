@@ -561,7 +561,7 @@ export function buildReading(
       `${lackText}`,
     ],
     body: [
-      `태어난 날의 하늘 글자가 ${day.hanja.charAt(0)}(${EL_WORD[dayEl]}) ${ieyoOf(STEM_KO[day.stem]!)}. 사주에서는 이 글자를 ‘나 자신’으로 보고, ${info.image}에 빗대요. ${iga(info.trait)} 첫인상으로 남는 편이에요.`,
+      `태어난 날의 하늘 글자가 ${day.hanja.charAt(0)}(${EL_WORD[dayEl]})${ieyoOf(STEM_KO[day.stem]!)}. 사주에서는 이 글자를 ‘나 자신’으로 보고, ${info.image}에 빗대요. ${iga(info.trait)} 첫인상으로 남는 편이에요.`,
       `여덟 글자를 통틀어 ${dominant.map((e) => EL_WORD[e]).join("·")} 기운이 가장 많아서 ${DOMINANT_NOTE[dom]}. 반대로 ${lackText}, 이쪽은 일부러 채워 주면 균형이 좋아져요.`,
     ],
     basis: [chipDay, chipCount, `연주 ${label(year)}`],

@@ -4,6 +4,7 @@ import { computeDaeunForBirth } from "@/lib/daeun";
 import { hiddenStemsOf, mainStemOf } from "@/lib/hidden-stems";
 import { EL_WORD, stemElement } from "@/lib/reading";
 import type { BirthInput, Pillar } from "@/lib/saju";
+import { STAGE_HANJA, STAGE_KO, stageIndex } from "@/lib/twelve-stages";
 import { TEN_GOD_NOTE, tenGodOf, type TenGod } from "@/lib/ten-gods";
 
 const HAN = "甲乙丙丁戊己庚辛壬癸";
@@ -176,6 +177,40 @@ export function ManseExtra({ me, pillars }: { me: BirthInput; pillars: Pillars }
             </div>
           ))}
         </div>
+      </Ref>
+
+      <Ref
+        title="12운성 표"
+        badge="일반 표 · 참고"
+        note="일간(나)이 각 지지에서 어떤 단계에 놓이는지 이름을 붙인 표예요. 입문서에서 흔히 쓰는 방식(양간은 순행, 음간은 역행, 戊는 丙·己는 丁과 같은 자리에서 시작)을 따랐어요. 《연해자평》 등 고전 원문과 대조하지 않았고 전문가 검증 전이에요. 학파·책마다 표가 다를 수 있고, 풀이 문장에는 쓰지 않았어요."
+      >
+        <div className="grid grid-cols-4 gap-1.5 text-center text-xs font-bold">
+          {cols.map((c) => (
+            <p key={c.label} className={`rounded-md py-1 ${c.me ? "bg-[var(--to)]" : "bg-[var(--paper-2)]"}`}>
+              {c.label}
+            </p>
+          ))}
+          {cols.map((c) => (
+            <div key={c.label + "t"} className="rounded-lg border border-[#c9a76e] bg-white py-2">
+              {c.p ? (
+                <>
+                  <p className="font-display text-[22px] leading-none">
+                    {STAGE_HANJA[stageIndex(dm, c.p.branch)]}
+                  </p>
+                  <p className="mt-1 text-[13px]">{STAGE_KO[stageIndex(dm, c.p.branch)]}</p>
+                  <p className="text-[10px] font-normal text-[var(--ink-soft)]">
+                    {c.p.hanja.charAt(1)} 위의 {HAN[dm]}
+                  </p>
+                </>
+              ) : (
+                <p className="py-3 text-[11px] font-normal text-[var(--ink-soft)]">시간 모름</p>
+              )}
+            </div>
+          ))}
+        </div>
+        <p className="mt-3 text-[12px] leading-snug text-[var(--ink-soft)]">
+          단계 순서: {STAGE_KO.join(" → ")}
+        </p>
       </Ref>
 
       {daeun && (
