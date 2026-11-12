@@ -4,7 +4,7 @@ import { computeDaeunForBirth } from "@/lib/daeun";
 import { hiddenStemsOf, mainStemOf } from "@/lib/hidden-stems";
 import { EL_WORD, stemElement } from "@/lib/reading";
 import type { BirthInput, Pillar } from "@/lib/saju";
-import { computeSinsal } from "@/lib/sinsal";
+import { SINSAL12, SINSAL12_HANJA, computeSinsal, twelveSinsal } from "@/lib/sinsal";
 import { STAGE_HANJA, STAGE_KO, stageIndex } from "@/lib/twelve-stages";
 import { TEN_GOD_NOTE, tenGodOf, type TenGod } from "@/lib/ten-gods";
 
@@ -87,6 +87,7 @@ export function ManseExtra({ me, pillars }: { me: BirthInput; pillars: Pillars }
 
   const daeun = useMemo(() => computeDaeunForBirth(me), [me]);
   const sinsal = computeSinsal(pillars);
+  const sinsal12 = twelveSinsal(pillars);
   // 현재 나이(만, 소수): 출생 순간부터 지금까지
   const nowAge = daeun ? (Date.now() - daeun.birthUtcMs) / (365.2425 * 86_400_000) : -1;
 
@@ -218,24 +219,55 @@ export function ManseExtra({ me, pillars }: { me: BirthInput; pillars: Pillars }
       <Ref
         title="신살 표"
         badge="일반 표 · 참고"
-        note="천을귀인·도화살·역마살·화개살·공망 다섯 가지만, 입문서에서 흔히 쓰는 계산법으로 찾았어요. 《연해자평》 등 고전 원문과 대조하지 않았고 전문가 검증 전이에요. 책·학파마다 기준이 다르고(도화·역마·화개는 일지·연지를 모두 보여 드려요), 그 뜻을 푸는 문장은 쓰지 않았어요."
+        note="입문서에서 흔히 쓰는 신살을 계산법대로 찾았어요. 《연해자평》 등 고전 원문과 대조하지 않았고 전문가 검증 전이에요. 책·학파마다 기준이 다르고(삼합 계열은 일지·연지를 모두 보여 드려요), 음간 양인처럼 차이가 큰 것은 넣지 않았어요. 그 뜻을 푸는 문장은 쓰지 않았어요."
       >
-        <ul className="space-y-2">
-          {sinsal.map((r) => (
-            <li key={r.key} className="rounded-lg border border-[#c9a76e] bg-white px-3 py-2 text-[13px]">
-              <p className="flex flex-wrap items-baseline gap-x-2">
-                <b>{r.name}</b>
-                <span className="font-display text-[15px]">{r.hanja}</span>
-              </p>
-              <p className="mt-0.5 text-[11px] text-[var(--ink-soft)]">
-                {r.rule} → 찾는 지지 {r.targets}
-              </p>
-              <p className="mt-1 text-[13px] font-bold">
-                {r.hits.length ? `내 사주에서: ${r.hits.join("·")}에 있어요` : "내 사주에서: 해당 없음"}
-              </p>
-            </li>
-          ))}
-        </ul>
+        <h4 className="font-display mb-1.5 text-[15px]">12신살 (삼합 기준)</h4>
+        {sinsal12.map((r) => (
+          <div key={r.word} className="mb-2">
+            <p className="mb-1 text-[11px] text-[var(--ink-soft)]">
+              {r.word} · {r.group}
+            </p>
+            <div className="grid grid-cols-4 gap-1.5 text-center text-xs font-bold">
+              {r.cells.map((c) => (
+                <div key={c.label} className="rounded-lg border border-[#c9a76e] bg-white py-1.5">
+                  <p className="text-[10px] font-normal text-[var(--ink-soft)]">{c.label}</p>
+                  {c.idx === null ? (
+                    <p className="py-1 text-[11px] font-normal text-[var(--ink-soft)]">시간 모름</p>
+                  ) : (
+                    <>
+                      <p className="font-display text-[15px] leading-tight">{SINSAL12_HANJA[c.idx]}</p>
+                      <p className="text-[12px]">{SINSAL12[c.idx]}</p>
+                    </>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+        {(["귀인·길신 계열", "삼합 계열", "일간 기준 그 외", "간지·지지 쌍"] as const).map((g) => (
+          <div key={g} className="mt-3">
+            <h4 className="font-display mb-1.5 text-[15px]">{g}</h4>
+            <ul className="space-y-2">
+              {sinsal
+                .filter((r) => r.group === g)
+                .map((r) => (
+                  <li key={r.key} className="rounded-lg border border-[#c9a76e] bg-white px-3 py-2 text-[13px]">
+                    <p className="flex flex-wrap items-baseline gap-x-2">
+                      <b>{r.name}</b>
+                      <span className="font-display text-[15px]">{r.hanja}</span>
+                    </p>
+                    <p className="mt-0.5 text-[11px] text-[var(--ink-soft)]">
+                      {r.rule} → {r.targets}
+                    </p>
+                    <p className="mt-1 text-[13px] font-bold">
+                      {r.hits.length ? `내 사주에서: ${r.hits.join(" · ")}` : "내 사주에서: 해당 없음"}
+                    </p>
+                    {r.note && <p className="mt-0.5 text-[11px] text-[var(--ink-soft)]">{r.note}</p>}
+                  </li>
+                ))}
+            </ul>
+          </div>
+        ))}
       </Ref>
 
       {daeun && (
