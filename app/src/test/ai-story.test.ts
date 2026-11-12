@@ -43,7 +43,8 @@ const extraFor = (user: string) =>
   : user.includes("지금 쓸 섹션: 대운의 흐름") ? ` 지금은 ${F.daeunNow} 대운이에요.`
   : "";
 const kOf = (user: string) => [...STORY_SECTIONS, ...BASIC_SECTIONS].findIndex((s) => user.includes(`지금 쓸 섹션: ${s.title}\n`));
-const jsonFor = (req: { user: string }) => JSON.stringify({ headline: "봄바람을 기다리며 단단히 뿌리내린 나무", body: `${goodBody(1300, Math.max(0, kOf(req.user)))}${extraFor(req.user)}` });
+const card = (o: { headline: string; body: string }) => JSON.stringify({ label: "x", title: o.headline, body: o.body.split(/\n\n+/) });
+const jsonFor = (req: { user: string }) => card({ headline: "봄바람을 기다리며 단단히 뿌리내린 나무", body: `${goodBody(1300, Math.max(0, kOf(req.user)))}${extraFor(req.user)}` });
 const sec = STORY_SECTIONS[0]!;
 const facts = { sinsalNames: ["천을귀인", "암록"], hasHour: true };
 
@@ -147,7 +148,7 @@ describe("실행(모의 AI)", () => {
     expect(llm.calls).toHaveLength(0);
   });
   it("정상이면 모든 섹션을 쓰고 이름을 채우며 이름·생년월일은 모델에 보내지 않는다", async () => {
-    const llm = new ScriptedLlm((req) => (req.system.includes("기획자") ? SPINE_JSON : JSON.stringify({ headline: "봄바람을 기다리며 단단히 뿌리내린 나무", body: `{{이름}}님은 ${goodBody(1300, Math.max(0, kOf(req.user)))}${extraFor(req.user)}` })));
+    const llm = new ScriptedLlm((req) => (req.system.includes("기획자") ? SPINE_JSON : card({ headline: "봄바람을 기다리며 단단히 뿌리내린 나무", body: `{{이름}}님은 ${goodBody(1300, Math.max(0, kOf(req.user)))}${extraFor(req.user)}` })));
     const r = await runAiStory({ me: ME, token: ENV.AI_TRIAL_TOKEN }, { config: readTrialConfig(ENV), now: NOW, writer: () => llm });
     expect(r.ok && r.state === "ready").toBe(true);
     if (r.ok && r.state === "ready") {
@@ -180,7 +181,7 @@ describe("실행(모의 AI)", () => {
       n++;
       if (req.system.includes("기획자")) return SPINE_JSON;
       // 첫 섹션은 세 번 모두 한자가 섞인 글 → 뺀다, 나머지는 정상
-      if (req.user.includes("지금 쓸 섹션: 한마디로")) return JSON.stringify({ headline: "봄바람을 기다리며 단단히 뿌리내린 나무", body: `${goodBody(1300)}\n\n木` });
+      if (req.user.includes("지금 쓸 섹션: 한마디로")) return card({ headline: "봄바람을 기다리며 단단히 뿌리내린 나무", body: `${goodBody(1300)}\n\n木` });
       return jsonFor(req);
     });
     const r = await runAiStory({ me: ME, token: ENV.AI_TRIAL_TOKEN }, { config: readTrialConfig(ENV), now: NOW, writer: () => llm });
@@ -241,7 +242,7 @@ describe("섹션 한 장씩 실행", () => {
     expect(sent).toContain("이미 뜻을 풀어 준 용어");
   });
   it("검수에 걸리면 한 요청은 한 번만 쓰고 고칠 이유를 돌려주며, 이유를 붙여 다시 요청하면 그 이유를 모델에 전한다", async () => {
-    const bad = new ScriptedLlm(() => JSON.stringify({ headline: "봄바람을 기다리며 단단히 뿌리내린 나무", body: `${goodBody(1300)}\n\n木` }));
+    const bad = new ScriptedLlm(() => card({ headline: "봄바람을 기다리며 단단히 뿌리내린 나무", body: `${goodBody(1300)}\n\n木` }));
     const r1 = await runAiStorySection(base, { config: readTrialConfig(ENV), now: NOW, writer: () => bad });
     expect(r1).toMatchObject({ ok: true, state: "retry" });
     expect(bad.calls).toHaveLength(1);
@@ -253,7 +254,7 @@ describe("섹션 한 장씩 실행", () => {
     expect(good.calls[0]!.user).toContain("직전 글을 이렇게 고쳐 다시 써요");
   });
   it("마지막 시도(giveUp)에서도 통과하지 못하면 그 장만 건너뛴다고 알린다", async () => {
-    const bad = new ScriptedLlm(() => JSON.stringify({ headline: "봄바람을 기다리며 단단히 뿌리내린 나무", body: `${goodBody(1300)}\n\n木` }));
+    const bad = new ScriptedLlm(() => card({ headline: "봄바람을 기다리며 단단히 뿌리내린 나무", body: `${goodBody(1300)}\n\n木` }));
     const r = await runAiStorySection({ ...base, giveUp: true }, { config: readTrialConfig(ENV), now: NOW, writer: () => bad });
     expect(r).toMatchObject({ ok: true, state: "skipped" });
   });
@@ -296,7 +297,7 @@ describe("글쓰기 지시 story-2와 이야기 줄기", () => {
     expect(sent).not.toContain("1995");
   });
   it("섹션 요청에 줄기를 주면 모든 섹션 프롬프트에 줄기 블록이 들어간다", async () => {
-    const llm = new ScriptedLlm(() => JSON.stringify({ headline: "봄바람을 기다리며 단단히 뿌리내린 나무", body: goodBody(1300) }));
+    const llm = new ScriptedLlm(() => card({ headline: "봄바람을 기다리며 단단히 뿌리내린 나무", body: goodBody(1300) }));
     const spine = JSON.parse(SPINE_JSON);
     await runAiStorySection({ ...base2, spine }, { config: readTrialConfig(ENV), now: NOW, writer: () => llm });
     expect(llm.calls[0]!.factsBlock).toContain("[이야기 줄기");
@@ -325,7 +326,7 @@ describe("기본(7카드, 약 4,500자) 구성", () => {
     const k = Math.max(0, BASIC_SECTIONS.findIndex((s) => req.user.includes(`지금 쓸 섹션: ${s.title}\n`)));
     const s = BASIC_SECTIONS[k]!;
     // 공백 포함 길이가 목표(공백 제외 중간값)보다 조금 크게 만들어 최소·최대 사이에 들어오게 한다
-    return JSON.stringify({ headline: "봄바람을 기다리며 단단히 뿌리내린 나무", body: `${goodBody(Math.round(mid(s) * 1.08), k)}${extraFor(req.user)}` });
+    return card({ headline: "봄바람을 기다리며 단단히 뿌리내린 나무", body: `${goodBody(Math.round(mid(s) * 1.08), k)}${extraFor(req.user)}` });
   };
   it("7개 섹션이고 분량 합이 약 4,500자를 겨냥한다", () => {
     expect(BASIC_SECTIONS.map((s) => s.id)).toEqual(["summary", "inner", "balance", "work", "love", "flow", "advice"]);
@@ -430,5 +431,26 @@ describe("새 검수: 방어 문구·옛 용어·권유 과다·긴 문단·반�
     const s = buildStorySystemPrompt();
     for (const w of ["중심 메시지", "방어적인 말", "천간, 지지", "3~4문장", "아라비아 숫자"]) expect(s).toContain(w);
     expect(s).not.toMatch(/[㐀-䶿一-鿿]/);
+  });
+});
+
+describe("카드 JSON({label,title,body[]})", () => {
+  const b = { me: ME, token: ENV.AI_TRIAL_TOKEN, index: 0, depth: "basic" as const, prior: [] as { id: string; title: string; headline: string; body: string }[] };
+  it("스키마가 label을 섹션 이름으로 고정하고 body를 문자열 배열로 요구한다", async () => {
+    const llm = new ScriptedLlm((req) => jsonFor(req));
+    await runAiStorySection(b, { config: readTrialConfig(ENV), now: NOW, writer: () => llm });
+    const sch = JSON.stringify(llm.calls[0]!.schema);
+    expect(sch).toContain(BASIC_SECTIONS[0]!.title);
+    expect(sch).toContain('"type":"array"');
+  });
+  it("문단 배열이 빈 줄로 이어진 본문으로 돌아온다", async () => {
+    const llm = new ScriptedLlm(() => card({ headline: "봄바람을 기다리며 단단히 뿌리내린 나무", body: goodBody(900) }));
+    const r = await runAiStorySection(b, { config: readTrialConfig(ENV), now: NOW, writer: () => llm });
+    expect(r.ok && r.state === "ready" && r.section.body.split("\n\n").length >= 3).toBe(true);
+  });
+  it("body가 문자열이면 형식 오류로 다시 요청한다", async () => {
+    const llm = new ScriptedLlm(() => JSON.stringify({ label: "x", title: "봄바람을 기다리며 단단히 뿌리내린 나무", body: "문자열 본문" }));
+    const r = await runAiStorySection({ ...b, giveUp: true }, { config: readTrialConfig(ENV), now: NOW, writer: () => llm });
+    expect(r.ok && r.state).toBe("skipped");
   });
 });

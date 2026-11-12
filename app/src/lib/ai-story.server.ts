@@ -79,15 +79,17 @@ const STYLE_SAMPLES = [
   "다만 한 가지는 짚고 넘어갈게요. 완벽하게 준비되기 전에는 시작하지 않는 습관이 당신을 가장 오래 붙잡아 왔어요. 그건 준비가 아니라 두려움에 가깝죠. 덜 익은 채로 하나만 내놓아 보세요.",
 ];
 
-export const SECTION_SCHEMA = {
+/** 카드 JSON: label(분류 이름, 섹션 이름 그대로) · title(15~40자 은유 제목) · body(문단 배열). */
+export const sectionSchema = (label: string) => ({
   type: "object",
   properties: {
-    headline: { type: "string", description: "15~40자 한 문장 은유 제목. 한글만." },
-    body: { type: "string", description: "문단 사이 빈 줄. 한글만, 마크다운 없음." },
+    label: { type: "string", enum: [label], description: "카드 분류 이름. 주어진 값을 그대로 쓴다." },
+    title: { type: "string", description: "15~40자 한 문장 은유 제목. 한글만." },
+    body: { type: "array", items: { type: "string", description: "한 문단(3~4문장). 한글만, 마크다운 없음." }, description: "문단 배열. 문단 사이 빈 줄은 쓰지 않는다." },
   },
-  required: ["headline", "body"],
+  required: ["label", "title", "body"],
   additionalProperties: false,
-} as const;
+} as const);
 
 export function buildStorySystemPrompt(): string {
   return [
@@ -98,7 +100,7 @@ export function buildStorySystemPrompt(): string {
     "[말투 예시] 아래는 말투와 구성만 보여 주는 가상의 짧은 예시다. 내용·비유·문장을 그대로 쓰지 않는다.",
     STYLE_SAMPLES.map((x) => `- ${x}`).join("\n"),
     "",
-    "출력은 서버가 지정한 JSON(headline, body)만 반환한다.",
+    "출력은 서버가 지정한 JSON(label, title, body 배열)만 반환한다. body는 문단 문자열의 배열이다.",
   ].join("\n");
 }
 
@@ -326,7 +328,7 @@ async function writeSection(
     let res;
     try {
       res = await llm.complete({
-        system, factsBlock, maxTokens: 3000, schema: SECTION_SCHEMA,
+        system, factsBlock, maxTokens: 3000, schema: sectionSchema(section.title),
         user: buildStoryUser(section, prior.map((d) => ({ title: d.title, headline: d.headline })), concern, depth === "deep" ? explainedTerms(priorBodies) : [], { theme, others, depth }) + extra,
       });
     } catch (e) {
@@ -334,14 +336,15 @@ async function writeSection(
       extra = "\n직전 응답이 처리되지 않았어요. 같은 요청에 JSON으로 다시 답해요.";
       continue;
     }
-    let parsed: { headline?: unknown; body?: unknown } | null = null;
+    let parsed: { label?: unknown; title?: unknown; body?: unknown } | null = null;
     try { parsed = JSON.parse(res.text); } catch { parsed = null; }
-    if (!parsed || typeof parsed.headline !== "string" || typeof parsed.body !== "string") {
-      extra = "\n지정한 JSON(headline, body)으로만 답해요.";
+    const paras = parsed && Array.isArray(parsed.body) && parsed.body.every((x) => typeof x === "string") ? (parsed.body as string[]).map((x) => x.replace(/\\n/g, "\n").trim()).filter(Boolean) : null;
+    if (!parsed || typeof parsed.title !== "string" || !paras?.length) {
+      extra = "\n지정한 JSON(label, title, body 문자열 배열)으로만 답해요.";
       continue;
     }
-    const body = parsed.body.replace(/\\n/g, "\n").trim();
-    const headline = parsed.headline.trim();
+    const body = paras.join("\n\n");
+    const headline = parsed.title.trim();
     const issues = checkStory(headline, body, section, facts, { prior: priorBodies, motifs: spine?.motifs });
     if (!issues.length) return { section: { id: section.id, title: section.title, headline, body }, fix: "" };
     extra = `\n직전 글을 이렇게 고쳐 다시 써요: ${issues.map((i) => i.message).join(" ")}`;
