@@ -13,6 +13,15 @@ export const STEM_NAME = ["갑목", "을목", "병화", "정화", "무토", "기
 const GROUP: Record<TenGod, string> = {
   비견: "비겁", 겁재: "비겁", 식신: "식상", 상관: "식상", 편재: "재성", 정재: "재성", 편관: "관성", 정관: "관성", 편인: "인성", 정인: "인성",
 };
+// 일주의 상징 이미지(일주론에서 흔히 쓰는 비유, 재미용). 글에 이미지를 이어 쓰는 재료로만 쓴다.
+export const STEM_IMAGE = [
+  "하늘을 향해 곧게 뻗는 큰 나무", "바람에 눕지만 끊어지지 않는 덩굴과 풀꽃", "세상을 비추는 한낮의 태양", "어둠을 밝히는 촛불과 등불", "묵직하게 자리를 지키는 큰 산", "씨앗을 품어 기르는 논밭의 흙",
+  "단단한 바위와 날 선 칼", "다듬어질수록 빛나는 보석", "끝없이 흐르는 큰 강과 바다", "조용히 스며드는 이슬과 봄비",
+] as const;
+export const BRANCH_IMAGE = [
+  "깊은 밤과 쥐의 영리함", "겨울 끝자락의 소와 얼어 있는 땅", "이른 봄 숲을 지키는 호랑이", "봄 꽃밭 위의 토끼", "봄비를 머금은 땅과 용", "초여름 햇살 속의 뱀",
+  "한여름 정오의 말", "늦여름 마른 땅 위의 양", "초가을 바람 속의 원숭이", "가을 저녁의 닭", "늦가을 산자락의 개", "초겨울 바다 곁의 돼지",
+] as const;
 const MONTH_OF_BRANCH = [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]; // 지지(자~해) → 대략 양력 달
 
 export interface StoryFacts {
@@ -35,6 +44,11 @@ export function buildStoryFacts(me: BirthInput, now: Date = new Date()): StoryFa
   L.push(`- 성별: ${me.gender === "f" ? "여성" : "남성"}, 나이: 만 ${age}세 안팎`);
   L.push(`- 나를 뜻하는 일간: ${STEM_NAME[dm]} (오행으로 ${EL_WORD[stemElement(dm)]})`);
   L.push(`- 출생 시간: ${pil.hour ? "알고 있음" : "모름(시주는 없음, 시주 얘기는 하지 않는다)"}`);
+
+  L.push("[일주의 상징 이미지(재미용 비유이며 사실 판정이 아니다. 글에 이미지로 이어 쓴다)]");
+  L.push(`- 일간 ${STEM_NAME[dm]}: ${STEM_IMAGE[dm]}`);
+  L.push(`- 일지 ${BRANCH_KO[pil.day.branch]}: ${BRANCH_IMAGE[pil.day.branch]}`);
+  L.push(`- 일주 ${pil.day.ko}: ${STEM_IMAGE[dm]}이(가) ${BRANCH_IMAGE[pil.day.branch]} 곁에 서 있는 모습`);
 
   L.push("[네 기둥]");
   const cols = [

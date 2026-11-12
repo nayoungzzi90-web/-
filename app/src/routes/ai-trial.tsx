@@ -3,7 +3,8 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { Friend, type FriendKind } from "@/components/Friends";
 import { ReadingCard } from "@/components/ResultParts";
 import { Page } from "@/components/Shell";
-import { STORY_TOTAL, runAiStorySectionFn, runAiTrialFn } from "@/lib/ai-trial-fns";
+import { STORY_TOTAL, runAiStorySectionFn, runAiStorySpineFn, runAiTrialFn } from "@/lib/ai-trial-fns";
+import type { StorySpine } from "@/lib/ai-story.server";
 import type { TrialResponse } from "@/lib/ai-trial.server";
 import { useStore } from "@/lib/store";
 
@@ -25,6 +26,7 @@ interface StoryView {
   cost: number;
   notes: string[];
   step: number;
+  phase?: string;
   done: boolean;
   error: string | null;
 }
@@ -86,7 +88,28 @@ function AiTrial() {
     const notes: string[] = [];
     const show = (extra: Partial<StoryView>) =>
       setStory({ sections: [...prior], cost, notes: [...notes], step: prior.length, done: false, error: null, ...extra });
-    show({ step: 0 });
+    show({ step: 0, phase: "구상 중" });
+    // 먼저 이야기 줄기를 한 번 구상한다(실패해도 줄기 없이 계속한다)
+    let spine: StorySpine | undefined;
+    let spineDone = false;
+    for (let net = 0; net < 2 && !spineDone; net++) {
+      try {
+        const sr = await runAiStorySpineFn({ data });
+        if (!sr.ok) {
+          show({ error: sr.error });
+          return;
+        }
+        if (sr.state === "unavailable") {
+          show({ error: sr.message });
+          return;
+        }
+        cost += sr.costUsd;
+        spine = sr.spine ?? undefined;
+        spineDone = true;
+      } catch {
+        /* 한 번 더 */
+      }
+    }
     for (let i = 0; i < STORY_TOTAL; i++) {
       show({ step: i });
       let r: SecRes | null = null;
@@ -97,7 +120,7 @@ function AiTrial() {
         for (let net = 0; net < 2 && !got; net++) {
           try {
             got = await runAiStorySectionFn({
-              data: { ...data, index: i, prior, ...(fix ? { fix } : {}), ...(attempt === 2 ? { giveUp: true } : {}) },
+              data: { ...data, index: i, prior, ...(spine ? { spine } : {}), ...(fix ? { fix } : {}), ...(attempt === 2 ? { giveUp: true } : {}) },
             });
           } catch {
             got = null;
@@ -226,7 +249,9 @@ function AiTrial() {
                 ? `${story.sections.length}장 완성 · 시범 · 검수 전 · 이번 원가 약 $${Math.round(story.cost * 1e4) / 1e4}`
                 : story.error
                   ? `중단됨 · 지금까지 원가 약 $${Math.round(story.cost * 1e4) / 1e4}`
-                  : `${Math.min(story.step + 1, STORY_TOTAL)}/${STORY_TOTAL} 쓰는 중이에요… (한 장에 15초쯤 걸려요. 화면을 켜 두세요)`}
+                  : story.phase === "구상 중"
+                    ? "먼저 이 사주의 이야기 줄기를 구상하는 중이에요…"
+                    : `${Math.min(story.step + 1, STORY_TOTAL)}/${STORY_TOTAL} 쓰는 중이에요… (한 장에 15초쯤 걸려요. 화면을 켜 두세요)`}
             </p>
             {story.error && (
               <p role="alert" className="mt-2 rounded-xl border-2 border-[var(--stamp)] bg-[#fde4e1] px-3 py-2 text-sm font-bold text-[var(--stamp)]">

@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import type { TrialResponse } from "./ai-trial.server";
-import type { StorySectionResponse } from "./ai-story.server";
+import type { StorySectionResponse, StorySpineResponse } from "./ai-story.server";
 
 // 소유자 전용 AI 풀이 시범. 꺼져 있으면(기본) AI 를 부르지 않고 "준비 중"만 돌려준다.
 const birthSchema = z.object({
@@ -50,7 +50,7 @@ export const runAiStoryFn = createServerFn({ method: "POST" })
   });
 
 // 섹션 한 장씩 요청(휴대폰 브라우저가 1분 넘게 응답이 없는 요청을 끊는 문제를 피한다).
-export const STORY_TOTAL = 8; // ai-story.server.ts 의 STORY_SECTIONS 개수와 같아야 한다(시험이 확인)
+export const STORY_TOTAL = 9; // ai-story.server.ts 의 STORY_SECTIONS 개수와 같아야 한다(시험이 확인)
 const priorSchema = z.object({
   id: z.string().max(32),
   title: z.string().max(60),
@@ -62,6 +62,15 @@ const sectionSchema = schema.extend({
   prior: z.array(priorSchema).max(STORY_TOTAL),
   fix: z.string().max(600).optional(),
   giveUp: z.boolean().optional(),
+  spine: z
+    .object({
+      image: z.string().max(200),
+      motifs: z.array(z.string().max(80)).max(4),
+      strengths: z.array(z.string().max(120)).max(4),
+      tensions: z.array(z.string().max(120)).max(3),
+      answer: z.string().max(300),
+    })
+    .optional(),
 });
 export const runAiStorySectionFn = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => sectionSchema.parse(input))
@@ -70,6 +79,21 @@ export const runAiStorySectionFn = createServerFn({ method: "POST" })
       const { readTrialConfig } = await import("./ai-trial.server");
       const { runAiStorySection } = await import("./ai-story.server");
       return await runAiStorySection(data, { config: readTrialConfig(process.env) });
+    } catch {
+      return {
+        ok: false,
+        error: "AI 풀이를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.",
+      };
+    }
+  });
+
+export const runAiStorySpineFn = createServerFn({ method: "POST" })
+  .inputValidator((input: unknown) => schema.parse(input))
+  .handler(async ({ data }): Promise<StorySpineResponse> => {
+    try {
+      const { readTrialConfig } = await import("./ai-trial.server");
+      const { runAiStorySpine } = await import("./ai-story.server");
+      return await runAiStorySpine(data, { config: readTrialConfig(process.env) });
     } catch {
       return {
         ok: false,
