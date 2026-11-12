@@ -282,7 +282,7 @@ function AiTrial() {
                 <legend className="mb-1 font-extrabold">분량</legend>
                 {(
                   [
-                    ["basic", `기본 (${STORY_TOTALS.basic}카드, 약 4,500자)`],
+                    ["basic", `기본 (${STORY_TOTALS.basic}카드, 약 5,000자)`],
                     ["deep", `심층 (${STORY_TOTALS.deep}카드, 시범)`],
                   ] as const
                 ).map(([v, label]) => (

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { buildStoryFacts } from "@/lib/ai-story-facts";
-import { BASIC_SECTIONS, STORY_SECTIONS, targetChars, buildStorySystemPrompt, buildStoryUser, checkStory, explainedTerms, runAiStory, runAiStorySection, runAiStorySpine } from "@/lib/ai-story.server";
+import { BASIC_SECTIONS, STORY_SECTIONS, buildStorySystemPrompt, buildStoryUser, checkStory, explainedTerms, runAiStory, runAiStorySection, runAiStorySpine } from "@/lib/ai-story.server";
 import { STORY_TOTALS } from "@/lib/ai-trial-fns";
 import { readTrialConfig } from "@/lib/ai-trial.server";
 import { ScriptedLlm } from "@/lib/reading-core/src/lib/report/llm";
@@ -35,7 +35,7 @@ const SPINE_JSON = JSON.stringify({
 const F = buildStoryFacts(ME, NOW)!;
 /** 섹션마다 검수가 요구하는 내용(필요한 기운·병원 검진·다섯 해·대운 이름)을 갖춘 모의 응답 */
 const extraFor = (user: string) =>
-  user.includes("지금 쓸 섹션: 필요한 기운") ? ` 이 사람에게 필요한 기운은 ${F.needName}이에요.`
+  user.includes("지금 쓸 섹션: 필요한 기운") || user.includes("지금 쓸 섹션: 오행\n") ? ` 이 사람에게 필요한 기운은 ${F.needName}이에요.`
   : user.includes("지금 쓸 섹션: 건강과 마음") ? " 몸이 불편하면 병원 검진을 받아 보세요."
   : user.includes("지금 쓸 섹션: 향후 5년") ? ` ${F.years.map((y) => `${y}년`).join(", ")}을 차례로 살펴요.`
   : user.includes("지금 쓸 섹션: 지금의 흐름") ? ` 지금은 ${F.daeunNow} 대운이에요. ${F.years.map((y) => `${y}년`).join(", ")}을 차례로 살펴요.`
@@ -320,7 +320,7 @@ describe("story-3 보완(숫자 표기·이미지·안내 반복)", () => {
   });
 });
 
-describe("기본(7카드, 약 4,500자) 구성", () => {
+describe("기본(10카드, 카드당 450~550자) 구성", () => {
   const mid = (s: { min: number; max: number }) => (s.min + s.max) / 2;
   const basicJson = (req: { user: string }) => {
     const k = Math.max(0, BASIC_SECTIONS.findIndex((s) => req.user.includes(`지금 쓸 섹션: ${s.title}\n`)));
@@ -328,32 +328,42 @@ describe("기본(7카드, 약 4,500자) 구성", () => {
     // 공백 포함 길이가 목표(공백 제외 중간값)보다 조금 크게 만들어 최소·최대 사이에 들어오게 한다
     return card({ headline: "봄바람을 기다리며 단단히 뿌리내린 나무", body: `${goodBody(Math.round(mid(s) * 1.08), k)}${extraFor(req.user)}` });
   };
-  it("7개 섹션이고 분량 합이 약 4,500자를 겨냥한다", () => {
-    expect(BASIC_SECTIONS.map((s) => s.id)).toEqual(["summary", "inner", "balance", "work", "love", "flow", "advice"]);
-    // AI 는 알려 준 목표의 약 65%를 쓰는 경향이 있어(실측), 목표 합 6,700~7,100자가 약 4,500자를 겨냥한다
-    const targets = BASIC_SECTIONS.reduce((a, s) => a + targetChars(s), 0);
-    expect(targets).toBeGreaterThan(6600);
-    expect(targets).toBeLessThan(7200);
-    expect(Math.round(targets * 0.65)).toBeGreaterThan(4200);
-    expect(Math.round(targets * 0.65)).toBeLessThan(4800);
+  it("10개 섹션(label 고정)이고 카드당 목표가 450~550자를 겨냥한다", () => {
+    expect(BASIC_SECTIONS.map((s) => s.title)).toEqual(["한마디로", "나라는 사람", "오행", "일주와 십성", "나에게 맞는 일", "재물복", "연애운", "쓴소리", "나만의 매력", "지금의 흐름"]);
     for (const s of BASIC_SECTIONS) {
-      expect(s.min).toBeGreaterThanOrEqual(400);
-      expect(s.min).toBeLessThan(s.target! * 0.6); // 자연스럽게 나오는 길이가 최솟값 아래로 떨어지지 않게
-      expect(s.max).toBeGreaterThanOrEqual(s.target!);
-      expect(s.minParas).toBe(3);
+      expect(s.min).toBe(s.id === "flow" ? 500 : 400);
+      expect(s.minParas).toBe(2);
+      expect(s.headlineLen).toEqual([18, 32]);
+      expect(Math.round(s.target! * 0.8)).toBeGreaterThanOrEqual(480);
+      expect(Math.round(s.target! * 0.8)).toBeLessThanOrEqual(s.id === "flow" ? 680 : 560);
     }
-    expect(BASIC_SECTIONS.find((s) => s.id === "balance")!.requires).toContain("needName");
+    expect(BASIC_SECTIONS.find((s) => s.id === "elements")!.requires).toContain("needName");
     expect(BASIC_SECTIONS.find((s) => s.id === "flow")!.requires).toEqual(expect.arrayContaining(["years", "daeun"]));
-    expect(BASIC_SECTIONS.find((s) => s.id === "advice")!.requires).toContain("medical");
-    expect(BASIC_SECTIONS.filter((s) => s.useConcern).map((s) => s.id)).toEqual(["work", "flow"]);
+    expect(BASIC_SECTIONS.filter((s) => s.useConcern).map((s) => s.id)).toEqual(["work", "money", "flow"]);
   });
-  it("섹션 요청은 기본이 7장이고, 앞 섹션 글 없이(병렬로) 한 장씩 쓴다", async () => {
-    for (let i = 0; i < 7; i++) {
+  it("기본 카드 프롬프트가 2~3문단과 비유 제목 20~30자를 요구한다", () => {
+    const u = buildStoryUser(BASIC_SECTIONS[1]!, [], undefined, [], {});
+    expect(u).toContain("2~3문단");
+    expect(u).toContain("20~30자");
+    expect(u).toContain("비유");
+  });
+  it("제목 검수: 길이 범위와 용어·숫자 금지", () => {
+    const s = BASIC_SECTIONS[0]!;
+    const ok = (h: string) => checkStory(h, goodBody(600), s, facts).filter((i) => i.code.startsWith("HEADLINE")).map((i) => i.code);
+    expect(ok("봄바람을 기다리며 단단히 뿌리내린 나무")).toEqual([]);
+    expect(ok("나무")).toEqual(["HEADLINE"]);
+    expect(ok("편관이 강하게 드러난 봄 숲의 큰 나무 이야기")).toEqual(["HEADLINE_PLAIN"]);
+    const rep = (h: string, p: string) => checkStory(h, goodBody(600), s, facts, { priorHeadlines: [p] }).map((i) => i.code).filter((c) => c === "HEADLINE_REPEAT");
+    expect(rep("새싹 곁에 놓인 등불이 나뭇가지를 비추네요", "새싹 곁 큰 나무가 봄볕을 향해 가지를 폅니다")).toEqual(["HEADLINE_REPEAT"]);
+    expect(rep("붉은 천이 바람에 날리는 숲 어귀의 장승", "새싹 곁 큰 나무가 봄볕을 향해 가지를 폅니다")).toEqual([]);
+  });
+  it("섹션 요청은 기본이 10장이고, 앞 섹션 글 없이(병렬로) 한 장씩 쓴다", async () => {
+    for (let i = 0; i < 10; i++) {
       const llm = new ScriptedLlm((req) => basicJson(req));
       const r = await runAiStorySection({ me: ME, token: ENV.AI_TRIAL_TOKEN, index: i, prior: [] }, { config: readTrialConfig(ENV), now: NOW, writer: () => llm });
       expect(r.ok && r.state === "ready", `섹션 ${i}`).toBe(true);
       if (r.ok && r.state === "ready") {
-        expect(r.total).toBe(7);
+        expect(r.total).toBe(10);
         expect(r.section.id).toBe(BASIC_SECTIONS[i]!.id);
       }
       expect(llm.calls).toHaveLength(1);
@@ -365,7 +375,7 @@ describe("기본(7카드, 약 4,500자) 구성", () => {
     const sp = await runAiStorySpine({ me: ME, token: ENV.AI_TRIAL_TOKEN, depth: "basic" }, { config: readTrialConfig(ENV), now: NOW, writer: () => new ScriptedLlm(() => SPINE_JSON) });
     const spine = sp.ok && sp.state === "ready" ? sp.spine! : undefined;
     expect(spine).toBeDefined();
-    await runAiStorySection({ me: ME, token: ENV.AI_TRIAL_TOKEN, index: 3, prior: [], spine }, { config: readTrialConfig(ENV), now: NOW, writer: () => llm });
+    await runAiStorySection({ me: ME, token: ENV.AI_TRIAL_TOKEN, index: 4, prior: [], spine }, { config: readTrialConfig(ENV), now: NOW, writer: () => llm });
     const u = llm.calls[0]!.user;
     const own = "나에게 맞는 일 카드가 홀로 맡을 메시지"; // 시험 줄기는 id(work)로 메시지를 만든다
     expect(u).toContain(`이 섹션의 중심 메시지(이것 하나만 다룬다): ${own}`);
@@ -387,7 +397,7 @@ describe("기본(7카드, 약 4,500자) 구성", () => {
       expect(Object.keys(r.spine.themes).sort()).toEqual(BASIC_SECTIONS.map((s) => s.id).sort());
     }
     expect(llm.calls[0]!.system).toContain("[섹션 목록]");
-    expect(llm.calls[0]!.system).toContain("balance");
+    expect(llm.calls[0]!.system).toContain("elements");
   });
   it("구상 결과에 방어적인 말(일반 이론·후보)이 섞이면 버린다", async () => {
     const llm = new ScriptedLlm(() => SPINE_JSON.replace("꼼꼼함", "일반 이론 후보"));
@@ -444,9 +454,9 @@ describe("카드 JSON({label,title,body[]})", () => {
     expect(sch).toContain('"type":"array"');
   });
   it("문단 배열이 빈 줄로 이어진 본문으로 돌아온다", async () => {
-    const llm = new ScriptedLlm(() => card({ headline: "봄바람을 기다리며 단단히 뿌리내린 나무", body: goodBody(900) }));
+    const llm = new ScriptedLlm(() => card({ headline: "봄바람을 기다리며 단단히 뿌리내린 나무", body: goodBody(600) }));
     const r = await runAiStorySection(b, { config: readTrialConfig(ENV), now: NOW, writer: () => llm });
-    expect(r.ok && r.state === "ready" && r.section.body.split("\n\n").length >= 3).toBe(true);
+    expect(r.ok && r.state === "ready" && r.section.body.split("\n\n").length >= 2).toBe(true);
   });
   it("body가 문자열이면 형식 오류로 다시 요청한다", async () => {
     const llm = new ScriptedLlm(() => JSON.stringify({ label: "x", title: "봄바람을 기다리며 단단히 뿌리내린 나무", body: "문자열 본문" }));

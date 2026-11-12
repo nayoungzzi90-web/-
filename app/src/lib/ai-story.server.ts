@@ -14,7 +14,7 @@ import { tokenMatches, type TrialConfig, type TrialConfigResult, type TrialRespo
 import { buildStoryFacts, type StoryFacts } from "./ai-story-facts";
 import type { BirthInput } from "./saju";
 
-export const STORY_PROMPT_VERSION = "story-4";
+export const STORY_PROMPT_VERSION = "story-5";
 
 export type StoryDepth = "basic" | "deep";
 type Req = "needName" | "medical" | "years" | "daeun";
@@ -23,17 +23,24 @@ export interface StorySection {
   useConcern?: boolean; requires?: Req[]; minParas?: number;
   /** AI 에게 알려 주는 목표 글자 수. 없으면 범위 중간의 1.15배 */
   target?: number;
+  /** 제목 길이(공백 포함) 허용 범위. 있으면 이 범위로 검수하고 비유가 담긴 20~30자 제목을 요구한다 */
+  headlineLen?: [number, number];
 }
 
-// 기본(약 4,500자): 7카드, 문단 3~4문장. AI 가 알려 준 목표의 약 65%를 쓰는 경향이 있어 목표(target)를 높게 알려 주고 최솟값은 낮게 둔다
+// 기본(story-5): 10카드, 카드당 공백 뺀 450~550자(문단 2~3개). AI 는 알려 준 목표의 약 80%를 쓰는 경향이 있어 목표(target)를 높게 알려 주고 최솟값은 400으로 낮게 둔다.
+// 제목은 공백 포함 20~30자의 비유 한 줄(headlineLen 은 검수 허용 범위).
+const HL: [number, number] = [18, 32];
 export const BASIC_SECTIONS: StorySection[] = [
-  { id: "summary", title: "한마디로", purpose: "이 사주를 한 장면(물상)으로 정의하고 첫인상과 타고난 힘을 짚는다. 일주 이미지로 시작하는 한 줄 결론, 일간의 힘(신강·신약을 쉬운 말로 한 번만 풀어 쓴다)과 태어난 계절의 쏠림, 타고난 그릇과 약한 면 하나. 이 섹션에서만 전문용어의 뜻을 한 줄씩 풀어 준다.", min: 440, max: 1100, target: 860, minParas: 3 },
-  { id: "inner", title: "나는 이런 사람", purpose: "겉으로 보이는 모습(천간)과 속마음(지지·지장간)의 차이, 사고방식과 스트레스 대응, 스스로 인정하기 싫은 약한 면 하나. 마지막은 지금 들이면 좋은 습관 하나로 끝낸다.", min: 480, max: 1100, target: 940, minParas: 3 },
-  { id: "balance", title: "필요한 기운과 개운 처방", purpose: "이 사람에게 필요한 기운이 무엇이고 왜 필요한지(계절의 쏠림과 힘의 균형) 단도직입적으로 말하고, 그 기운이 원국에서 실제로 힘을 쓰는 정도를 밝힌다. JSON의 「오행상징대응」을 재료로 색·방향·습관·환경 중 오늘 바로 할 수 있는 처방 세 가지를 든다(믿음을 강요하지 않는 참고 제안). 쉬는 법과 수면 처방은 이 섹션에서만 다룬다.", min: 460, max: 1100, target: 1000, minParas: 3, requires: ["needName"] },
-  { id: "work", title: "일과 돈", purpose: "조직에서 힘이 나는지 독립해서 힘이 나는지 경향을 분명히 말하고, 어울리는 요즘 직무 3~4가지와 맞지 않는 일의 방식 1가지를 든다. 돈이 쌓이는 방식과 새는 곳을 한 문단으로 말한다(투자 수익은 단정하지 않는다). 고객 고민이 일·돈과 관련되면 첫 문단 첫 문장에서 결론(방향)부터 답한다.", min: 480, max: 1100, target: 1000, minParas: 3, useConcern: true },
-  { id: "love", title: "연애와 관계", purpose: "일지의 자리와 사랑하는 방식, 끌리는 사람 유형과 반복되기 쉬운 패턴을 말한다. 이어서 인복과 귀인(귀인류 신살이 사실에 있으면 연결), 가까운 사이에서 부딪히기 쉬운 지점을 한 문단으로 말한다. 이혼·사별 같은 사건은 예언하지 않는다.", min: 460, max: 1100, target: 940, minParas: 3 },
-  { id: "flow", title: "지금의 흐름", purpose: "인생의 큰 흐름(지금 대운의 이름과 구간 판정, 이유 한 줄, 다음 대운으로 바뀌는 때)과 향후 5년을 다룬다. JSON의 「향후5년」의 다섯 해를 「2026년 병오년」처럼 연도와 간지 이름을 함께 써서 한 해씩 1~2문장으로 모두 말하고, 가장 움직이기 좋은 해와 점검하며 보낼 해를 짚는다. 충이 있는 해는 사건이 아니라 변화·이동이 큰 해로 말한다. 분위기 판정은 엔진 결과를 그대로 쓴다. 고객 고민이 있으면 연도별 방향으로 연결한다.", min: 580, max: 1250, target: 1150, minParas: 3, useConcern: true, requires: ["years", "daeun"] },
-  { id: "advice", title: "건강·마음과 종합 조언", purpose: "오행의 쏠림을 근거로 전통적으로 연결하는 신경 쓸 몸의 부위와 마음 관리를 생활 습관 관점으로 한 문단 쓴다(질병명을 진단하거나 예고하지 않고, 몸이 불편하면 병원 검진을 받으라는 말을 한 번 넣는다). 이어서 쓴소리 하나와 이 사주를 한 줄로 요약하는 종합 조언, 따뜻한 응원으로 끝낸다.", min: 480, max: 1100, target: 1000, minParas: 3, requires: ["medical"] },
+  { id: "summary", title: "한마디로", purpose: "이 사주를 한 장면(물상)으로 정의한다. 일주 이미지로 시작하는 한 줄 결론, 일간의 힘(신강·신약을 쉬운 말로 한 번만 풀어 쓴다)과 태어난 계절의 쏠림, 타고난 그릇과 약한 면 하나. 이 섹션에서만 전문용어의 뜻을 한 줄씩 풀어 준다.", min: 400, max: 800, target: 600, minParas: 2, headlineLen: HL },
+  { id: "inner", title: "나라는 사람", purpose: "겉으로 보이는 모습(천간)과 속마음(지지·지장간)의 차이, 사고방식과 스트레스 대응, 스스로 인정하기 싫은 약한 면 하나를 말한다.", min: 400, max: 800, target: 600, minParas: 2, headlineLen: HL },
+  { id: "elements", title: "오행", purpose: "JSON의 「오행개수」와 「오행요약」을 근거로 어떤 오행이 몇 개로 많고 부족한지 숫자와 함께 밝히고, 그것이 성격과 생활에서 어떤 쏠림으로 나타나는지 말한다. JSON의 「균형과필요한기운」의 필요한 기운을 그대로 쓰고, JSON의 「오행상징대응」을 재료로 생활에서 보완하는 방법(색·방향·습관·환경 중) 두세 가지를 오늘 바로 할 수 있게 든다(믿음을 강요하지 않는 참고 제안). 쉬는 법과 수면 처방은 이 카드에서만 다룬다.", min: 400, max: 800, target: 640, minParas: 2, headlineLen: HL, requires: ["needName"] },
+  { id: "ilju", title: "일주와 십성", purpose: "일주(일간+일지)가 만드는 기본 기질과, JSON의 「네기둥」과 「십성묶음」에서 두드러지는 십성 두세 가지가 삶에서 어떤 모습으로 드러나는지 말한다. 일지의 12운성 단계가 주는 힘의 결도 한 번 짚는다. 십성은 이름과 함께 쉬운 말 뜻을 곁들이되 JSON에 없는 십성은 쓰지 않는다.", min: 400, max: 800, target: 620, minParas: 2, headlineLen: HL },
+  { id: "work", title: "나에게 맞는 일", purpose: "조직에서 힘이 나는지 독립해서 힘이 나는지 경향을 분명히 말하고, 어울리는 요즘 직무 3~4가지와 맞지 않는 일의 방식 1가지를 든다. 고객 고민이 일·진로와 관련되면 첫 문장에서 결론(방향)부터 답한다.", min: 400, max: 800, target: 620, minParas: 2, headlineLen: HL, useConcern: true },
+  { id: "money", title: "재물복", purpose: "돈을 대하는 태도와 돈이 쌓이는 방식(꾸준히 쌓는 쪽인지 크게 움직이는 쪽인지), 돈이 새는 곳과 지키는 법을 십성 근거로 말한다. 투자 수익이나 손실은 단정하지 않는다.", min: 400, max: 800, target: 600, minParas: 2, headlineLen: HL, useConcern: true },
+  { id: "love", title: "연애운", purpose: "일지의 자리와 사랑하는 방식, 끌리는 사람 유형과 반복되기 쉬운 패턴, 가까운 사이에서 부딪히기 쉬운 지점을 말한다. 이혼·사별 같은 사건은 예언하지 않는다.", min: 400, max: 800, target: 600, minParas: 2, headlineLen: HL },
+  { id: "blunt", title: "쓴소리", purpose: "이 사주에서 보이는 약점 두어 가지를 직설적으로 짚는다. 악담이나 단정은 하지 않고 「이런 경향이 있어서, 이렇게 하면 좋다」는 방향으로 쓴다. 다른 카드에서 이미 다룬 약점은 반복하지 않고, 마지막은 바로 해 볼 수 있는 행동 하나로 끝낸다.", min: 400, max: 800, target: 600, minParas: 2, headlineLen: HL },
+  { id: "charm", title: "나만의 매력", purpose: "남들이 먼저 알아보는 매력과 사람들이 이 사람에게 기대는 이유를 JSON의 십이운성과 「신살」에 실제로 있는 것으로 연결한다(귀인류 등 JSON에 있는 신살만). 매력이 지나칠 때 생기는 그늘도 한 번 짚고, 따뜻한 응원으로 끝낸다.", min: 400, max: 800, target: 600, minParas: 2, headlineLen: HL },
+  { id: "flow", title: "지금의 흐름", purpose: "지금 대운의 이름과 구간 판정(이유 한 줄), 다음 대운으로 바뀌는 때를 말하고, JSON의 「향후5년」의 다섯 해를 「2026년 병오년」처럼 연도와 간지 이름을 함께 써서 한 해씩 모두 구체적으로 다룬다. 각 해의 분위기 판정과 원국관계(충·합이 있으면 그것)를 근거로 쓰고, 충이 있는 해는 사건이 아니라 변화·이동이 큰 해로 말한다. 가장 움직이기 좋은 해와 점검하며 보낼 해를 짚는다. 고객 고민이 있으면 연도별 방향으로 연결한다.", min: 500, max: 1000, target: 800, minParas: 2, headlineLen: HL, useConcern: true, requires: ["years", "daeun"] },
 ];
 
 // 심층(12카드): 이후 단계에서 분량을 줄여 다듬는다
@@ -63,8 +70,8 @@ const RULES = [
   "대운과 연도: JSON의 「대운」과 「향후5년」의 「분위기 판정」(오르는 구간·엇갈리는 구간·쉬어가는 구간)은 엔진이 정한 결과이므로 그대로 쓰고 바꾸지 않는다. 이유는 12운성 단계, 필요한 기운 쪽 도움·부담, 충·육합으로 설명한다. 충이 있는 해는 사건이 아니라 변화·이동이 큰 해로 말한다. 합·충·형·파·해는 사실 블록에 적힌 관계만 말하고 합화·삼합이 성립했다거나 충이 풀렸다고 단정하지 않는다. 이혼, 파산, 소송, 사고, 질병 같은 사건을 예고하지 않는다.",
   "한글만 쓴다. 한자, 알파벳, 이모지, 마크다운 기호, 번호·글머리표를 쓰지 않는다. 연도와 나이는 아라비아 숫자로 쓴다(예: 2026년, 만 37세).",
   "용어: 천간, 지지, 일간, 일지, 월지, 원국, 일주, 십성, 12운성, 신살, 대운 같은 한글 전문용어를 자연스럽게 쓴다. 「하늘 글자」, 「땅 글자」, 「원래 사주」라는 말은 쓰지 않는다. 용어의 뜻 풀이는 사용자 메시지가 허락한 섹션에서만 한 줄로 하고, 그 밖에는 이름만 쓴다.",
-  "제목(headline): [이야기 줄기]의 이미지를 살려 이 사람만의 장면이 보이는 한 문장 은유, 15~40자. 점수·한자·이모지 없이, 예시를 따라 쓰지 않는다.",
-  "본문 구성: 사용자 메시지가 정한 분량과 문단 수를 지킨다. 문단은 3~4문장, 한 문단 150~180자 안팎으로 쓰고 문단 사이는 빈 줄. 첫 문단의 첫 문장은 이 섹션의 한 줄 결론이다. 근거는 결론을 받치는 만큼만 쓰고 이론 설명을 늘어놓지 않는다. 일상의 구체적인 장면(사람·장소·행동)을 섹션당 두세 개 넣는다. 조언은 문단마다 붙이지 않고 섹션당 한두 번만 한다.",
+  "제목(title): [이야기 줄기]의 이미지를 살려 이 사람만의 장면이 보이는 한 문장 은유(글자 수는 사용자 메시지를 따른다). 점수·한자·이모지 없이, 예시를 따라 쓰지 않는다.",
+  "본문 구성: 사용자 메시지가 정한 분량과 문단 수를 지킨다. 문단은 3~4문장으로 쓰고 문단은 body 배열의 항목으로 나눈다. 첫 문단의 첫 문장은 이 섹션의 한 줄 결론이다. 근거는 결론을 받치는 만큼만 쓰고 이론 설명을 늘어놓지 않는다. 일상의 구체적인 장면(사람·장소·행동)을 섹션당 두세 개 넣는다. 조언은 문단마다 붙이지 않고 섹션당 한두 번만 한다.",
   "말투: 친근하게 말하듯 쓴다. 끝맺음을 섞는다(~이에요, ~거든요, ~죠, ~네요, ~답니다, ~잖아요, ~어요). 같은 끝맺음을 세 번 연달아 쓰지 않고, 긴 문장과 짧은 문장을 섞는다. 「~세요」로 끝나는 권유는 섹션 전체에서 네 번 이하로 쓴다. 문단은 묘사, 칭찬, 쓴소리, 조언이 번갈아 나오게 쓴다.",
   "중심 메시지: 각 섹션은 사용자 메시지가 정한 중심 메시지 하나만 다룬다. 다른 섹션의 메시지를 반복하거나 같은 약점·같은 조언을 여러 섹션에서 말하지 않는다. 쉬는 법·수면 같은 처방은 「필요한 기운과 개운 처방」 섹션에서만 다룬다.",
   "이미지: [이야기 줄기]의 모티프는 섹션당 한두 번만 자연스럽게 쓴다. 같은 비유 문장을 반복하지 않는다.",
@@ -79,12 +86,12 @@ const STYLE_SAMPLES = [
   "다만 한 가지는 짚고 넘어갈게요. 완벽하게 준비되기 전에는 시작하지 않는 습관이 당신을 가장 오래 붙잡아 왔어요. 그건 준비가 아니라 두려움에 가깝죠. 덜 익은 채로 하나만 내놓아 보세요.",
 ];
 
-/** 카드 JSON: label(분류 이름, 섹션 이름 그대로) · title(15~40자 은유 제목) · body(문단 배열). */
+/** 카드 JSON: label(분류 이름, 섹션 이름 그대로) · title(비유 제목) · body(문단 배열). */
 export const sectionSchema = (label: string) => ({
   type: "object",
   properties: {
     label: { type: "string", enum: [label], description: "카드 분류 이름. 주어진 값을 그대로 쓴다." },
-    title: { type: "string", description: "15~40자 한 문장 은유 제목. 한글만." },
+    title: { type: "string", description: "장면이 보이는 한 문장 은유 제목(글자 수는 요청 메시지를 따른다). 한글만." },
     body: { type: "array", items: { type: "string", description: "한 문단(3~4문장). 한글만, 마크다운 없음." }, description: "문단 배열. 문단 사이 빈 줄은 쓰지 않는다." },
   },
   required: ["label", "title", "body"],
@@ -172,14 +179,15 @@ export function buildStoryUser(
   explained: string[] = [],
   ctx: StoryUserCtx = {},
 ): string {
-  const basic = !!section.minParas && section.minParas <= 3;
-  const paraHint = basic ? "4문단" : "5~6문단";
+  const basic = !!section.headlineLen;
+  const paraHint = basic ? "2~3문단" : "5~6문단";
   return [
     `지금 쓸 섹션: ${section.title}`,
     `이 섹션의 목적: ${section.purpose}`,
     ctx.theme ? `이 섹션의 중심 메시지(이것 하나만 다룬다): ${ctx.theme}` : "",
     ctx.others?.length ? `다른 섹션이 맡은 메시지(여기서 반복하지 않는다): ${ctx.others.join(" / ")}` : "",
-    `분량: 공백을 뺀 글자 수로 약 ${targetChars(section)}자를 목표로 쓴다(${section.min}자 미만이면 다시 써야 하고 ${section.max}자를 넘기면 안 된다). ${paraHint}, 문단마다 3~4문장, 한 문단 150~180자 안팎.`,
+    `분량: 공백을 뺀 글자 수로 약 ${targetChars(section)}자를 목표로 쓴다(${section.min}자 미만이면 다시 써야 하고 ${section.max}자를 넘기면 안 된다). ${paraHint}, 문단마다 3~4문장${basic ? "(한 문단 170~230자 안팎)" : ", 한 문단 150~180자 안팎"}.`,
+    basic ? "제목(title): 공백 포함 20~30자, 평범한 요약문이 아니라 이 사주의 물상(일주 이미지·계절·오행)이 소품과 동작으로 보이는 비유 한 줄로 새로 짓는다. 십성·신강 같은 용어와 숫자는 제목에 쓰지 않고, 다른 카드의 제목과 표현이 겹치지 않게 한다." : "",
     section.id === "summary" ? "용어 풀이: 처음 나오는 전문용어는 쉬운 말로 한 줄씩만 풀어 준다." : "용어 풀이: 이 섹션에서는 전문용어의 뜻을 풀어 쓰지 않고 이름만 쓴다.",
     explained.length ? `이미 뜻을 풀어 준 용어(다시 정의하지 않는다): ${explained.join(", ")}` : "",
     prior.length ? `이미 쓴 섹션의 제목(같은 표현을 반복하지 않는다): ${prior.map((p) => `「${p.headline}」`).join(" ")}` : "",
@@ -204,7 +212,7 @@ const OLD_TERMS = /하늘 글자|땅 글자|원래 사주/;
 export interface StoryIssue { code: string; message: string }
 
 type CheckFacts = Pick<StoryFacts, "sinsalNames" | "hasHour"> & Partial<Pick<StoryFacts, "strengthLabel" | "years" | "yearNames" | "daeunNow" | "needName">>;
-export interface CheckOpts { prior?: string[]; motifs?: string[] }
+export interface CheckOpts { prior?: string[]; motifs?: string[]; priorHeadlines?: string[] }
 
 const grams = (t: string, n = 4) => {
   const w = t.match(/[가-힣0-9]+/g) ?? [];
@@ -288,8 +296,22 @@ export function checkStory(
   const paras = paraList.length;
   const minParas = section.minParas ?? 4;
   if (paras < minParas) f("FEW_PARAGRAPHS", `문단이 ${paras}개예요. 빈 줄로 나눈 ${minParas}문단 이상으로 써요.`);
-  const hl = headline.replace(/\s/g, "").length;
-  if (hl < 10 || hl > 42) f("HEADLINE", "제목은 15~40자 한 문장으로 써요.");
+  if (section.headlineLen) {
+    const [lo, hi] = section.headlineLen;
+    const n = headline.length;
+    if (n < lo || n > hi) f("HEADLINE", `제목은 공백 포함 ${n}자예요. 20~30자 비유 한 줄로 써요.`);
+    if (/[0-9]|십성|신강|신약|사주|비견|겁재|식신|상관|편재|정재|편관|정관|편인|정인|일간|일지|대운|운성/.test(headline)) f("HEADLINE_PLAIN", "제목에는 용어와 숫자를 쓰지 않고, 장면이 보이는 비유로만 써요.");
+    // 앞 카드 제목과 두 낱말 이상 겹치면 같은 그림을 되풀이한 것으로 본다
+    const words = (t: string) => new Set((t.match(/[가-힣]+/g) ?? []).map((w) => (w.length > 1 ? w.replace(/(에서|처럼|으로|은|는|이|가|을|를|의|에|로|과|와|도)$/, "") : w)).filter((w) => w.length >= 1 && !["그", "더", "한", "두", "속"].includes(w)));
+    const mine = words(headline);
+    for (const p of opts.priorHeadlines ?? []) {
+      const shared = [...words(p)].filter((w) => mine.has(w));
+      if (shared.length >= 2) { f("HEADLINE_REPEAT", `제목이 앞 카드 제목과 「${shared.join(" ")}」이(가) 겹쳐요. 다른 소재와 동작으로 새로 지어요.`); break; }
+    }
+  } else {
+    const hl = headline.replace(/\s/g, "").length;
+    if (hl < 10 || hl > 42) f("HEADLINE", "제목은 15~40자 한 문장으로 써요.");
+  }
   if ((all.match(/\{\{이름\}\}/g) ?? []).length > 3) f("NAME_REPEAT", "{{이름}}님은 한두 번만 불러요.");
   if (!facts.hasHour && /시주|태어난 시간의 기둥/.test(all)) f("HOUR_UNKNOWN", "출생 시간을 모르므로 시주 얘기를 하지 않아요.");
   return out;
@@ -345,7 +367,7 @@ async function writeSection(
     }
     const body = paras.join("\n\n");
     const headline = parsed.title.trim();
-    const issues = checkStory(headline, body, section, facts, { prior: priorBodies, motifs: spine?.motifs });
+    const issues = checkStory(headline, body, section, facts, { prior: priorBodies, motifs: spine?.motifs, priorHeadlines: prior.map((d) => d.headline) });
     if (!issues.length) return { section: { id: section.id, title: section.title, headline, body }, fix: "" };
     extra = `\n직전 글을 이렇게 고쳐 다시 써요: ${issues.map((i) => i.message).join(" ")}`;
   }
