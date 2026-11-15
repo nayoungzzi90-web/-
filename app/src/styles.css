@@ -1168,3 +1168,8 @@ html { scroll-behavior: auto; }
 
 /* v53: 반창고는 스스로 붙으므로 압핀·눌림 그림자는 숨김(되살리려면 이 블록 삭제) */
 .tt.tt-home .tt-hero-note::before, .tt.tt-home .tt-hero-note::after { display: none; }
+
+/* v54: 캐릭터·말풍선과 같은 만화 선(진한 윤곽 + 단단한 그림자)의 흰 알약 라벨, "또또가"만 연한 형광펜 */
+.tt.tt-home .tt-hero-note { filter: none; transform: rotate(-1.5deg); }
+.tt.tt-home .tt-hero-note p { padding: 8px 22px 9px; background: #fff; color: #28231f; border: 2.5px solid #28231f; border-radius: 999px; box-shadow: 2.5px 3.5px 0 #28231f; clip-path: none; font-size: 17px; }
+.tt.tt-home .tt-hero-note u { background: linear-gradient(transparent 58%, #ffd9a3 58%, #ffd9a3 90%, transparent 90%); text-decoration: none; }
