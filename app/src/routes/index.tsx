@@ -40,12 +40,12 @@ function Home() {
           <h1 className="tt-home-title">나의 사주, 또또가 알려줄게</h1>
 
           {/* 또또(책)·불꽃은 하단이 잘린 원본이라 하단에 맞춰 붙이고, 말풍선은 글자를 실제 HTML 로 올린다 */}
-          <div className="tt-hero-panel" role="img" aria-label="책을 든 또또가 인사해요: 안녕! 만나서 반가워~ 나는 또또야">
+          <div className="tt-hero-panel" role="img" aria-label="책을 든 또또가 인사해요: 안녕 반가워! 나는 또또야~">
             <span aria-hidden className="tt-glow" />
             <span aria-hidden className="tt-spark tt-spark-2">✦</span>
             <span aria-hidden className="tt-spark tt-spark-3">✧</span>
             <img src={ASSETS.heroBook} alt="" aria-hidden className="tt-hero-book" draggable={false} />
-            <SpeechBubble className="tt-hero-speech">안녕!<br />만나서 반가워~<br />나는 또또야</SpeechBubble>
+            <SpeechBubble className="tt-hero-speech">안녕 반가워!<br />나는 또또야~</SpeechBubble>
             <img src={ASSETS.heroFlame} alt="" aria-hidden className="tt-hero-flame" draggable={false} />
           </div>
 

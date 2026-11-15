@@ -68,15 +68,15 @@ export function HomeTiles() {
               style={{ ["--tile" as string]: p.bg }}
               aria-label={`${p.title} ${won(p.price)}. ${p.topics.join(", ")}`}
             >
+              <span className="tt-card-pill" aria-hidden>
+                <CoinIcon size={22} />
+                <b>{coins}</b>
+              </span>
               <span className="tt-card-art">
                 <CardArt id={p.id} fit />
               </span>
               <span className="tt-card-main">
                 <span className={p.title.length > 5 ? "tt-card-title is-long" : "tt-card-title"}>{p.title}</span>
-                <span className="tt-card-pill" aria-hidden>
-                  <CoinIcon size={22} />
-                  <b>{coins}</b>
-                </span>
                 <span className="tt-card-sub">{p.topics.join(" · ")}</span>
               </span>
             </Link>
