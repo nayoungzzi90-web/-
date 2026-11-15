@@ -61,12 +61,12 @@ const screen = {
 const fireEvent = { click: (el: HTMLElement) => act(() => void el.click()) };
 
 describe("충전 팩과 문구", () => {
-  it("팩은 1~4닢 = 900/1,800/2,700/3,600원", () => {
+  it("팩은 1~4닢 = 1,000/2,000/3,000/4,000원", () => {
     expect(PACKS.map((p) => [p.coins, p.amountKrw, p.price])).toEqual([
-      [1, 900, "900원"],
-      [2, 1800, "1,800원"],
-      [3, 2700, "2,700원"],
-      [4, 3600, "3,600원"],
+      [1, 1000, "1,000원"],
+      [2, 2000, "2,000원"],
+      [3, 3000, "3,000원"],
+      [4, 4000, "4,000원"],
     ]);
   });
   it("오류 코드를 사용자 문구로, 모르는 오류는 일반 문구", () => {
@@ -119,7 +119,7 @@ describe("runCharge (주문 → 확정)", () => {
     createOrder: vi.fn(async () => ({
       orderId: "o1",
       coins: 2,
-      amountKrw: 1800,
+      amountKrw: 2000,
       orderName: "엽전 2닢",
     })),
     confirmOrder: vi.fn(async () => ({
@@ -221,7 +221,7 @@ describe("ChargeView", () => {
       "/auth?next=/charge",
     );
   });
-  it("보유 엽전·900원 안내·메시지 표시", () => {
+  it("보유 엽전·1,000원 안내·메시지 표시", () => {
     render(
       <ChargeView
         {...base}
@@ -231,7 +231,7 @@ describe("ChargeView", () => {
       />,
     );
     expect(screen.getByText("2닢")).toBeInTheDocument();
-    expect(screen.getByText("1닢 = 900원")).toBeInTheDocument();
+    expect(screen.getByText("1닢 = 1,000원")).toBeInTheDocument();
     expect(screen.getByRole("alert")).toHaveTextContent("충전됐어요");
   });
 });

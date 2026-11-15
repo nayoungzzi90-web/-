@@ -69,16 +69,16 @@ describe("결제 모드", () => {
 });
 
 describe("주문·확정 흐름(sandbox)", () => {
-  it("팩은 1~4닢, 금액은 서버가 900원 단위로 계산해 돌려준다", async () => {
+  it("팩은 1~4닢, 금액은 서버가 1,000원 단위로 계산해 돌려준다", async () => {
     const f = fakeApi();
     const svc = paymentsService({ mode: "sandbox", provider: new SandboxProvider(), api: f.api });
     const r = await svc.createOrder("u1", 3, "v1");
-    expect(r).toEqual({ orderId: "order-1", coins: 3, amountKrw: 2700, orderName: "엽전 3닢" });
+    expect(r).toEqual({ orderId: "order-1", coins: 3, amountKrw: 3000, orderName: "엽전 3닢" });
     for (const bad of [0, 5, 1.5, -1, Number.NaN])
       await expect(svc.createOrder("u1", bad, "v1")).rejects.toMatchObject({
         code: "INVALID_PACK",
       });
-    expect(PRODUCTS.basic.coins * COIN_KRW).toBe(900);
+    expect(PRODUCTS.basic.coins * COIN_KRW).toBe(1000);
   });
 
   it("확정: 주문 금액 그대로 승인 → 충전 1회. 다른 사람의 주문은 FORBIDDEN, 없는 주문은 ORDER_NOT_FOUND", async () => {
@@ -98,7 +98,7 @@ describe("주문·확정 흐름(sandbox)", () => {
       orderId,
       "sandbox",
       "sandbox_abcd1234",
-      1800,
+      2000,
     ]);
   });
 
@@ -170,7 +170,7 @@ describe("주문·확정 흐름(sandbox)", () => {
     await expect(svc.confirm("u1", orderId, "sandbox_abcd")).rejects.toMatchObject({
       code: "AMOUNT_MISMATCH",
     });
-    f.orders.get(orderId)!.amountKrw = 1800;
+    f.orders.get(orderId)!.amountKrw = 2000;
     f.orders.get(orderId)!.status = "canceled";
     await expect(svc.confirm("u1", orderId, "sandbox_abcd")).rejects.toMatchObject({
       code: "NOT_PAYABLE",
@@ -227,7 +227,7 @@ describe("supabaseOrdersApi (실제 supabase-js → 가짜 PostgREST)", () => {
       purchase_id: "p",
       referral: "rewarded",
     };
-    expect(await api.credit("o1", "sandbox", "sandbox_abcd", 1800)).toEqual({
+    expect(await api.credit("o1", "sandbox", "sandbox_abcd", 2000)).toEqual({
       credited: true,
       alreadyCredited: false,
       balance: 2,
@@ -238,11 +238,11 @@ describe("supabaseOrdersApi (실제 supabase-js → 가짜 PostgREST)", () => {
       p_order_id: "o1",
       p_provider: "sandbox",
       p_provider_payment_id: "sandbox_abcd",
-      p_amount_krw: 1800,
+      p_amount_krw: 2000,
     });
 
     replies["/rest/v1/rpc/credit_purchase"] = { credited: false, already_credited: true };
-    expect(await api.credit("o1", "sandbox", "sandbox_abcd", 1800)).toMatchObject({
+    expect(await api.credit("o1", "sandbox", "sandbox_abcd", 2000)).toMatchObject({
       credited: false,
       alreadyCredited: true,
     });
@@ -269,13 +269,13 @@ describe("supabaseOrdersApi (실제 supabase-js → 가짜 PostgREST)", () => {
     replies["/rest/v1/coin_orders"] = {
       user_id: "u1",
       coins: 2,
-      amount_krw: 1800,
+      amount_krw: 2000,
       status: "created",
     };
     expect(await api.getOrder("o1")).toEqual({
       userId: "u1",
       coins: 2,
-      amountKrw: 1800,
+      amountKrw: 2000,
       status: "created",
     });
     replies["/rest/v1/coin_orders"] = null;

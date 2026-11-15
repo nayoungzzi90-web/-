@@ -10,7 +10,7 @@ import {
 } from "@/components/minhwa/ui";
 import { useState } from "react";
 
-// 시안 ④ 엽전 충전 화면 복원. 가격은 현행 정책(1닢=900원, 충전 팩 1~4닢)을 따르고, 시안의 990원·절약 문구는 쓰지 않는다.
+// 시안 ④ 엽전 충전 화면 복원. 가격은 현행 정책(1닢=1,000원 — 2026-11-15 결정, 충전 팩 1~4닢)을 따르고, 시안의 990원·절약 문구는 쓰지 않는다.
 // 결제는 꺼져 있어서(PAYMENTS_MODE=off) 버튼은 비활성이다.
 export const Route = createFileRoute("/restore/charge")({
   head: () => ({
@@ -23,10 +23,10 @@ export const Route = createFileRoute("/restore/charge")({
 });
 
 const PACKS = [
-  { n: 1, name: "한 닢", price: 900 },
-  { n: 2, name: "두 닢", price: 1800, reco: true },
-  { n: 3, name: "세 닢", price: 2700 },
-  { n: 4, name: "네 닢", price: 3600 },
+  { n: 1, name: "한 닢", price: 1000 },
+  { n: 2, name: "두 닢", price: 2000, reco: true },
+  { n: 3, name: "세 닢", price: 3000 },
+  { n: 4, name: "네 닢", price: 4000 },
 ] as const;
 
 function Coins({ n }: { n: number }) {
@@ -90,7 +90,7 @@ function RestoreCharge() {
         <div className="mt-5 flex items-baseline justify-between px-4">
           <h2 className="mh-title text-[22px]">엽전 꾸러미 고르기</h2>
           <span className="text-[12px] text-[var(--mh-ink-soft)]">
-            1닢 = 900원
+            1닢 = 1,000원
           </span>
         </div>
         <ul className="mt-3 space-y-3 px-3">

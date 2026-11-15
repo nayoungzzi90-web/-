@@ -32,7 +32,7 @@ export function ChargeView({
           <div>
             <p className="text-sm opacity-80">보유 엽전</p>
             <p className="font-serif text-3xl font-bold">{coins}닢</p>
-            <p className="text-xs opacity-70">1닢 = 900원</p>
+            <p className="text-xs opacity-70">1닢 = 1,000원</p>
           </div>
         </div>
         <div className="relative shrink-0">

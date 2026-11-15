@@ -73,11 +73,11 @@ const one = async <T>(db: PGlite, sql: string, p: unknown[] = []) => (await db.q
 const KST_DAY = `(date_trunc('day', now() AT TIME ZONE 'Asia/Seoul') AT TIME ZONE 'Asia/Seoul')`;
 const KST_MONTH = `(date_trunc('month', now() AT TIME ZONE 'Asia/Seoul') AT TIME ZONE 'Asia/Seoul')`;
 
-describe('가격표(1닢=900원)·상품 확장', () => {
-  it('가격 1/1/2/2/3 닢 = 900/900/1,800/1,800/2,700원, 전부 비활성, 허용 상품 밖은 거부', async () => {
+describe('가격표(1닢=1,000원)·상품 확장', () => {
+  it('가격 basic 1·compat 1·love 2·taekil 1·deep 3 닢 = 1,000/1,000/2,000/1,000/3,000원, 전부 비활성, 허용 상품 밖은 거부', async () => {
     const db = await setup();
-    const r = await one<{ reading_type: string; price_coins: number; active: boolean; krw: number }>(db, 'SELECT *, price_coins * 900 AS krw FROM public.reading_price_catalog ORDER BY reading_type');
-    expect(r.map((x) => [x.reading_type, x.price_coins, x.krw, x.active])).toEqual([['basic', 1, 900, false], ['compat', 1, 900, false], ['deep', 3, 2700, false], ['love', 2, 1800, false], ['taekil', 2, 1800, false]]);
+    const r = await one<{ reading_type: string; price_coins: number; active: boolean; krw: number }>(db, 'SELECT *, price_coins * 1000 AS krw FROM public.reading_price_catalog ORDER BY reading_type');
+    expect(r.map((x) => [x.reading_type, x.price_coins, x.krw, x.active])).toEqual([['basic', 1, 1000, false], ['compat', 1, 1000, false], ['deep', 3, 3000, false], ['love', 2, 2000, false], ['taekil', 1, 1000, false]]);
     await expect(db.exec(`INSERT INTO public.reading_price_catalog (reading_type, price_coins) VALUES ('foo', 1)`)).rejects.toThrow(/check/i);
     await db.close();
   });
@@ -127,12 +127,12 @@ describe('ensure_user_setup / spend_coins', () => {
 });
 
 describe('주문·결제 확정(credit_purchase)', () => {
-  it('팩 1~4닢 = 900/1,800/2,700/3,600원, 범위 밖·없는 사용자는 거부', async () => {
+  it('팩 1~4닢 = 1,000/2,000/3,000/4,000원, 범위 밖·없는 사용자는 거부', async () => {
     const db = await setup();
     await setupUser(db, 1);
     for (const c of [1, 2, 3, 4]) {
       const id = await order(db, 1, c);
-      expect((await one<{ a: number }>(db, 'SELECT amount_krw AS a FROM public.coin_orders WHERE id=$1', [id]))[0]!.a).toBe(c * 900);
+      expect((await one<{ a: number }>(db, 'SELECT amount_krw AS a FROM public.coin_orders WHERE id=$1', [id]))[0]!.a).toBe(c * 1000);
     }
     await expect(order(db, 1, 0)).rejects.toThrow(/INVALID_PACK/);
     await expect(order(db, 1, 5)).rejects.toThrow(/INVALID_PACK/);
@@ -156,19 +156,19 @@ describe('주문·결제 확정(credit_purchase)', () => {
     const db = await setup();
     await setupUser(db, 1);
     const id = await order(db, 1, 2);
-    await expect(credit(db, id, 900)).rejects.toThrow(/AMOUNT_MISMATCH/);
-    await expect(credit(db, id, 1800 * 100)).rejects.toThrow(/AMOUNT_MISMATCH/);
+    await expect(credit(db, id, 900)).rejects.toThrow(/AMOUNT_MISMATCH/); // 옛 900원 체계 금액도 거부
+    await expect(credit(db, id, 2000 * 100)).rejects.toThrow(/AMOUNT_MISMATCH/);
     expect(await coins(db, 1)).toBe(0);
-    const r1 = await credit(db, id, 1800, 'pay-same');
+    const r1 = await credit(db, id, 2000, 'pay-same');
     expect(r1).toMatchObject({ credited: true, balance: 2, referral: 'none' });
-    const r2 = await credit(db, id, 1800, 'pay-same'); // PG 재전송(웹훅 중복)
+    const r2 = await credit(db, id, 2000, 'pay-same'); // PG 재전송(웹훅 중복)
     expect(r2).toEqual({ credited: false, already_credited: true });
     expect(await coins(db, 1)).toBe(2);
-    await expect(credit(db, id, 1800, 'pay-other')).rejects.toThrow(/ORDER_ALREADY_PAID_DIFFERENT_PAYMENT/);
+    await expect(credit(db, id, 2000, 'pay-other')).rejects.toThrow(/ORDER_ALREADY_PAID_DIFFERENT_PAYMENT/);
     expect((await one<{ n: number }>(db, 'SELECT count(*)::int AS n FROM public.coin_purchases'))[0]!.n).toBe(1);
     // 다른 주문에 같은 결제번호 재사용 → 거부
     const id2 = await order(db, 1, 1);
-    await expect(credit(db, id2, 900, 'pay-same')).rejects.toThrow(/unique/i);
+    await expect(credit(db, id2, 1000, 'pay-same')).rejects.toThrow(/unique/i);
     await expect(credit(db, '00000000-0000-4000-8000-00000000ffff', 900)).rejects.toThrow(/ORDER_NOT_FOUND/);
     await db.close();
   });

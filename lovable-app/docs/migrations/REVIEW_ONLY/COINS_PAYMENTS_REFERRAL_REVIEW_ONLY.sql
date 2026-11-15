@@ -1,11 +1,11 @@
 -- 엽전 결제·원장·초대 보상 — REVIEW ONLY. 실행 금지(미적용). 적용 순서: PRICING_900_COIN_REVIEW_ONLY.sql → 이 파일.
 -- 사용자 결정(2026-10-21)
---   · 1닢 = 900원, 가입 보너스 없음
+--   · 1닢 = 1,000원(2026-11-15 개정), 가입 보너스 없음
 --   · 초대 보상 1닢은 "초대받은 친구가 **처음 결제**했고 환불 가능 기간(7일, 정책 확정 전 제안값)이 지나도 환불되지 않았을 때" 지급 — 단, 초대한 사람이 1닢 이상 결제한 적이 있어야 한다
 --     (보안 검토 2026-10-29: 즉시 지급은 '친구 결제→보상 사용→친구 환불' 반복으로 무료 열람이 가능해 보류 지급으로 변경)
 --   · 한도: 한국 시간(Asia/Seoul) 달력 기준 하루 3명·월 10명(보수적 시작)
 -- 돈 안전 원칙
---   · 금액은 서버가 정한다(coin_orders.amount_krw = coins × 900, CHECK 로 고정). 클라이언트가 보낸 금액은 신뢰하지 않는다.
+--   · 금액은 서버가 정한다(coin_orders.amount_krw = coins × 1000, CHECK 로 고정). 클라이언트가 보낸 금액은 신뢰하지 않는다.
 --   · 충전·환불·보상은 service_role 전용 함수 한 번의 트랜잭션으로 지갑·결제 기록·원장을 함께 바꾼다. 같은 결제를 두 번 처리해도 한 번만 반영(멱등).
 --   · 모든 잔액 변화는 coin_ledger(추가 전용)에 남는다 → 대사·환불 근거.
 -- 이 파일의 어떤 것도 결제를 "켜지" 않는다. 앱의 결제 모드는 기본 꺼짐(PAYMENTS_MODE).
@@ -16,8 +16,8 @@
 CREATE TABLE IF NOT EXISTS public.coin_orders (
   id                  uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id             uuid        NOT NULL,
-  coins               integer     NOT NULL CHECK (coins BETWEEN 1 AND 4),             -- 팩: 1~4닢(900/1,800/2,700/3,600원)
-  amount_krw          integer     NOT NULL CHECK (amount_krw = coins * 900),
+  coins               integer     NOT NULL CHECK (coins BETWEEN 1 AND 4),             -- 팩: 1~4닢(1,000/2,000/3,000/4,000원)
+  amount_krw          integer     NOT NULL CHECK (amount_krw = coins * 1000),
   status              text        NOT NULL DEFAULT 'created' CHECK (status IN ('created', 'paid', 'canceled', 'failed')),
   consent_version     text        NOT NULL CHECK (length(consent_version) BETWEEN 1 AND 40),   -- 결제 전에 동의한 약관·환불정책 버전(사용 개시 후 환불 제한 고지의 근거)
   consented_at        timestamptz NOT NULL DEFAULT now(),
@@ -160,7 +160,7 @@ BEGIN
   IF p_consent_version IS NULL OR length(btrim(p_consent_version)) = 0 OR length(p_consent_version) > 40 THEN RAISE EXCEPTION 'CONSENT_REQUIRED'; END IF;
   IF (SELECT count(*) FROM public.coin_orders WHERE user_id = p_user AND status = 'created' AND created_at > now() - interval '1 hour') >= 20
     THEN RAISE EXCEPTION 'TOO_MANY_ORDERS'; END IF;
-  INSERT INTO public.coin_orders (user_id, coins, amount_krw, consent_version) VALUES (p_user, p_coins, p_coins * 900, btrim(p_consent_version)) RETURNING id INTO v_id;
+  INSERT INTO public.coin_orders (user_id, coins, amount_krw, consent_version) VALUES (p_user, p_coins, p_coins * 1000, btrim(p_consent_version)) RETURNING id INTO v_id;
   RETURN v_id;
 END;
 $$;

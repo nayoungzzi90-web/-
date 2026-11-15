@@ -1,15 +1,15 @@
 // 엽전(닢) 정책 상수 — 화면 문구의 단일 출처. DB(가격표·함수)의 값과 같아야 한다.
 // DB 쪽은 docs/migrations/REVIEW_ONLY/ 의 PRICING_900_COIN_REVIEW_ONLY.sql → COINS_PAYMENTS_REFERRAL_REVIEW_ONLY.sql (검토용, 운영 미적용).
 
-/** 1닢 = 900원(부가세 포함 판매가) */
-export const COIN_KRW = 900;
+/** 1닢 = 1,000원(부가세 포함 판매가). 2026-11-15 사용자 결정으로 900원에서 변경. DB 쪽 값은 REVIEW_ONLY SQL 에만 있고 운영에는 적용되지 않았다. */
+export const COIN_KRW = 1000;
 
-/** 상품별 가격(닢). 2026-10-21 결정: 기본 900·궁합 900·연애운 1,800·택일 1,800·심층사주 2,700원 */
+/** 상품별 가격(닢). 2026-11-15 결정(1닢=1,000원): 기본·궁합·택일 1닢(1,000원), 심층 연애운 2닢(2,000원), 심층 사주 3닢(3,000원). 새 앱 홈의 연애운·재물운·직업·진로운(1,000원)·신년운세(2,000원)는 표시용이며 이 앱 상품 키에는 아직 없다. */
 export const PRODUCTS = {
   basic: { label: "기본 사주", coins: 1 },
   compat: { label: "궁합", coins: 1 },
   love: { label: "심층 연애운", coins: 2 },
-  taekil: { label: "택일", coins: 2 },
+  taekil: { label: "택일", coins: 1 },
   deep: { label: "심층 사주", coins: 3 },
 } as const;
 export type ProductKey = keyof typeof PRODUCTS;

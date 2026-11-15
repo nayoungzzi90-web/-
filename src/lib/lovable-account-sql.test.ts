@@ -44,7 +44,7 @@ const member = async (db: PGlite, id: number, createdAgo = '0 minutes') => {
 let seq = 0;
 const buy = async (db: PGlite, id: number, coins: number) => {
   const oid = (await one<{ id: string }>(db, 'SELECT public.create_coin_order($1,$2,$3) AS id', [U(id), coins, 'test-v1']))[0]!.id;
-  return (await one<{ r: Record<string, unknown> }>(db, 'SELECT public.credit_purchase($1,$2,$3,$4) AS r', [oid, 'test', `pay-${++seq}`, coins * 900]))[0]!.r;
+  return (await one<{ r: Record<string, unknown> }>(db, 'SELECT public.credit_purchase($1,$2,$3,$4) AS r', [oid, 'test', `pay-${++seq}`, coins * 1000]))[0]!.r;
 };
 const del = async (db: PGlite, id: number, forfeit = false) => (await one<{ r: Record<string, unknown> }>(db, 'SELECT public.delete_member_data($1,$2) AS r', [U(id), forfeit]))[0]!.r;
 
@@ -119,7 +119,7 @@ describe('delete_member_data', () => {
     await member(db, 1);
     const oid = (await one<{ id: string }>(db, 'SELECT public.create_coin_order($1,2,$2) AS id', [U(1), 'test-v1']))[0]!.id;
     await del(db, 1);
-    await expect(db.query('SELECT public.credit_purchase($1,$2,$3,$4)', [oid, 'test', 'late-pay', 1800])).rejects.toThrow(/ORDER_NOT_PAYABLE/);
+    await expect(db.query('SELECT public.credit_purchase($1,$2,$3,$4)', [oid, 'test', 'late-pay', 2000])).rejects.toThrow(/ORDER_NOT_PAYABLE/);
     expect(await n(db, 'wallets', 1)).toBe(0);
     await db.close();
   });

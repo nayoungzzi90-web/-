@@ -32,12 +32,12 @@ async function fresh() {
 }
 
 describe('새 DB 적용 순서', () => {
-  it('끝까지 적용되고 가격표는 전부 비활성, 엽전 가격은 1·1·2·2·3', async () => {
+  it('끝까지 적용되고 가격표는 전부 비활성, 엽전 가격은 basic 1·compat 1·love 2·taekil 1·deep 3', async () => {
     const db = await fresh();
     const r = await db.query<{ reading_type: string; price_coins: number; active: boolean }>(
       'SELECT reading_type, price_coins, active FROM public.reading_price_catalog ORDER BY reading_type');
     expect(r.rows.map((x) => `${x.reading_type}:${x.price_coins}:${x.active}`)).toEqual(
-      ['basic:1:false', 'compat:1:false', 'deep:3:false', 'love:2:false', 'taekil:2:false']);
+      ['basic:1:false', 'compat:1:false', 'deep:3:false', 'love:2:false', 'taekil:1:false']);
   });
 
   it('가입 직후 지갑 0닢(가입 보너스 없음), 본인 행만 보임', async () => {
