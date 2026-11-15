@@ -782,3 +782,17 @@ html { scroll-behavior: auto; }
 .tt.tt-home main > section { margin-top: 44px; }
 .tt.tt-home .tt-home-foot { flex-direction: column; align-items: center; gap: 4px; margin-top: 44px; padding-top: 18px; text-align: center; font-size: 13.5px; color: var(--tt-muted); }
 .tt.tt-home .tt-home-foot-links { min-height: 40px; }
+
+/* 홈 v10: 첫 화면에 상품이 보이도록 위쪽(그림·간격)을 줄임 */
+.tt.tt-home .tt-header { padding: 14px 0 12px; }
+.tt.tt-home .tt-home-title { margin-top: 16px; font-size: clamp(25px, 7.2vw, 29px); }
+.tt.tt-home .tt-hero-panel { margin-top: 14px; aspect-ratio: 2.7 / 1; }
+.tt.tt-home .tt-hero-book { width: 29%; left: 4%; }
+.tt.tt-home .tt-hero-flame { width: 18%; right: 5%; }
+.tt.tt-home .tt-hero-speech { left: 36%; top: 7%; width: 34%; }
+.tt.tt-home .tt-hero-speech .tt-bubble-text { font-size: clamp(13px, 3.9vw, 16px); }
+.tt.tt-home main > div.text-center { margin-top: 14px; }
+.tt.tt-home .tt-home-primary + p { margin-top: 8px; font-size: 14px; }
+.tt.tt-home main > section:first-of-type { margin-top: 32px; }
+.tt.tt-home .tt-price-note { margin-top: 10px; padding: 5px 14px 6px; }
+.tt.tt-home main > section > .tt-cards { margin-top: 14px; }
