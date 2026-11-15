@@ -5,6 +5,7 @@ import { Friend, FRIEND_INFO } from "@/components/Friends";
 import { Basis } from "@/components/ResultParts";
 import { Page } from "@/components/Shell";
 import { compat, personFromPreview, type Person } from "@/lib/compat";
+import { makeCompatImage } from "@/lib/compat-image";
 import { decodeInvite, encodeInvite } from "@/lib/invite";
 import { EL_FRIEND, EL_HANJA, EL_WORD, stemElement } from "@/lib/reading";
 import { previewFromBirthInput } from "@/lib/saju-engine";
@@ -71,6 +72,35 @@ function Compat() {
     } catch {
       /* 공유 창을 닫은 경우 */
     }
+  }
+
+  // 우리 케미 결과를 이미지 카드로 공유한다. 카드에는 이름·생년월일·초대 링크가 들어가지 않는다.
+  async function shareCard() {
+    if (!res) return;
+    const blob = await makeCompatImage(res);
+    if (!blob) {
+      setMsg("카드를 만들지 못했어요. 잠시 뒤에 다시 눌러 주세요.");
+      return;
+    }
+    const file = new File([blob], "ttotto-compat-card.png", { type: "image/png" });
+    const text = `우리 케미 온도 ${res.temp}° (재미용) · 또또사주`;
+    try {
+      if (navigator.canShare?.({ files: [file] })) {
+        await navigator.share({ title: "우리의 오행 케미", text, files: [file] });
+        setMsg("");
+        return;
+      }
+    } catch (e) {
+      if (e instanceof DOMException && e.name === "AbortError") return;
+    }
+    // 이미지 공유가 안 되는 기기: 이미지를 내려받게 한다.
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "ttotto-compat-card.png";
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+    setMsg("카드 이미지를 저장했어요. 친구에게 보내 보세요.");
   }
 
   if (!hydrated || !me || !mine)
@@ -183,8 +213,15 @@ function Compat() {
 
         <button
           type="button"
+          onClick={shareCard}
+          className="font-display mt-5 w-full rounded-full border-[2.5px] border-[var(--line)] bg-[var(--su)] py-3 text-[#fffaf0] shadow-[3px_3px_0_var(--line)]"
+        >
+          우리 케미 카드 공유하기
+        </button>
+        <button
+          type="button"
           onClick={sendLink}
-          className="font-display mt-5 w-full rounded-full border-[2.5px] border-[var(--line)] bg-[var(--to)] py-3 shadow-[3px_3px_0_var(--line)]"
+          className="font-display mt-3 w-full rounded-full border-[2.5px] border-[var(--line)] bg-[var(--to)] py-3 shadow-[3px_3px_0_var(--line)]"
         >
           다른 친구에게도 링크 보내기
         </button>
