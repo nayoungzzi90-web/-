@@ -817,3 +817,11 @@ html { scroll-behavior: auto; }
 .tt .tt-card-coins svg { filter: drop-shadow(0 1px 1px rgba(150, 100, 20, .25)); }
 .tt .tt-price-note { align-items: center; gap: 7px; }
 .tt .tt-price-note b { font-size: 21px; }
+
+/* 동전 옆 숫자, 가격 안내, 세 줄 인사 말풍선 */
+.tt .tt-card-coins { align-items: center; gap: 3px; top: 8px; right: 10px; }
+.tt .tt-card-coins b { font-family: "Jua", "Gowun Dodum", sans-serif; font-weight: 400; font-size: 17px; line-height: 1; color: #c9770f; }
+.tt .tt-price-note { padding: 5px 18px 6px 12px; gap: 6px; }
+.tt .tt-price-note b.tt-price-one { font-size: 22px; color: #c9770f; margin-left: -2px; }
+.tt.tt-home .tt-hero-speech { left: 32%; top: 4%; width: 42%; }
+.tt.tt-home .tt-hero-speech .tt-bubble-text { font-size: clamp(12.5px, 3.7vw, 15px); line-height: 1.22; padding: 0 8%; }

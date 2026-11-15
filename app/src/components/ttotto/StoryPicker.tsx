@@ -68,9 +68,8 @@ export function HomeTiles() {
               aria-label={`${p.title} ${won(p.price)}. ${p.topics.join(", ")}`}
             >
               <span className="tt-card-coins" aria-hidden>
-                {Array.from({ length: Math.max(1, Math.round(p.price / basePrice)) }, (_, k) => (
-                  <CoinIcon key={k} size={20} />
-                ))}
+                <CoinIcon size={26} />
+                <b>{Math.max(1, Math.round(p.price / basePrice))}</b>
               </span>
               <span className="tt-card-art">
                 <CardArt id={p.id} fit />
