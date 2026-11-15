@@ -884,3 +884,17 @@ html { scroll-behavior: auto; }
 .tt.tt-home .tt-cookie-box { min-height: 138px; padding: 14px 14px 14px 46%; }
 .tt.tt-home .tt-cookie-art { left: 9%; width: 33%; }
 .tt.tt-home .tt-cookie-body { gap: 8px; }
+
+/* 홈 v15: 말풍선 가볍게(선·글씨), 카드 이름 키움, 그림 크기 정돈 */
+.tt.tt-home .tt-hero-speech .tt-bubble-text { font-family: "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif; font-weight: 700; -webkit-text-stroke: 0; font-size: clamp(14.5px, 4.3vw, 17px); letter-spacing: -0.02em; }
+.tt .tt-cards .tt-card-title { font-size: 21px; }
+.tt .tt-cards .tt-card-title.is-long { font-size: 18px; }
+.tt .tt-cards .tt-card-sub { font-size: 13.5px; }
+.tt .tt-cards .tt-card-art { height: 76px; margin-bottom: 12px; }
+.tt .tt-cards .tt-card-art::before { width: 70px; height: 70px; }
+.tt .tt-cards .tt-card-wide .tt-card-art { flex: 0 0 104px; width: 104px; height: 62px; }
+.tt .tt-cards .tt-card-wide .tt-card-art::before { width: 60px; height: 60px; }
+.tt .tt-cards .tt-card-wide .tt-card-main .tt-card-title { font-size: 21px; }
+.tt .tt-cards .tt-card-wide { gap: 10px; padding-right: 46px; }
+.tt .tt-cards .tt-card-wide .tt-card-art { flex: 0 0 86px; width: 86px; height: 58px; }
+.tt .tt-cards .tt-card-wide .tt-card-sub { font-size: 13px; white-space: nowrap; }
