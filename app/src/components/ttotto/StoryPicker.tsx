@@ -69,7 +69,7 @@ export function HomeTiles() {
               <span className="tt-t2-art">{last ? <CardArt id={p.id} widthPct={100} /> : <CardArt id={p.id} fit />}</span>
               <span className={last ? "tt-t2-wide-text" : "contents"}>
                 <span className="tt-t2-headline">
-                  <span className="tt-t2-title">{p.title}</span>
+                  <span className={p.title.length > 5 ? "tt-t2-title tt-t2-title-long" : "tt-t2-title"}>{p.title}</span>
                   <span className="tt-t2-plain-price">{won(p.price)}</span>
                 </span>
                 <span className="tt-t2-topics">{p.topics.join(" · ")}</span>
