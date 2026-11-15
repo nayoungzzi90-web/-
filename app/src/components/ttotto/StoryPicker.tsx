@@ -51,13 +51,14 @@ export function ProductGrid() {
 
 export const PRICE_NOTE = "가격을 보는 것만으로는 결제되지 않아요. 지금은 결제가 열려 있지 않아서, 상품을 눌러 내용을 먼저 확인할 수 있어요.";
 
-/** 홈 상품(정리판 v7): 7개를 모두 보여 준다. 2열 카드(그림 · 이름+가격 · 주제), 마지막 시즌 상품은 가로로 넓은 카드. */
+/** 홈 상품(정리판 v12): 2열 카드. 위에 그림, 아래 왼쪽에 이름·주제, 오른쪽에 동전 알약(동전 수 = 가격). 마지막 시즌 상품은 가로 카드. */
 export function HomeTiles() {
   const basePrice = Math.min(...TT.products.map((p) => p.price));
   return (
     <ul className="tt-cards">
       {TT.products.map((p, i) => {
         const wide = i === TT.products.length - 1;
+        const coins = Math.max(1, Math.round(p.price / basePrice));
         return (
           <li key={p.id} className={wide ? "is-wide" : undefined}>
             <Link
@@ -67,21 +68,17 @@ export function HomeTiles() {
               style={{ ["--tile" as string]: p.bg }}
               aria-label={`${p.title} ${won(p.price)}. ${p.topics.join(", ")}`}
             >
-              <span className="tt-card-coins" aria-hidden>
-                <CoinIcon size={26} />
-                <b>{Math.max(1, Math.round(p.price / basePrice))}</b>
-              </span>
               <span className="tt-card-art">
                 <CardArt id={p.id} fit />
               </span>
-              <span className="tt-card-body">
-                <span className="tt-card-head">
-                  <span className={p.title.length > 5 ? "tt-card-title is-long" : "tt-card-title"}>{p.title}</span>
-                  {p.price !== basePrice && <span className="tt-card-price">{won(p.price)}</span>}
+              <span className="tt-card-main">
+                <span className={p.title.length > 5 ? "tt-card-title is-long" : "tt-card-title"}>{p.title}</span>
+                <span className="tt-card-pill" aria-hidden>
+                  <CoinIcon size={22} />
+                  <b>{coins}</b>
                 </span>
                 <span className="tt-card-sub">{p.topics.join(" · ")}</span>
               </span>
-              {wide && <span aria-hidden className="tt-card-chev">›</span>}
             </Link>
           </li>
         );

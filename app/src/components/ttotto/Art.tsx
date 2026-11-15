@@ -64,19 +64,14 @@ export function SpeechBubble({ children, className = "" }: { children: ReactNode
   );
 }
 
-/** 귀여운 동전(통통한 금빛 몸통, 웃는 얼굴, 볼터치, 반짝임). 동전 1개 = 1,000원을 뜻하는 표시로 쓴다. */
+/** 동전 아이콘(납작한 노란 동전 + 또또 새싹 잎 두 장 + 네모 구멍). 동전 1개 = 1,000원을 뜻하는 표시로 쓴다. */
 export function CoinIcon({ size = 24 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 32 32" aria-hidden focusable="false" className="shrink-0 overflow-visible">
-      <circle cx="16" cy="16" r="13.4" fill="#ffd54f" stroke="#1b1613" strokeWidth="2.2" />
-      <circle cx="16" cy="16" r="10" fill="#ffe27a" />
-      <path d="M8.2 11.2 C9.4 8.6 12 7 14.6 6.8" fill="none" stroke="#fffbe8" strokeWidth="2" strokeLinecap="round" />
-      <circle cx="12" cy="15.4" r="1.5" fill="#1b1613" />
-      <circle cx="20" cy="15.4" r="1.5" fill="#1b1613" />
-      <ellipse cx="9.4" cy="19" rx="2" ry="1.3" fill="#ff9a7a" opacity=".85" />
-      <ellipse cx="22.6" cy="19" rx="2" ry="1.3" fill="#ff9a7a" opacity=".85" />
-      <path d="M13.6 19.2 Q16 21.8 18.4 19.2" fill="none" stroke="#1b1613" strokeWidth="1.7" strokeLinecap="round" />
-      <path d="M27.5 4.2 l.9 2 2 .9-2 .9-.9 2-.9-2-2-.9 2-.9z" fill="#fff" stroke="#e0a800" strokeWidth=".6" />
+    <svg width={size} height={size} viewBox="0 0 32 32" aria-hidden focusable="false" className="shrink-0">
+      <path d="M15 8.4 C12.2 3.4 7 3.6 6.6 6.6 C6.4 9.2 10.8 10 15 8.4Z" fill="#8fd14f" />
+      <path d="M17 8.4 C19.8 3.4 25 3.6 25.4 6.6 C25.6 9.2 21.2 10 17 8.4Z" fill="#8fd14f" />
+      <circle cx="16" cy="19" r="11.4" fill="#f7b928" />
+      <rect x="12.4" y="15.4" width="7.2" height="7.2" rx="1.6" fill="#fff6dc" />
     </svg>
   );
 }
