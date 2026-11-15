@@ -8,7 +8,7 @@ export const TT = {
   // 2026-11-15 디자인 보드(개정판) 기준 상품 구성과 표시 가격. 해석 엔진·서버 결제는 그대로이며 준비된 흐름만 연결한다(to).
   products: [
     { id: "basic", title: "내 사주", price: 1900, question: "내 타고난 강점은?", topics: ["성향", "강점", "기본사주"], bg: "#edf6df", to: "/input" },
-    { id: "compatibility", title: "궁합", price: 1900, question: "우린 어떤 점이 잘 맞을까?", topics: ["우리 케미", "서로 채워주는 점"], bg: "#e4f1fb", to: "/compat" },
+    { id: "compatibility", title: "궁합", price: 1900, question: "우린 어떤 점이 잘 맞을까?", topics: ["우리 케미", "잘 맞는 점"], bg: "#e4f1fb", to: "/compat" },
     { id: "love", title: "연애운", price: 1900, question: "내 인연은 언제쯤?", topics: ["연애 성향", "인연", "결혼"], bg: "#fce6e8", to: null },
     { id: "money", title: "재물운", price: 1900, question: "내 돈 흐름은 어떨까?", topics: ["나의 돈복", "투자 성향"], bg: "#fff1c9", to: null },
     { id: "career", title: "직업·진로운", price: 1900, question: "나에게 맞는 일은 뭘까?", topics: ["이직", "적성", "사업"], bg: "#dff3ee", to: null },
