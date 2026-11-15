@@ -27,7 +27,37 @@ const CARD_IMG: Record<string, string> = {
 };
 /** 상품 카드 삽화(원본 분리본, 가로 비율 유지). widthPct 는 카드 안에서 차지하는 가로 비율. */
 export function CardArt({ id, widthPct = 44 }: { id: string; widthPct?: number }) {
+  if (id === "money" || id === "career") return <PropArt kind={id} widthPct={widthPct} />;
   return <img src={CARD_IMG[id] ?? CARD_IMG["basic"]} alt="" aria-hidden className="block h-auto shrink-0" style={{ width: `${widthPct}%` }} draggable={false} />;
+}
+
+/** 재물운·직업운 카드: 또또 얼굴 원본 + 직접 그린 소품(동전 더미·서류가방). 새 캐릭터를 그리지 않는다. */
+function PropArt({ kind, widthPct }: { kind: "money" | "career"; widthPct: number }) {
+  return (
+    <span className="relative block shrink-0" style={{ width: `${widthPct}%`, aspectRatio: "1.45 / 1" }} aria-hidden>
+      <img src={ASSETS.logoFace} alt="" className="absolute left-[4%] top-[6%] block h-[86%] w-auto" draggable={false} />
+      <svg viewBox="0 0 60 60" className="absolute bottom-[2%] right-[0%] h-[62%] w-auto overflow-visible" focusable="false">
+        {kind === "money" ? (
+          <g stroke="#1b1613" strokeWidth="3.5" strokeLinejoin="round">
+            <ellipse cx="30" cy="48" rx="20" ry="7" fill="#f6b73c" />
+            <path d="M10 48 V40 A20 7 0 0 0 50 40 V48" fill="#f6b73c" />
+            <ellipse cx="30" cy="40" rx="20" ry="7" fill="#ffd36a" />
+            <ellipse cx="30" cy="28" rx="20" ry="7" fill="#ffd36a" />
+            <path d="M10 28 V40" fill="none" /><path d="M50 28 V40" fill="none" />
+            <ellipse cx="30" cy="18" rx="20" ry="7" fill="#ffe08f" />
+            <path d="M10 18 V28 M50 18 V28" fill="none" />
+          </g>
+        ) : (
+          <g stroke="#1b1613" strokeWidth="3.5" strokeLinejoin="round" strokeLinecap="round">
+            <path d="M21 20 V14 Q21 10 25 10 H35 Q39 10 39 14 V20" fill="none" />
+            <rect x="6" y="20" width="48" height="32" rx="7" fill="#ff9a56" />
+            <path d="M6 33 H54" fill="none" />
+            <rect x="26" y="30" width="8" height="7" rx="2" fill="#ffe08f" />
+          </g>
+        )}
+      </svg>
+    </span>
+  );
 }
 
 /** 쿠키 아이콘(쿠키 화면용). */

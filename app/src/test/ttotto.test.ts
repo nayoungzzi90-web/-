@@ -7,7 +7,7 @@ const ME = { name: "나", calendar: "solar" as const, leap: false, date: "1990-0
 
 describe("화면 문구·가격", () => {
   it("상품 5개와 가격(최종 확정: 일반 1,900원·신년 2,900원)과 문구에 '웹툰'이 없다", () => {
-    expect(TT.products.map((p) => [p.title, p.price])).toEqual([["내 사주", 1900], ["연애운", 1900], ["궁합", 1900], ["택일", 1900], ["신년운세", 2900]]);
+    expect(TT.products.map((p) => [p.title, p.price])).toEqual([["내 사주", 1900], ["궁합", 1900], ["연애운", 1900], ["재물운", 1900], ["직업·진로운", 1900], ["택일", 1900], ["신년운세", 2900]]);
     expect(won(1900)).toBe("1,900원");
     expect(JSON.stringify(TT)).not.toContain("웹툰");
     expect(TT.home.title).toBe("또또와 알아보는 나의 사주");
