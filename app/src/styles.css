@@ -536,3 +536,9 @@ html { scroll-behavior: auto; }
 .tt .tt-home-foot-links { min-height: 44px; display: inline-flex; align-items: center; }
 .tt .tt-t2-grid .tt-t2-on .tt-t2-topics { font-size: 15px; line-height: 1.35; }
 .tt .tt-cookie-sub { font-size: 17px; }
+
+/* 점괘 대기 화면: 또또가 통통 */
+@media (prefers-reduced-motion: no-preference) { .tt .tt-wait-art { transform-origin: 50% 100%; animation: tt-bounce 1.6s ease-in-out infinite; } }
+/* 결과 화면 등 옛 카드 부품을 또또사주 카드 모양에 맞춘다 */
+.tt .hj-card { border-width: 2.5px; border-color: var(--tt-ink); box-shadow: 0 4px 0 var(--tt-ink); }
+.tt .font-display { font-family: "Jua", "Gowun Dodum", "Apple SD Gothic Neo", sans-serif; font-weight: 400; }

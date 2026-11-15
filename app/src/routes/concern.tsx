@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Friend } from "@/components/Friends";
-import { Page } from "@/components/Shell";
+import { TtottoFace } from "@/components/ttotto/Art";
+import { TtShell } from "@/components/ttotto/TtShell";
 import { setStore, useStore } from "@/lib/store";
 
 export const Route = createFileRoute("/concern")({ component: Concern });
@@ -29,14 +29,10 @@ function Concern() {
   }, [hydrated, me, nav]);
   const n = concern.length;
   return (
-    <Page blossom>
-      <section className="px-4 pt-5">
-        <p className="text-sm font-bold text-[var(--stamp)]">
-          {me?.name ?? ""}님의 사주를 보고 있어요
-        </p>
-        <h1 className="font-display mt-1 text-[24px] leading-tight">
-          요즘 어떤 점이 가장 궁금해요?
-        </h1>
+    <TtShell title="요즘 고민">
+      <section>
+        <p className="text-[15px] font-bold text-[var(--tt-orange)]">{me?.name ?? ""}님의 사주를 보고 있어요</p>
+        <h1 className="mt-1 text-[clamp(26px,7.4vw,30px)] leading-tight">요즘 어떤 점이 가장 궁금해요?</h1>
 
         <div className="mt-3 flex flex-wrap gap-2">
           {CHIPS.map((c) => (
@@ -44,7 +40,7 @@ function Concern() {
               key={c}
               type="button"
               onClick={() => setStore({ concern: c })}
-              className="rounded-full border-2 border-[var(--line)] bg-[#fffaf0] px-3 py-1.5 text-sm font-bold"
+              className="min-h-[44px] rounded-full border-[2.5px] border-[var(--tt-ink)] bg-[var(--tt-yellow)] px-3.5 py-1.5 text-[15px] font-bold"
             >
               {c}
             </button>
@@ -57,29 +53,20 @@ function Concern() {
           rows={6}
           onChange={(e) => setStore({ concern: e.target.value.slice(0, MAX) })}
           placeholder="구체적으로 적을수록 풀이가 내 상황에 가까워져요. (선택)"
-          className="mt-3 w-full rounded-2xl border-2 border-[var(--line)] bg-[#fffdf5] p-3.5 text-[16px] leading-relaxed outline-none focus:border-[var(--stamp)]"
+          className="mt-3 w-full rounded-[16px] border-[2.5px] border-[var(--tt-ink)] bg-white p-3.5 text-[17px] leading-relaxed outline-none focus:border-[var(--tt-orange)]"
         />
-        <div className="mt-1 h-2 overflow-hidden rounded-full border-2 border-[var(--line)] bg-[#fffdf5]">
-          <div
-            className="h-full bg-[var(--hwa)] transition-all"
-            style={{ width: `${(n / MAX) * 100}%` }}
-          />
+        <div className="mt-2 h-3.5 overflow-hidden rounded-full border-[2.5px] border-[var(--tt-ink)] bg-white">
+          <div className="h-full bg-[#ff6f45] transition-all" style={{ width: `${(n / MAX) * 100}%` }} />
         </div>
         <div className="mt-2 flex items-center gap-2">
-          <Friend kind="rabbit" size={36} />
-          <p className="flex-1 text-sm font-bold text-[var(--stamp)]">
-            {feedback(n)}
-          </p>
-          <p className="text-xs text-[var(--ink-soft)]">
+          <TtottoFace size={36} />
+          <p className="flex-1 text-[15px] font-bold text-[var(--tt-orange)]">{feedback(n)}</p>
+          <p className="text-[13px] text-[var(--tt-muted)]">
             {n}/{MAX}
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={() => void nav({ to: "/wait" })}
-          className="font-display mt-4 w-full rounded-full border-[2.5px] border-[var(--line)] bg-[var(--stamp)] py-3.5 text-lg text-white shadow-[4px_4px_0_var(--line)] active:translate-y-0.5"
-        >
+        <button type="button" onClick={() => void nav({ to: "/wait" })} className="tt-btn tt-primary mt-4">
           점괘 뽑기
         </button>
         <button
@@ -88,14 +75,14 @@ function Concern() {
             setStore({ concern: "" });
             void nav({ to: "/wait" });
           }}
-          className="mt-3 block w-full text-center text-sm text-[var(--ink-soft)] underline"
+          className="mt-2 block min-h-[44px] w-full text-center text-[15px] text-[var(--tt-muted)] underline"
         >
           입력 없이 바로 보기
         </button>
-        <p className="mt-4 text-center text-[11px] leading-relaxed text-[var(--ink-soft)]">
+        <p className="mt-3 text-center text-[13px] leading-relaxed text-[var(--tt-muted)]">
           적은 내용은 이 기기 안에서만 쓰여요. 서버로 보내지 않아요.
         </p>
       </section>
-    </Page>
+    </TtShell>
   );
 }

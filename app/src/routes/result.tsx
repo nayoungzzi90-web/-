@@ -1,21 +1,18 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Friend, FRIEND_INFO } from "@/components/Friends";
 import { ManseExtra } from "@/components/ManseExtra";
 import { computeDaeunForBirth } from "@/lib/daeun";
 import { Locked, ManseTable, ReadingCard } from "@/components/ResultParts";
 import { hangulOnly as ko } from "@/lib/hangul";
-import { Page } from "@/components/Shell";
+import { TtShell } from "@/components/ttotto/TtShell";
 import {
   buildReading,
   buildVerdict,
-  EL_HANJA,
   EL_WORD,
   ELEMENTS,
 } from "@/lib/reading";
 import { EL_BG } from "@/components/ResultParts";
 import { previewFromBirthInput } from "@/lib/saju-engine";
-import { shareCard } from "@/lib/share-card";
 import { useStore } from "@/lib/store";
 
 export const Route = createFileRoute("/result")({ component: Result });
@@ -23,7 +20,6 @@ export const Route = createFileRoute("/result")({ component: Result });
 function Result() {
   const nav = useNavigate();
   const { me, concern, hydrated } = useStore();
-  const [msg, setMsg] = useState("");
   useEffect(() => {
     if (hydrated && !me) void nav({ to: "/input" });
   }, [hydrated, me, nav]);
@@ -42,26 +38,23 @@ function Result() {
 
   if (!me || !preview)
     return (
-      <Page active="내 결과">
-        <p className="p-6 text-center">불러오는 중…</p>
-      </Page>
+      <TtShell title="내 사주 결과">
+        <p className="py-10 text-center text-[17px]">불러오는 중…</p>
+      </TtShell>
     );
   if (!preview.ok || !rd || !preview.pillars)
     return (
-      <Page active="내 결과">
-        <section className="px-4 pt-8 text-center">
-          <p className="font-display text-xl">앗, 계산할 수 없었어요</p>
-          <p role="alert" className="mt-2 text-sm">
+      <TtShell title="내 사주 결과">
+        <section className="pt-6 text-center">
+          <p className="text-[24px] font-extrabold">앗, 계산할 수 없었어요</p>
+          <p role="alert" className="mt-2 text-[15px]">
             {preview.error}
           </p>
-          <Link
-            to="/input"
-            className="font-display mt-5 inline-block rounded-full border-[2.5px] border-[var(--line)] bg-[var(--to)] px-6 py-2.5"
-          >
+          <Link to="/input" className="tt-btn tt-primary mt-5">
             다시 입력하기
           </Link>
         </section>
-      </Page>
+      </TtShell>
     );
 
   const CHAPTER_DEF = [
@@ -81,14 +74,12 @@ function Result() {
     ],
   })).filter((c) => c.items.length > 0);
 
-  const info = FRIEND_INFO[rd.friend];
   const [yy, mm, dd] = me.date.split("-");
   const total = Object.values(rd.counts).reduce((a, b) => a + b, 0);
-  const text = `나의 오행 친구는 ${info.name}! (${rd.image})`;
 
   return (
-    <Page active="내 결과">
-      <section className="mx-3 mt-3">
+    <TtShell title="내 사주 결과" pb="pb-12">
+      <section>
         {preview.calendarConversion && (
           <div className="mb-3 rounded-2xl border-2 border-[var(--line)] bg-[#fffaf0] p-3 text-xs">
             입력 음력 {preview.calendarConversion.originalDate} (
@@ -106,8 +97,8 @@ function Result() {
           </div>
         )}
 
-        <div className="hj-card bg-[var(--to)] px-4 py-5 text-center">
-          <h1 className="font-display text-[22px]">{me.name}님의 사주풀이</h1>
+        <div className="hj-card bg-[var(--tt-yellow)] px-4 py-5 text-center">
+          <h1 className="text-[clamp(24px,6.8vw,28px)] leading-tight">{me.name}님의 사주풀이</h1>
           <div className="mt-2.5 flex flex-wrap justify-center gap-1.5">
             {[
               `${yy}년 ${mm}월 ${dd}일`,
@@ -118,7 +109,7 @@ function Result() {
             ].map((t) => (
               <span
                 key={t}
-                className="rounded-full border-2 border-[var(--line)] bg-[#fffaf0] px-2.5 py-0.5 text-xs font-extrabold"
+                className="rounded-full border-2 border-[var(--tt-ink)] bg-white px-2.5 py-0.5 text-[13px] font-extrabold"
               >
                 {t}
               </span>
@@ -136,101 +127,43 @@ function Result() {
         )}
 
         {verdict && (
-          <div className="hj-card relative mt-3 bg-[var(--su)] px-4 pb-4 pt-5 text-[#fffaf0]">
+          <div className="hj-card relative mt-3 bg-[var(--tt-lavender)] px-4 pb-4 pt-5 text-[var(--tt-ink)]">
             <span
-              className="font-display absolute -right-2 -top-3 flex h-14 w-14 rotate-12 items-center justify-center rounded-full border-[3px] border-[var(--stamp)] bg-[#fffaf0] text-[var(--stamp)]"
+              className="font-display absolute -right-2 -top-3 flex h-14 w-14 rotate-12 items-center justify-center rounded-full border-[3px] border-[var(--tt-orange)] bg-white text-[var(--tt-orange)]"
               aria-hidden
             >
               점괘
             </span>
-            <p className="text-xs font-bold text-[#cfcbe0]">
-              오행 친구의 한 줄 판정 · 고민 분류 &lsquo;{verdict.category}
+            <p className="text-[13px] font-bold text-[var(--tt-muted)]">
+              또또의 한 줄 판정 · 고민 분류 &lsquo;{verdict.category}
               &rsquo;
             </p>
-            <p className="font-display mt-1 pr-10 text-[24px] leading-tight">
+            <p className="mt-1 pr-10 font-display text-[clamp(22px,6.4vw,26px)] leading-tight">
               {ko(verdict.headline)}
             </p>
-            <p className="mt-2 text-sm leading-relaxed text-[#e6e2f3]">
+            <p className="mt-2 text-[15px] leading-relaxed">
               {ko(verdict.text)}
             </p>
-            <p className="mt-2 rounded-xl bg-white/10 p-3 text-sm leading-relaxed text-[#e6e2f3]">
-              <span className="font-extrabold text-[var(--to)]">
+            <p className="mt-2 rounded-xl border-2 border-[var(--tt-ink)] bg-white p-3 text-[15px] leading-relaxed">
+              <span className="font-extrabold text-[var(--tt-orange)]">
                 이 고민에서 나는{" "}
               </span>
               {ko(verdict.personal)}
             </p>
-            <div className="mt-3 rounded-xl bg-white/10 p-3 text-sm">
-              <p className="font-extrabold text-[var(--to)]">이번 주 해볼 일</p>
+            <div className="mt-3 rounded-xl border-2 border-[var(--tt-ink)] bg-white p-3 text-[15px]">
+              <p className="font-extrabold text-[var(--tt-orange)]">이번 주 해볼 일</p>
               <ul className="mt-1 space-y-0.5">
                 {verdict.todo.map((t) => (
                   <li key={t}>☐ {ko(t)}</li>
                 ))}
               </ul>
             </div>
-            <p className="mt-2 text-[10px] text-[#a9a5c0]">
+            <p className="mt-2 text-[12px] text-[var(--tt-muted)]">
               고민 글자에서 키워드를 찾아 분류한 재미용 점괘예요. 중요한 결정은
               스스로의 판단이 먼저예요.
             </p>
           </div>
         )}
-
-        <div
-          className="hj-card relative mt-4 overflow-hidden px-4 pb-4 pt-5"
-          style={{ background: info.tint }}
-        >
-          <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/50" />
-          <p className="text-[11px] font-extrabold text-[var(--stamp)]">
-            나의 오행 친구 · 일간 {ko(preview.pillars.day.hanja.charAt(0))}(
-            {EL_WORD[rd.dayEl]})
-          </p>
-          <div className="mt-3 flex items-center gap-3">
-            <Friend
-              kind={rd.friend}
-              accessory="sunglasses"
-              size={104}
-              className="bob shrink-0"
-            />
-            <div>
-              <p className="font-display text-[26px] leading-none">
-                {info.name}
-              </p>
-              <p className="mt-1 text-sm font-bold">
-                {info.role} · {rd.image}
-              </p>
-              <p className="mt-1 text-xs text-[var(--ink-soft)]">{rd.trait}</p>
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={async () => {
-              const r = await shareCard(
-                {
-                  kind: rd.friend,
-                  title: rd.image,
-                  sub: `${EL_HANJA[rd.dayEl]} ${EL_WORD[rd.dayEl]}의 기운`,
-                  name: me.name,
-                  url: `${location.origin}/quiz`,
-                },
-                `${text} 너는 어떤 오행 친구야? 생년월일 없이 30초면 알 수 있어요 ${location.origin}/quiz`,
-              );
-              setMsg(
-                r === "shared"
-                  ? ""
-                  : r === "downloaded"
-                    ? "카드 이미지를 저장했어요"
-                    : "공유에 실패했어요. 다시 눌러주세요",
-              );
-            }}
-            className="font-display mt-3 w-full rounded-full border-[2.5px] border-[var(--line)] bg-[#fffaf0] py-2.5 text-[15px] shadow-[3px_3px_0_var(--line)]"
-          >
-            내 오행 친구 카드 공유하기
-          </button>
-          {msg && (
-            <p role="status" className="mt-2 text-center text-xs font-bold">
-              {msg}
-            </p>
-          )}
-        </div>
 
         <ManseTable pillars={preview.pillars} />
 
@@ -260,7 +193,7 @@ function Result() {
           ))}
         </section>
 
-        <h2 className="font-display mt-7 px-1 text-xl">오행 친구의 풀이</h2>
+        <h2 className="mt-7 px-1 text-[24px] leading-tight">또또의 풀이</h2>
         <nav
           aria-label="풀이 바로가기"
           className="mt-2 flex flex-wrap gap-1.5 px-1"
@@ -269,7 +202,7 @@ function Result() {
             <a
               key={c.id}
               href={`#${c.id}`}
-              className="rounded-full border-2 border-[var(--line)] bg-[#fffaf0] px-3 py-1 text-[12px] font-extrabold"
+              className="inline-flex min-h-[40px] items-center rounded-full border-2 border-[var(--tt-ink)] bg-[var(--tt-yellow)] px-3 text-[14px] font-extrabold"
             >
               {i + 1}. {c.title}
             </a>
@@ -313,46 +246,25 @@ function Result() {
           price="1닢"
         />
 
-        <div className="hj-card mt-5 bg-[#dfe9f7] p-4">
-          <p className="font-display text-lg">내 고민, 더 깊게 풀어볼까요?</p>
-          <p className="mt-0.5 text-sm text-[var(--ink-soft)]">
-            연애운·재물복에 올해 흐름까지 풀어주는 기본 사주 풀이는 준비
-            중이에요.
-          </p>
-          <button
-            type="button"
-            disabled
-            className="font-display mt-3 w-full rounded-full border-[2.5px] border-[var(--line)] bg-[#cfc9c0] py-3 text-[#6b5f70]"
-          >
-            기본 사주 풀이 · 준비 중
-          </button>
-        </div>
-        <div className="hj-card mt-3 bg-[#fbd9d4] p-4">
-          <p className="font-display text-lg">친구랑 오행 케미도 볼래요?</p>
-          <p className="mt-0.5 text-sm text-[var(--ink-soft)]">
-            링크를 보내면 친구가 자기 정보를 넣고 바로 우리 궁합을 봐요.
-          </p>
-          <Link
-            to="/compat"
-            className="font-display mt-3 block rounded-full border-[2.5px] border-[var(--line)] bg-[var(--stamp)] py-2.5 text-center text-white shadow-[3px_3px_0_var(--line)]"
-          >
+        <div className="hj-card mt-5 bg-[var(--tt-blue)] p-4">
+          <p className="text-[22px] font-extrabold leading-tight">친구랑 오행 케미도 볼래요?</p>
+          <p className="mt-1 text-[15px] leading-snug text-[var(--tt-muted)]">링크를 보내면 친구가 자기 정보를 넣고 바로 우리 궁합을 봐요.</p>
+          <Link to="/compat" className="tt-btn tt-primary mt-3">
             궁합 보러 가기
           </Link>
         </div>
-        <div className="hj-card mt-3 bg-[#d3ead9] p-4">
-          <p className="font-display text-lg">내일도 복주머니 열어볼래요?</p>
-          <p className="mt-0.5 text-sm text-[var(--ink-soft)]">
-            하루 한 번 공짜. 연속으로 열면 도장이 쌓여요.
-          </p>
-          <Link
-            to="/today"
-            className="font-display mt-3 block rounded-full border-[2.5px] border-[var(--line)] bg-[var(--to)] py-2.5 text-center shadow-[3px_3px_0_var(--line)]"
-          >
-            오늘의 복주머니 열기
+        <div className="hj-card mt-3 bg-[var(--tt-yellow)] p-4">
+          <p className="text-[22px] font-extrabold leading-tight">내일도 운세쿠키 열어볼래요?</p>
+          <p className="mt-1 text-[15px] leading-snug text-[var(--tt-muted)]">하루에 한 번, 무료로 오늘의 운세를 뽑아요.</p>
+          <Link to="/daily-cookie" className="tt-btn tt-sub mt-3">
+            오늘의 운세쿠키 열기
           </Link>
         </div>
+        <Link to="/" className="mt-4 flex min-h-[48px] items-center justify-center text-[16px] font-bold underline">
+          다른 이야기 보러 가기
+        </Link>
 
-        <p className="mt-5 px-1 text-[11px] leading-relaxed text-[var(--ink-soft)]">
+        <p className="mt-5 px-1 text-[12px] leading-relaxed text-[var(--tt-muted)]">
           계산: {preview.source} · 엔진 {preview.engineVersion} ·{" "}
           {preview.clockPolicy}
           <br />
@@ -364,6 +276,6 @@ function Result() {
           쓰지 않아요.
         </p>
       </section>
-    </Page>
+    </TtShell>
   );
 }

@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Friend, type FriendKind } from "@/components/Friends";
 import { Coin } from "@/components/Shell";
+import { TtottoFace } from "@/components/ttotto/Art";
 import {
   EL_WORD,
   branchElement,
@@ -98,19 +99,18 @@ export function Fold({
 export function ReadingCard({
   eyebrow,
   title,
-  friend,
   children,
 }: {
   eyebrow: string;
   title: string;
-  friend: FriendKind;
+  friend?: FriendKind; // 이전 화면 호환용(지금은 또또 얼굴을 쓴다)
   children: ReactNode;
 }) {
   return (
     <article className="hj-card mt-4 bg-[#fffaf0] px-5 pb-6 pt-5">
       <header className="flex items-center gap-3">
         <span className="shrink-0 rounded-2xl bg-[var(--paper-2)] p-0.5">
-          <Friend kind={friend} size={48} />
+          <TtottoFace size={44} />
         </span>
         <div className="min-w-0 flex-1">
           <p className="text-[12px] font-extrabold text-[var(--stamp)]">{eyebrow}</p>

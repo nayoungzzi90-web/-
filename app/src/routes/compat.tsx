@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { BirthForm } from "@/components/BirthForm";
-import { CardArt, TtottoFace } from "@/components/ttotto/Art";
+import { CardArt } from "@/components/ttotto/Art";
+import { TtShell } from "@/components/ttotto/TtShell";
 import { compat, personFromPreview, type Person } from "@/lib/compat";
 import { makeCompatImage } from "@/lib/compat-image";
 import { decodeInvite, encodeInvite } from "@/lib/invite";
@@ -19,27 +20,6 @@ function Side({ p }: { p: Person }) {
       <p className="text-[14px] text-[var(--tt-muted)]">
         {EL_HANJA[el]} {EL_WORD[el]}
       </p>
-    </div>
-  );
-}
-
-function Shell({ title, children }: { title: string; children: React.ReactNode }) {
-  const nav = useNavigate();
-  const back = () => (window.history.length > 1 ? window.history.back() : void nav({ to: "/" }));
-  return (
-    <div className="tt">
-      <div className="tt-wrap pb-10">
-        <header className="tt-header">
-          <button type="button" className="tt-back" onClick={back} aria-label="뒤로 가기">
-            <span aria-hidden className="text-[24px] font-extrabold">←</span>
-          </button>
-          <Link to="/" className="tt-header-title">
-            {title}
-            <TtottoFace size={32} />
-          </Link>
-        </header>
-        <main className="mt-4">{children}</main>
-      </div>
     </div>
   );
 }
@@ -112,14 +92,14 @@ function Compat() {
 
   if (!hydrated || !me || !mine)
     return (
-      <Shell title="우리 궁합">
+      <TtShell title="우리 궁합">
         <p className="py-10 text-center text-[17px]">불러오는 중…</p>
-      </Shell>
+      </TtShell>
     );
 
   if (!partner || !res)
     return (
-      <Shell title="우리 궁합">
+      <TtShell title="우리 궁합">
         <section className="rounded-[20px] border-[2.5px] border-[var(--tt-ink)] bg-[var(--tt-blue)] px-4 pb-4 pt-3 text-center shadow-[0_4px_0_var(--tt-ink)]">
           <div className="mx-auto w-[58%]">
             <CardArt id="compatibility" widthPct={100} />
@@ -164,11 +144,11 @@ function Compat() {
         <p className="mt-3 text-center text-[13px] leading-relaxed text-[var(--tt-muted)]">
           상대 정보는 저장하지 않고 이 화면에서만 계산해요.
         </p>
-      </Shell>
+      </TtShell>
     );
 
   return (
-    <Shell title="우리 궁합">
+    <TtShell title="우리 궁합">
       <section className="text-center">
         <p className="text-[15px] font-bold text-[var(--tt-orange)]">우리의 오행 케미</p>
         <div className="mx-auto mt-1 w-[62%]">
@@ -254,6 +234,6 @@ function Compat() {
           두 사람의 일간 오행 관계와 부족한 기운을 채워주는지만 보는 재미용 궁합이에요. 케미 온도는 점수가 아니고 관계의 좋고 나쁨을 판정하지 않아요.
         </p>
       </section>
-    </Shell>
+    </TtShell>
   );
 }
