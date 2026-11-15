@@ -34,16 +34,15 @@ function Ref({
   children: ReactNode;
 }) {
   return (
-    <section className="hj-card mt-3 bg-[#fffaf0] px-3 pb-4 pt-3">
-      <div className="mb-2 flex items-center gap-2">
-        <h3 className="font-display flex-1 text-[17px]">{title}</h3>
-        <span className="rounded-md border-[1.5px] border-[var(--stamp)] px-1.5 py-0.5 text-[11px] font-extrabold text-[var(--stamp)]">
-          {badge}
-        </span>
+    <section className="hj-card tt-ref">
+      <div className="tt-ref-head">
+        <h3 className="font-display">{title}</h3>
+        <span className="tt-ref-badge">{badge}</span>
       </div>
-      <p className="mb-3 rounded-lg bg-[#f3e6c8] px-3 py-2 text-[12px] leading-relaxed">
-        {note}
-      </p>
+      <details className="tt-ref-note">
+        <summary>설명 보기</summary>
+        <p>{note}</p>
+      </details>
       {children}
     </section>
   );
@@ -53,7 +52,7 @@ function StemChip({ stem, small }: { stem: number; small?: boolean }) {
   const el = stemElement(stem);
   return (
     <span
-      className={`font-display inline-flex items-center justify-center rounded-md border border-[var(--line)] ${small ? "h-7 w-7 text-[16px]" : "h-10 w-10 text-[24px]"}`}
+      className={`font-display inline-flex items-center justify-center rounded-[10px] ${small ? "h-9 w-9 text-[20px]" : "h-10 w-10 text-[24px]"}`}
       style={{ background: EL_BG[el], color: EL_FG[el] }}
     >
       {HAN[stem]}
@@ -62,21 +61,31 @@ function StemChip({ stem, small }: { stem: number; small?: boolean }) {
 }
 
 function TimeLine({ r }: { r: TimeRow }) {
-  const tone = r.mood.label === "오르는 구간" ? "bg-[#d9ecd9]" : r.mood.label === "쉬어가는 구간" ? "bg-[#e6e1ee]" : "bg-[#f3e6c8]";
+  const tone = r.mood.label === "오르는 구간" ? "is-up" : r.mood.label === "쉬어가는 구간" ? "is-rest" : "is-mix";
   return (
-    <li className="rounded-lg border border-[#c9a76e] bg-white px-2.5 py-1.5">
-      <p className="flex flex-wrap items-center gap-x-2">
+    <li className={r.now ? "tt-tlc is-now" : "tt-tlc"}>
+      <p className="tt-tlc-head">
         <b>
           {r.now ? "지금 · " : ""}
           {r.name} {r.kind}
         </b>
-        <span className="text-[11px] text-[var(--ink-soft)]">{r.range}</span>
-        <span className={`rounded-md px-1.5 py-0.5 text-[11px] font-bold ${tone}`}>{r.mood.label}</span>
+        <span className="tt-tlc-range">{r.range}</span>
+        <span className={`tt-mood ${tone}`}>{r.mood.label}</span>
       </p>
-      <p className="mt-0.5 text-[12px] text-[var(--ink-soft)]">
-        {r.stemTenGod} · 12운성 {r.stage} · 필요한 기운 쪽: 하늘 {signalWord(r.stemSignal)}, 땅 {signalWord(r.branchSignal)}
-        {r.links.length ? ` · ${r.links.join("; ")}` : ""}
+      <ul className="tt-chips">
+        <li>{r.stemTenGod}</li>
+        <li>12운성 {r.stage}</li>
+      </ul>
+      <p className="tt-tlc-line">
+        필요한 기운 쪽: 하늘 {signalWord(r.stemSignal)}, 땅 {signalWord(r.branchSignal)}
       </p>
+      {r.links.length > 0 && (
+        <ul className="tt-links">
+          {r.links.map((l) => (
+            <li key={l}>{l}</li>
+          ))}
+        </ul>
+      )}
     </li>
   );
 }
@@ -202,35 +211,35 @@ export function ManseExtra({ me, pillars }: { me: BirthInput; pillars: Pillars }
         badge="참고"
         note="일간(나)을 기준으로 다른 글자가 어떤 오행 관계인지 이름을 붙인 표예요. 이름은 계산 공식으로 정해지지만, 그 이름이 무엇을 뜻하는지의 풀이는 전문가 검증 전이라 풀이 문장에는 쓰지 않았어요."
       >
-        <div className="grid grid-cols-4 gap-1.5 text-center text-xs font-bold">
+        <div className="tt-grid4">
           {cols.map((c) => (
-            <p key={c.label} className={`rounded-md py-1 ${c.me ? "bg-[var(--to)]" : "bg-[var(--paper-2)]"}`}>
+            <p key={c.label} className={c.me ? "tt-th is-me" : "tt-th"}>
               {c.label}
             </p>
           ))}
           {cols.map((c, i) => (
-            <div key={c.label + "s"} className="rounded-lg border border-[#c9a76e] bg-white py-2">
+            <div key={c.label + "s"} className={c.me ? "tt-cell is-me" : "tt-cell"}>
               {c.p ? (
                 <>
                   <StemChip stem={c.p.stem} small />
-                  <p className="mt-1 text-[13px]">{stemRow[i]}</p>
-                  <p className="text-[10px] font-normal text-[var(--ink-soft)]">천간</p>
+                  <p className="mt-1 text-[15px] font-bold">{stemRow[i]}</p>
+                  <p className="tt-cap">천간</p>
                 </>
               ) : (
-                <p className="py-3 text-[11px] font-normal text-[var(--ink-soft)]">시간 모름</p>
+                <p className="tt-cap py-3">시간 모름</p>
               )}
             </div>
           ))}
           {cols.map((c, i) => (
-            <div key={c.label + "b"} className="rounded-lg border border-[#c9a76e] bg-white py-2">
+            <div key={c.label + "b"} className={c.me ? "tt-cell is-me" : "tt-cell"}>
               {c.p ? (
                 <>
                   <StemChip stem={mainStemOf(c.p.branch)} small />
-                  <p className="mt-1 text-[13px]">{branchRow[i]}</p>
-                  <p className="text-[10px] font-normal text-[var(--ink-soft)]">지지 본기</p>
+                  <p className="mt-1 text-[15px] font-bold">{branchRow[i]}</p>
+                  <p className="tt-cap">지지 본기</p>
                 </>
               ) : (
-                <p className="py-3 text-[11px] font-normal text-[var(--ink-soft)]">—</p>
+                <p className="tt-cap py-3">—</p>
               )}
             </div>
           ))}
@@ -243,20 +252,20 @@ export function ManseExtra({ me, pillars }: { me: BirthInput; pillars: Pillars }
         badge="연해자평 기준 · 참고"
         note="지지 속에 숨어 있는 천간이에요. 이 프로젝트의 규칙 원문(R-003, 《연해자평》)을 따랐고, 전문가 검증 전이에요. 원문은 나열 순서가 월령 분일 순서가 아니라고 해서 ‘본기’와 ‘함께 있는 글자’로만 나눴어요. 다른 책이나 프로그램과 표가 다를 수 있어요."
       >
-        <div className="grid grid-cols-4 gap-1.5 text-center text-xs font-bold">
+        <div className="tt-grid4">
           {cols.map((c) => (
-            <p key={c.label} className={`rounded-md py-1 ${c.me ? "bg-[var(--to)]" : "bg-[var(--paper-2)]"}`}>
+            <p key={c.label} className={c.me ? "tt-th is-me" : "tt-th"}>
               {c.label}
             </p>
           ))}
           {cols.map((c) => (
-            <div key={c.label + "h"} className="rounded-lg border border-[#c9a76e] bg-white py-2">
+            <div key={c.label + "h"} className={c.me ? "tt-cell is-me" : "tt-cell"}>
               {c.p ? (
                 <ul className="flex flex-col items-center gap-1.5">
                   {hiddenStemsOf(c.p.branch).map((h) => (
                     <li key={h.stem} className="flex flex-col items-center">
                       <StemChip stem={h.stem} small />
-                      <span className="mt-0.5 text-[10px] font-normal text-[var(--ink-soft)]">
+                      <span className="mt-0.5 tt-cap">
                         {h.main ? "본기 · " : ""}
                         {tenGodOf(dm, h.stem)}
                       </span>
@@ -264,7 +273,7 @@ export function ManseExtra({ me, pillars }: { me: BirthInput; pillars: Pillars }
                   ))}
                 </ul>
               ) : (
-                <p className="py-3 text-[11px] font-normal text-[var(--ink-soft)]">시간 모름</p>
+                <p className="tt-cap py-3">시간 모름</p>
               )}
             </div>
           ))}
@@ -276,26 +285,26 @@ export function ManseExtra({ me, pillars }: { me: BirthInput; pillars: Pillars }
         badge="일반 표 · 참고"
         note="일간(나)이 각 지지에서 어떤 단계에 놓이는지 이름을 붙인 표예요. 입문서에서 흔히 쓰는 방식(양간은 순행, 음간은 역행, 戊는 丙·己는 丁과 같은 자리에서 시작)을 따랐어요. 《연해자평》 등 고전 원문과 대조하지 않았고 전문가 검증 전이에요. 학파·책마다 표가 다를 수 있고, 풀이 문장에는 쓰지 않았어요."
       >
-        <div className="grid grid-cols-4 gap-1.5 text-center text-xs font-bold">
+        <div className="tt-grid4">
           {cols.map((c) => (
-            <p key={c.label} className={`rounded-md py-1 ${c.me ? "bg-[var(--to)]" : "bg-[var(--paper-2)]"}`}>
+            <p key={c.label} className={c.me ? "tt-th is-me" : "tt-th"}>
               {c.label}
             </p>
           ))}
           {cols.map((c) => (
-            <div key={c.label + "t"} className="rounded-lg border border-[#c9a76e] bg-white py-2">
+            <div key={c.label + "t"} className={c.me ? "tt-cell is-me" : "tt-cell"}>
               {c.p ? (
                 <>
                   <p className="font-display text-[22px] leading-none">
                     {STAGE_HANJA[stageIndex(dm, c.p.branch)]}
                   </p>
                   <p className="mt-1 text-[13px]">{STAGE_KO[stageIndex(dm, c.p.branch)]}</p>
-                  <p className="text-[10px] font-normal text-[var(--ink-soft)]">
+                  <p className="tt-cap">
                     {c.p.hanja.charAt(1)} 위의 {HAN[dm]}
                   </p>
                 </>
               ) : (
-                <p className="py-3 text-[11px] font-normal text-[var(--ink-soft)]">시간 모름</p>
+                <p className="tt-cap py-3">시간 모름</p>
               )}
             </div>
           ))}
@@ -316,10 +325,10 @@ export function ManseExtra({ me, pillars }: { me: BirthInput; pillars: Pillars }
             <p className="mb-1 text-[11px] text-[var(--ink-soft)]">
               {r.word} · {r.group}
             </p>
-            <div className="grid grid-cols-4 gap-1.5 text-center text-xs font-bold">
+            <div className="tt-grid4">
               {r.cells.map((c) => (
-                <div key={c.label} className="rounded-lg border border-[#c9a76e] bg-white py-1.5">
-                  <p className="text-[10px] font-normal text-[var(--ink-soft)]">{c.label}</p>
+                <div key={c.label} className="tt-cell tt-cell-sm">
+                  <p className="tt-cap">{c.label}</p>
                   {c.idx === null ? (
                     <p className="py-1 text-[11px] font-normal text-[var(--ink-soft)]">시간 모름</p>
                   ) : (
@@ -340,7 +349,7 @@ export function ManseExtra({ me, pillars }: { me: BirthInput; pillars: Pillars }
               {sinsal
                 .filter((r) => r.group === g)
                 .map((r) => (
-                  <li key={r.key} className="rounded-lg border border-[#c9a76e] bg-white px-3 py-2 text-[13px]">
+                  <li key={r.key} className="rounded-lg border border-[var(--hair)] bg-white px-3 py-2 text-[13px]">
                     <p className="flex flex-wrap items-baseline gap-x-2">
                       <b>{r.name}</b>
                       <span className="font-display text-[15px]">{r.hanja}</span>
@@ -369,25 +378,21 @@ export function ManseExtra({ me, pillars }: { me: BirthInput; pillars: Pillars }
             대운 시작 <b>만 {age(daeun.startAge)}</b> ·{" "}
             {daeun.forward ? "순행" : "역행"}
           </p>
-          <ol className="grid grid-cols-5 gap-1.5 text-center">
+          <ol className="tt-timeline">
             {daeun.pillars.map((p) => {
               const active = nowAge >= p.startAgeYears && nowAge < p.startAgeYears + 10;
               const el = stemElement(p.stem);
               return (
-                <li
-                  key={p.order}
-                  className={`rounded-lg border bg-white py-1.5 ${active ? "border-[3px] border-[var(--stamp)]" : "border-[#c9a76e]"}`}
-                >
-                  <p className="text-[10px] text-[var(--ink-soft)]">만 {p.startAge.years}세</p>
-                  <p
-                    className="font-display mx-auto mt-0.5 w-fit rounded px-1 text-[18px] leading-tight"
-                    style={{ background: EL_BG[el], color: EL_FG[el] }}
-                  >
+                <li key={p.order} className={active ? "is-now" : ""}>
+                  <span className="tt-tl-age">
+                    만 {p.startAge.years}세~
+                    {active && <b className="tt-tl-now">지금</b>}
+                  </span>
+                  <span className="tt-tl-chip font-display" style={{ background: EL_BG[el], color: EL_FG[el] }}>
                     {p.hanja}
-                  </p>
-                  <p className="mt-0.5 text-[11px] font-bold">{p.tenGod}</p>
-                  <p className="text-[10px] text-[var(--ink-soft)]">{p.startYear}년~</p>
-                  {active && <p className="text-[10px] font-extrabold text-[var(--stamp)]">지금</p>}
+                  </span>
+                  <span className="tt-tl-god">{p.tenGod}</span>
+                  <span className="tt-tl-year">{p.startYear}년~</span>
                 </li>
               );
             })}

@@ -166,65 +166,40 @@ export function ManseTable({
     { label: "연주", p: pillars.year },
   ];
   return (
-    <section
-      className="hj-card mt-4 overflow-hidden bg-[#fffaf0]"
-      aria-label="만세력"
-    >
-      <h2 className="font-display bg-[var(--su)] py-2.5 text-center text-lg text-[#fffaf0]">
-        만세력
-      </h2>
-      <div className="grid grid-cols-4 border-b-2 border-[var(--line)] text-center text-xs font-bold">
+    <section className="hj-card tt-manse" aria-label="만세력">
+      <h2 className="tt-manse-title">만세력</h2>
+      <div className="tt-grid4">
         {cols.map((c) => (
-          <p
-            key={c.label}
-            className={`py-1.5 ${c.me ? "bg-[var(--to)]" : "bg-[var(--paper-2)]"}`}
-          >
+          <p key={c.label} className={c.me ? "tt-th is-me" : "tt-th"}>
             {c.label}
             {c.me ? " · 나" : ""}
           </p>
         ))}
-      </div>
-      {(["stem", "branch"] as const).map((row) => (
-        <div key={row} className="grid grid-cols-4">
-          {cols.map((c) => {
+        {(["stem", "branch"] as const).flatMap((row) =>
+          cols.map((c) => {
             if (!c.p)
               return (
-                <div
-                  key={c.label + row}
-                  className="flex h-[84px] items-center justify-center border-r-2 border-t-2 border-[var(--line)] bg-[#f3ecdc] text-[11px] text-[var(--ink-soft)] last:border-r-0"
-                >
+                <div key={c.label + row} className="tt-pillar tt-pillar-empty">
                   시간 모름
                 </div>
               );
-            const el =
-              row === "stem"
-                ? stemElement(c.p.stem)
-                : branchElement(c.p.branch);
-            const hanja =
-              row === "stem" ? c.p.hanja.charAt(0) : c.p.hanja.charAt(1);
+            const el = row === "stem" ? stemElement(c.p.stem) : branchElement(c.p.branch);
+            const hanja = row === "stem" ? c.p.hanja.charAt(0) : c.p.hanja.charAt(1);
             const ko = row === "stem" ? c.p.ko.charAt(0) : c.p.ko.charAt(1);
             return (
-              <div
-                key={c.label + row}
-                className="flex h-[84px] flex-col items-center justify-center border-r-2 border-t-2 border-[var(--line)] last:border-r-0"
-                style={{ background: EL_BG[el], color: EL_FG[el] }}
-              >
-                <span className="font-display text-[34px] leading-none">
-                  {hanja}
-                </span>
-                <span className="mt-1 text-[11px] font-bold opacity-90">
+              <div key={c.label + row} className={c.me ? "tt-pillar is-me" : "tt-pillar"} style={{ background: EL_BG[el], color: EL_FG[el] }}>
+                <span className="font-display tt-pillar-han">{hanja}</span>
+                <span className="tt-pillar-ko">
                   {ko} · {EL_WORD[el]}
                 </span>
               </div>
             );
-          })}
-        </div>
-      ))}
-      <p className="border-t-2 border-[var(--line)] px-3 py-2.5 text-[11px] leading-relaxed text-[var(--ink-soft)]">
-        위 줄은 하늘 글자(천간), 아래 줄은 땅 글자(지지)예요. 칸 색은 오방색: 목
-        청, 화 적, 토 황, 금 백, 수 흑.
-        {!pillars.hour &&
-          " 출생 시간을 모르면 시주는 추측하지 않고 6글자만 계산해요."}
+          }),
+        )}
+      </div>
+      <p className="tt-manse-note">
+        위 줄은 하늘 글자(천간), 아래 줄은 땅 글자(지지)예요. 칸 색은 오방색: 목 청, 화 적, 토 황, 금 백, 수 흑.
+        {!pillars.hour && " 출생 시간을 모르면 시주는 추측하지 않고 6글자만 계산해요."}
       </p>
     </section>
   );
