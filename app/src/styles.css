@@ -957,3 +957,24 @@ html { scroll-behavior: auto; }
 .tt.tt-home .tt-hero-book { width: 31%; left: 7%; }
 .tt.tt-home .tt-hero-flame { width: 19%; right: 11%; }
 .tt.tt-home .tt-hero-speech { top: 8%; width: 40%; }
+
+/* ===== 홈 v22: 개성 — 물결 경계, 손그림 밑줄, 스티커 무대 무늬, 번쩍이는 동전 알약 ===== */
+.tt.tt-home .tt-hero-band { position: relative; border-radius: 0; padding-bottom: 40px; }
+.tt.tt-home .tt-band-wave { position: absolute; left: 0; right: 0; bottom: -1px; width: 100%; height: 26px; fill: #fffaf2; pointer-events: none; }
+.tt.tt-home .tt-hero-band + .tt-wrap { padding-top: 6px; }
+/* 섹션 제목 밑 손그림 물결 밑줄 */
+.tt.tt-home #tt-stories-title { position: relative; display: block; width: fit-content; margin-left: auto; margin-right: auto; padding-bottom: 10px; }
+.tt.tt-home #tt-stories-title::after { content: ""; position: absolute; left: 6%; right: 6%; bottom: 0; height: 8px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 8' preserveAspectRatio='none'%3E%3Cpath d='M2 5 C14 1 22 1 32 5 S52 9 62 5 S82 1 92 5 S110 8 118 4' fill='none' stroke='%23ff9a2e' stroke-width='2.6' stroke-linecap='round'/%3E%3C/svg%3E") center / 100% 100% no-repeat; }
+/* 카드 무대: 은은한 점 무늬(스티커 느낌) */
+.tt .tt-cards .tt-card-art { background-image: radial-gradient(rgba(255, 255, 255, .8) 1.6px, transparent 1.7px); background-size: 15px 15px; background-color: var(--tile); }
+/* 동전 = 1,000원 알약: 번쩍이는 빛줄기와 반짝이는 테두리 */
+.tt .tt-price-note { position: relative; overflow: hidden; border-color: #ffb27a; box-shadow: 0 0 0 0 rgba(255, 170, 70, .55); }
+.tt .tt-price-note::after { content: ""; position: absolute; top: -20%; bottom: -20%; left: -40%; width: 36%; transform: skewX(-20deg); background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, .9), rgba(255, 255, 255, 0)); pointer-events: none; }
+@media (prefers-reduced-motion: no-preference) {
+  .tt .tt-price-note { animation: tt-glow-ring 2.4s ease-out infinite; }
+  .tt .tt-price-note::after { animation: tt-shine 3s ease-in-out infinite; }
+  .tt .tt-price-note svg { animation: tt-coin-pop 3s ease-in-out infinite; transform-origin: 50% 60%; }
+}
+@keyframes tt-shine { 0%, 55% { left: -40%; } 100% { left: 130%; } }
+@keyframes tt-glow-ring { 0% { box-shadow: 0 0 0 0 rgba(255, 170, 70, .6); } 70%, 100% { box-shadow: 0 0 0 11px rgba(255, 170, 70, 0); } }
+@keyframes tt-coin-pop { 0%, 50%, 100% { transform: scale(1) rotate(0); } 60% { transform: scale(1.18) rotate(-8deg); } 72% { transform: scale(1) rotate(6deg); } }

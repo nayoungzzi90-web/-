@@ -57,6 +57,10 @@ function Home() {
             <p>로그인 없이 시작 · 태어난 시간 몰라도 가능</p>
           </div>
         </div>
+        {/* 띠 아래 가장자리를 물결로: 둥근 모서리 대신 구름 같은 경계 */}
+        <svg className="tt-band-wave" viewBox="0 0 390 26" preserveAspectRatio="none" aria-hidden focusable="false">
+          <path d="M0 26 V12 C26 2 52 2 78 11 C104 20 130 20 156 11 C182 2 208 2 234 11 C260 20 286 20 312 11 C338 2 364 2 390 12 V26Z" />
+        </svg>
       </div>
 
       <div className="tt-wrap pb-28">
