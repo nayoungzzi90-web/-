@@ -352,3 +352,23 @@ html { scroll-behavior: auto; }
 .tt .tt-home-primary { font-size: clamp(21px, 6.2vw, 25px); min-height: 60px; }
 .tt .tt-home-cookie-slim { font-size: clamp(17px, 5vw, 20px); min-height: 48px; }
 .tt .tt-home-cookie-slim .tt-badge { font-size: 13px; padding: 1px 10px; }
+
+/* 홈(시안 배치) */
+.tt-header.justify-between { justify-content: space-between; }
+.tt .tt-home-my { font-family: "Jua", "Gowun Dodum", sans-serif; font-size: 17px; padding: 6px 2px; }
+.tt-hero-box { border: 2px solid var(--tt-ink); border-radius: 14px; background: #fffdf9; padding: 8px 8px 0; overflow: hidden; }
+.tt .tt-home-primary { font-size: clamp(22px, 6.4vw, 26px); min-height: 56px; }
+.tt .tt-home-sample { display: inline-block; margin-top: 4px; padding: 4px 2px; font-size: 14.5px; font-weight: 800; border-bottom: 2px solid var(--tt-ink); }
+.tt .tt-tile { display: flex; align-items: center; gap: 6px; border: 1.5px solid var(--tt-ink); border-radius: 14px; padding: 8px 10px; min-height: 76px; height: 100%; }
+.tt .tt-tile-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 6px; }
+.tt .tt-tile-title { font-family: "Jua", "Gowun Dodum", sans-serif; font-size: clamp(17px, 4.9vw, 20px); line-height: 1.15; -webkit-text-stroke: 0.3px currentColor; }
+.tt .tt-tile-topics { display: block; margin-top: 2px; font-size: 12.5px; line-height: 1.3; color: var(--tt-muted); }
+.tt .tt-today-box { display: flex; align-items: center; gap: 10px; margin-top: 8px; border: 1.5px solid var(--tt-ink); border-radius: 14px; background: #fff; padding: 8px 12px; min-height: 72px; }
+.tt .tt-today-go { flex-shrink: 0; border-left: 1.5px solid #2d3e73; padding-left: 10px; font-size: 14px; font-weight: 800; text-decoration: underline; text-underline-offset: 4px; line-height: 1.3; text-align: center; }
+.tt .tt-home-foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; margin-top: 14px; padding-top: 8px; border-top: 1.5px solid #2d3e73; font-size: 12.5px; color: var(--tt-ink); }
+
+.tt .tt-tile { padding: 8px 8px; gap: 4px; min-height: 72px; }
+.tt .tt-tile .tt-price { font-size: 12px; }
+.tt .tt-tile-topics { font-size: 12px; }
+.tt .tt-hero-box { padding: 6px 6px 0; }
+.tt .tt-tile-topics, .tt .tt-today-box span { word-break: keep-all; }

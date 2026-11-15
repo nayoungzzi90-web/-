@@ -1,6 +1,6 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { ASSETS, CookieIcon, SpeechBubble, TtottoFace } from "@/components/ttotto/Art";
-import { PRICE_NOTE, ProductGrid } from "@/components/ttotto/StoryPicker";
+import { ASSETS, CardArt, SpeechBubble, TtottoFace } from "@/components/ttotto/Art";
+import { HomeTiles } from "@/components/ttotto/StoryPicker";
 import { TT } from "@/lib/ttotto-content";
 
 export const Route = createFileRoute("/")({
@@ -8,49 +8,55 @@ export const Route = createFileRoute("/")({
   component: Home,
 });
 
-// 홈(합본 v2): 한 화면에서 필요한 것만, 눈에 띄는 순서대로.
-// 제목 → 또또와 말풍선 → 주황 큰 버튼(무료 맛보기) → 오늘의 운세쿠키(작은 띠) → 이야기 고르기(상품 카드).
-// 분리형(주 버튼 → 이야기 선택 화면)은 /home-split 에 남아 있다.
+// 홈(2026-11-15 시안 "또또사주 운세 가격 업데이트" 배치): 상단 로고+내 이야기 → 제목 → 액자 속 또또·말풍선·불꽃 → 무료 시작 버튼 → 지금 뭐가 궁금해? 상품 타일 → 오늘의 운세 → 하단 안내.
+// 시안 문구 중 '웹툰'은 결과가 웹툰 형식이 아니라는 이전 결정에 따라 쓰지 않았다. 이전 분리형·합본은 /home-split, git 이력에 있다.
 function Home() {
   return (
     <div className="tt">
-      <div className="tt-wrap pb-8">
-        <header className="tt-header">
+      <div className="tt-wrap pb-6">
+        <header className="tt-header justify-between">
           <span className="tt-header-title">
             {TT.brand}
-            <TtottoFace size={36} />
+            <TtottoFace size={34} />
           </span>
+          <Link to="/result" className="tt-home-my">내 이야기</Link>
         </header>
 
         <main>
-          <h1 className="mt-3 text-center text-[clamp(30px,9vw,40px)] leading-[1.12]">
-            또또와 알아보는
-            <br />
-            나의 사주
-          </h1>
+          <h1 className="mt-3 text-center text-[clamp(28px,8.4vw,36px)] leading-[1.12]">또또와 알아보는 나의 사주</h1>
 
-          <div className="relative mx-auto mt-3 w-[88%] max-w-[360px]">
-            <img src={ASSETS.homeScene} alt="책을 읽는 또또와 웃는 불꽃 친구" className="block w-full" draggable={false} />
-            <SpeechBubble className="absolute right-[1%] top-[0%] w-[52%]">{TT.home.speech}</SpeechBubble>
+          <div className="tt-hero-box mt-3">
+            <div className="relative mx-auto w-[84%]">
+              <img src={ASSETS.homeScene} alt="책을 읽는 또또와 불꽃 친구" className="block w-full" draggable={false} />
+              <SpeechBubble className="absolute right-[1%] top-[0%] w-[52%]">네 이야기,<br />펼쳐볼까?</SpeechBubble>
+            </div>
           </div>
 
-          <div className="mt-4 space-y-2.5">
-            <Link to="/input" className="tt-btn tt-primary tt-home-primary">
-              또또랑 내 사주 무료로 맛보기
-            </Link>
-            <Link to="/daily-cookie" className="tt-btn tt-sub tt-home-cookie tt-home-cookie-slim">
-              <CookieIcon className="w-9" />
-              {TT.home.secondary}
-              <span className="tt-badge">{TT.home.badge}</span>
-            </Link>
+          <div className="mt-3 text-center">
+            <Link to="/input" className="tt-btn tt-primary tt-home-primary">무료로 내 사주 보기</Link>
+            <p className="mt-1.5 text-[13.5px] text-[var(--tt-ink)]">로그인 없이 시작 · 태어난 시간 몰라도 가능</p>
+            <Link to="/sample" className="tt-home-sample">예시 결과 먼저 보기</Link>
           </div>
 
-          <section aria-labelledby="tt-stories-title" className="mt-6">
-            <h2 id="tt-stories-title" className="text-[clamp(22px,6.4vw,27px)] leading-tight">{TT.stories.title}</h2>
-            <ProductGrid />
-            <p className="mt-3 text-center text-[12.5px] leading-relaxed text-[var(--tt-muted)]">{PRICE_NOTE}</p>
+          <section aria-labelledby="tt-stories-title" className="mt-4">
+            <h2 id="tt-stories-title" className="text-center text-[clamp(21px,6vw,25px)] leading-tight">지금, 뭐가 가장 궁금해?</h2>
+            <HomeTiles />
+          </section>
+
+          <section aria-labelledby="tt-today-title" className="mt-4">
+            <h2 id="tt-today-title" className="text-[clamp(21px,6vw,24px)] leading-tight">오늘의 운세</h2>
+            <Link to="/daily-cookie" className="tt-today-box">
+              <CardArt id="basic" height={58} />
+              <span className="flex-1 text-[15.5px] font-bold leading-snug">오늘은 어떤 하루가 될까?</span>
+              <span className="tt-today-go">오늘의 운세 보기 →</span>
+            </Link>
           </section>
         </main>
+
+        <footer className="tt-home-foot">
+          <span>사주는 나를 이해하는 하나의 관점이에요.</span>
+          <span className="tt-home-foot-links">이용안내 · 개인정보처리방침</span>
+        </footer>
       </div>
     </div>
   );
