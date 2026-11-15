@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { CardArt, CoinIcon, TtottoFace } from "@/components/ttotto/Art";
+import { CardArt, CoinIcon, CoinPill, TtottoFace } from "@/components/ttotto/Art";
 import { TT, won } from "@/lib/ttotto-content";
 
 // 이야기 선택 영역(이야기 선택 화면과 홈 아래쪽이 함께 쓴다): 무료 맛보기 배너 + 상품 카드. 지금 열려 있는 상품이 앞에 오고 준비 중인 것은 뒤에 표시한다.
@@ -35,7 +35,7 @@ export function ProductGrid() {
                 <span className="min-w-0 flex-1">
                   <h2>
                     <span>{p.title}</span>
-                    <span className="tt-price">{won(p.price)}</span>
+                    <CoinPill count={Math.max(1, Math.round(p.price / 1000))} />
                   </h2>
                   <p className="tt-q">{p.question}</p>
                   {soon && <span className="tt-soon">준비 중</span>}
@@ -69,7 +69,7 @@ export function HomeTiles() {
               aria-label={`${p.title} ${won(p.price)}. ${p.topics.join(", ")}`}
             >
               <span className="tt-card-pill" aria-hidden>
-                <CoinIcon size={22} />
+                <CoinIcon size={17} />
                 <b>{coins}</b>
               </span>
               <span className="tt-card-art">

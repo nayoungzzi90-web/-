@@ -75,3 +75,14 @@ export function CoinIcon({ size = 24 }: { size?: number }) {
     </svg>
   );
 }
+
+/** 동전 알약(동전 그림 + 개수 + 선택 글자). 홈 상품 카드·상품 상세·잠금 카드에서 같은 모양으로 쓴다. */
+export function CoinPill({ count, label, className = "" }: { count: number; label?: string; className?: string }) {
+  return (
+    <span className={`tt-coin-pill ${className}`} aria-hidden>
+      <CoinIcon size={18} />
+      <b>{count}</b>
+      {label && <span>{label}</span>}
+    </span>
+  );
+}

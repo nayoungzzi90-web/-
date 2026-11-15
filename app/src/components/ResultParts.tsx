@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { Friend, type FriendKind } from "@/components/Friends";
 import { Coin } from "@/components/Shell";
-import { TtottoFace } from "@/components/ttotto/Art";
+import { CoinPill, TtottoFace } from "@/components/ttotto/Art";
 import {
   EL_WORD,
   branchElement,
@@ -129,11 +129,13 @@ export function Locked({
   title,
   teaser,
   price,
+  coins,
 }: {
   eyebrow: string;
   title: string;
   teaser: string;
-  price: string;
+  price?: string;
+  coins?: number;
 }) {
   return (
     <div className="hj-card relative mt-3 overflow-hidden bg-[#fffaf0] px-4 py-4">
@@ -147,9 +149,13 @@ export function Locked({
       >
         {teaser}
       </p>
-      <span className="stamp absolute right-3 top-3 !text-[13px]">
-        <Coin size={13} /> {price}
-      </span>
+      {coins != null ? (
+        <CoinPill count={coins} className="absolute right-3 top-3" />
+      ) : (
+        <span className="stamp absolute right-3 top-3 !text-[13px]">
+          <Coin size={13} /> {price}
+        </span>
+      )}
     </div>
   );
 }

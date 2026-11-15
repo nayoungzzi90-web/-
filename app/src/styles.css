@@ -741,8 +741,8 @@ html { scroll-behavior: auto; }
 /* ===== 홈 상품 v7: 7개 모두 보이는 2열 카드 — 부드러운 그림자, 색은 그림 뒤 원에만 ===== */
 .tt .tt-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 18px 0 0; padding: 0; list-style: none; }
 .tt .tt-cards > li.is-wide { grid-column: 1 / -1; }
-.tt .tt-card { display: flex; flex-direction: column; align-items: center; height: 100%; padding: 14px 8px 14px; background: #fff; border: 1px solid var(--hair, #eadfcd); border-radius: 20px; box-shadow: 0 6px 16px rgba(120, 80, 30, .07); color: var(--tt-ink); text-decoration: none; text-align: center; transition: transform .12s ease, box-shadow .12s ease; }
-.tt .tt-card:active { transform: scale(.985); box-shadow: 0 2px 8px rgba(120, 80, 30, .07); }
+.tt .tt-cards .tt-card { display: flex; flex-direction: column; align-items: center; height: 100%; padding: 14px 8px 14px; background: #fff; border: 1px solid var(--hair, #eadfcd); border-radius: 20px; box-shadow: 0 6px 16px rgba(120, 80, 30, .07); color: var(--tt-ink); text-decoration: none; text-align: center; transition: transform .12s ease, box-shadow .12s ease; }
+.tt .tt-cards .tt-card:active { transform: scale(.985); box-shadow: 0 2px 8px rgba(120, 80, 30, .07); }
 .tt .tt-card-art { position: relative; display: block; width: 100%; height: 66px; margin-bottom: 10px; }
 .tt .tt-card-art::before { content: ""; position: absolute; inset: 0; margin: auto; width: 62px; height: 62px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff 0%, var(--tile) 60%); }
 .tt .tt-card-art img { position: relative; z-index: 1; }
@@ -753,18 +753,18 @@ html { scroll-behavior: auto; }
 .tt .tt-card-price { font-family: "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif; font-size: 12.5px; font-weight: 600; color: var(--tt-muted); }
 .tt .tt-card-sub { font-size: 13px; line-height: 1.4; color: var(--tt-muted); word-break: keep-all; }
 /* 가로로 넓은 카드(신년운세) */
-.tt .tt-card-wide { flex-direction: row; gap: 12px; padding: 12px 16px 12px 12px; text-align: left; }
-.tt .tt-card-wide .tt-card-art { flex: 0 0 76px; width: 76px; height: 60px; margin: 0; }
-.tt .tt-card-wide .tt-card-art::before { width: 58px; height: 58px; }
-.tt .tt-card-wide .tt-card-body { flex: 1; align-items: flex-start; }
-.tt .tt-card-wide .tt-card-head { justify-content: flex-start; }
+.tt .tt-cards .tt-card-wide { flex-direction: row; gap: 12px; padding: 12px 16px 12px 12px; text-align: left; }
+.tt .tt-cards .tt-card-wide .tt-card-art { flex: 0 0 76px; width: 76px; height: 60px; margin: 0; }
+.tt .tt-cards .tt-card-wide .tt-card-art::before { width: 58px; height: 58px; }
+.tt .tt-cards .tt-card-wide .tt-card-body { flex: 1; align-items: flex-start; }
+.tt .tt-cards .tt-card-wide .tt-card-head { justify-content: flex-start; }
 .tt .tt-card-chev { flex: none; font-size: 24px; line-height: 1; color: #c9b9a0; }
 
 /* 홈 v8: 제목 간결하게, 가격은 한 번만, 칸 글씨는 키우고 단순하게 */
 .tt.tt-home .tt-home-title { margin: 26px 0 0; text-align: center; font-size: clamp(26px, 7.6vw, 31px); line-height: 1.25; letter-spacing: -0.01em; }
 .tt .tt-price-note { margin: 8px 0 0; text-align: center; font-size: 15px; color: var(--tt-muted); }
 .tt.tt-home main > section > .tt-cards { margin-top: 18px; }
-.tt .tt-card { padding: 16px 8px 16px; }
+.tt .tt-cards .tt-card { padding: 16px 8px 16px; }
 .tt .tt-card-title { font-size: 19px; }
 .tt .tt-card-title.is-long { font-size: 17px; }
 .tt .tt-card-sub { font-size: 14px; }
@@ -812,7 +812,7 @@ html { scroll-behavior: auto; }
 .tt.tt-home .tt-hero-panel .tt-glow { display: none; }
 
 /* 동전 = 1,000원 표시 */
-.tt .tt-card { position: relative; }
+.tt .tt-cards .tt-card { position: relative; }
 .tt .tt-card-coins { position: absolute; top: 10px; right: 10px; z-index: 2; display: flex; gap: 2px; }
 .tt .tt-card-coins svg { filter: drop-shadow(0 1px 1px rgba(150, 100, 20, .25)); }
 .tt .tt-price-note { align-items: center; gap: 7px; }
@@ -828,7 +828,7 @@ html { scroll-behavior: auto; }
 
 /* ===== 홈 상품 v12: 사진 카드 느낌 — 그림 위, 이름·주제 왼쪽, 동전 알약 오른쪽 ===== */
 .tt .tt-card-coins { display: none; }
-.tt .tt-card { align-items: stretch; padding: 14px 12px 14px; text-align: left; }
+.tt .tt-cards .tt-card { align-items: stretch; padding: 14px 12px 14px; text-align: left; }
 .tt .tt-card-art { margin-bottom: 12px; }
 .tt .tt-card-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 6px; width: 100%; }
 .tt .tt-card-body { flex: 1; min-width: 0; align-items: flex-start; gap: 3px; }
@@ -837,26 +837,38 @@ html { scroll-behavior: auto; }
 .tt .tt-card-sub { font-size: 13px; line-height: 1.4; }
 .tt .tt-card-pill { flex: none; display: inline-flex; align-items: center; gap: 5px; padding: 4px 11px 4px 7px; border-radius: 999px; background: #fff; box-shadow: 0 2px 8px rgba(120, 80, 30, .16); }
 .tt .tt-card-pill b { font-family: "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif; font-size: 17px; font-weight: 600; line-height: 1; color: var(--tt-ink); }
-.tt .tt-card-wide { flex-direction: row; align-items: center; padding: 12px 14px 12px 12px; gap: 12px; }
-.tt .tt-card-wide .tt-card-art { margin: 0; }
-.tt .tt-card-wide .tt-card-row { flex: 1; align-items: center; }
+.tt .tt-cards .tt-card-wide { flex-direction: row; align-items: center; padding: 12px 14px 12px 12px; gap: 12px; }
+.tt .tt-cards .tt-card-wide .tt-card-art { margin: 0; }
+.tt .tt-cards .tt-card-wide .tt-card-row { flex: 1; align-items: center; }
 
 .tt .tt-card-main { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; column-gap: 6px; row-gap: 4px; width: 100%; }
 .tt .tt-card-main .tt-card-title { grid-column: 1; grid-row: 1; white-space: nowrap; }
 .tt .tt-card-main .tt-card-pill { grid-column: 2; grid-row: 1; }
 .tt .tt-card-main .tt-card-sub { grid-column: 1 / -1; grid-row: 2; }
-.tt .tt-card-wide .tt-card-main { flex: 1; }
-.tt .tt-card-wide .tt-card-main .tt-card-title { font-size: 19px; }
+.tt .tt-cards .tt-card-wide .tt-card-main { flex: 1; }
+.tt .tt-cards .tt-card-wide .tt-card-main .tt-card-title { font-size: 19px; }
 
 /* 홈 v13: 동전 알약을 카드 오른쪽 위로, 글씨는 가운데, 또또와 불꽃 친구를 가깝게, 두 줄 인사 */
-.tt .tt-card { align-items: center; text-align: center; padding: 14px 8px 14px; }
+.tt .tt-cards .tt-card { align-items: center; text-align: center; padding: 14px 8px 14px; }
 .tt .tt-card-pill { position: absolute; top: 10px; right: 10px; z-index: 2; padding: 3px 10px 3px 6px; box-shadow: 0 2px 8px rgba(120, 80, 30, .18); }
 .tt .tt-card-main { display: flex; flex-direction: column; align-items: center; gap: 3px; width: 100%; }
 .tt .tt-card-main .tt-card-title, .tt .tt-card-main .tt-card-sub { grid-column: auto; grid-row: auto; }
-.tt .tt-card-wide { flex-direction: row; text-align: left; padding: 12px 54px 12px 12px; }
-.tt .tt-card-wide .tt-card-main { align-items: flex-start; }
-.tt .tt-card-wide .tt-card-pill { top: 50%; transform: translateY(-50%); right: 12px; }
+.tt .tt-cards .tt-card-wide { flex-direction: row; text-align: left; padding: 12px 54px 12px 12px; }
+.tt .tt-cards .tt-card-wide .tt-card-main { align-items: flex-start; }
+.tt .tt-cards .tt-card-wide .tt-card-pill { top: 50%; transform: translateY(-50%); right: 12px; }
 .tt.tt-home .tt-hero-book { left: 9%; }
 .tt.tt-home .tt-hero-flame { right: 15%; }
 .tt.tt-home .tt-hero-speech { left: 37%; top: 5%; width: 36%; }
 .tt.tt-home .tt-hero-speech .tt-bubble-text { font-size: clamp(13px, 3.9vw, 16px); padding: 0 7%; }
+
+/* 동전 알약 공통(작게): 홈 카드·이야기 선택·상품 상세·잠금 카드 */
+.tt .tt-coin-pill, .tt .tt-card-pill { display: inline-flex; align-items: center; gap: 3px; padding: 2px 8px 2px 5px; border-radius: 999px; background: #fff; box-shadow: 0 1px 6px rgba(120, 80, 30, .16); }
+.tt .tt-coin-pill b, .tt .tt-card-pill b { font-family: "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif; font-size: 14px; font-weight: 700; line-height: 1; color: var(--tt-ink); }
+.tt .tt-coin-pill span { margin-left: 2px; font-size: 13px; font-weight: 600; color: var(--tt-muted); }
+.tt .tt-cards .tt-card-pill { position: absolute; top: 7px; right: 7px; padding: 2px 8px 2px 5px; }
+.tt .tt-cards .tt-card-wide .tt-card-pill { top: 50%; right: 12px; transform: translateY(-50%); }
+.tt .tt-cards .tt-card-wide { padding-right: 52px; }
+
+.tt .tt-cards .tt-card-wide { flex-direction: row; align-items: center; text-align: left; padding: 12px 52px 12px 12px; gap: 12px; }
+.tt .tt-cards .tt-card-wide .tt-card-art { flex: 0 0 76px; width: 76px; height: 60px; margin: 0; }
+.tt .tt-cards .tt-card-wide .tt-card-main { align-items: flex-start; flex: 1; }

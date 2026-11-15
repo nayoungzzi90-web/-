@@ -1,5 +1,5 @@
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
-import { TtottoFace } from "@/components/ttotto/Art";
+import { CoinPill, TtottoFace } from "@/components/ttotto/Art";
 import { TT, won } from "@/lib/ttotto-content";
 
 export const Route = createFileRoute("/story/$id")({
@@ -35,7 +35,7 @@ function StoryDetail() {
             <section className="tt-card" style={{ background: p.bg }}>
               <h1 className="flex items-baseline justify-between gap-2 text-[26px] font-extrabold leading-tight">
                 <span>{p.title}</span>
-                <span className="tt-price" style={{ fontSize: 16 }}>{won(p.price)}</span>
+                <CoinPill count={Math.max(1, Math.round(p.price / 1000))} label={`= ${won(p.price)}`} />
               </h1>
               <p className="mt-2 text-[18px] font-bold leading-snug">{p.question}</p>
               <ul className="mt-3 flex flex-wrap gap-2">
