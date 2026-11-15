@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { CardArt, TtottoFace } from "@/components/ttotto/Art";
 import { TT, won } from "@/lib/ttotto-content";
@@ -51,10 +52,12 @@ export function ProductGrid() {
 
 export const PRICE_NOTE = "가격을 보는 것만으로는 결제되지 않아요. 지금은 결제가 열려 있지 않아서, 상품을 눌러 내용을 먼저 확인할 수 있어요.";
 
-/** 홈 상품(정리판 v3): 앞의 6개는 3열 작은 칸(그림+이름+가격), 마지막 시즌 상품은 얇은 한 줄. 주제 키워드는 상품 상세에서 보여 준다. */
+/** 홈 상품(정리판 v5): 핵심 4개는 2열 큰 칸(그림·이름·주제·가격), 나머지는 "더 보기"로 펼친다. */
+const FEATURED = 4;
 export function HomeTiles() {
-  const main = TT.products.slice(0, 6);
-  const rest = TT.products.slice(6);
+  const [open, setOpen] = useState(false);
+  const main = TT.products.slice(0, FEATURED);
+  const rest = TT.products.slice(FEATURED);
   return (
     <div className="mt-3">
       <ul className="tt-mini-grid">
@@ -71,34 +74,43 @@ export function HomeTiles() {
                 <CardArt id={p.id} fit />
               </span>
               <span className="tt-mini-title">{p.title}</span>
+              <span className="tt-mini-sub">{p.topics.slice(0, 2).join(" · ")}</span>
               <span className="tt-mini-price">{won(p.price)}</span>
             </Link>
           </li>
         ))}
       </ul>
-      <ul className="tt-rows">
-        {rest.map((p) => (
-          <li key={p.id}>
-            <Link
-              to="/story/$id"
-              params={{ id: p.id }}
-              className="tt-row"
-              style={{ ["--tile" as string]: p.bg }}
-              aria-label={`${p.title} ${won(p.price)}. ${p.topics.join(", ")}`}
-            >
-              <span className="tt-row-art">
-                <CardArt id={p.id} fit />
-              </span>
-              <span className="tt-row-main">
-                <span className="tt-row-title">{p.title}</span>
-                <span className="tt-row-sub">{p.topics.slice(0, 3).join(" · ")}</span>
-              </span>
-              <span className="tt-row-price">{won(p.price)}</span>
-              <span aria-hidden className="tt-row-chev">›</span>
-            </Link>
-          </li>
-        ))}
-      </ul>
+
+      <button type="button" className="tt-more" aria-expanded={open} aria-controls="tt-more-list" onClick={() => setOpen((v) => !v)}>
+        {open ? "접기" : `다른 이야기 ${rest.length}개 더 보기`}
+        <span aria-hidden className={open ? "tt-more-chev is-open" : "tt-more-chev"}>⌄</span>
+      </button>
+
+      {open && (
+        <ul id="tt-more-list" className="tt-rows">
+          {rest.map((p) => (
+            <li key={p.id}>
+              <Link
+                to="/story/$id"
+                params={{ id: p.id }}
+                className="tt-row"
+                style={{ ["--tile" as string]: p.bg }}
+                aria-label={`${p.title} ${won(p.price)}. ${p.topics.join(", ")}`}
+              >
+                <span className="tt-row-art">
+                  <CardArt id={p.id} fit />
+                </span>
+                <span className="tt-row-main">
+                  <span className="tt-row-title">{p.title}</span>
+                  <span className="tt-row-sub">{p.topics.slice(0, 3).join(" · ")}</span>
+                </span>
+                <span className="tt-row-price">{won(p.price)}</span>
+                <span aria-hidden className="tt-row-chev">›</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

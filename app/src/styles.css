@@ -651,3 +651,20 @@ html { scroll-behavior: auto; }
 .tt-soft .tt-verdict-head { word-break: keep-all; }
 .tt-soft details[aria-label="만세력 참고 표"] { margin-top: 28px; }
 .tt-soft main nav[aria-label="풀이 바로가기"] { gap: 8px; margin-top: 14px; }
+
+/* 홈 v5: 2열 큰 칸 + 더 보기 */
+.tt .tt-mini-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+.tt .tt-mini { padding: 16px 10px 16px; gap: 3px; }
+.tt .tt-mini-art { height: 76px; margin-bottom: 10px; }
+.tt .tt-mini-art::before { width: 70px; height: 70px; }
+.tt .tt-mini-title { font-size: 18px; }
+.tt .tt-mini-sub { font-size: 13.5px; line-height: 1.4; color: var(--tt-muted); word-break: keep-all; }
+.tt .tt-mini-price { margin-top: 4px; font-size: 14px; }
+.tt.tt-home .tt-mini { padding: 16px 10px 16px; }
+.tt.tt-home .tt-mini-art { height: 76px; margin-bottom: 10px; }
+.tt.tt-home .tt-mini-art::before { width: 70px; height: 70px; }
+.tt .tt-more { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; min-height: 52px; margin-top: 12px; background: #fff; border: 1px solid var(--hair, #eadfcd); border-radius: 16px; font-family: "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif; font-size: 16px; font-weight: 700; color: var(--tt-ink); }
+.tt .tt-more:active { background: #fff7ea; }
+.tt .tt-more-chev { display: inline-block; font-size: 18px; line-height: 1; transition: transform .2s ease; }
+.tt .tt-more-chev.is-open { transform: rotate(180deg); }
+.tt .tt-more + .tt-rows { margin-top: 12px; }
