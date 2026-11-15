@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
+import { ASSETS, COOKIE_PRELOAD } from "@/components/ttotto/Art";
 import {
   OPEN_MS,
   buildCookieResult,
@@ -15,7 +16,10 @@ import { useStore } from "@/lib/store";
 import { TT } from "@/lib/ttotto-content";
 
 export const Route = createFileRoute("/daily-cookie")({
-  head: () => ({ meta: [{ title: "오늘의 운세쿠키 · 또또사주" }] }),
+  head: () => ({
+    meta: [{ title: "오늘의 운세쿠키 · 또또사주" }],
+    links: COOKIE_PRELOAD.map((href) => ({ rel: "preload", as: "image", href })),
+  }),
   component: DailyCookie,
 });
 
@@ -40,6 +44,16 @@ function DailyCookie() {
   const [notice, setNotice] = useState("");
   const headingRef = useRef<HTMLHeadingElement>(null);
   const cameFromOpening = useRef(false);
+  const [imgsReady, setImgsReady] = useState(false);
+
+  // 쿠키 그림을 미리 받아 둔다(열 때 그림이 늦게 뜨지 않게). 2초가 지나면 그대로 진행한다.
+  useEffect(() => {
+    let done = false;
+    const finish = () => { if (!done) { done = true; setImgsReady(true); } };
+    const t = window.setTimeout(finish, 2000);
+    Promise.all(COOKIE_PRELOAD.map((src) => new Promise<void>((res) => { const i = new Image(); i.onload = i.onerror = () => res(); i.src = src; }))).then(finish);
+    return () => window.clearTimeout(t);
+  }, []);
 
   // 재접속·새로고침: 오늘 받은 결과를 복원한다.
   useEffect(() => {
@@ -119,6 +133,8 @@ function DailyCookie() {
 
   const shown = state === "opening" || state === "revealed";
   const revealed = state === "revealed";
+  const longMsg = !!result && result.message.length > 80;
+  const actionInside = !!result && !longMsg && result.action.length <= 34 && result.message.length <= 44;
   return (
     <div className="tt">
       <div className="tt-wrap pb-8">
@@ -145,31 +161,60 @@ function DailyCookie() {
             </p>
           )}
 
-          <div className={`tt-art-stage is-${state} mt-4`} role="img" aria-label={shown ? "깨진 쿠키를 든 또또" : "쿠키를 든 또또"}>
-            <img src="/ttotto/cookie_idle.png" alt="" aria-hidden className="tt-art-idle" draggable={false} />
-            <img src="/ttotto/cookie_open.png" alt="" aria-hidden className="tt-art-open" draggable={false} />
+          <div className={`tt-scene is-${state} mt-3`}>
+            {/* 캐릭터 장면: 몸통 → 쿠키 조각(+손 그룹) → 닫힌 쿠키 → 손 순으로 겹친다 */}
+            <div className="tt-char" role="img" aria-label={shown ? "쿠키를 양쪽으로 벌린 또또" : "양손으로 쿠키를 든 또또"}>
+              <img src={ASSETS.bodyNormal} alt="" aria-hidden className="tt-body tt-body-normal" draggable={false} />
+              <img src={ASSETS.bodySurprised} alt="" aria-hidden className="tt-body tt-body-surprised" draggable={false} />
+              <img src={ASSETS.cookieClosed} alt="" aria-hidden className="tt-cookie-closed" draggable={false} />
+              <div className="tt-grp tt-grp-left">
+                <img src={ASSETS.cookieLeft} alt="" aria-hidden className="tt-half-left" draggable={false} />
+                <img src={ASSETS.handLeft} alt="" aria-hidden className="tt-hand-left" draggable={false} />
+              </div>
+              <div className="tt-grp tt-grp-right">
+                <img src={ASSETS.cookieRight} alt="" aria-hidden className="tt-half-right" draggable={false} />
+                <img src={ASSETS.handRight} alt="" aria-hidden className="tt-hand-right" draggable={false} />
+              </div>
+              <img src={ASSETS.handLeft} alt="" aria-hidden className="tt-hand-left tt-hand-idle" draggable={false} />
+              <img src={ASSETS.handRight} alt="" aria-hidden className="tt-hand-right tt-hand-idle" draggable={false} />
+            </div>
+
+            {/* 쪽지: 빈 종이 그림과 실제 글자를 한 그룹으로 앞에서 확대된다 */}
+            {shown && result && (
+              <div className="tt-paper-grp">
+                <div className="tt-paper" aria-labelledby="tt-note-title">
+                  <img src={ASSETS.paper} alt="" aria-hidden className="tt-paper-img" draggable={false} />
+                  <section className="tt-paper-text">
+                    <h2 id="tt-note-title" ref={headingRef} tabIndex={-1} className="text-[clamp(22px,6.4vw,27px)] font-extrabold leading-tight outline-none">
+                      {result.title}
+                    </h2>
+                    <div className="tt-note-body">
+                      {!longMsg && <p className="mt-1.5 text-[16px] leading-snug">{result.message}</p>}
+                      {actionInside && (
+                        <>
+                          <p className="mt-2"><span className="tt-pill">{result.actionTitle}</span></p>
+                          <p className="mt-1 text-[15px] leading-snug">{result.action}</p>
+                        </>
+                      )}
+                    </div>
+                  </section>
+                </div>
+              </div>
+            )}
           </div>
 
-          {shown && result && (
-            <div className={`tt-note-slot is-${state} mt-2`}>
-              <section className="tt-note" aria-labelledby="tt-note-title">
-                <h2 id="tt-note-title" ref={headingRef} tabIndex={-1} className="text-[clamp(24px,7vw,30px)] font-extrabold leading-tight outline-none">
-                  {result.title}
-                </h2>
-                <div className="tt-note-body">
-                  <p className="mt-2 text-[18px] leading-snug">{result.message}</p>
-                  <p className="mt-3">
-                    <span className="tt-pill">{result.actionTitle}</span>
-                  </p>
-                  <p className="mt-1 text-[16px]">{result.action}</p>
-                </div>
-              </section>
+          {/* 글이 길거나 종이에 다 들어가지 않으면 종이 아래에서 이어서 보여 준다 */}
+          {revealed && result && (longMsg || !actionInside) && (
+            <div className="tt-note-more mt-3 rounded-[18px] border-[3px] border-[var(--tt-ink)] bg-white px-4 py-3">
+              {longMsg && <p className="text-[16px] leading-relaxed">{result.message}</p>}
+              <p className={longMsg ? "mt-3" : ""}><span className="tt-pill">{result.actionTitle}</span></p>
+              <p className="mt-1 text-[16px] leading-relaxed">{result.action}</p>
             </div>
           )}
 
           {!shown && state !== "error" && (
             <div className="mt-5">
-              <button type="button" className="tt-btn tt-primary" onClick={open} disabled={state !== "idle" || !hydrated}>
+              <button type="button" className="tt-btn tt-primary" onClick={open} disabled={state !== "idle" || !hydrated || !imgsReady}>
                 {state === "loading" ? "쿠키를 열고 있어요…" : TT.cookie.button}
               </button>
               <p className="mt-3 text-center text-[15px] text-[var(--tt-muted)]">{TT.cookie.footer}</p>

@@ -43,7 +43,7 @@ function Stories() {
                   aria-label={`${p.title} ${won(p.price)}. ${p.question}`}
                 >
                   <span className={`flex gap-2 ${i === TT.products.length - 1 ? "items-center" : "items-start"}`}>
-                    <CardArt id={p.id} size={i === TT.products.length - 1 ? 56 : 32} />
+                    <CardArt id={p.id} height={i === TT.products.length - 1 ? 64 : 44} />
                     <span className="min-w-0 flex-1">
                       <h2>
                         <span>{p.title}</span>

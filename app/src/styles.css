@@ -285,39 +285,6 @@ body {
 .tt-note-slot { min-height: 214px; display: flex; align-items: stretch; }
 .tt-note-slot > .tt-note { width: 100%; }
 .tt-pill { display: inline-block; background: var(--tt-yellow); border-radius: 999px; padding: 3px 12px; font-size: 14px; font-weight: 800; }
-
-/* 오늘의 운세쿠키 장면: 03(idle/loading/error) → 04(revealed)를 같은 DOM 에서 상태로만 바꾼다. */
-.tt-cookie-stage { position: relative; isolation: isolate; width: 100%; max-width: 300px; aspect-ratio: 1 / 0.92; margin: 0 auto; }
-.tt-cookie-stage .tt-sprout { position: absolute; left: 12%; top: 0; width: 76%; }
-.tt-cookie-stage .tt-closed { position: absolute; left: 25%; bottom: 8%; width: 50%; transition: opacity .12s; }
-.tt-cookie-stage .tt-hand-closed { position: absolute; bottom: 12%; width: 17%; }
-.tt-cookie-stage .tt-hl { left: 18%; }
-.tt-cookie-stage .tt-hr { right: 18%; }
-.tt-cookie-stage .tt-cookie-left, .tt-cookie-stage .tt-cookie-right { position: absolute; bottom: 14%; width: 34%; opacity: 0; display: flex; align-items: flex-end; }
-.tt-cookie-stage .tt-cookie-left { left: 6%; }
-.tt-cookie-stage .tt-cookie-right { right: 6%; }
-.tt-cookie-stage .tt-half { width: 100%; }
-.tt-cookie-stage .tt-hand-open { position: absolute; bottom: -6%; width: 46%; }
-.tt-cookie-left .tt-hand-open { right: -6%; }
-.tt-cookie-right .tt-hand-open { left: -6%; }
-.tt-cookie-stage.is-opening .tt-closed, .tt-cookie-stage.is-revealed .tt-closed,
-.tt-cookie-stage.is-opening .tt-hand-closed, .tt-cookie-stage.is-revealed .tt-hand-closed { opacity: 0; }
-.tt-cookie-stage.is-loading .tt-closed { animation: tt-gather 150ms ease-out both; }
-.tt-cookie-stage.is-opening .tt-cookie-left { animation: tt-open-left 600ms ease-out both; }
-.tt-cookie-stage.is-opening .tt-cookie-right { animation: tt-open-right 600ms ease-out both; }
-.tt-cookie-stage.is-revealed .tt-cookie-left { opacity: 1; transform: translateX(-36px) rotate(-12deg); }
-.tt-cookie-stage.is-revealed .tt-cookie-right { opacity: 1; transform: translateX(36px) rotate(12deg); }
-.tt-note-slot.is-opening .tt-note { animation: tt-note-pop 800ms 300ms cubic-bezier(.2,.8,.2,1) both; }
-.tt-note-slot.is-opening .tt-note-body { animation: tt-reveal 250ms 1000ms ease-out both; }
-.tt-actions.is-opening { animation: tt-reveal 250ms 1000ms ease-out both; }
-@keyframes tt-gather { from { transform: scale(1); } to { transform: scale(.96); } }
-@keyframes tt-open-left { 0% { opacity: 1; transform: translateX(0) rotate(0); } 25% { opacity: 1; transform: translateX(3px) rotate(0); } 100% { opacity: 1; transform: translateX(-36px) rotate(-12deg); } }
-@keyframes tt-open-right { 0% { opacity: 1; transform: translateX(0) rotate(0); } 25% { opacity: 1; transform: translateX(-3px) rotate(0); } 100% { opacity: 1; transform: translateX(36px) rotate(12deg); } }
-@keyframes tt-note-pop { 0% { transform: translateY(-12px) scale(.35); opacity: 0; } 70% { transform: translateY(0) scale(1.04); opacity: 1; } 100% { transform: translateY(0) scale(1); opacity: 1; } }
-@keyframes tt-reveal { from { opacity: 0; } to { opacity: 1; } }
-@media (prefers-reduced-motion: reduce) {
-  .tt-cookie-stage *, .tt-note-slot *, .tt-actions { animation: none !important; transition: none !important; }
-}
 .tt h1, .tt h2, .tt-btn, .tt-header-title, .tt-price, .tt-pill, .tt-badge { font-family: "Jua", "Gowun Dodum", "Apple SD Gothic Neo", sans-serif; font-weight: 400; }
 .tt .tt-bubble { word-break: keep-all; }
 .tt-card h2 { flex-wrap: wrap; }
@@ -328,16 +295,52 @@ body {
 .tt-card { padding: 10px 12px; }
 .tt-card h2 { font-size: 17px; }
 
-/* 또또 래스터 장면(디자인 보드에서 가져온 임시 이미지): 쿠키 든 또또 → 쿠키가 갈라진 또또 */
-.tt-art-stage { display: grid; width: 100%; max-width: 300px; margin-left: auto; margin-right: auto; }
-.tt-art-stage > img { grid-area: 1 / 1; width: 100%; height: auto; align-self: end; }
-.tt-art-stage .tt-art-open { opacity: 0; }
-.tt-art-stage.is-loading .tt-art-idle { animation: tt-gather 150ms ease-out both; }
-.tt-art-stage.is-opening .tt-art-idle { animation: tt-fade-out 260ms 120ms ease-in both; }
-.tt-art-stage.is-opening .tt-art-open { animation: tt-art-open 640ms 160ms cubic-bezier(.2,.8,.2,1) both; }
-.tt-art-stage.is-revealed { max-width: 340px; }
-.tt-art-stage.is-revealed .tt-art-idle { display: none; }
-.tt-art-stage.is-revealed .tt-art-open { opacity: 1; }
-@keyframes tt-fade-out { from { opacity: 1; transform: scale(.96); } to { opacity: 0; transform: scale(.9); } }
-@keyframes tt-art-open { from { opacity: 0; transform: scale(.86) translateY(8px); } 60% { opacity: 1; transform: scale(1.04) translateY(0); } to { opacity: 1; transform: scale(1); } }
-@media (prefers-reduced-motion: reduce) { .tt-art-stage * { animation: none !important; } }
+
+/* 오늘의 운세쿠키 장면(투명 PNG 15종 레이어): 03(idle/loading/error) → 04(revealed)를 같은 DOM 에서 상태로만 바꾼다. */
+.tt-scene { position: relative; width: 100%; max-width: 340px; margin-left: auto; margin-right: auto; isolation: isolate; }
+.tt-char { position: relative; width: 100%; aspect-ratio: 300 / 330; }
+.tt-scene.is-idle .tt-char, .tt-scene.is-loading .tt-char, .tt-scene.is-error .tt-char { margin-bottom: -12%; }
+.tt-char img { position: absolute; display: block; height: auto; user-select: none; -webkit-user-drag: none; }
+.tt-body { left: 22%; top: 0; width: 56%; }
+.tt-body-surprised { opacity: 0; }
+.tt-cookie-closed { left: 24%; top: 47%; width: 52%; }
+.tt-half-left { left: 25%; top: 45%; width: 26%; }
+.tt-half-right { left: 49%; top: 45%; width: 26%; }
+.tt-hand-left { left: 12%; top: 62%; width: 22%; }
+.tt-hand-right { right: 12%; top: 62%; width: 22%; }
+.tt-grp { position: absolute; inset: 0; opacity: 0; transform-origin: 50% 80%; pointer-events: none; z-index: 4; }
+.tt-grp img { position: absolute; }
+.tt-grp .tt-hand-left { left: 12%; top: 62%; }
+.tt-grp .tt-hand-right { right: 12%; top: 62%; }
+.tt-paper-grp { position: relative; margin-top: -33%; z-index: 3; }
+.tt-paper { position: relative; width: 100%; }
+.tt-paper-img { display: block; width: 100%; height: auto; filter: drop-shadow(0 6px 0 rgba(40,35,31,.12)); }
+.tt-paper-text { position: absolute; inset: 15% 11% 13% 11%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; overflow: hidden; }
+/* 손(그룹 밖 기본 손)은 쿠키를 든 상태에서만 보인다 */
+.tt-scene.is-opening .tt-hand-idle, .tt-scene.is-revealed .tt-hand-idle { display: none; }
+.tt-scene.is-opening .tt-cookie-closed, .tt-scene.is-revealed .tt-cookie-closed { opacity: 0; }
+.tt-scene.is-loading .tt-cookie-closed, .tt-scene.is-loading .tt-hand-idle { animation: tt-gather 150ms ease-out both; }
+/* 0~120ms 쿠키 반응(닫힌 쿠키 → 깨진 조각 교차 전환), 120~420ms 조각·손 그룹 좌우 이동, 300~850ms 쪽지 확대·안착, 1000ms 글자·버튼 */
+.tt-scene.is-opening .tt-cookie-closed { animation: tt-closed-out 110ms ease-out both; }
+.tt-scene.is-opening .tt-grp { animation: tt-grp-in 110ms ease-out both; }
+.tt-scene.is-opening .tt-grp-left { animation: tt-grp-in 110ms ease-out both, tt-spread-left 480ms 110ms cubic-bezier(.2,.8,.2,1) both; }
+.tt-scene.is-opening .tt-grp-right { animation: tt-grp-in 110ms ease-out both, tt-spread-right 480ms 110ms cubic-bezier(.2,.8,.2,1) both; }
+.tt-scene.is-opening .tt-body-surprised { animation: tt-fade-in 100ms ease-out both, tt-fade-out 160ms 700ms ease-in both; }
+.tt-scene.is-opening .tt-body-normal { animation: tt-fade-out 100ms ease-out both, tt-fade-in 160ms 700ms ease-in both; }
+.tt-scene.is-opening .tt-paper-grp { animation: tt-note-pop 800ms 300ms cubic-bezier(.2,.8,.2,1) both; }
+.tt-scene.is-opening .tt-note-body { animation: tt-reveal 250ms 1000ms ease-out both; }
+.tt-actions.is-opening { animation: tt-reveal 250ms 1000ms ease-out both; }
+.tt-scene.is-revealed .tt-grp { opacity: 1; }
+.tt-scene.is-revealed .tt-grp-left { transform: translateX(-30px) rotate(-12deg); }
+.tt-scene.is-revealed .tt-grp-right { transform: translateX(30px) rotate(12deg); }
+@keyframes tt-gather { from { transform: scale(1); } to { transform: scale(.96); } }
+@keyframes tt-closed-out { from { opacity: 1; } to { opacity: 0; } }
+@keyframes tt-grp-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes tt-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes tt-fade-out { from { opacity: 1; } to { opacity: 0; } }
+@keyframes tt-spread-left { 0% { transform: translateX(0) rotate(0); } 25% { transform: translateX(3px) rotate(0); } 100% { transform: translateX(-30px) rotate(-12deg); } }
+@keyframes tt-spread-right { 0% { transform: translateX(0) rotate(0); } 25% { transform: translateX(-3px) rotate(0); } 100% { transform: translateX(30px) rotate(12deg); } }
+@keyframes tt-note-pop { 0% { transform: translateY(-12px) scale(.35); opacity: 0; } 70% { transform: translateY(0) scale(1.04); opacity: 1; } 100% { transform: translateY(0) scale(1); opacity: 1; } }
+@keyframes tt-reveal { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .tt-scene *, .tt-actions { animation: none !important; transition: none !important; } .tt-scene.is-opening .tt-grp { opacity: 1; } }
+.tt-paper-text p { text-wrap: balance; }

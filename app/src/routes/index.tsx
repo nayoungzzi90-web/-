@@ -1,5 +1,5 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { CookieClosed, TtottoFace } from "@/components/ttotto/Art";
+import { ASSETS, CookieIcon, TtottoFace } from "@/components/ttotto/Art";
 import { TT } from "@/lib/ttotto-content";
 
 export const Route = createFileRoute("/")({
@@ -32,7 +32,10 @@ function Home() {
             >
               {TT.home.speech}
             </p>
-            <img src="/ttotto/home_art.png" alt="책을 든 또또와 불꽃 친구" className="block w-full" style={{ mixBlendMode: "multiply" }} draggable={false} />
+            <div className="flex items-end justify-center gap-[3%] pt-[22%]">
+              <img src={ASSETS.bookHome} alt="책을 든 또또" className="block w-[48%]" draggable={false} />
+              <img src={ASSETS.flame} alt="" aria-hidden className="mb-[2%] block w-[30%]" draggable={false} />
+            </div>
           </div>
 
           <div className="mt-5 space-y-3">
@@ -40,7 +43,7 @@ function Home() {
               {TT.home.primary} <span aria-hidden>→</span>
             </Link>
             <Link to="/daily-cookie" className="tt-btn tt-sub">
-              <CookieClosed className="w-9" />
+              <CookieIcon className="w-10" />
               {TT.home.secondary}
               <span className="tt-badge">{TT.home.badge}</span>
             </Link>
