@@ -38,6 +38,10 @@ function Home() {
             </span>
           </header>
         </div>
+        {/* 아래 상품 구역 위의 물결과 같은 모양으로 이어지는 가장자리 */}
+        <svg className="tt-top-wave" viewBox="0 0 390 26" preserveAspectRatio="none" aria-hidden focusable="false">
+          <path d="M0 0 H390 V12 C364 22 338 22 312 12 C286 2 260 2 234 12 C208 22 182 22 156 12 C130 2 104 2 78 12 C52 22 26 22 0 12 Z" />
+        </svg>
       </div>
 
       <div className="tt-hero-band">
