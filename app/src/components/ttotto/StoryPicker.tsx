@@ -63,7 +63,7 @@ export function HomeTiles() {
               to="/story/$id"
               params={{ id: p.id }}
               className={last ? "tt-t2 tt-t2-on tt-t2-wide" : "tt-t2 tt-t2-on"}
-              style={{ background: p.bg }}
+              style={{ background: p.to ? p.bg : "#fffdf8", ["--tile" as string]: p.bg }}
               aria-label={`${p.title} ${won(p.price)}. ${p.topics.join(", ")}`}
             >
               {p.first != null && <span className="tt-first-chip">첫 구매 {won(p.first)}</span>}

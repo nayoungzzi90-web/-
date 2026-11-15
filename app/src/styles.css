@@ -542,3 +542,16 @@ html { scroll-behavior: auto; }
 /* 결과 화면 등 옛 카드 부품을 또또사주 카드 모양에 맞춘다 */
 .tt .hj-card { border-width: 2.5px; border-color: var(--tt-ink); box-shadow: 0 4px 0 var(--tt-ink); }
 .tt .font-display { font-family: "Jua", "Gowun Dodum", "Apple SD Gothic Neo", sans-serif; font-weight: 400; }
+
+/* 홈 정리판(2026-11-15): 색·테두리·그림자·장식을 줄이고 칸을 낮춘다 */
+.tt .tt-hero-panel { border-width: 2px; }
+.tt .tt-t2-grid .tt-t2-on { border-width: 2px; box-shadow: none; padding: 10px 6px 12px; border-radius: 18px; }
+.tt .tt-t2-grid .tt-t2-on:active { transform: scale(.985); box-shadow: none; }
+.tt .tt-t2-grid > li:not(.col-span-2) .tt-t2-art { position: relative; height: clamp(76px, 22vw, 90px); padding-bottom: 0; margin-bottom: 8px; border-bottom: 0; }
+.tt .tt-t2-grid > li:not(.col-span-2) .tt-t2-art::before { content: ""; position: absolute; left: 50%; bottom: -4px; height: 112%; aspect-ratio: 1; transform: translateX(-50%); border-radius: 50%; background: var(--tile); opacity: .9; z-index: 0; }
+.tt .tt-t2-grid > li:not(.col-span-2) .tt-t2-art img { position: relative; z-index: 1; }
+.tt .tt-t2-grid .tt-t2-wide { border-width: 2px; padding: 8px 12px; }
+.tt .tt-t2-grid .tt-t2-wide .tt-t2-art { border-right: 0; padding-right: 0; flex: 0 0 32%; }
+.tt .tt-cookie-box { border-width: 2px; box-shadow: none; }
+.tt .tt-cookie-btn { box-shadow: 0 3px 0 var(--tt-ink); }
+.tt .tt-t2-grid .tt-t2-on .tt-t2-topics { margin-top: 3px; }

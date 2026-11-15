@@ -38,10 +38,8 @@ function Home() {
           {/* 액자: 또또(책)·불꽃은 하단이 잘린 원본이라 패널 하단에 맞춰 붙이고, 말풍선은 글자를 실제 HTML 로 올린다 */}
           <div className="tt-hero-panel mt-3" role="img" aria-label="책을 든 또또가 불꽃 친구에게 말해요: 너의 사주를 한번 봐볼까?">
             <span aria-hidden className="tt-glow" />
-            <span aria-hidden className="tt-spark tt-spark-1">✦</span>
             <span aria-hidden className="tt-spark tt-spark-2">✦</span>
             <span aria-hidden className="tt-spark tt-spark-3">✧</span>
-            <span aria-hidden className="tt-spark tt-spark-4">✦</span>
             <img src={ASSETS.heroBook} alt="" aria-hidden className="tt-hero-book" draggable={false} />
             <SpeechBubble className="tt-hero-speech">너의 사주를<br />한번 봐볼까?</SpeechBubble>
             <img src={ASSETS.heroFlame} alt="" aria-hidden className="tt-hero-flame" draggable={false} />
