@@ -335,7 +335,7 @@ body {
 .tt .tt-bubble::after { content: ""; position: absolute; left: 26px; bottom: -11px; width: 18px; height: 18px; background: #fff; border-right: 2px solid var(--tt-ink); border-bottom: 2px solid var(--tt-ink); transform: rotate(45deg) skew(8deg, 8deg); border-bottom-right-radius: 4px; }
 
 /* 홈 말풍선 글자(말풍선 그림은 SpeechBubble SVG): 타원 안에서 가운데, 크고 굵은 두 줄 */
-.tt .tt-bubble-text { position: absolute; left: 0; right: 0; top: 0; height: 86%; display: flex; align-items: center; justify-content: center; margin: 0; padding: 0 9%; text-align: center; font-family: "Jua", "Gowun Dodum", "Apple SD Gothic Neo", sans-serif; font-size: clamp(17px, 5.2vw, 24px); line-height: 1.22; color: #1b1613; -webkit-text-stroke: 0.5px currentColor; word-break: keep-all; }
+.tt .tt-bubble-text { position: absolute; left: 0; right: 0; top: 3%; height: 84%; display: flex; align-items: center; justify-content: center; margin: 0; padding: 0 9%; text-align: center; font-family: "Jua", "Gowun Dodum", "Apple SD Gothic Neo", sans-serif; font-size: clamp(17px, 5.2vw, 24px); line-height: 1.22; color: #1b1613; -webkit-text-stroke: 0.5px currentColor; word-break: keep-all; }
 
 /* 홈 버튼: 주 버튼과 쿠키 버튼의 글자를 키운다 */
 .tt .tt-home-primary { font-size: clamp(24px, 7vw, 28px); min-height: 64px; }
