@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { Friend, FRIEND_IMG, FRIEND_INFO, type FriendKind } from "@/components/Friends";
+import { Friend, FRIEND_IMG, FRIEND_PNG, FRIEND_INFO, type FriendKind } from "@/components/Friends";
 import { Page } from "@/components/Shell";
 import {
   DEEP_TEXT,
@@ -40,7 +40,7 @@ export const Route = createFileRoute("/quiz")({
       ? `${board!.length}명이 모인 오행 모임 판. 나도 참여하고 우리 케미를 확인해요.`
       : SITE_DESC;
     const image = last
-      ? `${SITE_URL}${FRIEND_IMG[EL_FRIEND[last.primary]]}`
+      ? `${SITE_URL}${FRIEND_PNG[EL_FRIEND[last.primary]]}`
       : `${SITE_URL}/restore/hero.jpg`;
     return {
       meta: [

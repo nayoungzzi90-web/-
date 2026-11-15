@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
+import { TtottoFace } from "@/components/ttotto/Art";
 
 // 엽전 아이콘(패키지의 coin.svg)
 export function Coin({ size = 18 }: { size?: number }) {
@@ -18,17 +19,17 @@ export function Coin({ size = 18 }: { size?: number }) {
 
 export function Header({ coins = 0 }: { coins?: number }) {
   return (
-    <header className="sticky top-0 z-20">
-      <div className="dancheong" />
-      <div className="flex items-center justify-between bg-[var(--paper)]/95 px-4 py-2.5 backdrop-blur">
-        <Link to="/" className="font-display text-xl leading-none">
-          오행 <span className="text-[var(--stamp)]">친구들</span>
+    <header className="sticky top-0 z-20 bg-[var(--paper)]">
+      <div className="flex items-center justify-between border-b-2 border-[var(--line)] px-4 py-2.5">
+        <Link to="/" className="font-display flex items-center gap-1.5 text-xl leading-none">
+          또또사주
+          <TtottoFace size={32} />
         </Link>
         <div className="flex items-center gap-2">
-          <span className="flex items-center gap-1.5 rounded-full border-2 border-[var(--line)] bg-[#fffaf0] px-2.5 py-1 text-sm font-extrabold">
+          <span className="flex items-center gap-1.5 rounded-full border-2 border-[var(--line)] bg-[var(--paper-2)] px-2.5 py-1 text-sm font-extrabold">
             <Coin size={16} /> {coins}닢
           </span>
-          <span className="rounded-full border-2 border-[var(--line)] bg-[var(--to)] px-3 py-1 text-sm font-extrabold">
+          <span className="rounded-full border-2 border-[var(--line)] bg-[var(--stamp)] px-3 py-1 text-sm font-extrabold text-[var(--ink)]">
             로그인
           </span>
         </div>
@@ -40,8 +41,8 @@ export function Header({ coins = 0 }: { coins?: number }) {
 const NAV = [
   { label: "홈", to: "/", d: "M4 11l8-7 8 7v8H4z" },
   {
-    label: "오늘",
-    to: "/today",
+    label: "쿠키",
+    to: "/daily-cookie",
     d: "M12 8a4 4 0 100 8 4 4 0 000-8zM12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2",
   },
   {
@@ -56,7 +57,7 @@ export function BottomNav({ active = "홈" }: { active?: string }) {
   return (
     <nav
       aria-label="하단 메뉴"
-      className="fixed inset-x-0 bottom-0 z-30 mx-auto max-w-md rounded-t-[26px] border-t-2 border-[#d8c3a0] bg-[#fffaf0] px-3 pb-3 pt-2"
+      className="fixed inset-x-0 bottom-0 z-30 mx-auto max-w-md rounded-t-[26px] border-x-2 border-t-[3px] border-[var(--line)] bg-[var(--paper)] px-3 pb-3 pt-2"
     >
       <ul className="flex justify-around">
         {NAV.map((n) => (
@@ -94,7 +95,6 @@ export function Page({
   children,
   coins,
   active,
-  blossom,
 }: {
   children: ReactNode;
   coins?: number;
@@ -104,15 +104,6 @@ export function Page({
   return (
     <div className="relative mx-auto min-h-screen max-w-md pb-28">
       <Header {...(coins === undefined ? {} : { coins })} />
-      {blossom && (
-        <img
-          src="/restore/deco/blossom-corner.svg"
-          alt=""
-          aria-hidden
-          draggable={false}
-          className="pointer-events-none absolute right-0 top-14 z-0 w-[120px] opacity-80"
-        />
-      )}
       {children}
       <BottomNav active={active} />
     </div>

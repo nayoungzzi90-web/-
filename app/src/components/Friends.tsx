@@ -257,14 +257,24 @@ export function DuckFriend({
   );
 }
 
-// ── 현행 캐릭터: 조선 민화풍 시안에서 가져온 그림(public/restore/characters). 오리 그림은 DuckFriend 로 남겨 둔다.
-export const FRIEND_IMG: Record<FriendKind, string> = {
+// ── 현행 캐릭터(2026-11-15 또또사주 개편): 또또 변형 5종. 같은 얼굴에 새싹 색과 오행 배지만 다르다(임시 SVG).
+// 이전 조선 민화풍 PNG 는 FRIEND_PNG 로 남겨 둔다(og 이미지 등 외부 주소용). 오리 그림은 DuckFriend 로 남아 있다.
+import { friendDataUrl, type ElementKo } from "@/components/ttotto/friend-svg";
+export const FRIEND_PNG: Record<FriendKind, string> = {
   seonbi: "/restore/characters/solri.png",
   ssi: "/restore/characters/daengi.png",
   tiger: "/restore/characters/hodongi.png",
   rabbit: "/restore/characters/dalto.png",
   turtle: "/restore/characters/geobuki.png",
 };
+export const FRIEND_IMG: Record<FriendKind, string> = {
+  seonbi: friendDataUrl("목"),
+  ssi: friendDataUrl("화"),
+  tiger: friendDataUrl("토"),
+  rabbit: friendDataUrl("금"),
+  turtle: friendDataUrl("수"),
+};
+export type { ElementKo };
 
 export function Friend({
   kind,

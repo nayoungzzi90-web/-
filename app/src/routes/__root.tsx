@@ -14,11 +14,11 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "오행 친구들" },
+      { title: "또또사주" },
       { name: "description", content: SITE_DESC },
       { property: "og:site_name", content: SITE_NAME },
       { property: "og:type", content: "website" },
-      { property: "og:title", content: "오행 친구들 — 나의 오행 친구는 누구?" },
+      { property: "og:title", content: "또또사주 — 내 사주, 한 편의 웹툰" },
       { property: "og:description", content: SITE_DESC },
       { property: "og:image", content: `${SITE_URL}/restore/hero.jpg` },
       { name: "twitter:card", content: "summary_large_image" },

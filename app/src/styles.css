@@ -1,18 +1,19 @@
 @import "tailwindcss";
 
 :root {
-  --paper: #f7f0e3;
-  --paper-2: #f0e4cb;
-  --ink: #2b2320;
-  --ink-soft: #7a6c60;
-  --line: #2b2320;
-  /* 오방색 = 오행 */
-  --mok: #2f7068; /* 청 */
-  --hwa: #b83a26; /* 적 */
-  --to: #e2b04a; /* 황 */
-  --geum: #ece8df; /* 백 */
-  --su: #2d3e73; /* 흑 */
-  --stamp: #b83a26;
+  /* 또또사주 팔레트(2026-11-15): 기존 토큰 이름을 그대로 두고 값만 바꿔 모든 화면이 함께 바뀐다. */
+  --paper: #fff9f0;
+  --paper-2: #fff4d4;
+  --ink: #28231f;
+  --ink-soft: #625c55;
+  --line: #28231f;
+  /* 오행별 색(결과·퀴즈의 오행 표시용) */
+  --mok: #5aa37a; /* 목 */
+  --hwa: #e5603a; /* 화 */
+  --to: #f2c14e; /* 토 */
+  --geum: #eef0f3; /* 금 */
+  --su: #4a78c2; /* 수 */
+  --stamp: #ff7049; /* 또또 주황: 버튼·강조 */
 }
 
 html {
@@ -24,15 +25,6 @@ body {
   font-family:
     "Gowun Dodum", "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
   background-color: var(--paper);
-  background-image:
-    radial-gradient(rgba(120, 90, 50, 0.07) 1px, transparent 1.4px),
-    radial-gradient(rgba(120, 90, 50, 0.05) 1px, transparent 1.4px);
-  background-size:
-    22px 22px,
-    37px 37px;
-  background-position:
-    0 0,
-    11px 17px;
 }
 .font-display {
   font-family: "Jua", "Gowun Dodum", "Apple SD Gothic Neo", sans-serif;
@@ -56,10 +48,10 @@ body {
 
   /* 한지 카드: 두꺼운 먹선 + 단단한 그림자 */
   .hj-card {
-    border: 2px solid #c9a76e;
-    border-radius: 22px;
-    box-shadow: 0 3px 0 rgba(160, 120, 70, 0.28);
-    background: #fffaf0;
+    border: 3px solid var(--line);
+    border-radius: 20px;
+    box-shadow: 0 3px 0 rgba(40, 35, 31, 0.14);
+    background: #fffdf8;
   }
 
   /* 도장(가격표) */
@@ -67,14 +59,13 @@ body {
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    border: 2px solid var(--stamp);
-    color: var(--stamp);
-    border-radius: 8px;
+    border: 2px solid var(--line);
+    color: var(--ink);
+    border-radius: 999px;
     padding: 1px 8px;
     font-weight: 800;
     font-size: 12px;
-    transform: rotate(-3deg);
-    background: rgba(255, 250, 240, 0.9);
+    background: var(--paper-2);
   }
 }
 
@@ -330,3 +321,7 @@ body {
 .tt h1, .tt h2, .tt-btn, .tt-header-title, .tt-price, .tt-pill, .tt-badge { font-family: "Jua", "Gowun Dodum", "Apple SD Gothic Neo", sans-serif; font-weight: 400; }
 .tt .tt-bubble { word-break: keep-all; }
 .tt-card h2 { flex-wrap: wrap; }
+
+/* 또또 주황 위의 글자는 어둡게(대비 확보) */
+[class*="bg-[var(--stamp)]"] { color: var(--ink) !important; }
+.dancheong { display: none; }
