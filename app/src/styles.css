@@ -872,3 +872,15 @@ html { scroll-behavior: auto; }
 .tt .tt-cards .tt-card-wide { flex-direction: row; align-items: center; text-align: left; padding: 12px 52px 12px 12px; gap: 12px; }
 .tt .tt-cards .tt-card-wide .tt-card-art { flex: 0 0 76px; width: 76px; height: 60px; margin: 0; }
 .tt .tt-cards .tt-card-wide .tt-card-main { align-items: flex-start; flex: 1; }
+
+/* 홈 v14: 말풍선 크게, 가격 안내 작게, 신년운세 알약 오른쪽 위, 쿠키 캐릭터를 안쪽으로·크게 */
+.tt.tt-home .tt-hero-speech { left: 35%; top: 2%; width: 41%; }
+.tt.tt-home .tt-hero-speech .tt-bubble-text { font-size: clamp(14px, 4.2vw, 17px); }
+.tt.tt-home .tt-hero-flame { right: 12%; }
+.tt .tt-price-note { margin-top: 10px; padding: 3px 14px 4px 9px; gap: 5px; }
+.tt .tt-price-note b { font-size: 17px; }
+.tt .tt-price-note b.tt-price-one { font-size: 18px; }
+.tt .tt-cards .tt-card-wide .tt-card-pill { top: 7px; right: 7px; transform: none; }
+.tt.tt-home .tt-cookie-box { min-height: 138px; padding: 14px 14px 14px 46%; }
+.tt.tt-home .tt-cookie-art { left: 9%; width: 33%; }
+.tt.tt-home .tt-cookie-body { gap: 8px; }
