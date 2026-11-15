@@ -477,3 +477,6 @@ html { scroll-behavior: auto; }
 @keyframes tt-cookie-wiggle { 0%,60%,100% { transform: rotate(0); } 68% { transform: rotate(-3deg); } 76% { transform: rotate(3deg); } 84% { transform: rotate(-2deg); } 92% { transform: rotate(1deg); } }
 @keyframes tt-btn-pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.06); } }
 .tt .tt-spark-3 { left: 30%; top: 9%; }
+
+.tt .tt-free-chip { display: inline-block; background: #ff6f45; color: #fff; border: 2px solid var(--tt-ink); border-radius: 999px; padding: 0 10px 1px; font-family: "Jua", sans-serif; font-size: 15px; line-height: 1.5; }
+.tt .tt-hero-speech { width: 42%; left: 37%; }

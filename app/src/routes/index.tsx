@@ -25,14 +25,14 @@ function Home() {
           <h1 className="mt-3 text-center text-[clamp(28px,8.4vw,36px)] leading-[1.12]">또또와 알아보는 나의 사주</h1>
 
           {/* 액자: 또또(책)·불꽃은 하단이 잘린 원본이라 패널 하단에 맞춰 붙이고, 말풍선은 글자를 실제 HTML 로 올린다 */}
-          <div className="tt-hero-panel mt-3" role="img" aria-label="책을 든 또또가 불꽃 친구에게 말해요: 내가 네 이야기 읽어줄게!">
+          <div className="tt-hero-panel mt-3" role="img" aria-label="책을 든 또또가 불꽃 친구에게 말해요: 너의 사주를 한번 봐볼까?">
             <span aria-hidden className="tt-glow" />
             <span aria-hidden className="tt-spark tt-spark-1">✦</span>
             <span aria-hidden className="tt-spark tt-spark-2">✦</span>
             <span aria-hidden className="tt-spark tt-spark-3">✧</span>
             <span aria-hidden className="tt-spark tt-spark-4">✦</span>
             <img src={ASSETS.heroBook} alt="" aria-hidden className="tt-hero-book" draggable={false} />
-            <SpeechBubble className="tt-hero-speech">내가 네 이야기<br />읽어줄게!</SpeechBubble>
+            <SpeechBubble className="tt-hero-speech">너의 사주를<br />한번 봐볼까?</SpeechBubble>
             <img src={ASSETS.heroFlame} alt="" aria-hidden className="tt-hero-flame" draggable={false} />
           </div>
 
@@ -48,13 +48,13 @@ function Home() {
           </section>
 
           <section aria-labelledby="tt-today-title" className="mt-4">
-            <h2 id="tt-today-title" className="text-[clamp(23px,6.6vw,28px)] leading-tight">오늘의 운세쿠키</h2>
+            <h2 id="tt-today-title" className="flex items-center gap-2 text-[clamp(23px,6.6vw,28px)] leading-tight">오늘의 운세쿠키 <span className="tt-free-chip">무료</span></h2>
             <Link to="/daily-cookie" className="tt-cookie-box" aria-label="오늘의 운세쿠키 열어보기">
               <span aria-hidden className="tt-cookie-spark tt-cookie-spark-1">✦</span>
               <span aria-hidden className="tt-cookie-spark tt-cookie-spark-2">✧</span>
               <img src={ASSETS.cookieScene} alt="" aria-hidden className="tt-cookie-art" draggable={false} />
               <span className="tt-cookie-body">
-                <span className="tt-cookie-sub">하루에 한 번, 나만의 한 줄</span>
+                <span className="tt-cookie-sub">하루에 한 번,<br />운세를 뽑아봐!</span>
                 <span className="tt-cookie-btn">쿠키 열어보기</span>
               </span>
             </Link>

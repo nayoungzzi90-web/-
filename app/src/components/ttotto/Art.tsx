@@ -41,11 +41,10 @@ export function SpeechBubble({ children, className = "" }: { children: ReactNode
     <div className={className}>
       <div className="relative" style={{ aspectRatio: "200 / 116" }}>
         <svg viewBox="0 0 200 116" className="absolute inset-0 h-full w-full overflow-visible" aria-hidden focusable="false">
-          {/* 통통한 알약 몸통 + 또또 쪽으로 이어지는 동글동글 꼬리 방울 + 하트 */}
-          <rect x="6" y="6" width="188" height="84" rx="42" fill="#fffbe6" stroke="#1b1613" strokeWidth="6" />
-          <circle cx="50" cy="101" r="8" fill="#fffbe6" stroke="#1b1613" strokeWidth="5" />
-          <circle cx="36" cy="112" r="4.5" fill="#fffbe6" stroke="#1b1613" strokeWidth="4" />
-          <path d="M178 6 c-6-9-18-1-10 8 l10 9 l10-9 c8-9-4-17-10-8z" transform="translate(-4 -9) scale(.9)" fill="#ff8fa3" stroke="#1b1613" strokeWidth="4" strokeLinejoin="round" />
+          {/* 동글동글 구름 말풍선: 같은 원들을 먼저 두꺼운 선으로, 다시 채우기로 덮어 겹친 안쪽 선을 없앤다 */}
+          <g stroke="#1b1613" strokeWidth="12" fill="#1b1613"><circle cx="36" cy="54" r="26" /><circle cx="62" cy="34" r="28" /><circle cx="100" cy="26" r="28" /><circle cx="138" cy="34" r="28" /><circle cx="164" cy="54" r="26" /><circle cx="150" cy="74" r="24" /><circle cx="112" cy="78" r="24" /><circle cx="76" cy="78" r="24" /><circle cx="48" cy="72" r="22" /><circle cx="100" cy="52" r="40" /><circle cx="50" cy="102" r="9" /><circle cx="35" cy="113" r="5.5" /></g>
+          <g fill="#fffbe6"><circle cx="36" cy="54" r="26" /><circle cx="62" cy="34" r="28" /><circle cx="100" cy="26" r="28" /><circle cx="138" cy="34" r="28" /><circle cx="164" cy="54" r="26" /><circle cx="150" cy="74" r="24" /><circle cx="112" cy="78" r="24" /><circle cx="76" cy="78" r="24" /><circle cx="48" cy="72" r="22" /><circle cx="100" cy="52" r="40" /><circle cx="50" cy="102" r="9" /><circle cx="35" cy="113" r="5.5" /></g>
+          <path d="M178 14 c-6-9-18-1-10 8 l10 9 l10-9 c8-9-4-17-10-8z" transform="translate(4 -10) scale(.9)" fill="#ff8fa3" stroke="#1b1613" strokeWidth="4" strokeLinejoin="round" />
         </svg>
         <p className="tt-bubble-text">{children}</p>
       </div>
