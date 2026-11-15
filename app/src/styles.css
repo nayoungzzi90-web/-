@@ -334,6 +334,5 @@ body {
 .tt .tt-bubble { z-index: 2; overflow: visible; }
 .tt .tt-bubble::after { content: ""; position: absolute; left: 26px; bottom: -11px; width: 18px; height: 18px; background: #fff; border-right: 2px solid var(--tt-ink); border-bottom: 2px solid var(--tt-ink); transform: rotate(45deg) skew(8deg, 8deg); border-bottom-right-radius: 4px; }
 
-/* 홈 말풍선(시안): 큰 타원, 굵은 외곽선, 크고 굵은 두 줄 글자, 꼬리는 또또 얼굴 쪽(왼쪽 아래)을 가리킨다. */
-.tt .tt-bubble-home { position: absolute; top: 1%; right: 1%; width: 49%; aspect-ratio: 1.72 / 1; display: flex; align-items: center; justify-content: center; margin: 0; padding: 0 4%; text-align: center; background: #fff; border: 2.5px solid var(--tt-ink); border-radius: 50%; font-family: "Jua", "Gowun Dodum", "Apple SD Gothic Neo", sans-serif; font-size: clamp(17px, 5.2vw, 24px); line-height: 1.22; color: var(--tt-ink); -webkit-text-stroke: 0.5px currentColor; box-shadow: none; word-break: keep-all; max-width: none; }
-.tt .tt-bubble-home::after { left: 12%; bottom: -6%; width: 14%; aspect-ratio: 1; background: #fff; border-right: 2.5px solid var(--tt-ink); border-bottom: 2.5px solid var(--tt-ink); transform: rotate(52deg) skew(14deg, 14deg); border-bottom-right-radius: 6px; }
+/* 홈 말풍선 글자(말풍선 그림은 SpeechBubble SVG): 타원 안에서 가운데, 크고 굵은 두 줄 */
+.tt .tt-bubble-text { position: absolute; left: 0; right: 0; top: 0; height: 82%; display: flex; align-items: center; justify-content: center; margin: 0; padding: 0 9%; text-align: center; font-family: "Jua", "Gowun Dodum", "Apple SD Gothic Neo", sans-serif; font-size: clamp(17px, 5.2vw, 24px); line-height: 1.22; color: #1b1613; -webkit-text-stroke: 0.5px currentColor; word-break: keep-all; }

@@ -1,5 +1,6 @@
 // 또또사주 삽화. 홈·상품 카드·쿠키 장면은 최종 4화면 시안에서 원본 픽셀을 분리한 7종(public/assets/ttotto-original, 원본 PNG: design/ttotto-cutouts)을 쓴다.
 // 종이(쪽지)와 쿠키 아이콘만 이전에 생성한 PNG(public/assets/ttotto)를 쓴다. 그림은 CSS/이모지로 다시 그리지 않는다.
+import type { ReactNode } from "react";
 const O = (name: string) => `/assets/ttotto-original/${name}.webp`;
 export const ASSETS = {
   homeScene: O("home-scene"),
@@ -39,4 +40,20 @@ export function CardArt({ id, height = 44 }: { id: string; height?: number }) {
 /** 쿠키 아이콘(홈 보조 버튼용). */
 export function CookieIcon({ className = "" }: { className?: string }) {
   return <img src={ASSETS.cookieIcon} alt="" aria-hidden className={className} draggable={false} />;
+}
+
+/** 홈 말풍선: 타원 몸통과 곡선 꼬리를 SVG 선으로 그리고 글자는 실제 HTML 로 올린다(꼬리는 또또 얼굴 쪽을 가리킨다). */
+export function SpeechBubble({ children, className = "" }: { children: ReactNode; className?: string }) {
+  return (
+    <div className={className}>
+    <div className="relative" style={{ aspectRatio: "200 / 126" }}>
+      <svg viewBox="0 0 200 126" className="absolute inset-0 h-full w-full overflow-visible" aria-hidden focusable="false">
+        <ellipse cx="100" cy="52" rx="94" ry="48" fill="#fff" stroke="#1b1613" strokeWidth="6" />
+        <path d="M50 92 C46 104 38 113 24 120 C48 120 70 112 86 99.6" fill="#fff" stroke="#1b1613" strokeWidth="6" strokeLinejoin="round" strokeLinecap="round" />
+        <path d="M52.4 92.6 A94 48 0 0 0 84.6 99.4" fill="none" stroke="#fff" strokeWidth="9" strokeLinecap="butt" />
+      </svg>
+      <p className="tt-bubble-text">{children}</p>
+    </div>
+    </div>
+  );
 }

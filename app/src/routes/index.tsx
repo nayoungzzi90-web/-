@@ -1,5 +1,5 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { ASSETS, CookieIcon, TtottoFace } from "@/components/ttotto/Art";
+import { ASSETS, CookieIcon, SpeechBubble, TtottoFace } from "@/components/ttotto/Art";
 import { TT } from "@/lib/ttotto-content";
 
 export const Route = createFileRoute("/")({
@@ -27,7 +27,7 @@ function Home() {
 
           <div className="relative mx-auto mt-5 w-full max-w-[420px]">
             <img src={ASSETS.homeScene} alt="책을 읽는 또또와 웃는 불꽃 친구" className="block w-full" draggable={false} />
-            <p className="tt-bubble tt-bubble-home">{TT.home.speech}</p>
+            <SpeechBubble className="absolute right-[1%] top-[0%] w-[52%]">{TT.home.speech}</SpeechBubble>
           </div>
 
           <div className="mt-5 space-y-3">
