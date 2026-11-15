@@ -68,7 +68,7 @@ function Home() {
       <div className="tt-wrap pb-28">
         <main>
           <section aria-labelledby="tt-stories-title" className="mt-4">
-            <h2 id="tt-stories-title" className="text-center text-[clamp(23px,6.6vw,28px)] leading-tight">지금, 뭐가 가장 궁금해?</h2>
+            <h2 id="tt-stories-title" className="text-center text-[clamp(23px,6.6vw,28px)] leading-tight">지금, 뭐가 가장 <mark className="tt-mark">궁금해?</mark></h2>
             <p className="tt-price-note">
               <CoinIcon size={22} />
               <b className="tt-price-one">1</b>
