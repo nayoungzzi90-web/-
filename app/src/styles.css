@@ -1077,3 +1077,15 @@ html { scroll-behavior: auto; }
 .tt.tt-home .tt-cookie-art { bottom: 19px; }
 .tt.tt-home .tt-hero-note { background: #fff7d1; box-shadow: 0 3px 0 rgba(200, 160, 90, .22), 0 7px 12px rgba(120, 80, 30, .1); }
 .tt.tt-home .tt-hero-note p { color: #6b4a22; }
+
+/* ===== 홈 v36: 맨 위 로고 줄을 하얀 바탕(물방울 가장자리)으로, 소개 문구는 흰 찢어진 스티커를 붙인 느낌으로 ===== */
+.tt.tt-home .tt-topbar { position: relative; z-index: 3; background: #fffdf9; }
+.tt.tt-home .tt-topbar::after { content: ""; position: absolute; left: 0; right: 0; bottom: -9px; height: 10px; background: radial-gradient(circle at 10px 0, #fffdf9 9.4px, transparent 10px) 0 0 / 20px 10px repeat-x; }
+.tt.tt-home .tt-topbar .tt-header { padding: 14px 0 12px; border-bottom: 0; }
+.tt.tt-home .tt-hero-band { padding-top: 16px; }
+/* 소개 문구: 흰 스티커(오른쪽이 찢겨 갈색 속살이 보이고 왼쪽 아래 모서리가 들뜸) — 테이프는 뺌 */
+.tt.tt-home .tt-hero-note { position: relative; width: 214px; height: 40px; margin: 14px auto 0; padding: 0; transform: rotate(-2deg); border: 0; border-radius: 0; background: none; box-shadow: none; clip-path: none; filter: drop-shadow(1.2px 0 0 #28231f) drop-shadow(-1.2px 0 0 #28231f) drop-shadow(0 1.2px 0 #28231f) drop-shadow(0 -1.2px 0 #28231f) drop-shadow(3px 4px 0 rgba(40, 35, 31, .22)); }
+.tt.tt-home .tt-hero-note::before { content: ""; position: absolute; inset: 0; margin: 0; z-index: 0; width: auto; height: auto; border-radius: 0; background: linear-gradient(90deg, #f3e2c2 0%, #e4c795 100%); transform: none; box-shadow: none; clip-path: polygon(170px 1px, 204px 0px, 209px 6px, 205px 11px, 213px 17px, 208px 23px, 214px 29px, 209px 34px, 212px 40px, 170px 39px); }
+.tt.tt-home .tt-hero-note p { position: relative; z-index: 1; display: block; width: 214px; height: 40px; padding: 0 20px 0 0; background: #fffdf9; line-height: 40px; text-align: center; font-size: 15.5px; color: #28231f; white-space: nowrap; clip-path: polygon(0 7px, 2px 2px, 7px 0, 190px 0, 195px 5px, 189px 10px, 197px 16px, 191px 21px, 198px 27px, 192px 32px, 196px 37px, 193px 40px, 7px 40px, 2px 38px, 0 33px); }
+.tt.tt-home .tt-hero-note u { background: linear-gradient(transparent 62%, #ffd27a 62%, #ffd27a 90%, transparent 90%); text-decoration: none; }
+.tt.tt-home .tt-hero-note::after { display: block; content: ""; position: absolute; left: -2px; bottom: -3px; right: auto; top: auto; z-index: 2; width: 16px; height: 16px; background: linear-gradient(45deg, #d9cdbb 0%, #fffdf9 55%); clip-path: polygon(0 0, 100% 100%, 0 100%); filter: drop-shadow(1px 2px 1px rgba(40, 35, 31, .35)); transform: none; }
