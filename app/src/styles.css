@@ -1029,3 +1029,13 @@ html { scroll-behavior: auto; }
 
 /* 홈 v28: 테이프를 모서리에 비스듬히 — 민트색 물방울 마스킹 테이프(끝은 뜯긴 모양) */
 .tt.tt-home .tt-hero-tag-wrap::before { left: -12px; top: -7px; margin-left: 0; width: 50px; height: 15px; transform: rotate(-36deg); background-color: rgba(176, 226, 205, .92); background-image: radial-gradient(rgba(255, 255, 255, .95) 1.7px, transparent 1.9px); background-size: 8px 8px; filter: drop-shadow(0 1px 1.5px rgba(40, 100, 80, .28)); }
+
+/* 홈 v29: 소개 문구를 주황 리본 배너로(시안 D) */
+.tt.tt-home .tt-hero-ribbon { position: relative; isolation: isolate; width: fit-content; margin: 10px auto 0; padding: 7px 22px 8px; background: var(--tt-orange, #ff6f45); transform: rotate(-1deg); box-shadow: 0 4px 6px rgba(150, 70, 30, .22); }
+.tt.tt-home .tt-hero-ribbon p { margin: 0; font-family: "Jua", "Gowun Dodum", sans-serif; font-size: 15px; line-height: 1.3; letter-spacing: 0; color: #fff; text-shadow: 0 1px 0 rgba(150, 50, 20, .35); white-space: nowrap; }
+.tt.tt-home .tt-hero-ribbon::before, .tt.tt-home .tt-hero-ribbon::after { content: ""; position: absolute; top: 7px; z-index: -1; width: 26px; height: 100%; background: #e6572f; }
+.tt.tt-home .tt-hero-ribbon::before { left: -17px; clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 26% 50%); }
+.tt.tt-home .tt-hero-ribbon::after { right: -17px; clip-path: polygon(0 0, 100% 0, 74% 50%, 100% 100%, 0 100%); }
+.tt.tt-home .tt-rib-fold { position: absolute; top: 100%; width: 9px; height: 7px; background: #b6411f; }
+.tt.tt-home .tt-rib-fold-l { left: 0; clip-path: polygon(0 0, 100% 0, 100% 100%); }
+.tt.tt-home .tt-rib-fold-r { right: 0; clip-path: polygon(0 0, 100% 0, 0 100%); }
