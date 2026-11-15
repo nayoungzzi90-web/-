@@ -394,8 +394,8 @@ html { scroll-behavior: auto; }
 .tt .tt-hero-panel img { position: absolute; display: block; height: auto; user-select: none; -webkit-user-drag: none; }
 .tt .tt-hero-book { left: 3%; bottom: 0; width: 37%; }
 .tt .tt-hero-flame { right: 4%; bottom: 0; width: 24%; }
-.tt .tt-hero-speech { position: absolute; left: 40%; top: 6%; width: 36%; }
-.tt .tt-hero-speech .tt-bubble-text { font-size: clamp(14px, 4.4vw, 19px); }
+.tt .tt-hero-speech { position: absolute; left: 38%; top: 6%; width: 40%; }
+.tt .tt-hero-speech .tt-bubble-text { font-size: clamp(15px, 4.8vw, 20px); }
 .tt .tt-today-box { position: relative; overflow: hidden; display: flex; align-items: center; gap: 8px; min-height: 100px; padding: 8px 10px 8px 36%; background: #fff; }
 .tt .tt-today-art { position: absolute; left: 3%; bottom: 0; width: 30%; height: auto; }
 .tt .tt-today-text { flex: 1; min-width: 0; font-size: 16.5px; font-weight: 700; line-height: 1.3; word-break: keep-all; }

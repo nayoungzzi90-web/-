@@ -41,8 +41,11 @@ export function SpeechBubble({ children, className = "" }: { children: ReactNode
     <div className={className}>
       <div className="relative" style={{ aspectRatio: "200 / 116" }}>
         <svg viewBox="0 0 200 116" className="absolute inset-0 h-full w-full overflow-visible" aria-hidden focusable="false">
-          {/* 몸통과 꼬리를 한 줄로 이어 그린다(겹쳐 덮는 흰 조각 없음) */}
-          <path d="M52.4 92.6 C49 100 43 106 34 110 C54 110 72 106 84.6 99.4 A94 48 0 1 0 52.4 92.6 Z" fill="#fff" stroke="#1b1613" strokeWidth="6" strokeLinejoin="round" />
+          {/* 통통한 알약 몸통 + 또또 쪽으로 이어지는 동글동글 꼬리 방울 + 하트 */}
+          <rect x="6" y="6" width="188" height="84" rx="42" fill="#fffbe6" stroke="#1b1613" strokeWidth="6" />
+          <circle cx="50" cy="101" r="8" fill="#fffbe6" stroke="#1b1613" strokeWidth="5" />
+          <circle cx="36" cy="112" r="4.5" fill="#fffbe6" stroke="#1b1613" strokeWidth="4" />
+          <path d="M178 6 c-6-9-18-1-10 8 l10 9 l10-9 c8-9-4-17-10-8z" transform="translate(-4 -9) scale(.9)" fill="#ff8fa3" stroke="#1b1613" strokeWidth="4" strokeLinejoin="round" />
         </svg>
         <p className="tt-bubble-text">{children}</p>
       </div>
