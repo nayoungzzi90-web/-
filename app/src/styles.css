@@ -1072,3 +1072,8 @@ html { scroll-behavior: auto; }
 .tt.tt-home .tt-hero-note p { position: static; display: block; width: auto; height: auto; padding: 0; background: none; clip-path: none; line-height: 1.3; font-family: "Jua", "Gowun Dodum", sans-serif; font-size: 17px; letter-spacing: 0; color: #7a4a14; white-space: nowrap; }
 .tt.tt-home .tt-hero-note u { background: none; text-decoration: none; }
 .tt.tt-home .tt-wrap > main > section:last-of-type { margin-top: 76px; }
+
+/* 홈 v35: 쿠키 캐릭터를 쪽지 높이에 맞춰 위로, 노란 메모는 채도를 낮춘 연한 버터색으로 */
+.tt.tt-home .tt-cookie-art { bottom: 19px; }
+.tt.tt-home .tt-hero-note { background: #fff7d1; box-shadow: 0 3px 0 rgba(200, 160, 90, .22), 0 7px 12px rgba(120, 80, 30, .1); }
+.tt.tt-home .tt-hero-note p { color: #6b4a22; }
