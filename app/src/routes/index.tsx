@@ -39,7 +39,6 @@ function Home() {
           <div className="mt-3 text-center">
             <Link to="/input" className="tt-btn tt-primary tt-home-primary mx-auto w-[88%]">무료로 내 사주 보기</Link>
             <p className="mt-1.5 text-[15px] text-[var(--tt-ink)]">로그인 없이 시작 · 태어난 시간 몰라도 가능</p>
-            <Link to="/sample" className="tt-home-sample">예시 결과 먼저 보기</Link>
           </div>
 
           <section aria-labelledby="tt-stories-title" className="mt-4">
