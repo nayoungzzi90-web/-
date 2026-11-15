@@ -31,7 +31,11 @@ const CARD_IMG: Record<string, string> = {
 export function CardArt({ id, widthPct = 44, fit = false }: { id: string; widthPct?: number; fit?: boolean }) {
   const src = CARD_IMG[id] ?? CARD_IMG["basic"];
   // fit: 정해진 크기 상자 안에 비율을 지키며 맞춘다(칸마다 그림 크기·글자 위치를 같게 하려는 용도).
-  if (fit) return <img src={src} alt="" aria-hidden className="block h-full w-full object-contain object-bottom" draggable={false} />;
+  if (fit) {
+    const tall = id === "money" || id === "career";
+    // 세로로 긴 그림은 조금 줄이고 가로로 넓은 그림은 조금 키워 시각 크기를 맞춘다.
+    return <img src={src} alt="" aria-hidden className="block h-full w-full object-contain object-bottom" style={{ transform: `scale(${tall ? 1 : 0.88})`, transformOrigin: "50% 100%" }} draggable={false} />;
+  }
   // 재물운·직업운 그림은 세로로 긴 원본이라 폭이 아니라 높이로 맞춘다.
   if (id === "money" || id === "career") {
     return <img src={src} alt="" aria-hidden className="block shrink-0" style={{ height: `${Math.round(widthPct * 1.9)}px`, width: "auto", maxHeight: "112px" }} draggable={false} />;
