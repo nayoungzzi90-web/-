@@ -985,3 +985,17 @@ html { scroll-behavior: auto; }
 .tt.tt-home .tt-wrap > main > section:first-of-type { margin-top: 40px; }
 .tt.tt-home .tt-hero-band + .tt-wrap { padding-top: 6px; }
 .tt.tt-home #tt-stories-title { position: relative; top: -16px; }
+
+/* ===== 홈 v23: 맨 위 소개는 스티커 메모처럼, 오늘의 운세쿠키는 노란 카드 + 쪽지 ===== */
+.tt.tt-home .tt-hero-tag { position: relative; margin: 6px auto 0; padding: 8px 20px 9px; border-radius: 6px; background: #fff3b8; font-family: "Jua", "Gowun Dodum", sans-serif; font-weight: 400; font-size: 17px; letter-spacing: 0; color: #7a4a14; transform: rotate(-2deg); box-shadow: 0 3px 0 rgba(205, 150, 40, .28), 0 8px 14px rgba(120, 80, 30, .12); }
+.tt.tt-home .tt-hero-tag::before { content: ""; position: absolute; left: 50%; top: -9px; width: 50px; height: 15px; margin-left: -25px; border-radius: 3px; background: rgba(255, 255, 255, .75); transform: rotate(3deg); box-shadow: 0 1px 2px rgba(120, 80, 30, .12); }
+.tt.tt-home .tt-hero-tag::after { display: none; }
+.tt.tt-home .tt-cookie-box { border: 0; border-radius: 24px; min-height: 160px; padding: 18px 14px 18px 44%; overflow: hidden; background-color: #ffe08a; background-image: radial-gradient(rgba(255, 255, 255, .55) 1.7px, transparent 1.8px), linear-gradient(160deg, #ffefb0 0%, #ffd77a 100%); background-size: 16px 16px, 100% 100%; box-shadow: 0 10px 22px rgba(205, 150, 30, .26); }
+.tt.tt-home .tt-cookie-art { left: 4%; width: 38%; }
+.tt.tt-home .tt-cookie-body { position: relative; align-items: center; gap: 8px; padding: 20px 12px 14px; }
+.tt.tt-home .tt-cookie-body::before { content: ""; position: absolute; inset: 0; z-index: 0; background: url("/assets/ttotto/fortune-paper.webp") center / 100% 100% no-repeat; transform: rotate(2.5deg); filter: drop-shadow(0 4px 5px rgba(120, 80, 20, .28)); }
+.tt.tt-home .tt-cookie-body > * { position: relative; z-index: 1; }
+.tt.tt-home .tt-cookie-sub { font-family: "Jua", "Gowun Dodum", sans-serif; font-size: 16px; line-height: 1.35; color: #5b3b12; }
+.tt.tt-home .tt-cookie-spark { display: block; color: #fff; text-shadow: 0 0 6px rgba(255, 200, 80, .9); }
+.tt.tt-home .tt-cookie-spark-1 { right: 12px; top: 10px; font-size: 22px; }
+.tt.tt-home .tt-cookie-spark-2 { left: 36%; top: 12px; font-size: 16px; }
