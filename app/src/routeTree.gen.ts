@@ -15,6 +15,7 @@ import { Route as CompatRouteImport } from './routes/compat'
 import { Route as ConcernRouteImport } from './routes/concern'
 import { Route as DailyCookieRouteImport } from './routes/daily-cookie'
 import { Route as HomeClassicRouteImport } from './routes/home-classic'
+import { Route as HomeSplitRouteImport } from './routes/home-split'
 import { Route as InputRouteImport } from './routes/input'
 import { Route as InviteRouteImport } from './routes/invite'
 import { Route as QuizRouteImport } from './routes/quiz'
@@ -58,6 +59,11 @@ const DailyCookieRoute = DailyCookieRouteImport.update({
 const HomeClassicRoute = HomeClassicRouteImport.update({
   id: '/home-classic',
   path: '/home-classic',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HomeSplitRoute = HomeSplitRouteImport.update({
+  id: '/home-split',
+  path: '/home-split',
   getParentRoute: () => rootRouteImport,
 } as any)
 const InputRoute = InputRouteImport.update({
@@ -138,6 +144,7 @@ export interface FileRoutesByFullPath {
   '/concern': typeof ConcernRoute
   '/daily-cookie': typeof DailyCookieRoute
   '/home-classic': typeof HomeClassicRoute
+  '/home-split': typeof HomeSplitRoute
   '/input': typeof InputRoute
   '/invite': typeof InviteRoute
   '/quiz': typeof QuizRoute
@@ -160,6 +167,7 @@ export interface FileRoutesByTo {
   '/concern': typeof ConcernRoute
   '/daily-cookie': typeof DailyCookieRoute
   '/home-classic': typeof HomeClassicRoute
+  '/home-split': typeof HomeSplitRoute
   '/input': typeof InputRoute
   '/invite': typeof InviteRoute
   '/quiz': typeof QuizRoute
@@ -183,6 +191,7 @@ export interface FileRoutesById {
   '/concern': typeof ConcernRoute
   '/daily-cookie': typeof DailyCookieRoute
   '/home-classic': typeof HomeClassicRoute
+  '/home-split': typeof HomeSplitRoute
   '/input': typeof InputRoute
   '/invite': typeof InviteRoute
   '/quiz': typeof QuizRoute
@@ -207,6 +216,7 @@ export interface FileRouteTypes {
     | '/concern'
     | '/daily-cookie'
     | '/home-classic'
+    | '/home-split'
     | '/input'
     | '/invite'
     | '/quiz'
@@ -229,6 +239,7 @@ export interface FileRouteTypes {
     | '/concern'
     | '/daily-cookie'
     | '/home-classic'
+    | '/home-split'
     | '/input'
     | '/invite'
     | '/quiz'
@@ -251,6 +262,7 @@ export interface FileRouteTypes {
     | '/concern'
     | '/daily-cookie'
     | '/home-classic'
+    | '/home-split'
     | '/input'
     | '/invite'
     | '/quiz'
@@ -274,6 +286,7 @@ export interface RootRouteChildren {
   ConcernRoute: typeof ConcernRoute
   DailyCookieRoute: typeof DailyCookieRoute
   HomeClassicRoute: typeof HomeClassicRoute
+  HomeSplitRoute: typeof HomeSplitRoute
   InputRoute: typeof InputRoute
   InviteRoute: typeof InviteRoute
   QuizRoute: typeof QuizRoute
@@ -332,6 +345,13 @@ declare module '@tanstack/react-router' {
       path: '/home-classic'
       fullPath: '/home-classic'
       preLoaderRoute: typeof HomeClassicRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/home-split': {
+      id: '/home-split'
+      path: '/home-split'
+      fullPath: '/home-split'
+      preLoaderRoute: typeof HomeSplitRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/input': {
@@ -442,6 +462,7 @@ const rootRouteChildren: RootRouteChildren = {
   ConcernRoute: ConcernRoute,
   DailyCookieRoute: DailyCookieRoute,
   HomeClassicRoute: HomeClassicRoute,
+  HomeSplitRoute: HomeSplitRoute,
   InputRoute: InputRoute,
   InviteRoute: InviteRoute,
   QuizRoute: QuizRoute,

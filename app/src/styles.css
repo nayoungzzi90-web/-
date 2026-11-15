@@ -341,3 +341,9 @@ body {
 .tt .tt-home-primary { font-size: clamp(24px, 7vw, 28px); min-height: 64px; }
 .tt .tt-home-cookie { font-size: clamp(21px, 6vw, 24px); min-height: 56px; }
 .tt .tt-home-cookie .tt-badge { font-size: 15px; padding: 2px 12px; }
+
+/* 홈 아래 이야기 선택 영역 */
+.tt-stories-sec { margin-top: 40px; padding-top: 22px; border-top: 1.5px solid var(--tt-ink); scroll-margin-top: 8px; padding-bottom: 24px; }
+.tt .tt-soon { display: inline-block; margin-top: 4px; border: 1.5px solid var(--tt-ink); border-radius: 999px; padding: 0 8px; font-size: 12px; font-weight: 700; background: rgba(255,255,255,.7); }
+html { scroll-behavior: auto; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
