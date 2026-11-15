@@ -420,3 +420,15 @@ html { scroll-behavior: auto; }
 .tt .tt-t2-on { margin-bottom: 4px; }
 .tt .tt-t2-soon .tt-t2-price { margin-top: auto; }
 .tt .tt-t2-soon .tt-t2-topics { margin-bottom: 10px; }
+
+.tt .tt-t2-plain-price { display: block; margin-top: 2px; font-family: "Jua", sans-serif; font-size: 14px; }
+.tt .tt-t2-topics { font-size: 13.5px; font-weight: 400; color: var(--tt-muted); }
+.tt .tt-t2-soon .tt-t2-topics { margin-bottom: 0; }
+.tt .tt-t2-on .tt-t2-topics { color: var(--tt-ink); }
+.tt .tt-t2-on .tt-go-btn { margin-top: auto; }
+.tt .tt-t2-on .tt-t2-topics { margin-bottom: 8px; }
+.tt .tt-t2-grid .tt-t2-art { min-height: 0; }
+.tt .tt-t2-grid .tt-t2-soon { justify-content: center; }
+.tt .tt-t2-grid .tt-t2-on { justify-content: center; }
+.tt .tt-t2-on .tt-go-btn { margin-top: 2px; }
+.tt .tt-t2-grid > li > .tt-t2 { justify-content: center; }

@@ -53,49 +53,30 @@ export const PRICE_NOTE = "가격을 보는 것만으로는 결제되지 않아�
 
 /** 홈 상품 타일(시안 배치): 삽화 왼쪽, 제목+가격 한 줄, 아래에 주제 줄. 신년운세는 전체 폭. */
 export function HomeTiles() {
-  const [main, ...rest] = TT.products;
   return (
-    <div className="mt-3 flex flex-col gap-2.5">
-      {main && (
-        <Link
-          to="/story/$id"
-          params={{ id: main.id }}
-          className="tt-hero-tile"
-          style={{ background: main.bg }}
-          aria-label={`${main.title} ${won(main.price)}. ${main.topics.join(", ")}. 무료로 시작`}
-        >
-          <span className="tt-free-badge">무료로 시작</span>
-          <CardArt id={main.id} widthPct={38} />
-          <span className="min-w-0 flex-1">
-            <span className="tt-t2-title">{main.title}</span>
-            <span className="tt-t2-topics">{main.topics.slice(0, 2).join(" · ")}</span>
-            <span className="tt-go-btn">지금 보기 <span aria-hidden>→</span></span>
-          </span>
-        </Link>
-      )}
-      <ul className="tt-t2-grid grid grid-cols-2 gap-2.5">
-        {rest.map((p) => {
-          const soon = p.to === null;
-          return (
-            <li key={p.id}>
-              <Link
-                to="/story/$id"
-                params={{ id: p.id }}
-                className={soon ? "tt-t2 tt-t2-soon" : "tt-t2 tt-t2-on"}
-                style={{ background: p.bg }}
-                aria-label={`${p.title} ${won(p.price)}. ${p.topics.join(", ")}${soon ? ". 준비 중" : ""}`}
-              >
-                {soon && <span className="tt-soon-band">준비 중</span>}
-                <span className="tt-t2-art"><CardArt id={p.id} widthPct={84} /></span>
-                <span className="tt-t2-title">{p.title}</span>
-                <span className="tt-t2-topics">{p.topics.slice(0, 2).join(" · ")}</span>
-                <span className="tt-t2-price">{won(p.price)}</span>
-                {!soon && <span className="tt-go-btn">지금 보기 <span aria-hidden>→</span></span>}
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
-    </div>
+    <ul className="tt-t2-grid mt-3 grid grid-cols-2 gap-2.5">
+      {TT.products.map((p, i) => {
+        const soon = p.to === null;
+        const last = i === TT.products.length - 1;
+        return (
+          <li key={p.id} className={last ? "col-span-2" : undefined}>
+            <Link
+              to="/story/$id"
+              params={{ id: p.id }}
+              className={`tt-t2 ${soon ? "tt-t2-soon" : "tt-t2-on"}`}
+              style={{ background: p.bg }}
+              aria-label={`${p.title} ${won(p.price)}. ${p.topics.join(", ")}${soon ? ". 준비 중" : ""}`}
+            >
+              {soon && <span className="tt-soon-band">준비 중</span>}
+              <span className="tt-t2-art"><CardArt id={p.id} widthPct={last ? 30 : 66} /></span>
+              <span className="tt-t2-title">{p.title}</span>
+              <span className="tt-t2-plain-price">{won(p.price)}</span>
+              <span className="tt-t2-topics">{p.topics.join(" · ")}</span>
+              {!soon && <span className="tt-go-btn">지금 보기 <span aria-hidden>→</span></span>}
+            </Link>
+          </li>
+        );
+      })}
+    </ul>
   );
 }
