@@ -1,43 +1,36 @@
 // 또또사주 삽화. 홈·상품 카드·쿠키 장면은 최종 4화면 시안에서 원본 픽셀을 분리한 7종(public/assets/ttotto-original, 원본 PNG: design/ttotto-cutouts)을 쓴다.
 // 종이(쪽지)와 쿠키 아이콘만 이전에 생성한 PNG(public/assets/ttotto)를 쓴다. 그림은 CSS/이모지로 다시 그리지 않는다.
 import type { ReactNode } from "react";
-const O = (name: string) => `/assets/ttotto-original/${name}.webp`;
+const L = (name: string) => `/assets/ttotto-long-home/${name}.webp`;
 export const ASSETS = {
-  homeScene: O("home-scene"),
-  cookieScene: O("cookie-scene"),
+  heroBook: L("hero-ttotto-book"),
+  heroFlame: L("hero-flame"),
+  dailyFortune: L("daily-fortune"),
+  logoFace: L("logo-face"),
+  cookieScene: "/assets/ttotto-original/cookie-scene.webp",
   paper: "/assets/ttotto/fortune-paper.webp",
   cookieIcon: "/assets/ttotto/cookie-closed.webp",
 } as const;
 export const COOKIE_PRELOAD = [ASSETS.cookieScene, ASSETS.paper];
 
-/** 로고 얼굴: 쿠키 장면 그림의 머리 부분만 보이게 자른다(원본 그림 그대로). */
+/** 로고 얼굴(원본 분리본 logo-face). */
 export function TtottoFace({ size = 34 }: { size?: number }) {
-  return (
-    <span aria-hidden className="relative inline-block shrink-0 overflow-hidden" style={{ width: size, height: Math.round(size * 0.62) }}>
-      <img src={ASSETS.cookieScene} alt="" className="absolute left-0 top-0 block w-full" draggable={false} />
-    </span>
-  );
+  return <img src={ASSETS.logoFace} alt="" aria-hidden width={size} height={size} style={{ width: size, height: size }} className="inline-block shrink-0" draggable={false} />;
 }
 
-const CARD_IMG: Record<string, { src: string; ratio: number }> = {
-  basic: { src: O("card-my-saju"), ratio: 420 / 536 },
-  love: { src: O("card-love"), ratio: 420 / 400 },
-  compatibility: { src: O("card-compatibility"), ratio: 420 / 382 },
-  date: { src: O("card-date"), ratio: 420 / 375 },
-  year: { src: O("card-new-year"), ratio: 420 / 217 },
+const CARD_IMG: Record<string, string> = {
+  basic: L("card-my-saju"),
+  love: L("card-love"),
+  compatibility: L("card-compatibility"),
+  date: L("card-date"),
+  year: L("card-new-year"),
 };
-/** 상품 카드 삽화(원본 분리본, 높이 기준). */
-export function CardArt({ id, height = 44 }: { id: string; height?: number }) {
-  const c = CARD_IMG[id] ?? CARD_IMG["basic"]!;
-  const w = Math.round(height * Math.min(Math.max(c.ratio, 0.95), 2));
-  return (
-    <span aria-hidden className="inline-flex shrink-0 items-center justify-center" style={{ width: w, height }}>
-      <img src={c.src} alt="" style={{ maxWidth: w, maxHeight: height, width: "auto", height: "auto" }} draggable={false} />
-    </span>
-  );
+/** 상품 카드 삽화(원본 분리본, 가로 비율 유지). widthPct 는 카드 안에서 차지하는 가로 비율. */
+export function CardArt({ id, widthPct = 44 }: { id: string; widthPct?: number }) {
+  return <img src={CARD_IMG[id] ?? CARD_IMG["basic"]} alt="" aria-hidden className="block h-auto shrink-0" style={{ width: `${widthPct}%` }} draggable={false} />;
 }
 
-/** 쿠키 아이콘(홈 보조 버튼용). */
+/** 쿠키 아이콘(쿠키 화면용). */
 export function CookieIcon({ className = "" }: { className?: string }) {
   return <img src={ASSETS.cookieIcon} alt="" aria-hidden className={className} draggable={false} />;
 }

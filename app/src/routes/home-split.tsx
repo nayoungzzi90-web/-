@@ -26,7 +26,7 @@ function Home() {
           </h1>
 
           <div className="relative mx-auto mt-5 w-full max-w-[420px]">
-            <img src={ASSETS.homeScene} alt="책을 읽는 또또와 웃는 불꽃 친구" className="block w-full" draggable={false} />
+            <img src={ASSETS.heroBook} alt="책을 읽는 또또" className="mx-auto block w-[60%]" draggable={false} />
             <SpeechBubble className="absolute right-[1%] top-[0%] w-[52%]">{TT.home.speech}</SpeechBubble>
           </div>
 

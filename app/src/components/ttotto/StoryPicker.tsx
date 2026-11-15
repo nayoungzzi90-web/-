@@ -31,7 +31,7 @@ export function ProductGrid() {
               aria-label={`${p.title} ${won(p.price)}. ${p.question}${soon ? ". 준비 중" : ""}`}
             >
               <span className={`flex gap-2 ${last ? "items-center" : "items-start"}`}>
-                <CardArt id={p.id} height={last ? 60 : 34} />
+                <CardArt id={p.id} widthPct={last ? 30 : 34} />
                 <span className="min-w-0 flex-1">
                   <h2>
                     <span>{p.title}</span>
@@ -67,7 +67,7 @@ export function HomeTiles() {
               style={{ background: p.bg }}
               aria-label={`${p.title} ${won(p.price)}. ${p.topics.join(", ")}${soon ? ". 준비 중" : ""}`}
             >
-              <CardArt id={p.id} height={last ? 82 : 68} />
+              <CardArt id={p.id} widthPct={last ? 42 : 46} />
               <span className="min-w-0 flex-1">
                 <span className="tt-tile-head">
                   <span className="tt-tile-title">{p.title}</span>
