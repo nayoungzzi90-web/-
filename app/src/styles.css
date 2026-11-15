@@ -432,3 +432,10 @@ html { scroll-behavior: auto; }
 .tt .tt-t2-grid .tt-t2-on { justify-content: center; }
 .tt .tt-t2-on .tt-go-btn { margin-top: 2px; }
 .tt .tt-t2-grid > li > .tt-t2 { justify-content: center; }
+
+.tt .tt-t2-headline { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: center; gap: 0 6px; }
+.tt .tt-t2-headline .tt-t2-title { font-size: clamp(20px, 5.6vw, 23px); }
+.tt .tt-t2-headline .tt-t2-plain-price { margin-top: 0; font-size: 14px; }
+.tt .tt-t2-grid .tt-t2 { padding: 8px 6px 10px; }
+.tt .tt-t2-grid .tt-t2-art { margin-bottom: 4px; }
+.tt .tt-t2-on .tt-t2-topics { margin-bottom: 0; }
