@@ -18,7 +18,6 @@ import { Route as HomeClassicRouteImport } from './routes/home-classic'
 import { Route as HomeSplitRouteImport } from './routes/home-split'
 import { Route as InputRouteImport } from './routes/input'
 import { Route as InviteRouteImport } from './routes/invite'
-import { Route as QuizRouteImport } from './routes/quiz'
 import { Route as ResultRouteImport } from './routes/result'
 import { Route as SampleRouteImport } from './routes/sample'
 import { Route as StoriesRouteImport } from './routes/stories'
@@ -74,11 +73,6 @@ const InputRoute = InputRouteImport.update({
 const InviteRoute = InviteRouteImport.update({
   id: '/invite',
   path: '/invite',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const QuizRoute = QuizRouteImport.update({
-  id: '/quiz',
-  path: '/quiz',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResultRoute = ResultRouteImport.update({
@@ -147,7 +141,6 @@ export interface FileRoutesByFullPath {
   '/home-split': typeof HomeSplitRoute
   '/input': typeof InputRoute
   '/invite': typeof InviteRoute
-  '/quiz': typeof QuizRoute
   '/result': typeof ResultRoute
   '/sample': typeof SampleRoute
   '/stories': typeof StoriesRoute
@@ -170,7 +163,6 @@ export interface FileRoutesByTo {
   '/home-split': typeof HomeSplitRoute
   '/input': typeof InputRoute
   '/invite': typeof InviteRoute
-  '/quiz': typeof QuizRoute
   '/result': typeof ResultRoute
   '/sample': typeof SampleRoute
   '/stories': typeof StoriesRoute
@@ -194,7 +186,6 @@ export interface FileRoutesById {
   '/home-split': typeof HomeSplitRoute
   '/input': typeof InputRoute
   '/invite': typeof InviteRoute
-  '/quiz': typeof QuizRoute
   '/result': typeof ResultRoute
   '/sample': typeof SampleRoute
   '/stories': typeof StoriesRoute
@@ -219,7 +210,6 @@ export interface FileRouteTypes {
     | '/home-split'
     | '/input'
     | '/invite'
-    | '/quiz'
     | '/result'
     | '/sample'
     | '/stories'
@@ -242,7 +232,6 @@ export interface FileRouteTypes {
     | '/home-split'
     | '/input'
     | '/invite'
-    | '/quiz'
     | '/result'
     | '/sample'
     | '/stories'
@@ -265,7 +254,6 @@ export interface FileRouteTypes {
     | '/home-split'
     | '/input'
     | '/invite'
-    | '/quiz'
     | '/result'
     | '/sample'
     | '/stories'
@@ -289,7 +277,6 @@ export interface RootRouteChildren {
   HomeSplitRoute: typeof HomeSplitRoute
   InputRoute: typeof InputRoute
   InviteRoute: typeof InviteRoute
-  QuizRoute: typeof QuizRoute
   ResultRoute: typeof ResultRoute
   SampleRoute: typeof SampleRoute
   StoriesRoute: typeof StoriesRoute
@@ -366,13 +353,6 @@ declare module '@tanstack/react-router' {
       path: '/invite'
       fullPath: '/invite'
       preLoaderRoute: typeof InviteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/quiz': {
-      id: '/quiz'
-      path: '/quiz'
-      fullPath: '/quiz'
-      preLoaderRoute: typeof QuizRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/result': {
@@ -465,7 +445,6 @@ const rootRouteChildren: RootRouteChildren = {
   HomeSplitRoute: HomeSplitRoute,
   InputRoute: InputRoute,
   InviteRoute: InviteRoute,
-  QuizRoute: QuizRoute,
   ResultRoute: ResultRoute,
   SampleRoute: SampleRoute,
   StoriesRoute: StoriesRoute,
