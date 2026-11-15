@@ -1123,3 +1123,6 @@ html { scroll-behavior: auto; }
   linear-gradient(90deg, #b72e18, #e8452a) 3px 17px / 12px 4px no-repeat,
   linear-gradient(90deg, #9a9a9a, #e6e6e6 50%, #8a8a8a) 8px 20px / 2px 14px no-repeat;
   background-clip: border-box; filter: drop-shadow(2px 3px 2px rgba(0, 0, 0, .3)); border-radius: 0; }
+
+/* v44: 옆에서 본 모양의 빨간 압핀(둥근 머리 + 받침 + 바늘) */
+.tt.tt-home .tt-hero-note::before { width: 24px; height: 40px; right: -6px; top: -20px; border-radius: 0; background: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 40'><path d='M12 21 L13.4 38 L10.6 38Z' fill='%23a8a8a8'/><ellipse cx='12' cy='19' rx='9' ry='3.2' fill='%23b72e18'/><path d='M5 18 C4 6 8 2 12 2 C16 2 20 6 19 18 Z' fill='%23e8452a'/><ellipse cx='12' cy='18' rx='7.2' ry='2.4' fill='%23d63b22'/><path d='M8 14 C7.5 8 9 5.5 11 5' stroke='%23ffb7a0' stroke-width='2.2' fill='none' stroke-linecap='round'/></svg>") center / 100% 100% no-repeat; transform: rotate(14deg); transform-origin: 50% 100%; filter: drop-shadow(2px 3px 2px rgba(0, 0, 0, .28)); }
