@@ -66,7 +66,7 @@ export function HomeTiles() {
               style={{ background: p.bg }}
               aria-label={`${p.title} ${won(p.price)}. ${p.topics.join(", ")}`}
             >
-              <span className="tt-t2-art"><CardArt id={p.id} widthPct={last ? 100 : 56} /></span>
+              <span className="tt-t2-art"><CardArt id={p.id} widthPct={last ? 100 : 70} /></span>
               <span className="tt-t2-headline">
                 <span className="tt-t2-title">{p.title}</span>
                 <span className="tt-t2-plain-price">{won(p.price)}</span>
