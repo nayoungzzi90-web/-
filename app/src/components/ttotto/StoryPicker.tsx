@@ -54,21 +54,19 @@ export const PRICE_NOTE = "가격을 보는 것만으로는 결제되지 않아�
 /** 홈 상품 타일(시안 배치): 삽화 왼쪽, 제목+가격 한 줄, 아래에 주제 줄. 신년운세는 전체 폭. */
 export function HomeTiles() {
   return (
-    <ul className="tt-t2-grid mt-3 grid grid-cols-2 gap-2.5">
+    <ul className="tt-t2-grid mt-3 grid grid-cols-2 gap-3">
       {TT.products.map((p, i) => {
-        const soon = p.to === null;
         const last = i === TT.products.length - 1;
         return (
           <li key={p.id} className={last ? "col-span-2" : undefined}>
             <Link
               to="/story/$id"
               params={{ id: p.id }}
-              className={`tt-t2 ${soon ? "tt-t2-soon" : "tt-t2-on"}`}
+              className={last ? "tt-t2 tt-t2-on tt-t2-wide" : "tt-t2 tt-t2-on"}
               style={{ background: p.bg }}
-              aria-label={`${p.title} ${won(p.price)}. ${p.topics.join(", ")}${soon ? ". 준비 중" : ""}`}
+              aria-label={`${p.title} ${won(p.price)}. ${p.topics.join(", ")}`}
             >
-              {soon && <span className="tt-soon-band">준비 중</span>}
-              <span className="tt-t2-art"><CardArt id={p.id} widthPct={last ? 24 : 52} /></span>
+              <span className="tt-t2-art"><CardArt id={p.id} widthPct={last ? 100 : 56} /></span>
               <span className="tt-t2-headline">
                 <span className="tt-t2-title">{p.title}</span>
                 <span className="tt-t2-plain-price">{won(p.price)}</span>

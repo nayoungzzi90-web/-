@@ -480,3 +480,16 @@ html { scroll-behavior: auto; }
 
 .tt .tt-free-chip { display: inline-block; background: #ff6f45; color: #fff; border: 2px solid var(--tt-ink); border-radius: 999px; padding: 0 10px 1px; font-family: "Jua", sans-serif; font-size: 15px; line-height: 1.5; }
 .tt .tt-hero-speech { width: 42%; left: 37%; }
+
+/* 홈 상품 칸 정리판: 7칸 모두 같은 모양(준비 중 표시·흐림 없음), 눌림 반응 */
+.tt .tt-t2-grid .tt-t2-on { border: 2.5px solid var(--tt-ink); border-radius: 20px; box-shadow: 0 4px 0 var(--tt-ink); padding: 14px 8px 14px; transition: transform .12s ease, box-shadow .12s ease; }
+.tt .tt-t2-grid .tt-t2-on:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--tt-ink); }
+.tt .tt-t2-grid .tt-t2-art { margin-bottom: 8px; }
+.tt .tt-t2-grid .tt-t2-on .tt-t2-topics { margin-top: 5px; margin-bottom: 0; font-size: 14px; color: #3a312b; }
+.tt .tt-t2-grid .tt-t2-wide { flex-direction: row; justify-content: center; gap: 14px; padding: 12px 14px; text-align: left; }
+.tt .tt-t2-grid .tt-t2-wide .tt-t2-art { margin: 0; width: auto; min-height: 0; flex: 0 0 34%; }
+.tt .tt-t2-grid .tt-t2-wide .tt-t2-headline { justify-content: flex-start; }
+.tt .tt-t2-grid .tt-t2-wide .tt-t2-topics { margin-top: 5px; }
+.tt .tt-t2-grid .tt-t2-headline .tt-t2-title { font-size: clamp(19px, 5.2vw, 22px); }
+.tt .tt-t2-grid .tt-t2-headline .tt-t2-plain-price { font-size: 13px; white-space: nowrap; }
+.tt .tt-t2-grid .tt-t2-wide .tt-t2-art { flex: 0 0 38%; }
