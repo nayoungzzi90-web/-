@@ -978,3 +978,6 @@ html { scroll-behavior: auto; }
 @keyframes tt-shine { 0%, 55% { left: -40%; } 100% { left: 130%; } }
 @keyframes tt-glow-ring { 0% { box-shadow: 0 0 0 0 rgba(255, 170, 70, .6); } 70%, 100% { box-shadow: 0 0 0 11px rgba(255, 170, 70, 0); } }
 @keyframes tt-coin-pop { 0%, 50%, 100% { transform: scale(1) rotate(0); } 60% { transform: scale(1.18) rotate(-8deg); } 72% { transform: scale(1) rotate(6deg); } }
+/* 섹션 제목을 조금 위로 */
+.tt.tt-home .tt-wrap > main > section:first-of-type { margin-top: 22px; }
+.tt.tt-home .tt-hero-band + .tt-wrap { padding-top: 0; }
