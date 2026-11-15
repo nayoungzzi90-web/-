@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
-import { CookieClosed, CookieHalf, Hand, TtottoBody } from "@/components/ttotto/Art";
 import {
   OPEN_MS,
   buildCookieResult,
@@ -128,37 +127,27 @@ function DailyCookie() {
             <span aria-hidden className="text-[24px] font-extrabold">←</span>
           </button>
           <span className="tt-header-title">
-            {revealed ? "오늘의 쪽지" : TT.cookie.title}
-            {!revealed && <span className="tt-badge">{TT.home.badge}</span>}
+            {shown ? "오늘의 쪽지" : TT.cookie.title}
+            {!shown && <span className="tt-badge">{TT.home.badge}</span>}
           </span>
         </header>
 
         <main aria-busy={state === "loading" || state === "opening"}>
-          {!revealed && (
+          {!shown && (
             <div className="mt-5 text-center">
               <h1 className="text-[clamp(28px,8vw,34px)] font-extrabold leading-tight">{TT.cookie.headline}</h1>
               <p className="mt-1 text-[17px]">{TT.cookie.subtitle}</p>
             </div>
           )}
-          {revealed && result?.isSample && (
+          {shown && result?.isSample && (
             <p className="mt-4 text-center">
               <span className="tt-badge">{result.kind === "cheer" ? "오늘의 응원 메시지 · 결과 예시" : TT.sampleResult.label}</span>
             </p>
           )}
 
-          <div className={`tt-cookie-stage is-${state} mt-4`} role="img" aria-label={revealed ? "깨진 쿠키를 든 또또" : "쿠키를 든 또또"} style={revealed ? { maxWidth: 240 } : undefined}>
-            <TtottoBody className="tt-sprout" />
-            <Hand className="tt-hand-closed tt-hl" />
-            <Hand className="tt-hand-closed tt-hr" />
-            <CookieClosed className="tt-closed" />
-            <div className="tt-cookie-left">
-              <CookieHalf className="tt-half" />
-              <Hand className="tt-hand-open" />
-            </div>
-            <div className="tt-cookie-right">
-              <CookieHalf flip className="tt-half" />
-              <Hand className="tt-hand-open" />
-            </div>
+          <div className={`tt-art-stage is-${state} mt-4`} role="img" aria-label={shown ? "깨진 쿠키를 든 또또" : "쿠키를 든 또또"}>
+            <img src="/ttotto/cookie_idle.png" alt="" aria-hidden className="tt-art-idle" draggable={false} />
+            <img src="/ttotto/cookie_open.png" alt="" aria-hidden className="tt-art-open" draggable={false} />
           </div>
 
           {shown && result && (

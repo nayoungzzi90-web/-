@@ -1,5 +1,5 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { Book, CookieClosed, Flame, TtottoBody, TtottoFace } from "@/components/ttotto/Art";
+import { CookieClosed, TtottoFace } from "@/components/ttotto/Art";
 import { TT } from "@/lib/ttotto-content";
 
 export const Route = createFileRoute("/")({
@@ -25,20 +25,14 @@ function Home() {
             <br />나의 사주
           </h1>
 
-          <div className="relative mx-auto mt-4 flex w-full max-w-[360px] items-end justify-center pt-16" style={{ minHeight: "clamp(210px, 36dvh, 320px)" }}>
+          <div className="relative mx-auto mt-6 w-full max-w-[420px]">
             <p
-              className="tt-bubble absolute right-0 top-0 max-w-[56%] rounded-[28px] border-[3px] border-[var(--tt-ink)] bg-white px-3 py-2 text-center text-[17px] font-extrabold leading-tight"
+              className="tt-bubble absolute right-0 top-[2%] max-w-[50%] rounded-[28px] border-[3px] border-[var(--tt-ink)] bg-white px-3 py-2 text-center text-[17px] font-extrabold leading-tight"
               style={{ boxShadow: "0 3px 0 rgba(40,35,31,.15)" }}
             >
               {TT.home.speech}
             </p>
-            <div className="relative flex w-full items-end justify-center gap-1">
-              <div className="relative w-[58%]">
-                <TtottoBody className="w-full" label="책을 든 또또" />
-                <Book className="absolute bottom-[2%] left-[22%] w-[48%]" />
-              </div>
-              <Flame className="mb-1 w-[30%]" />
-            </div>
+            <img src="/ttotto/home_art.png" alt="책을 든 또또와 불꽃 친구" className="block w-full" style={{ mixBlendMode: "multiply" }} draggable={false} />
           </div>
 
           <div className="mt-5 space-y-3">

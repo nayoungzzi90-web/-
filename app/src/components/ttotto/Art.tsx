@@ -3,20 +3,9 @@
 const INK = "#28231f";
 const ORANGE = "#ff7049";
 
+/** 로고 얼굴: 디자인 보드에서 가져온 임시 래스터(고해상 원본으로 교체 예정). */
 export function TtottoFace({ size = 34 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 120 120" aria-hidden focusable="false">
-      <path d="M60 48 Q61 30 57 20" stroke={INK} strokeWidth="5" fill="none" strokeLinecap="round" />
-      <path d="M57 22 C38 6 16 14 20 32 C38 36 52 34 57 22Z" fill="#8fd14f" stroke={INK} strokeWidth="4" strokeLinejoin="round" />
-      <path d="M60 28 C74 12 96 18 92 32 C80 38 66 36 60 28Z" fill="#a7de63" stroke={INK} strokeWidth="4" strokeLinejoin="round" />
-      <ellipse cx="60" cy="80" rx="46" ry="34" fill="#fffdf4" stroke={INK} strokeWidth="4" />
-      <path d="M38 66 L52 72 M82 66 L68 72" stroke={INK} strokeWidth="5" strokeLinecap="round" />
-      <circle cx="48" cy="82" r="3.6" fill={INK} />
-      <circle cx="72" cy="82" r="3.6" fill={INK} />
-      <path d="M28 88 l6 -4 M30 96 l6 -4 M92 88 l-6 -4 M90 96 l-6 -4" stroke={ORANGE} strokeWidth="3" strokeLinecap="round" />
-      <path d="M54 94 Q60 102 66 94" stroke={INK} strokeWidth="3" fill="#ff8a7a" strokeLinecap="round" />
-    </svg>
-  );
+  return <img src="/ttotto/face.png" alt="" aria-hidden width={size} height={size} style={{ width: size, height: "auto", maxHeight: size }} draggable={false} />;
 }
 
 /** 몸통과 얼굴만(손·소품은 각 장면에서 따로 얹는다). */
@@ -91,13 +80,14 @@ export function Calendar({ className = "" }: { className?: string }) {
   );
 }
 
-/** 상품 카드 안의 작은 삽화: 또또 얼굴에 상품별 소품(책·불꽃·달력). */
+const CARD_IMG: Record<string, string> = {
+  basic: "/ttotto/card_basic.png",
+  love: "/ttotto/card_love.png",
+  compatibility: "/ttotto/card_compat.png",
+  date: "/ttotto/card_date.png",
+  year: "/ttotto/card_year.png",
+};
+/** 상품 카드 안의 작은 삽화(디자인 보드에서 가져온 임시 래스터). */
 export function CardArt({ id, size = 40 }: { id: string; size?: number }) {
-  const prop = id === "basic" ? <Book className="absolute -bottom-1 -right-3 w-[62%]" /> : id === "date" ? <Calendar className="absolute -bottom-1 -right-3 w-[56%]" /> : <Flame className="absolute -bottom-1 -right-3 w-[48%]" />;
-  return (
-    <span className="relative mr-3 inline-block shrink-0" style={{ width: size, height: size }} aria-hidden>
-      <TtottoFace size={size} />
-      {prop}
-    </span>
-  );
+  return <img src={CARD_IMG[id] ?? CARD_IMG["basic"]} alt="" aria-hidden className="mr-2 shrink-0" style={{ width: size * 1.5, height: "auto", maxHeight: size * 1.5 }} draggable={false} />;
 }

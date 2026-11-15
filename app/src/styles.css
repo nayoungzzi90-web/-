@@ -327,3 +327,17 @@ body {
 .dancheong { display: none; }
 .tt-card { padding: 10px 12px; }
 .tt-card h2 { font-size: 17px; }
+
+/* 또또 래스터 장면(디자인 보드에서 가져온 임시 이미지): 쿠키 든 또또 → 쿠키가 갈라진 또또 */
+.tt-art-stage { display: grid; width: 100%; max-width: 300px; margin-left: auto; margin-right: auto; }
+.tt-art-stage > img { grid-area: 1 / 1; width: 100%; height: auto; align-self: end; }
+.tt-art-stage .tt-art-open { opacity: 0; }
+.tt-art-stage.is-loading .tt-art-idle { animation: tt-gather 150ms ease-out both; }
+.tt-art-stage.is-opening .tt-art-idle { animation: tt-fade-out 260ms 120ms ease-in both; }
+.tt-art-stage.is-opening .tt-art-open { animation: tt-art-open 640ms 160ms cubic-bezier(.2,.8,.2,1) both; }
+.tt-art-stage.is-revealed { max-width: 340px; }
+.tt-art-stage.is-revealed .tt-art-idle { display: none; }
+.tt-art-stage.is-revealed .tt-art-open { opacity: 1; }
+@keyframes tt-fade-out { from { opacity: 1; transform: scale(.96); } to { opacity: 0; transform: scale(.9); } }
+@keyframes tt-art-open { from { opacity: 0; transform: scale(.86) translateY(8px); } 60% { opacity: 1; transform: scale(1.04) translateY(0); } to { opacity: 1; transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) { .tt-art-stage * { animation: none !important; } }
