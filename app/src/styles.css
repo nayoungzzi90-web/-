@@ -1026,3 +1026,6 @@ html { scroll-behavior: auto; }
 .tt.tt-home .tt-hero-tag-wrap { width: 176px; }
 .tt.tt-home .tt-hero-tag { width: 176px; height: 34px; font-size: 15px; }
 .tt.tt-home .tt-hero-tag-wrap::before { top: -8px; width: 38px; height: 12px; margin-left: -19px; }
+
+/* 홈 v28: 테이프를 모서리에 비스듬히 — 민트색 물방울 마스킹 테이프(끝은 뜯긴 모양) */
+.tt.tt-home .tt-hero-tag-wrap::before { left: -12px; top: -7px; margin-left: 0; width: 50px; height: 15px; transform: rotate(-36deg); background-color: rgba(176, 226, 205, .92); background-image: radial-gradient(rgba(255, 255, 255, .95) 1.7px, transparent 1.9px); background-size: 8px 8px; filter: drop-shadow(0 1px 1.5px rgba(40, 100, 80, .28)); }
