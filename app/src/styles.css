@@ -493,3 +493,9 @@ html { scroll-behavior: auto; }
 .tt .tt-t2-grid .tt-t2-headline .tt-t2-title { font-size: clamp(19px, 5.2vw, 22px); }
 .tt .tt-t2-grid .tt-t2-headline .tt-t2-plain-price { font-size: 13px; white-space: nowrap; }
 .tt .tt-t2-grid .tt-t2-wide .tt-t2-art { flex: 0 0 38%; }
+
+/* 칸마다 그림 상자 크기를 같게 → 제목·가격·키워드 위치가 옆 칸과 맞는다 */
+.tt .tt-t2-grid > li:not(.col-span-2) .tt-t2-art { width: 92%; height: clamp(104px, 31vw, 124px); min-height: 0; margin-bottom: 8px; flex: none; }
+.tt .tt-t2-grid > li:not(.col-span-2) > .tt-t2 { justify-content: flex-start; }
+.tt .tt-t2-grid .tt-t2-headline { min-height: 30px; align-items: center; }
+.tt .tt-t2-grid > li:not(.col-span-2) .tt-t2-art { width: 96%; height: clamp(92px, 27vw, 108px); }

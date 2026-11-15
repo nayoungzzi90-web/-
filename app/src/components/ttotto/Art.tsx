@@ -28,12 +28,15 @@ const CARD_IMG: Record<string, string> = {
   career: L("card-career"),
 };
 /** 상품 카드 삽화(원본 분리본, 가로 비율 유지). widthPct 는 카드 안에서 차지하는 가로 비율. */
-export function CardArt({ id, widthPct = 44 }: { id: string; widthPct?: number }) {
-  // 재물운·직업운 그림은 세로로 긴 원본이라 폭이 아니라 높이로 맞춘다(다른 칸과 비슷한 크기).
+export function CardArt({ id, widthPct = 44, fit = false }: { id: string; widthPct?: number; fit?: boolean }) {
+  const src = CARD_IMG[id] ?? CARD_IMG["basic"];
+  // fit: 정해진 크기 상자 안에 비율을 지키며 맞춘다(칸마다 그림 크기·글자 위치를 같게 하려는 용도).
+  if (fit) return <img src={src} alt="" aria-hidden className="block h-full w-full object-contain object-bottom" draggable={false} />;
+  // 재물운·직업운 그림은 세로로 긴 원본이라 폭이 아니라 높이로 맞춘다.
   if (id === "money" || id === "career") {
-    return <img src={CARD_IMG[id]} alt="" aria-hidden className="block shrink-0" style={{ height: `${Math.round(widthPct * 1.9)}px`, width: "auto", maxHeight: "112px" }} draggable={false} />;
+    return <img src={src} alt="" aria-hidden className="block shrink-0" style={{ height: `${Math.round(widthPct * 1.9)}px`, width: "auto", maxHeight: "112px" }} draggable={false} />;
   }
-  return <img src={CARD_IMG[id] ?? CARD_IMG["basic"]} alt="" aria-hidden className="block h-auto shrink-0" style={{ width: `${widthPct}%` }} draggable={false} />;
+  return <img src={src} alt="" aria-hidden className="block h-auto shrink-0" style={{ width: `${widthPct}%` }} draggable={false} />;
 }
 
 /** 쿠키 아이콘(쿠키 화면용). */
