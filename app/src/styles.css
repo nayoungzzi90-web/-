@@ -508,3 +508,4 @@ html { scroll-behavior: auto; }
 /* 상품 칸: 그림 영역과 글자 영역을 점선으로 나눈다 */
 .tt .tt-t2-grid > li:not(.col-span-2) .tt-t2-art { height: clamp(100px, 29vw, 116px); padding-bottom: 8px; margin-bottom: 10px; border-bottom: 2.5px dotted rgba(27, 22, 19, .38); }
 .tt .tt-t2-grid .tt-t2-wide .tt-t2-art { border-right: 2.5px dotted rgba(27, 22, 19, .38); padding-right: 12px; align-self: stretch; display: flex; align-items: center; }
+.tt .tt-hero-speech .tt-bubble-text { -webkit-text-stroke: 0; font-family: "Gowun Dodum", "Apple SD Gothic Neo", sans-serif; font-weight: 400; font-size: clamp(15px, 4.5vw, 19px); }
