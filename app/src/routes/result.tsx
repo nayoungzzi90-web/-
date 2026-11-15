@@ -109,7 +109,7 @@ function Result() {
             ].map((t) => (
               <span
                 key={t}
-                className="rounded-full border-2 border-[var(--tt-ink)] bg-white px-2.5 py-0.5 text-[13px] font-extrabold"
+                className="rounded-full border border-[var(--hair)] bg-white px-2.5 py-0.5 text-[13px] font-extrabold"
               >
                 {t}
               </span>
@@ -118,7 +118,7 @@ function Result() {
         </div>
 
         {concern.trim() && (
-          <div className="relative mt-5 rounded-md border-2 border-dashed border-[var(--ink-soft)] bg-[#fffdf5] p-4">
+          <div className="relative mt-5 rounded-md border border-dashed border-[#cdbd9f] bg-[#fffdf5] p-4">
             <span className="absolute -top-2.5 left-4 rotate-[-2deg] rounded bg-[var(--stamp)] px-2 py-0.5 text-[11px] font-extrabold text-white">
               내가 적어둔 고민
             </span>
@@ -129,7 +129,7 @@ function Result() {
         {verdict && (
           <div className="hj-card relative mt-3 bg-[var(--tt-lavender)] px-4 pb-4 pt-5 text-[var(--tt-ink)]">
             <span
-              className="font-display absolute -right-2 -top-3 flex h-14 w-14 rotate-12 items-center justify-center rounded-full border-[3px] border-[var(--tt-orange)] bg-white text-[var(--tt-orange)]"
+              className="font-display absolute -right-2 -top-3 flex h-14 w-14 rotate-12 items-center justify-center rounded-full border-2 border-[var(--tt-orange)] bg-white text-[var(--tt-orange)]"
               aria-hidden
             >
               점괘
@@ -138,19 +138,19 @@ function Result() {
               또또의 한 줄 판정 · 고민 분류 &lsquo;{verdict.category}
               &rsquo;
             </p>
-            <p className="mt-1 pr-10 font-display text-[clamp(22px,6.4vw,26px)] leading-tight">
+            <p className="mt-1 pr-10 font-display text-[clamp(21px,6vw,24px)] leading-snug tt-verdict-head">
               {ko(verdict.headline)}
             </p>
             <p className="mt-2 text-[15px] leading-relaxed">
               {ko(verdict.text)}
             </p>
-            <p className="mt-2 rounded-xl border-2 border-[var(--tt-ink)] bg-white p-3 text-[15px] leading-relaxed">
+            <p className="mt-2 rounded-xl border border-[var(--hair)] bg-white p-3 text-[15px] leading-relaxed">
               <span className="font-extrabold text-[var(--tt-orange)]">
                 이 고민에서 나는{" "}
               </span>
               {ko(verdict.personal)}
             </p>
-            <div className="mt-3 rounded-xl border-2 border-[var(--tt-ink)] bg-white p-3 text-[15px]">
+            <div className="mt-3 rounded-xl border border-[var(--hair)] bg-white p-3 text-[15px]">
               <p className="font-extrabold text-[var(--tt-orange)]">이번 주 해볼 일</p>
               <ul className="mt-1 space-y-0.5">
                 {verdict.todo.map((t) => (
@@ -202,7 +202,7 @@ function Result() {
             <a
               key={c.id}
               href={`#${c.id}`}
-              className="inline-flex min-h-[40px] items-center rounded-full border-2 border-[var(--tt-ink)] bg-[var(--tt-yellow)] px-3 text-[14px] font-extrabold"
+              className="inline-flex min-h-[40px] items-center rounded-full border border-[var(--hair)] bg-[var(--tt-yellow)] px-3 text-[14px] font-extrabold"
             >
               {i + 1}. {c.title}
             </a>

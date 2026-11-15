@@ -10,9 +10,9 @@ const choice = (on: boolean) =>
   `rounded-xl border-2 border-[var(--line)] py-2.5 font-extrabold ${on ? "bg-[var(--to)] shadow-[3px_3px_0_var(--line)]" : "bg-[#fffdf5]"}`;
 // 또또사주 화면(궁합 등)에서 쓰는 모양. 동작은 같고 클래스만 다르다.
 const ttBox =
-  "w-full rounded-[14px] border-[2.5px] border-[var(--tt-ink)] bg-white px-3 py-3 text-[17px] outline-none focus:border-[var(--tt-orange)]";
+  "w-full rounded-[14px] border-[1.5px] border-[#d6c7ab] bg-white px-3.5 py-3 text-[17px] outline-none focus:border-[var(--tt-orange)]";
 const ttChoice = (on: boolean) =>
-  `rounded-[14px] border-[2.5px] border-[var(--tt-ink)] py-3 text-[17px] font-extrabold ${on ? "bg-[#ffe9a6] shadow-[0_3px_0_var(--tt-ink)]" : "bg-white"}`;
+  `rounded-[14px] border-[1.5px] py-3 text-[17px] font-bold ${on ? "border-[#e0a84a] bg-[#fff0c2]" : "border-[#d6c7ab] bg-white"}`;
 
 // 생년월일 입력 폼(본인·상대 공용). 검증은 계산 엔진의 파서가 한다.
 export function BirthForm({
@@ -31,7 +31,7 @@ export function BirthForm({
   const tt = tone === "tt";
   const box_ = tt ? ttBox : box;
   const choice_ = tt ? ttChoice : choice;
-  const lab = tt ? "mb-1 block text-[15px] font-extrabold" : "mb-1 block text-sm font-extrabold";
+  const lab = tt ? "mb-1.5 block text-[15px] font-bold text-[var(--tt-muted)]" : "mb-1 block text-sm font-extrabold";
   const [name, setName] = useState(initial?.name ?? "");
   const [cal, setCal] = useState<"solar" | "lunar">(
     initial?.calendar ?? "solar",

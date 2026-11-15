@@ -40,7 +40,7 @@ function Concern() {
               key={c}
               type="button"
               onClick={() => setStore({ concern: c })}
-              className="min-h-[44px] rounded-full border-[2.5px] border-[var(--tt-ink)] bg-[var(--tt-yellow)] px-3.5 py-1.5 text-[15px] font-bold"
+              className="min-h-[44px] rounded-full border border-[var(--hair)] bg-[var(--tt-yellow)] px-3.5 py-1.5 text-[15px] font-bold"
             >
               {c}
             </button>
@@ -53,9 +53,9 @@ function Concern() {
           rows={6}
           onChange={(e) => setStore({ concern: e.target.value.slice(0, MAX) })}
           placeholder="구체적으로 적을수록 풀이가 내 상황에 가까워져요. (선택)"
-          className="mt-3 w-full rounded-[16px] border-[2.5px] border-[var(--tt-ink)] bg-white p-3.5 text-[17px] leading-relaxed outline-none focus:border-[var(--tt-orange)]"
+          className="mt-3 w-full rounded-[16px] border border-[var(--hair)] bg-white p-3.5 text-[17px] leading-relaxed outline-none focus:border-[var(--tt-orange)]"
         />
-        <div className="mt-2 h-3.5 overflow-hidden rounded-full border-[2.5px] border-[var(--tt-ink)] bg-white">
+        <div className="mt-2 h-3.5 overflow-hidden rounded-full border border-[var(--hair)] bg-white">
           <div className="h-full bg-[#ff6f45] transition-all" style={{ width: `${(n / MAX) * 100}%` }} />
         </div>
         <div className="mt-2 flex items-center gap-2">

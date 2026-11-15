@@ -7,7 +7,7 @@ export function TtShell({ title, children, pb = "pb-10" }: { title: string; chil
   const nav = useNavigate();
   const back = () => (window.history.length > 1 ? window.history.back() : void nav({ to: "/" }));
   return (
-    <div className="tt">
+    <div className="tt tt-soft">
       <div className={`tt-wrap ${pb}`}>
         <header className="tt-header">
           <button type="button" className="tt-back" onClick={back} aria-label="뒤로 가기">
@@ -18,7 +18,7 @@ export function TtShell({ title, children, pb = "pb-10" }: { title: string; chil
             <TtottoFace size={32} />
           </Link>
         </header>
-        <main className="mt-4">{children}</main>
+        <main>{children}</main>
       </div>
     </div>
   );

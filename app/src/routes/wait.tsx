@@ -42,10 +42,10 @@ function Wait() {
       <section className="text-center">
         <p className="text-[15px] font-bold text-[var(--tt-orange)]">또또가 이야기를 쓰는 중</p>
         <h1 className="mt-1 text-[clamp(26px,7.4vw,30px)] leading-tight">{COPY[Math.min(3, Math.floor(pct / 26))]}</h1>
-        <div className="tt-wait-card mt-5 overflow-hidden rounded-[20px] border-[2.5px] border-[var(--tt-ink)] bg-[var(--tt-yellow)] px-4 pt-5 shadow-[0_4px_0_var(--tt-ink)]">
+        <div className="tt-wait-card mt-5 overflow-hidden rounded-[20px] border border-[var(--hair)] bg-[var(--tt-yellow)] px-4 pt-5">
           <img src={ASSETS.heroBook} alt="" aria-hidden className="tt-wait-art mx-auto block w-[52%]" draggable={false} />
         </div>
-        <div className="mt-5 h-5 overflow-hidden rounded-full border-[2.5px] border-[var(--tt-ink)] bg-white">
+        <div className="mt-5 h-5 overflow-hidden rounded-full border border-[var(--hair)] bg-white">
           <div className="h-full bg-[#ff6f45] transition-all" style={{ width: `${pct}%` }} />
         </div>
         <p className="mt-2 text-[20px] font-extrabold">{pct}%</p>

@@ -11,16 +11,16 @@ function InputPage() {
   const { me, invite } = useStore();
   return (
     <TtShell title="내 사주">
-      <section className="flex items-end gap-2 rounded-[20px] border-[2.5px] border-[var(--tt-ink)] bg-[var(--tt-green)] px-3 pb-0 pt-3 shadow-[0_4px_0_var(--tt-ink)]">
+      <section className="flex items-end gap-2 rounded-[20px] border border-[var(--hair)] bg-[var(--tt-green)] px-3 pb-0 pt-3">
         <img src={ASSETS.heroBook} alt="" aria-hidden className="block w-[36%] shrink-0" draggable={false} />
-        <div className="mb-4 flex-1 rounded-[18px] border-[2.5px] border-[var(--tt-ink)] bg-white px-3 py-2.5">
+        <div className="mb-4 flex-1 rounded-[18px] border border-[var(--hair)] bg-white px-3 py-2.5">
           <p className="text-[18px] font-extrabold leading-snug [word-break:keep-all]">
             {invite ? "내 정보를 넣으면 바로 궁합을 볼 수 있어요!" : "생년월일을 알려주면 또또가 내 사주를 풀어줄게!"}
           </p>
         </div>
       </section>
 
-      <section className="mt-4 rounded-[20px] border-[2.5px] border-[var(--tt-ink)] bg-white p-4">
+      <section className="mt-4 rounded-[20px] border border-[var(--hair)] bg-white p-4">
         <BirthForm
           tone="tt"
           initial={me}

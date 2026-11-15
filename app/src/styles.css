@@ -622,3 +622,32 @@ html { scroll-behavior: auto; }
 .tt.tt-home .tt-rows .tt-row { padding: 12px 16px 12px 12px; min-height: 72px; }
 .tt.tt-home .tt-cookie-box { margin-top: 18px; min-height: 116px; padding: 14px 16px 14px 32%; }
 .tt.tt-home .tt-home-foot { margin-top: 48px; padding-top: 20px; gap: 6px 12px; line-height: 1.6; }
+
+/* ===== 공통 정리판(.tt-soft): 입력·궁합·고민·결과 등 홈 밖 화면에도 같은 가벼운 규칙 ===== */
+.tt { --hair: #eadfcd; }
+.tt-soft { --line: #e3d6bd; --ink-soft: #625c55; background: #fffaf2; }
+.tt-soft .tt-wrap { padding-left: 24px; padding-right: 24px; }
+.tt-soft .tt-header { padding: 18px 0 14px; border-bottom: 1px solid var(--hair); }
+.tt-soft main { margin-top: 24px; }
+.tt-soft .hj-card { border: 1px solid var(--hair); box-shadow: none; margin-top: 20px; background: #fff; }
+.tt-soft [class*="border-[3px]"], .tt-soft [class*="border-[2.5px]"] { border-width: 1px; }
+.tt-soft .tt-btn.tt-primary { border: 0; box-shadow: none; border-radius: 16px; min-height: 56px; font-size: clamp(19px, 5.6vw, 21px); }
+.tt-soft .tt-btn.tt-sub { border: 1px solid var(--hair); box-shadow: none; border-radius: 16px; background: #fff; min-height: 52px; font-size: 17px; }
+/* 모바일에서 너무 작은 글자 키우기(표·보조 설명) */
+.tt-soft [class*="text-[10px]"], .tt-soft [class*="text-[11px]"] { font-size: 12.5px; }
+.tt-soft [class*="text-[12px]"], .tt-soft .text-xs { font-size: 13.5px; }
+.tt-soft [class*="text-[13px]"] { font-size: 14.5px; }
+/* 만세력 표 머리글: 진한 파랑 대신 연한 크림 */
+.tt-soft [aria-label="만세력"] > h2 { background: #fff0c2; color: var(--tt-ink); }
+.tt-soft [aria-label="만세력"] { overflow: hidden; }
+/* 풀이 카드 본문 줄 간격 */
+.tt-soft article.hj-card { padding: 24px 22px 26px; }
+.tt-soft article.hj-card > div:last-child { line-height: 1.8; }
+/* 결과: 구역 제목·장 번호 */
+.tt-soft section[id^="ch-"] > h3 { margin-top: 36px; }
+.tt-soft main h3.font-display { margin-top: 0; }
+.tt-soft section[id^="ch-"] > h3.font-display { margin-top: 36px; }
+
+.tt-soft .tt-verdict-head { word-break: keep-all; }
+.tt-soft details[aria-label="만세력 참고 표"] { margin-top: 28px; }
+.tt-soft main nav[aria-label="풀이 바로가기"] { gap: 8px; margin-top: 14px; }
