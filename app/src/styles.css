@@ -981,3 +981,7 @@ html { scroll-behavior: auto; }
 /* 섹션 제목을 조금 위로 */
 .tt.tt-home .tt-wrap > main > section:first-of-type { margin-top: 22px; }
 .tt.tt-home .tt-hero-band + .tt-wrap { padding-top: 0; }
+/* 섹션 제목 글씨만 위로(나머지는 원래 자리) */
+.tt.tt-home .tt-wrap > main > section:first-of-type { margin-top: 40px; }
+.tt.tt-home .tt-hero-band + .tt-wrap { padding-top: 6px; }
+.tt.tt-home #tt-stories-title { position: relative; top: -16px; }
