@@ -1116,3 +1116,10 @@ html { scroll-behavior: auto; }
 
 /* v42: 흰 종이 조각 삭제, 빨간 압핀만 오른쪽 위에 */
 .tt.tt-home .tt-hero-note::after { display: none; }
+
+/* v43: 맨 오른쪽 위, 밑에 바늘이 달린 빨간 압핀 */
+.tt.tt-home .tt-hero-note::before { width: 18px; height: 34px; right: -4px; top: -17px; margin-left: 0; border-radius: 0; transform: rotate(18deg); transform-origin: 50% 100%; box-shadow: none; background:
+  radial-gradient(circle at 35% 30%, #ff9a7a 0 18%, #e8452a 45%, #b72e18 69%, transparent 71%) 0 0 / 18px 18px no-repeat,
+  linear-gradient(90deg, #b72e18, #e8452a) 3px 17px / 12px 4px no-repeat,
+  linear-gradient(90deg, #9a9a9a, #e6e6e6 50%, #8a8a8a) 8px 20px / 2px 14px no-repeat;
+  background-clip: border-box; filter: drop-shadow(2px 3px 2px rgba(0, 0, 0, .3)); border-radius: 0; }
