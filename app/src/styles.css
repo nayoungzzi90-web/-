@@ -1110,3 +1110,6 @@ html { scroll-behavior: auto; }
 
 /* v40: 노란 메모 위쪽 가운데를 빨간 압핀으로 고정 */
 .tt.tt-home .tt-hero-note::before { display: block; content: ""; position: absolute; inset: auto; left: 50%; top: -9px; z-index: 3; width: 16px; height: 16px; margin-left: -8px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #ff9a7a 0 25%, #e8452a 60%, #b72e18 100%); transform: none; clip-path: none; box-shadow: 0 3px 3px rgba(0, 0, 0, .28); }
+
+/* v41: 압핀을 가운데가 아니라 오른쪽 위(흰 종이 조각 자리)로 */
+.tt.tt-home .tt-hero-note::before { left: auto; right: 6px; top: -8px; margin-left: 0; }
