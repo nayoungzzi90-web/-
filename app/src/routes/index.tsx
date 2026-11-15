@@ -25,16 +25,9 @@ function Home() {
             <br />나의 사주
           </h1>
 
-          <div className="relative mx-auto mt-6 w-full max-w-[420px]">
-            <p
-              className="tt-bubble absolute right-0 top-[2%] max-w-[50%] rounded-[28px] border-[3px] border-[var(--tt-ink)] bg-white px-3 py-2 text-center text-[17px] font-extrabold leading-tight"
-              style={{ boxShadow: "0 3px 0 rgba(40,35,31,.15)" }}
-            >
-              {TT.home.speech}
-            </p>
-            <div className="pt-[20%]">
-              <img src={ASSETS.homeScene} alt="책을 읽는 또또와 웃는 불꽃 친구" className="block w-full" draggable={false} />
-            </div>
+          <div className="relative mx-auto mt-5 w-full max-w-[420px]">
+            <img src={ASSETS.homeScene} alt="책을 읽는 또또와 웃는 불꽃 친구" className="block w-full" draggable={false} />
+            <p className="tt-bubble tt-bubble-home">{TT.home.speech}</p>
           </div>
 
           <div className="mt-5 space-y-3">
