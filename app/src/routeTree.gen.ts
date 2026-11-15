@@ -13,12 +13,14 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AiTrialRouteImport } from './routes/ai-trial'
 import { Route as CompatRouteImport } from './routes/compat'
 import { Route as ConcernRouteImport } from './routes/concern'
+import { Route as DailyCookieRouteImport } from './routes/daily-cookie'
 import { Route as HomeClassicRouteImport } from './routes/home-classic'
 import { Route as InputRouteImport } from './routes/input'
 import { Route as InviteRouteImport } from './routes/invite'
 import { Route as QuizRouteImport } from './routes/quiz'
 import { Route as ResultRouteImport } from './routes/result'
 import { Route as SampleRouteImport } from './routes/sample'
+import { Route as StoriesRouteImport } from './routes/stories'
 import { Route as StyleRouteImport } from './routes/style'
 import { Route as TodayRouteImport } from './routes/today'
 import { Route as WaitRouteImport } from './routes/wait'
@@ -26,6 +28,7 @@ import { Route as RestoreChargeRouteImport } from './routes/restore.charge'
 import { Route as RestoreGuideRouteImport } from './routes/restore.guide'
 import { Route as RestoreHomeRouteImport } from './routes/restore.home'
 import { Route as RestoreResultRouteImport } from './routes/restore.result'
+import { Route as StoryIdRouteImport } from './routes/story.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -45,6 +48,11 @@ const CompatRoute = CompatRouteImport.update({
 const ConcernRoute = ConcernRouteImport.update({
   id: '/concern',
   path: '/concern',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DailyCookieRoute = DailyCookieRouteImport.update({
+  id: '/daily-cookie',
+  path: '/daily-cookie',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HomeClassicRoute = HomeClassicRouteImport.update({
@@ -75,6 +83,11 @@ const ResultRoute = ResultRouteImport.update({
 const SampleRoute = SampleRouteImport.update({
   id: '/sample',
   path: '/sample',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StoriesRoute = StoriesRouteImport.update({
+  id: '/stories',
+  path: '/stories',
   getParentRoute: () => rootRouteImport,
 } as any)
 const StyleRoute = StyleRouteImport.update({
@@ -112,18 +125,25 @@ const RestoreResultRoute = RestoreResultRouteImport.update({
   path: '/restore/result',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StoryIdRoute = StoryIdRouteImport.update({
+  id: '/story/$id',
+  path: '/story/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/ai-trial': typeof AiTrialRoute
   '/compat': typeof CompatRoute
   '/concern': typeof ConcernRoute
+  '/daily-cookie': typeof DailyCookieRoute
   '/home-classic': typeof HomeClassicRoute
   '/input': typeof InputRoute
   '/invite': typeof InviteRoute
   '/quiz': typeof QuizRoute
   '/result': typeof ResultRoute
   '/sample': typeof SampleRoute
+  '/stories': typeof StoriesRoute
   '/style': typeof StyleRoute
   '/today': typeof TodayRoute
   '/wait': typeof WaitRoute
@@ -131,18 +151,21 @@ export interface FileRoutesByFullPath {
   '/restore/guide': typeof RestoreGuideRoute
   '/restore/home': typeof RestoreHomeRoute
   '/restore/result': typeof RestoreResultRoute
+  '/story/$id': typeof StoryIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/ai-trial': typeof AiTrialRoute
   '/compat': typeof CompatRoute
   '/concern': typeof ConcernRoute
+  '/daily-cookie': typeof DailyCookieRoute
   '/home-classic': typeof HomeClassicRoute
   '/input': typeof InputRoute
   '/invite': typeof InviteRoute
   '/quiz': typeof QuizRoute
   '/result': typeof ResultRoute
   '/sample': typeof SampleRoute
+  '/stories': typeof StoriesRoute
   '/style': typeof StyleRoute
   '/today': typeof TodayRoute
   '/wait': typeof WaitRoute
@@ -150,6 +173,7 @@ export interface FileRoutesByTo {
   '/restore/guide': typeof RestoreGuideRoute
   '/restore/home': typeof RestoreHomeRoute
   '/restore/result': typeof RestoreResultRoute
+  '/story/$id': typeof StoryIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -157,12 +181,14 @@ export interface FileRoutesById {
   '/ai-trial': typeof AiTrialRoute
   '/compat': typeof CompatRoute
   '/concern': typeof ConcernRoute
+  '/daily-cookie': typeof DailyCookieRoute
   '/home-classic': typeof HomeClassicRoute
   '/input': typeof InputRoute
   '/invite': typeof InviteRoute
   '/quiz': typeof QuizRoute
   '/result': typeof ResultRoute
   '/sample': typeof SampleRoute
+  '/stories': typeof StoriesRoute
   '/style': typeof StyleRoute
   '/today': typeof TodayRoute
   '/wait': typeof WaitRoute
@@ -170,6 +196,7 @@ export interface FileRoutesById {
   '/restore/guide': typeof RestoreGuideRoute
   '/restore/home': typeof RestoreHomeRoute
   '/restore/result': typeof RestoreResultRoute
+  '/story/$id': typeof StoryIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -178,12 +205,14 @@ export interface FileRouteTypes {
     | '/ai-trial'
     | '/compat'
     | '/concern'
+    | '/daily-cookie'
     | '/home-classic'
     | '/input'
     | '/invite'
     | '/quiz'
     | '/result'
     | '/sample'
+    | '/stories'
     | '/style'
     | '/today'
     | '/wait'
@@ -191,18 +220,21 @@ export interface FileRouteTypes {
     | '/restore/guide'
     | '/restore/home'
     | '/restore/result'
+    | '/story/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/ai-trial'
     | '/compat'
     | '/concern'
+    | '/daily-cookie'
     | '/home-classic'
     | '/input'
     | '/invite'
     | '/quiz'
     | '/result'
     | '/sample'
+    | '/stories'
     | '/style'
     | '/today'
     | '/wait'
@@ -210,18 +242,21 @@ export interface FileRouteTypes {
     | '/restore/guide'
     | '/restore/home'
     | '/restore/result'
+    | '/story/$id'
   id:
     | '__root__'
     | '/'
     | '/ai-trial'
     | '/compat'
     | '/concern'
+    | '/daily-cookie'
     | '/home-classic'
     | '/input'
     | '/invite'
     | '/quiz'
     | '/result'
     | '/sample'
+    | '/stories'
     | '/style'
     | '/today'
     | '/wait'
@@ -229,6 +264,7 @@ export interface FileRouteTypes {
     | '/restore/guide'
     | '/restore/home'
     | '/restore/result'
+    | '/story/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -236,12 +272,14 @@ export interface RootRouteChildren {
   AiTrialRoute: typeof AiTrialRoute
   CompatRoute: typeof CompatRoute
   ConcernRoute: typeof ConcernRoute
+  DailyCookieRoute: typeof DailyCookieRoute
   HomeClassicRoute: typeof HomeClassicRoute
   InputRoute: typeof InputRoute
   InviteRoute: typeof InviteRoute
   QuizRoute: typeof QuizRoute
   ResultRoute: typeof ResultRoute
   SampleRoute: typeof SampleRoute
+  StoriesRoute: typeof StoriesRoute
   StyleRoute: typeof StyleRoute
   TodayRoute: typeof TodayRoute
   WaitRoute: typeof WaitRoute
@@ -249,6 +287,7 @@ export interface RootRouteChildren {
   RestoreGuideRoute: typeof RestoreGuideRoute
   RestoreHomeRoute: typeof RestoreHomeRoute
   RestoreResultRoute: typeof RestoreResultRoute
+  StoryIdRoute: typeof StoryIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -279,6 +318,13 @@ declare module '@tanstack/react-router' {
       path: '/concern'
       fullPath: '/concern'
       preLoaderRoute: typeof ConcernRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/daily-cookie': {
+      id: '/daily-cookie'
+      path: '/daily-cookie'
+      fullPath: '/daily-cookie'
+      preLoaderRoute: typeof DailyCookieRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/home-classic': {
@@ -321,6 +367,13 @@ declare module '@tanstack/react-router' {
       path: '/sample'
       fullPath: '/sample'
       preLoaderRoute: typeof SampleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/stories': {
+      id: '/stories'
+      path: '/stories'
+      fullPath: '/stories'
+      preLoaderRoute: typeof StoriesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/style': {
@@ -372,6 +425,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RestoreResultRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/story/$id': {
+      id: '/story/$id'
+      path: '/story/$id'
+      fullPath: '/story/$id'
+      preLoaderRoute: typeof StoryIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -380,12 +440,14 @@ const rootRouteChildren: RootRouteChildren = {
   AiTrialRoute: AiTrialRoute,
   CompatRoute: CompatRoute,
   ConcernRoute: ConcernRoute,
+  DailyCookieRoute: DailyCookieRoute,
   HomeClassicRoute: HomeClassicRoute,
   InputRoute: InputRoute,
   InviteRoute: InviteRoute,
   QuizRoute: QuizRoute,
   ResultRoute: ResultRoute,
   SampleRoute: SampleRoute,
+  StoriesRoute: StoriesRoute,
   StyleRoute: StyleRoute,
   TodayRoute: TodayRoute,
   WaitRoute: WaitRoute,
@@ -393,6 +455,7 @@ const rootRouteChildren: RootRouteChildren = {
   RestoreGuideRoute: RestoreGuideRoute,
   RestoreHomeRoute: RestoreHomeRoute,
   RestoreResultRoute: RestoreResultRoute,
+  StoryIdRoute: StoryIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
