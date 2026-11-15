@@ -6,8 +6,9 @@ const mem = (): KV & { m: Map<string, string> } => { const m = new Map<string, s
 const ME = { name: "나", calendar: "solar" as const, leap: false, date: "1990-04-19", time: "01:10", gender: "f" as const };
 
 describe("화면 문구·가격", () => {
-  it("상품 5개와 확정 가격(일반 1,900원·신년 2,900원)", () => {
-    expect(TT.products.map((p) => [p.title, p.price])).toEqual([["내 사주", 1900], ["연애운", 1900], ["궁합", 1900], ["택일", 1900], ["신년운세", 2900]]);
+  it("상품 5개와 가격(기본사주 900원, 나머지 1,900원)", () => {
+    expect(TT.products.map((p) => [p.title, p.price])).toEqual([["기본사주", 900], ["연애운·결혼운", 1900], ["진로운·사업운", 1900], ["궁합", 1900], ["임신운·자식운", 1900]]);
+    expect(won(900)).toBe("900원");
     expect(won(1900)).toBe("1,900원");
     expect(TT.cookieName).toBe("오늘의 운세쿠키");
   });

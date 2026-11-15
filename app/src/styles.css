@@ -329,3 +329,4 @@ body {
 }
 .tt h1, .tt h2, .tt-btn, .tt-header-title, .tt-price, .tt-pill, .tt-badge { font-family: "Jua", "Gowun Dodum", "Apple SD Gothic Neo", sans-serif; font-weight: 400; }
 .tt .tt-bubble { word-break: keep-all; }
+.tt-card h2 { flex-wrap: wrap; }
