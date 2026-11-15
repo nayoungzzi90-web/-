@@ -34,7 +34,7 @@ export function CardArt({ id, widthPct = 44, fit = false }: { id: string; widthP
   if (fit) {
     const tall = id === "money" || id === "career";
     // 세로로 긴 그림은 조금 줄이고 가로로 넓은 그림은 조금 키워 시각 크기를 맞춘다.
-    return <img src={src} alt="" aria-hidden className="block h-full w-full object-contain object-bottom" style={{ transform: `scale(${tall ? 1 : 0.88})`, transformOrigin: "50% 100%" }} draggable={false} />;
+    return <img src={src} alt="" aria-hidden className="block h-full w-full object-contain object-bottom" style={{ transform: `scale(${tall ? 0.97 : 0.98})`, transformOrigin: "50% 100%" }} draggable={false} />;
   }
   // 재물운·직업운 그림은 세로로 긴 원본이라 폭이 아니라 높이로 맞춘다.
   if (id === "money" || id === "career") {

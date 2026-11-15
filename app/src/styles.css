@@ -917,3 +917,25 @@ html { scroll-behavior: auto; }
 .tt.tt-home .tt-hero-panel .tt-spark-3 { left: 33%; top: 46%; font-size: 17px; }
 .tt.tt-home .tt-band-inner .tt-header { padding: 14px 0 0; }
 .tt.tt-home .tt-hero-panel .tt-spark-3 { left: 52%; top: 58%; font-size: 16px; }
+
+/* 홈 v18: 움직이는 또또가 로고에 닿지 않게 여유를 둠 */
+.tt.tt-home .tt-band-inner .tt-header { padding: 16px 0 14px; }
+.tt.tt-home .tt-hero-panel { margin-top: 0; aspect-ratio: 2.3 / 1; }
+.tt.tt-home .tt-hero-book { width: 34%; left: 6%; }
+.tt.tt-home .tt-hero-flame { width: 20%; right: 10%; }
+.tt.tt-home .tt-hero-speech { left: 40%; top: 10%; width: 40%; }
+.tt.tt-home .tt-hero-panel .tt-spark-2 { top: 14%; }
+@keyframes tt-bounce-soft { 0%, 100% { transform: scale(1, 1); } 45% { transform: scale(.99, 1.025) translateY(-2px) rotate(-1deg); } 70% { transform: scale(1.01, .985); } }
+@media (prefers-reduced-motion: no-preference) { .tt.tt-home .tt-hero-book { animation: tt-pop-in .7s cubic-bezier(.2,1.4,.4,1) both, tt-bounce-soft 2.6s ease-in-out .8s infinite; } }
+
+/* 홈 카드 v19: 그림은 카드 위쪽 색 무대(둥근 사각형), 글씨는 아래 흰 영역 — 그림과 글자가 자연스럽게 나뉨 */
+.tt .tt-cards .tt-card { padding: 8px 8px 14px; }
+.tt .tt-cards .tt-card-art { width: 100%; height: 92px; margin: 0 0 12px; padding: 8px 6px; border-radius: 14px; background: var(--tile); display: flex; align-items: center; justify-content: center; }
+.tt .tt-cards .tt-card-art::before { display: none; }
+.tt .tt-cards .tt-card-art img { width: 100%; height: 100%; }
+.tt .tt-cards .tt-card-pill { top: 14px; right: 14px; }
+.tt .tt-cards .tt-card-wide { padding: 8px 52px 8px 8px; gap: 12px; }
+.tt .tt-cards .tt-card-wide .tt-card-art { flex: 0 0 96px; width: 96px; height: 64px; margin: 0; padding: 6px; border-radius: 12px; }
+.tt .tt-cards .tt-card-wide .tt-card-pill { top: 10px; right: 10px; }
+
+.tt .tt-cards .tt-card-art { height: 96px; padding: 6px 4px; }
