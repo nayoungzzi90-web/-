@@ -898,3 +898,11 @@ html { scroll-behavior: auto; }
 .tt .tt-cards .tt-card-wide { gap: 10px; padding-right: 46px; }
 .tt .tt-cards .tt-card-wide .tt-card-art { flex: 0 0 86px; width: 86px; height: 58px; }
 .tt .tt-cards .tt-card-wide .tt-card-sub { font-size: 13px; white-space: nowrap; }
+
+/* 홈 v16: 제목은 화면에서 숨기고(검색·낭독용으로만 유지), 그림을 조금 키움, 말풍선 글씨 작게 */
+.tt.tt-home .tt-band-inner .tt-header { padding: 16px 0 4px; }
+.tt.tt-home .tt-hero-panel { margin-top: 6px; aspect-ratio: 2.45 / 1; }
+.tt.tt-home .tt-hero-book { width: 31%; left: 8%; }
+.tt.tt-home .tt-hero-flame { width: 19%; right: 12%; }
+.tt.tt-home .tt-hero-speech { left: 36%; top: 6%; width: 42%; }
+.tt.tt-home .tt-hero-speech .tt-bubble-text { font-size: clamp(13px, 3.8vw, 15px); }
