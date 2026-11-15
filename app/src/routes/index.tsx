@@ -4,7 +4,7 @@ import { HomeTiles } from "@/components/ttotto/StoryPicker";
 import { TT } from "@/lib/ttotto-content";
 
 export const Route = createFileRoute("/")({
-  head: () => ({ meta: [{ title: "또또사주 · 또또와 알아보는 나의 사주" }] }),
+  head: () => ({ meta: [{ title: "또또사주 · 또또가 알려주는 나의 사주" }] }),
   component: Home,
 });
 
@@ -22,7 +22,7 @@ function Home() {
         </header>
 
         <main>
-          <h1 className="mt-3 text-center text-[clamp(28px,8.4vw,36px)] leading-[1.12]">또또와 알아보는 나의 사주</h1>
+          <h1 className="mt-3 text-center text-[clamp(28px,8.4vw,36px)] leading-[1.12]">또또가 알려주는 나의 사주</h1>
 
           {/* 액자: 또또(책)·불꽃은 하단이 잘린 원본이라 패널 하단에 맞춰 붙이고, 말풍선은 글자를 실제 HTML 로 올린다 */}
           <div className="tt-hero-panel mt-3" role="img" aria-label="책을 든 또또가 불꽃 친구에게 말해요: 너의 사주를 한번 봐볼까?">

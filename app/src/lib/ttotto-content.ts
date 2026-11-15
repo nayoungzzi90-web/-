@@ -15,7 +15,7 @@ export const TT = {
     { id: "date", title: "택일", price: 1900, question: "중요한 시작, 언제가 좋을까?", topics: ["결혼", "이사", "개업"], bg: "#ffe3d1", to: null },
     { id: "year", title: "신년운세", price: 2900, question: "새해엔 어떤 기회가 찾아올까?", topics: ["한 해 흐름", "재물", "일", "연애"], bg: "#eee4fb", to: null },
   ],
-  home: { title: "또또와 알아보는 나의 사주", speech: "어떤 이야기가 궁금해?", primary: "또또랑 사주 보러 가기", secondary: "오늘의 운세쿠키", badge: "무료" },
+  home: { title: "또또가 알려주는 나의 사주", speech: "어떤 이야기가 궁금해?", primary: "또또랑 사주 보러 가기", secondary: "오늘의 운세쿠키", badge: "무료" },
   stories: { title: "궁금한 이야기를 골라봐", freeEntry: "처음이라면? 내 사주 무료로 맛보기" },
   cookie: {
     title: "오늘의 운세쿠키",
