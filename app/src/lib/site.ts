@@ -3,4 +3,4 @@
 export const SITE_URL = "https://ohaeng-friends.nayoungzzi90.workers.dev";
 export const SITE_NAME = "또또사주";
 export const SITE_DESC =
-  "또또가 알려주는 나의 사주. 또또와 함께 사주를 보고 오늘의 운세쿠키도 열어 보세요.";
+  "나의 사주, 또또가 알려줄게. 또또와 함께 사주를 보고 오늘의 운세쿠키도 열어 보세요.";

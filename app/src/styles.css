@@ -759,3 +759,15 @@ html { scroll-behavior: auto; }
 .tt .tt-card-wide .tt-card-body { flex: 1; align-items: flex-start; }
 .tt .tt-card-wide .tt-card-head { justify-content: flex-start; }
 .tt .tt-card-chev { flex: none; font-size: 24px; line-height: 1; color: #c9b9a0; }
+
+/* 홈 v8: 제목 간결하게, 가격은 한 번만, 칸 글씨는 키우고 단순하게 */
+.tt.tt-home .tt-home-title { margin: 26px 0 0; text-align: center; font-size: clamp(26px, 7.6vw, 31px); line-height: 1.25; letter-spacing: -0.01em; }
+.tt .tt-price-note { margin: 8px 0 0; text-align: center; font-size: 15px; color: var(--tt-muted); }
+.tt.tt-home main > section > .tt-cards { margin-top: 18px; }
+.tt .tt-card { padding: 16px 8px 16px; }
+.tt .tt-card-title { font-size: 19px; }
+.tt .tt-card-title.is-long { font-size: 17px; }
+.tt .tt-card-sub { font-size: 14px; }
+.tt .tt-card-price { font-size: 13.5px; font-weight: 700; color: var(--tt-orange); }
+.tt .tt-card-art { height: 70px; margin-bottom: 12px; }
+.tt .tt-card-art::before { width: 66px; height: 66px; }

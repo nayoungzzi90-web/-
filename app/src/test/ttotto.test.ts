@@ -12,7 +12,7 @@ describe("화면 문구·가격", () => {
     expect(TT.products.every((p) => p.price % 1000 === 0)).toBe(true);
     expect(TT.products.every((p) => p.first === null)).toBe(true);
     expect(JSON.stringify(TT)).not.toContain("웹툰");
-    expect(TT.home.title).toBe("또또가 알려주는 나의 사주");
+    expect(TT.home.title).toBe("나의 사주, 또또가 알려줄게");
     expect(TT.stories.freeEntry).toBe("처음이라면? 내 사주 무료로 맛보기");
     expect(TT.cookieName).toBe("오늘의 운세쿠키");
   });

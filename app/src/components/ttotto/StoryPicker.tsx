@@ -53,6 +53,7 @@ export const PRICE_NOTE = "가격을 보는 것만으로는 결제되지 않아�
 
 /** 홈 상품(정리판 v7): 7개를 모두 보여 준다. 2열 카드(그림 · 이름+가격 · 주제), 마지막 시즌 상품은 가로로 넓은 카드. */
 export function HomeTiles() {
+  const basePrice = Math.min(...TT.products.map((p) => p.price));
   return (
     <ul className="tt-cards">
       {TT.products.map((p, i) => {
@@ -72,7 +73,7 @@ export function HomeTiles() {
               <span className="tt-card-body">
                 <span className="tt-card-head">
                   <span className={p.title.length > 5 ? "tt-card-title is-long" : "tt-card-title"}>{p.title}</span>
-                  <span className="tt-card-price">{won(p.price)}</span>
+                  {p.price !== basePrice && <span className="tt-card-price">{won(p.price)}</span>}
                 </span>
                 <span className="tt-card-sub">{p.topics.join(" · ")}</span>
               </span>
