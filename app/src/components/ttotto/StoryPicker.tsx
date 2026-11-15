@@ -51,31 +51,54 @@ export function ProductGrid() {
 
 export const PRICE_NOTE = "가격을 보는 것만으로는 결제되지 않아요. 지금은 결제가 열려 있지 않아서, 상품을 눌러 내용을 먼저 확인할 수 있어요.";
 
-/** 홈 상품 목록(정리판): 한 줄에 상품 하나. 작은 그림 · 이름과 주제 · 가격 · 화살표. */
+/** 홈 상품(정리판 v3): 앞의 6개는 3열 작은 칸(그림+이름+가격), 마지막 시즌 상품은 얇은 한 줄. 주제 키워드는 상품 상세에서 보여 준다. */
 export function HomeTiles() {
+  const main = TT.products.slice(0, 6);
+  const rest = TT.products.slice(6);
   return (
-    <ul className="tt-rows mt-3">
-      {TT.products.map((p) => (
-        <li key={p.id}>
-          <Link
-            to="/story/$id"
-            params={{ id: p.id }}
-            className="tt-row"
-            style={{ ["--tile" as string]: p.bg }}
-            aria-label={`${p.title} ${won(p.price)}. ${p.topics.join(", ")}`}
-          >
-            <span className="tt-row-art">
-              <CardArt id={p.id} fit />
-            </span>
-            <span className="tt-row-main">
-              <span className="tt-row-title">{p.title}</span>
-              <span className="tt-row-sub">{p.topics.slice(0, 3).join(" · ")}</span>
-            </span>
-            <span className="tt-row-price">{won(p.price)}</span>
-            <span aria-hidden className="tt-row-chev">›</span>
-          </Link>
-        </li>
-      ))}
-    </ul>
+    <div className="mt-3">
+      <ul className="tt-mini-grid">
+        {main.map((p) => (
+          <li key={p.id}>
+            <Link
+              to="/story/$id"
+              params={{ id: p.id }}
+              className="tt-mini"
+              style={{ ["--tile" as string]: p.bg }}
+              aria-label={`${p.title} ${won(p.price)}. ${p.topics.join(", ")}`}
+            >
+              <span className="tt-mini-art">
+                <CardArt id={p.id} fit />
+              </span>
+              <span className="tt-mini-title">{p.title}</span>
+              <span className="tt-mini-price">{won(p.price)}</span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+      <ul className="tt-rows">
+        {rest.map((p) => (
+          <li key={p.id}>
+            <Link
+              to="/story/$id"
+              params={{ id: p.id }}
+              className="tt-row"
+              style={{ ["--tile" as string]: p.bg }}
+              aria-label={`${p.title} ${won(p.price)}. ${p.topics.join(", ")}`}
+            >
+              <span className="tt-row-art">
+                <CardArt id={p.id} fit />
+              </span>
+              <span className="tt-row-main">
+                <span className="tt-row-title">{p.title}</span>
+                <span className="tt-row-sub">{p.topics.slice(0, 3).join(" · ")}</span>
+              </span>
+              <span className="tt-row-price">{won(p.price)}</span>
+              <span aria-hidden className="tt-row-chev">›</span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
