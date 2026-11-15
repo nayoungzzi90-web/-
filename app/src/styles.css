@@ -510,3 +510,9 @@ html { scroll-behavior: auto; }
 .tt .tt-t2-grid .tt-t2-wide .tt-t2-art { border-right: 2.5px dotted rgba(27, 22, 19, .38); padding-right: 12px; align-self: stretch; display: flex; align-items: center; }
 .tt .tt-hero-speech .tt-bubble-text { -webkit-text-stroke: 0; font-family: "Gowun Dodum", "Apple SD Gothic Neo", sans-serif; font-weight: 400; font-size: clamp(15px, 4.5vw, 19px); }
 .tt .tt-hero-speech .tt-bubble-text { font-family: "Jua", "Gowun Dodum", "Apple SD Gothic Neo", sans-serif; -webkit-text-stroke: 0; font-size: clamp(14px, 4.2vw, 18px); line-height: 1.25; }
+.tt .tt-t2-grid .tt-t2-headline .tt-t2-title { font-size: clamp(20px, 5.9vw, 23.5px); }
+.tt .tt-t2-grid .tt-t2-headline .tt-t2-plain-price { font-size: 13.5px; }
+.tt .tt-t2-grid .tt-t2-on .tt-t2-topics { font-size: 14.5px; }
+.tt .tt-t2-grid .tt-t2-headline { gap: 0 4px; flex-wrap: nowrap; }
+.tt .tt-t2-grid .tt-t2-headline .tt-t2-title { font-size: clamp(19px, 5.5vw, 22px); letter-spacing: -0.02em; white-space: nowrap; }
+.tt .tt-t2-grid .tt-t2-headline .tt-t2-plain-price { font-size: 13px; }
