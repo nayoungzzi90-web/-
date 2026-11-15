@@ -906,3 +906,14 @@ html { scroll-behavior: auto; }
 .tt.tt-home .tt-hero-flame { width: 19%; right: 12%; }
 .tt.tt-home .tt-hero-speech { left: 36%; top: 6%; width: 42%; }
 .tt.tt-home .tt-hero-speech .tt-bubble-text { font-size: clamp(13px, 3.8vw, 15px); }
+
+/* 홈 v17: 맨 위가 허전하지 않게 — 그림을 키워 빈 칸을 채우고 작은 반짝이를 되살림 */
+.tt.tt-home .tt-hero-panel { aspect-ratio: 2.3 / 1; margin-top: 2px; }
+.tt.tt-home .tt-hero-book { width: 37%; left: 4%; }
+.tt.tt-home .tt-hero-flame { width: 22%; right: 8%; }
+.tt.tt-home .tt-hero-speech { left: 40%; top: 4%; width: 42%; }
+.tt.tt-home .tt-hero-panel .tt-spark { display: block; }
+.tt.tt-home .tt-hero-panel .tt-spark-2 { right: 6%; top: 8%; font-size: 22px; }
+.tt.tt-home .tt-hero-panel .tt-spark-3 { left: 33%; top: 46%; font-size: 17px; }
+.tt.tt-home .tt-band-inner .tt-header { padding: 14px 0 0; }
+.tt.tt-home .tt-hero-panel .tt-spark-3 { left: 52%; top: 58%; font-size: 16px; }
