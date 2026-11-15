@@ -40,11 +40,11 @@ function Home() {
           {/* 눈에는 보이지 않지만 검색·화면 낭독기가 읽는 페이지 제목 */}
           <h1 className="sr-only">나의 사주, 또또가 알려줄게</h1>
 
-          {/* 주황 리본 배너(시안 D): 꼬리 두 개와 접힌 모서리 */}
-          <div className="tt-hero-ribbon">
-            <p>나의 사주, 또또가 알려줄게</p>
-            <span aria-hidden className="tt-rib-fold tt-rib-fold-l" />
-            <span aria-hidden className="tt-rib-fold tt-rib-fold-r" />
+          {/* 접힌 쪽지 + 만화 선(시안 C): 굵은 검은 선, 단단한 그림자, 접힌 모서리, "또또가"에 형광펜 */}
+          <div className="tt-hero-note">
+            <p>
+              나의 사주, <u>또또가</u> 알려줄게
+            </p>
           </div>
 
           {/* 또또(책)·불꽃은 하단이 잘린 원본이라 하단에 맞춰 붙이고, 말풍선은 글자를 실제 HTML 로 올린다 */}
