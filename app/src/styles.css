@@ -1149,3 +1149,11 @@ html { scroll-behavior: auto; }
 /* v50: 노란 메모를 반투명 노란 스카치 테이프 띠로(양끝 톱니, 윗면 빛 반사) */
 .tt.tt-home .tt-hero-note { padding: 0; border-radius: 0; background: none; box-shadow: none; filter: drop-shadow(0 2px 2px rgba(120, 80, 30, .2)); }
 .tt.tt-home .tt-hero-note p { padding: 8px 24px 9px; background: linear-gradient(180deg, rgba(255, 255, 255, .55) 0%, rgba(255, 255, 255, 0) 38%, rgba(255, 255, 255, .16) 100%), rgba(255, 219, 100, .72); clip-path: polygon(0 0, 100% 0, calc(100% - 4px) 12.5%, 100% 25%, calc(100% - 4px) 37.5%, 100% 50%, calc(100% - 4px) 62.5%, 100% 75%, calc(100% - 4px) 87.5%, 100% 100%, 0 100%, 4px 87.5%, 0 75%, 4px 62.5%, 0 50%, 4px 37.5%, 0 25%, 4px 12.5%); color: #6b4a22; }
+
+/* v51: 촌스럽지 않게 — 연한 버터색 마스킹 테이프(흰 물방울 무늬, 가는 가장자리선, 잔톱니) */
+.tt.tt-home .tt-hero-note { filter: drop-shadow(0 2px 2px rgba(150, 100, 40, .16)); }
+.tt.tt-home .tt-hero-note p { padding: 8px 26px 9px; color: #7a4f1d; background:
+  radial-gradient(rgba(255, 255, 255, .85) 1.5px, transparent 1.8px) 0 0 / 11px 11px,
+  linear-gradient(180deg, rgba(255, 255, 255, .5) 0%, rgba(255, 255, 255, 0) 45%),
+  rgba(255, 233, 160, .88);
+  clip-path: polygon(0 0, 100% 0, calc(100% - 2.5px) 10%, 100% 20%, calc(100% - 2.5px) 30%, 100% 40%, calc(100% - 2.5px) 50%, 100% 60%, calc(100% - 2.5px) 70%, 100% 80%, calc(100% - 2.5px) 90%, 100% 100%, 0 100%, 2.5px 90%, 0 80%, 2.5px 70%, 0 60%, 2.5px 50%, 0 40%, 2.5px 30%, 0 20%, 2.5px 10%); }
