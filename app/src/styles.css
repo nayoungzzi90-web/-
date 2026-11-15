@@ -1212,3 +1212,7 @@ html { scroll-behavior: auto; }
 /* v61: "또또"만 노란 글씨(먹색 윤곽 + 단단한 그림자로 살구 바탕에서도 또렷하게) */
 .tt.tt-home .tt-hero-note u { margin: 0; padding: 0 1px 0 0; font-size: 1.1em; color: #ffc61f; transform: rotate(-2deg); -webkit-text-stroke: 5px #28231f; paint-order: stroke fill; text-shadow: 1.5px 2.5px 0 #28231f; }
 .tt.tt-home .tt-hero-note u::before { content: none; }
+
+/* v62: 형광펜은 "또또"에만(글씨는 먹색 그대로) */
+.tt.tt-home .tt-hero-note u { padding: 0 4px 0 5px; margin: 0; font-size: 1.08em; color: inherit; transform: rotate(-2deg); -webkit-text-stroke: 0; text-shadow: none; }
+.tt.tt-home .tt-hero-note u::before { content: ""; left: -3px; right: 0; }
