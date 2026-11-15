@@ -603,3 +603,22 @@ html { scroll-behavior: auto; }
 .tt.tt-home .tt-cookie-sub { font-size: 15.5px; }
 .tt.tt-home .tt-cookie-body { gap: 6px; }
 .tt.tt-home .tt-cookie-btn { font-size: 16px; padding: 7px 16px; }
+
+/* ===== 홈 정리판 v4: 여백 체계 (8 단위). 묶음 안은 8~20, 구역 사이는 44, 좌우 24 ===== */
+.tt.tt-home .tt-wrap { padding-left: 24px; padding-right: 24px; }
+.tt.tt-home .tt-header { padding: 18px 0 14px; }
+.tt.tt-home main > h1 { margin-top: 28px; line-height: 1.25; }
+.tt.tt-home .tt-hero-panel { margin-top: 22px; }
+.tt.tt-home main > div.text-center { margin-top: 20px; }
+.tt.tt-home .tt-home-primary + p { margin-top: 12px; line-height: 1.5; font-size: 14.5px; color: var(--tt-muted); }
+.tt.tt-home main > section { margin-top: 48px; }
+.tt.tt-home main > section > h2 { margin: 0; }
+.tt.tt-home main > section > div.mt-3 { margin-top: 18px; }
+.tt.tt-home .tt-mini-grid { gap: 12px; }
+.tt.tt-home .tt-mini { padding: 14px 6px 16px; gap: 4px; }
+.tt.tt-home .tt-mini-art { height: 60px; margin-bottom: 8px; }
+.tt.tt-home .tt-mini-art::before { width: 56px; height: 56px; }
+.tt.tt-home .tt-mini-grid + .tt-rows { margin-top: 12px; }
+.tt.tt-home .tt-rows .tt-row { padding: 12px 16px 12px 12px; min-height: 72px; }
+.tt.tt-home .tt-cookie-box { margin-top: 18px; min-height: 116px; padding: 14px 16px 14px 32%; }
+.tt.tt-home .tt-home-foot { margin-top: 48px; padding-top: 20px; gap: 6px 12px; line-height: 1.6; }
