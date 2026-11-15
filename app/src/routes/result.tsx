@@ -237,13 +237,13 @@ function Result() {
           eyebrow="연애운"
           title="내 사주 속 인연의 결"
           teaser="일지와 월지의 기운으로 연애의 속도와 어울리는 상대의 결을 더 깊게 읽을 수 있어요."
-          price="1닢"
+          price="1,000원"
         />
         <Locked
           eyebrow="재물복"
           title="돈이 붙는 방식"
           teaser="오행의 균형으로 돈을 모으는 방식과 새는 구멍을 더 깊게 읽을 수 있어요."
-          price="1닢"
+          price="1,000원"
         />
 
         <div className="hj-card mt-5 bg-[var(--tt-blue)] p-4">
