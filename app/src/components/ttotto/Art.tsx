@@ -46,14 +46,13 @@ export function CookieIcon({ className = "" }: { className?: string }) {
 export function SpeechBubble({ children, className = "" }: { children: ReactNode; className?: string }) {
   return (
     <div className={className}>
-    <div className="relative" style={{ aspectRatio: "200 / 126" }}>
-      <svg viewBox="0 0 200 126" className="absolute inset-0 h-full w-full overflow-visible" aria-hidden focusable="false">
-        <ellipse cx="100" cy="52" rx="94" ry="48" fill="#fff" stroke="#1b1613" strokeWidth="6" />
-        <path d="M50 92 C46 104 38 113 24 120 C48 120 70 112 86 99.6" fill="#fff" stroke="#1b1613" strokeWidth="6" strokeLinejoin="round" strokeLinecap="round" />
-        <path d="M52.4 92.6 A94 48 0 0 0 84.6 99.4" fill="none" stroke="#fff" strokeWidth="9" strokeLinecap="butt" />
-      </svg>
-      <p className="tt-bubble-text">{children}</p>
-    </div>
+      <div className="relative" style={{ aspectRatio: "200 / 116" }}>
+        <svg viewBox="0 0 200 116" className="absolute inset-0 h-full w-full overflow-visible" aria-hidden focusable="false">
+          {/* 몸통과 꼬리를 한 줄로 이어 그린다(겹쳐 덮는 흰 조각 없음) */}
+          <path d="M52.4 92.6 C49 100 43 106 34 110 C54 110 72 106 84.6 99.4 A94 48 0 1 0 52.4 92.6 Z" fill="#fff" stroke="#1b1613" strokeWidth="6" strokeLinejoin="round" />
+        </svg>
+        <p className="tt-bubble-text">{children}</p>
+      </div>
     </div>
   );
 }

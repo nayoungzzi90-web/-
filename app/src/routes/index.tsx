@@ -31,11 +31,11 @@ function Home() {
           </div>
 
           <div className="mt-5 space-y-3">
-            <Link to="/stories" className="tt-btn tt-primary">
-              {TT.home.primary} <span aria-hidden>→</span>
+            <Link to="/stories" className="tt-btn tt-primary tt-home-primary">
+              {TT.home.primary}
             </Link>
-            <Link to="/daily-cookie" className="tt-btn tt-sub">
-              <CookieIcon className="w-10" />
+            <Link to="/daily-cookie" className="tt-btn tt-sub tt-home-cookie">
+              <CookieIcon className="w-12" />
               {TT.home.secondary}
               <span className="tt-badge">{TT.home.badge}</span>
             </Link>
