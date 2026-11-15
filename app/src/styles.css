@@ -372,3 +372,19 @@ html { scroll-behavior: auto; }
 .tt .tt-tile-topics { font-size: 12px; }
 .tt .tt-hero-box { padding: 6px 6px 0; }
 .tt .tt-tile-topics, .tt .tt-today-box span { word-break: keep-all; }
+
+/* 시안 비율에 맞춰 글자·그림 키움(타일 높이 대비 그림 약 70%, 제목 글자 크게) */
+.tt .tt-tile { padding: 8px 8px; gap: 6px; min-height: 88px; }
+.tt .tt-tile-title { font-size: clamp(21px, 6vw, 25px); }
+.tt .tt-tile .tt-price { font-size: 14px; }
+.tt .tt-tile-topics { font-size: 13.5px; margin-top: 3px; }
+.tt .tt-home-my { font-size: 20px; }
+.tt .tt-home-primary { font-size: clamp(24px, 7vw, 28px); min-height: 60px; }
+.tt .tt-home-sample { font-size: 16px; }
+.tt .tt-today-go { font-size: 15.5px; }
+.tt .tt-today-box { min-height: 92px; }
+.tt .tt-home-foot { font-size: 13.5px; }
+
+.tt .tt-tile { gap: 4px; padding: 8px 8px 8px 6px; min-height: 96px; }
+.tt .tt-today-box { gap: 8px; padding: 8px 10px; }
+.tt .tt-today-go { max-width: 34%; font-size: 15px; }

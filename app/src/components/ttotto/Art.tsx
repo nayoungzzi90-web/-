@@ -29,7 +29,7 @@ const CARD_IMG: Record<string, { src: string; ratio: number }> = {
 /** 상품 카드 삽화(원본 분리본, 높이 기준). */
 export function CardArt({ id, height = 44 }: { id: string; height?: number }) {
   const c = CARD_IMG[id] ?? CARD_IMG["basic"]!;
-  const w = Math.round(height * Math.max(1.1, Math.min(c.ratio, 2)));
+  const w = Math.round(height * Math.min(Math.max(c.ratio, 0.95), 2));
   return (
     <span aria-hidden className="inline-flex shrink-0 items-center justify-center" style={{ width: w, height }}>
       <img src={c.src} alt="" style={{ maxWidth: w, maxHeight: height, width: "auto", height: "auto" }} draggable={false} />

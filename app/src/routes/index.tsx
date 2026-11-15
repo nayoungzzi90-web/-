@@ -26,7 +26,7 @@ function Home() {
           <h1 className="mt-3 text-center text-[clamp(28px,8.4vw,36px)] leading-[1.12]">또또와 알아보는 나의 사주</h1>
 
           <div className="tt-hero-box mt-3">
-            <div className="relative mx-auto w-[84%]">
+            <div className="relative mx-auto w-[96%]">
               <img src={ASSETS.homeScene} alt="책을 읽는 또또와 불꽃 친구" className="block w-full" draggable={false} />
               <SpeechBubble className="absolute right-[1%] top-[0%] w-[52%]">네 이야기,<br />펼쳐볼까?</SpeechBubble>
             </div>
@@ -34,20 +34,20 @@ function Home() {
 
           <div className="mt-3 text-center">
             <Link to="/input" className="tt-btn tt-primary tt-home-primary">무료로 내 사주 보기</Link>
-            <p className="mt-1.5 text-[13.5px] text-[var(--tt-ink)]">로그인 없이 시작 · 태어난 시간 몰라도 가능</p>
+            <p className="mt-1.5 text-[15px] text-[var(--tt-ink)]">로그인 없이 시작 · 태어난 시간 몰라도 가능</p>
             <Link to="/sample" className="tt-home-sample">예시 결과 먼저 보기</Link>
           </div>
 
           <section aria-labelledby="tt-stories-title" className="mt-4">
-            <h2 id="tt-stories-title" className="text-center text-[clamp(21px,6vw,25px)] leading-tight">지금, 뭐가 가장 궁금해?</h2>
+            <h2 id="tt-stories-title" className="text-center text-[clamp(23px,6.6vw,28px)] leading-tight">지금, 뭐가 가장 궁금해?</h2>
             <HomeTiles />
           </section>
 
           <section aria-labelledby="tt-today-title" className="mt-4">
-            <h2 id="tt-today-title" className="text-[clamp(21px,6vw,24px)] leading-tight">오늘의 운세</h2>
+            <h2 id="tt-today-title" className="text-[clamp(23px,6.6vw,28px)] leading-tight">오늘의 운세</h2>
             <Link to="/daily-cookie" className="tt-today-box">
-              <CardArt id="basic" height={58} />
-              <span className="flex-1 text-[15.5px] font-bold leading-snug">오늘은 어떤 하루가 될까?</span>
+              <CardArt id="basic" height={64} />
+              <span className="min-w-0 flex-1 text-[16.5px] font-bold leading-snug">오늘은 어떤 하루가 될까?</span>
               <span className="tt-today-go">오늘의 운세 보기 →</span>
             </Link>
           </section>
