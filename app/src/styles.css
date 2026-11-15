@@ -1202,3 +1202,9 @@ html { scroll-behavior: auto; }
 .tt.tt-home .tt-hero-note u { display: inline-block; padding: 0 3px; margin: 0 2px; font-size: 1.32em; line-height: 1; color: #ff6f45; transform: rotate(-4deg) translateY(1px); -webkit-text-stroke: 6px #fff; paint-order: stroke fill; text-shadow: 2px 3px 0 #28231f; }
 .tt.tt-home .tt-hero-note u::before { content: none; }
 .tt.tt-home .tt-hero-note p::after { right: -12px; top: -12px; }
+
+/* v60: 홈 아래 제목("궁금해?")과 같은 말투로 — 같은 형광펜·같은 반짝이, "또또가"만 살짝 기울고 조금 크게 */
+.tt.tt-home .tt-hero-note p { font-size: clamp(22px, 6.3vw, 26px); }
+.tt.tt-home .tt-hero-note u { display: inline-block; padding: 0 5px; margin: 0 1px; font-size: 1.08em; line-height: 1.15; color: inherit; transform: rotate(-2deg); -webkit-text-stroke: 0; text-shadow: none; }
+.tt.tt-home .tt-hero-note u::before { content: ""; left: -3px; right: -3px; opacity: .95; }
+.tt.tt-home .tt-hero-note p::after { content: "✦"; right: -14px; top: -8px; font-size: 14px; color: #ff9a2e; }
