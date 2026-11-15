@@ -400,3 +400,23 @@ html { scroll-behavior: auto; }
 .tt .tt-today-art { position: absolute; left: 3%; bottom: 0; width: 30%; height: auto; }
 .tt .tt-today-text { flex: 1; min-width: 0; font-size: 16.5px; font-weight: 700; line-height: 1.3; word-break: keep-all; }
 .tt .tt-tile { overflow: hidden; }
+
+/* 홈 상품 칸 v2: 큰 대표 칸 + 세로 구조 2x2 */
+.tt .tt-hero-tile { position: relative; display: flex; align-items: center; gap: 10px; border: 2.5px solid var(--tt-ink); border-radius: 18px; padding: 30px 14px 14px; box-shadow: 0 4px 0 var(--tt-ink); }
+.tt .tt-free-badge { position: absolute; left: 12px; top: -2px; background: #ff6f45; color: #fff; border: 2px solid var(--tt-ink); border-radius: 0 0 10px 10px; padding: 2px 12px 3px; font-family: "Jua", sans-serif; font-size: 15px; }
+.tt .tt-t2 { position: relative; display: flex; flex-direction: column; align-items: center; text-align: center; height: 100%; border: 2px solid var(--tt-ink); border-radius: 16px; padding: 12px 8px 12px; overflow: hidden; }
+.tt .tt-t2-on { border-width: 2.5px; box-shadow: 0 4px 0 var(--tt-ink); }
+.tt .tt-t2-soon { opacity: .62; filter: saturate(.7); border-style: dashed; }
+.tt .tt-t2-art { display: flex; justify-content: center; align-items: flex-end; width: 100%; min-height: 64px; margin-bottom: 6px; }
+.tt .tt-t2-title { display: block; font-family: "Jua", "Gowun Dodum", sans-serif; font-size: clamp(22px, 6.4vw, 26px); line-height: 1.1; }
+.tt .tt-hero-tile .tt-t2-title { font-size: clamp(26px, 7.6vw, 32px); }
+.tt .tt-t2-topics { display: block; margin-top: 4px; font-size: 14.5px; font-weight: 600; color: var(--tt-ink); word-break: keep-all; }
+.tt .tt-t2-price { display: inline-block; margin-top: 8px; border: 1.5px solid var(--tt-ink); border-radius: 999px; background: #fff; padding: 1px 12px; font-family: "Jua", sans-serif; font-size: 15px; }
+.tt .tt-go-btn { display: inline-block; margin-top: 8px; background: var(--tt-ink); color: #fff; border-radius: 999px; padding: 4px 14px; font-family: "Jua", sans-serif; font-size: 15px; }
+.tt .tt-soon-band { position: absolute; right: 0; top: 0; background: #fff; border-left: 1.5px dashed var(--tt-ink); border-bottom: 1.5px dashed var(--tt-ink); border-radius: 0 0 0 10px; padding: 1px 8px; font-size: 12px; font-weight: 700; }
+.tt .tt-t2-grid > li { display: flex; }
+.tt .tt-t2-grid > li > .tt-t2 { flex: 1; height: auto; justify-content: flex-start; }
+.tt .tt-t2-art { min-height: 80px; }
+.tt .tt-t2-on { margin-bottom: 4px; }
+.tt .tt-t2-soon .tt-t2-price { margin-top: auto; }
+.tt .tt-t2-soon .tt-t2-topics { margin-bottom: 10px; }
