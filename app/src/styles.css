@@ -999,3 +999,8 @@ html { scroll-behavior: auto; }
 .tt.tt-home .tt-cookie-spark { display: block; color: #fff; text-shadow: 0 0 6px rgba(255, 200, 80, .9); }
 .tt.tt-home .tt-cookie-spark-1 { right: 12px; top: 10px; font-size: 22px; }
 .tt.tt-home .tt-cookie-spark-2 { left: 36%; top: 12px; font-size: 16px; }
+
+/* 홈 v24: 손으로 뜯은 듯한 마스킹 테이프, 쿠키 카드 색을 차분한 살구 크림으로 */
+.tt.tt-home .tt-hero-tag::before { top: -11px; width: 66px; height: 19px; margin-left: -33px; border-radius: 0; background: repeating-linear-gradient(-45deg, rgba(255, 255, 255, .82) 0 5px, rgba(255, 226, 190, .78) 5px 10px); transform: rotate(-4deg); box-shadow: none; filter: drop-shadow(0 1px 1.5px rgba(120, 80, 30, .25)); clip-path: polygon(0% 12%, 4% 0%, 8% 20%, 13% 4%, 87% 6%, 92% 0%, 96% 22%, 100% 8%, 100% 90%, 96% 100%, 92% 78%, 87% 96%, 13% 94%, 8% 100%, 4% 80%, 0% 88%); }
+.tt.tt-home .tt-cookie-box { background-color: #fff0dc; background-image: radial-gradient(rgba(255, 255, 255, .7) 1.7px, transparent 1.8px), linear-gradient(160deg, #fff6e6 0%, #ffe8cb 100%); box-shadow: 0 10px 22px rgba(190, 130, 60, .18); }
+.tt.tt-home .tt-cookie-spark { text-shadow: 0 0 6px rgba(255, 190, 110, .9); color: #fff; }
