@@ -771,3 +771,14 @@ html { scroll-behavior: auto; }
 .tt .tt-card-price { font-size: 13.5px; font-weight: 700; color: var(--tt-orange); }
 .tt .tt-card-art { height: 70px; margin-bottom: 12px; }
 .tt .tt-card-art::before { width: 66px; height: 66px; }
+
+/* 홈 v9: 가격 안내를 눈에 띄게, 시작 버튼을 조금 작게, 여백·푸터 정돈 */
+.tt .tt-price-note { display: flex; align-items: baseline; justify-content: center; gap: 6px; width: fit-content; margin: 12px auto 0; padding: 7px 16px 8px; border: 1px solid #f4c4ae; border-radius: 999px; background: #fff3ec; font-size: 15px; color: #7a3f22; }
+.tt .tt-price-note b { font-family: "Jua", "Gowun Dodum", sans-serif; font-weight: 400; font-size: 22px; line-height: 1; color: var(--tt-orange); }
+.tt.tt-home .tt-home-primary { min-height: 52px; font-size: clamp(18px, 5.2vw, 20px); border-radius: 14px; }
+.tt.tt-home .tt-sticky-cta .tt-btn { min-height: 52px; font-size: 18px; border-radius: 14px; }
+.tt.tt-home .tt-home-title { margin-top: 22px; }
+.tt.tt-home .tt-hero-panel { margin-top: 18px; }
+.tt.tt-home main > section { margin-top: 44px; }
+.tt.tt-home .tt-home-foot { flex-direction: column; align-items: center; gap: 4px; margin-top: 44px; padding-top: 18px; text-align: center; font-size: 13.5px; color: var(--tt-muted); }
+.tt.tt-home .tt-home-foot-links { min-height: 40px; }
