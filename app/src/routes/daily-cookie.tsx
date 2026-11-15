@@ -13,6 +13,7 @@ import {
   type KV,
 } from "@/lib/daily-cookie";
 import { useStore } from "@/lib/store";
+import { makeNoteImage } from "@/lib/note-image";
 import { TT } from "@/lib/ttotto-content";
 
 export const Route = createFileRoute("/daily-cookie")({
@@ -112,7 +113,14 @@ function DailyCookie() {
     const text = `오늘의 운세쿠키에서 받은 쪽지: ${result.title} — ${result.message}`;
     try {
       if (navigator.share) {
-        await navigator.share({ title: TT.cookie.title, text, url });
+        // 가능하면 쪽지 이미지를 함께 공유한다(개인 정보 없음). 이미지 공유가 안 되는 기기는 글과 링크만 보낸다.
+        const blob = await makeNoteImage(result);
+        const file = blob ? new File([blob], `ttotto-cookie-${result.dateKey}.png`, { type: "image/png" }) : null;
+        if (file && navigator.canShare?.({ files: [file] })) {
+          await navigator.share({ title: TT.cookie.title, text: `${text} ${url}`, files: [file] });
+        } else {
+          await navigator.share({ title: TT.cookie.title, text, url });
+        }
         setNotice("");
       } else {
         await navigator.clipboard.writeText(`${text} ${url}`);

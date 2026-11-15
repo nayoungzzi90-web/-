@@ -44,6 +44,11 @@ function StoryDetail() {
                 ))}
               </ul>
             </section>
+            {p.first != null && (
+              <p className="mt-3 rounded-[14px] border-2 border-[var(--tt-ink)] bg-[#fff0c2] px-3 py-2 text-center text-[16px] font-extrabold">
+                첫 구매 혜택 {won(p.first)}
+              </p>
+            )}
             <p className="mt-4 text-[15px] leading-relaxed text-[var(--tt-muted)]">
               가격은 안내용이에요. 지금은 결제가 열려 있지 않아서, 이 화면에서는 아무것도 청구되지 않아요.
             </p>

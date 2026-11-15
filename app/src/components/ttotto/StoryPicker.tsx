@@ -66,6 +66,7 @@ export function HomeTiles() {
               style={{ background: p.bg }}
               aria-label={`${p.title} ${won(p.price)}. ${p.topics.join(", ")}`}
             >
+              {p.first != null && <span className="tt-first-chip">첫 구매 {won(p.first)}</span>}
               <span className="tt-t2-art">{last ? <CardArt id={p.id} widthPct={100} /> : <CardArt id={p.id} fit />}</span>
               <span className={last ? "tt-t2-wide-text" : "contents"}>
                 <span className="tt-t2-headline">
