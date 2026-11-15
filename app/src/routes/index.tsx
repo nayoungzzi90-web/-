@@ -23,7 +23,7 @@ function Home() {
     return () => io.disconnect();
   }, []);
   return (
-    <div className="tt">
+    <div className="tt tt-home">
       <div className="tt-wrap pb-28">
         <header className="tt-header">
           <span className="tt-header-title">

@@ -555,3 +555,33 @@ html { scroll-behavior: auto; }
 .tt .tt-cookie-box { border-width: 2px; box-shadow: none; }
 .tt .tt-cookie-btn { box-shadow: 0 3px 0 var(--tt-ink); }
 .tt .tt-t2-grid .tt-t2-on .tt-t2-topics { margin-top: 3px; }
+
+/* ===== 홈 정리판 v2 (2026-11-15): 가볍고 조용하게 — 얇은 선, 흰 카드, 한 줄 목록, 포인트 색은 주황 하나 ===== */
+.tt.tt-home { --hair: #eadfcd; background: #fffaf2; }
+.tt.tt-home .tt-header { border-bottom: 1px solid var(--hair); }
+.tt.tt-home h1 { font-size: clamp(24px, 7vw, 28px); }
+.tt.tt-home h2 { font-size: clamp(19px, 5.6vw, 22px); }
+/* 액자: 테두리 없이 부드러운 바탕 */
+.tt.tt-home .tt-hero-panel { border: 0; border-radius: 22px; background: #fff3df; }
+.tt.tt-home .tt-hero-panel .tt-glow, .tt.tt-home .tt-hero-panel .tt-spark { display: none; }
+/* 시작 버튼: 두께·그림자 줄임 */
+.tt.tt-home .tt-home-primary { border: 0; box-shadow: none; min-height: 56px; font-size: clamp(19px, 5.6vw, 22px); border-radius: 16px; }
+.tt.tt-home .tt-sticky-cta .tt-btn { border: 0; box-shadow: none; border-radius: 16px; font-size: 19px; }
+/* 상품 목록 */
+.tt .tt-rows { display: flex; flex-direction: column; gap: 10px; margin: 12px 0 0; padding: 0; list-style: none; }
+.tt .tt-row { display: flex; align-items: center; gap: 12px; min-height: 76px; padding: 8px 14px 8px 10px; background: #fff; border: 1px solid var(--hair, #eadfcd); border-radius: 16px; color: var(--tt-ink); text-decoration: none; }
+.tt .tt-row:active { background: #fff7ea; }
+.tt .tt-row-art { position: relative; flex: 0 0 64px; width: 64px; height: 56px; }
+.tt .tt-row-art::before { content: ""; position: absolute; inset: 0; margin: auto; width: 56px; height: 56px; border-radius: 50%; background: var(--tile); opacity: .75; }
+.tt .tt-row-art img { position: relative; z-index: 1; }
+.tt .tt-row-main { display: flex; flex: 1; min-width: 0; flex-direction: column; gap: 2px; }
+.tt .tt-row-title { font-family: "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif; font-size: 18px; font-weight: 800; line-height: 1.25; }
+.tt .tt-row-sub { font-size: 14px; line-height: 1.35; color: var(--tt-muted); word-break: keep-all; }
+.tt .tt-row-price { flex: none; font-family: "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif; font-size: 15px; font-weight: 700; color: var(--tt-muted); white-space: nowrap; }
+.tt .tt-row-chev { flex: none; font-size: 22px; line-height: 1; color: #c9b9a0; margin-left: -4px; }
+/* 운세쿠키: 흰 카드 한 장 */
+.tt.tt-home .tt-cookie-box { border: 1px solid var(--hair); border-radius: 20px; background: #fff; box-shadow: none; min-height: 130px; }
+.tt.tt-home .tt-cookie-spark { display: none; }
+.tt.tt-home .tt-cookie-btn { border: 0; box-shadow: none; border-radius: 14px; font-size: 18px; padding: 10px 18px; }
+.tt.tt-home .tt-free-chip { border-width: 1.5px; font-size: 14px; }
+.tt.tt-home .tt-home-foot { border-top: 1px solid var(--hair); font-size: 14px; }

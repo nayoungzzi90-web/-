@@ -51,34 +51,31 @@ export function ProductGrid() {
 
 export const PRICE_NOTE = "가격을 보는 것만으로는 결제되지 않아요. 지금은 결제가 열려 있지 않아서, 상품을 눌러 내용을 먼저 확인할 수 있어요.";
 
-/** 홈 상품 타일(시안 배치): 삽화 왼쪽, 제목+가격 한 줄, 아래에 주제 줄. 신년운세는 전체 폭. */
+/** 홈 상품 목록(정리판): 한 줄에 상품 하나. 작은 그림 · 이름과 주제 · 가격 · 화살표. */
 export function HomeTiles() {
   return (
-    <ul className="tt-t2-grid mt-3 grid grid-cols-2 gap-3">
-      {TT.products.map((p, i) => {
-        const last = i === TT.products.length - 1;
-        return (
-          <li key={p.id} className={last ? "col-span-2" : undefined}>
-            <Link
-              to="/story/$id"
-              params={{ id: p.id }}
-              className={last ? "tt-t2 tt-t2-on tt-t2-wide" : "tt-t2 tt-t2-on"}
-              style={{ background: p.to ? p.bg : "#fffdf8", ["--tile" as string]: p.bg }}
-              aria-label={`${p.title} ${won(p.price)}. ${p.topics.join(", ")}`}
-            >
-              {p.first != null && <span className="tt-first-chip">첫 구매 {won(p.first)}</span>}
-              <span className="tt-t2-art">{last ? <CardArt id={p.id} widthPct={100} /> : <CardArt id={p.id} fit />}</span>
-              <span className={last ? "tt-t2-wide-text" : "contents"}>
-                <span className="tt-t2-headline">
-                  <span className={p.title.length > 5 ? "tt-t2-title tt-t2-title-long" : "tt-t2-title"}>{p.title}</span>
-                  <span className="tt-t2-plain-price">{won(p.price)}</span>
-                </span>
-                <span className="tt-t2-topics">{p.topics.join(" · ")}</span>
-              </span>
-            </Link>
-          </li>
-        );
-      })}
+    <ul className="tt-rows mt-3">
+      {TT.products.map((p) => (
+        <li key={p.id}>
+          <Link
+            to="/story/$id"
+            params={{ id: p.id }}
+            className="tt-row"
+            style={{ ["--tile" as string]: p.bg }}
+            aria-label={`${p.title} ${won(p.price)}. ${p.topics.join(", ")}`}
+          >
+            <span className="tt-row-art">
+              <CardArt id={p.id} fit />
+            </span>
+            <span className="tt-row-main">
+              <span className="tt-row-title">{p.title}</span>
+              <span className="tt-row-sub">{p.topics.slice(0, 3).join(" · ")}</span>
+            </span>
+            <span className="tt-row-price">{won(p.price)}</span>
+            <span aria-hidden className="tt-row-chev">›</span>
+          </Link>
+        </li>
+      ))}
     </ul>
   );
 }
