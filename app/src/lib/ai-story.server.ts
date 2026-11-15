@@ -38,7 +38,7 @@ export interface StorySection {
 // 기본(story-7): 10카드, 카드당 2문단·공백 뺀 400~520자(지금의 흐름만 3문단까지). AI 는 알려 준 목표의 약 80%를 쓰는 경향이 있어 목표(target)를 높게 알려 주고 최솟값은 400으로 둔다.
 // 제목은 공백 포함 18~28자(headlineLen).
 const HL: [number, number] = [18, 30];
-const BASE = { min: 400, max: 660, target: 650, minParas: 2, maxParas: 2, headlineLen: HL, needEvidence: 2 } as const;
+const BASE = { min: 370, max: 660, target: 650, minParas: 2, maxParas: 2, headlineLen: HL, needEvidence: 2 } as const;
 export const BASIC_SECTIONS: StorySection[] = [
   { id: "summary", title: "한마디로", purpose: "JSON의 「일주핵심이미지」로 이 사람을 한 이미지로 정의하고(이 이미지는 이 카드에서만 쓴다) 인생 테마를 단언한다. 일간의 힘(신강·신약)과 계절의 쏠림, 가장 큰 강점과 가장 큰 긴장을 사주 근거와 함께 말한다. 고민은 사주 전체의 방향에서 본 각도로 한 번 연결한다.", ...BASE, useConcern: true, concernMust: true },
   { id: "inner", title: "나라는 사람", purpose: "겉(연주·월주)과 속(일지·시주)의 대비, 나이 들며 달라지는 면, 바라는 모습과 경계할 기질을 사주 근거로 단언한다. 위로와 인정이 배어 있어야 한다. 고민은 자연스러울 때만 연결한다.", ...BASE, target: 720, useConcern: true, comfort: true },
@@ -197,7 +197,7 @@ const OVERCLAIM = /수명|단명|오래 못 살|(수익|이익|돈)(이|을|은)
 // 방어적인 메타 표현은 글이 아니라 화면 각주로 안내한다
 const META_PHRASE = /일반 이론|검증 전|전문가 검증|후보(예요|이에요|입니다|라고)/;
 const DISCLAIMER = /사주만으로|사주로(만)? (정할|단정|알 수|볼 수)|정할 수 (없|는 없)|단정(할|하기)( 수)? (없|어렵)|결과(는|가) (달라질|바뀔)|보장(할|하기)( 수)? (없|어렵)/;
-const SCENE = /회의(에서| 자리| 중| 때)|카페|점심|퇴근|출근|책상|식탁|취미|주말|모임에서|예를 들어|이를테면/;
+const SCENE = /회의(에서| 자리| 중| 때)|카페|점심|퇴근|출근|책상|식탁|취미|주말|모임에서/;
 const COACH = /햇볕|햇빛|산책|정돈|수면|스트레칭|운동을|메모|일기|써 보|들여 보|챙겨 보/;
 const HEADLINE_SCENE = /숲|새싹|바람|등불|봄볕|저녁|물결|그늘|언덕|들판|달빛|이슬|햇살|노을|아침/;
 // 구조 패턴 이름 → 글에서 그 구조를 말한 것으로 보는 표현
@@ -322,7 +322,9 @@ export function checkStory(
       const pw = words(p);
       const shared = [...pw].filter((w) => mine.has(w));
       const long = shared.filter((w) => w.length >= 2);
-      const firstEq = (headline.match(/[가-힣]{2,}/)?.[0] ?? "x") === (p.match(/[가-힣]{2,}/)?.[0] ?? "y");
+      const firstWord = (t: string) => [...words(t)].find((w) => w.length >= 2);
+      const fw = firstWord(headline);
+      const firstEq = !!fw && fw === firstWord(p);
       if (long.length >= 2 || firstEq || (shared.length >= 3 && long.length >= 1)) { f("HEADLINE_REPEAT", `제목이 앞 카드 제목과 「${(shared.length ? shared : [headline.match(/[가-힣]{2,}/)?.[0] ?? ""]).join(" ")}」이(가) 겹쳐요(첫 낱말이 같아요). 다른 소재로 새로 지어요.`); break; }
     }
   } else {
@@ -373,7 +375,7 @@ export function checkStory(
     }
     const plan = opts.plan;
     if (plan?.contrast === "겉속" && !(/겉/.test(body) && /속/.test(body))) f("CONTRAST_MISSING", "겉으로는 ~ 속으로는 ~ 대비를 한 번 써요.");
-    if (plan?.contrast === "과거지금" && !(/(지금까지|그동안|예전|과거|어린 시절|초년|지나온)/.test(body) && /(지금은|이제는|앞으로|지금의|요즘|지금 대운)/.test(body))) f("CONTRAST_MISSING", "과거(그동안)와 지금의 대비를 한 번 써요.");
+    if (plan?.contrast === "과거지금" && !(/(지금까지|그동안|예전|과거|어린 시절|초년|지나온|지난|오래|전에는|어릴)/.test(body) && /(지금|이제|요즘|앞으로|올해|현재|오늘)/.test(body))) f("CONTRAST_MISSING", "과거(그동안)와 지금의 대비를 한 번 써요.");
     if (opts.concernKeys?.length && !opts.concernKeys.some((k) => body.includes(k))) f("CONCERN_MISSING", `고객이 쓴 단어(${opts.concernKeys.slice(0, 3).join(", ")} 중 하나)를 글에 그대로 인용해 고민과 연결해요.`);
     const hedges = (body.match(/수(도)? 있(어요|겠어요|답니다|죠|습니다|네요)/g) ?? []).length;
     if (hedges > 1) f("HEDGE_LIMIT", `"~할 수 있어요"를 ${hedges}번 썼어요. 카드당 한 번 이하로, 성향과 구조는 단언해요.`);

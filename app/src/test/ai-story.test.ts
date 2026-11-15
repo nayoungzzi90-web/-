@@ -365,7 +365,7 @@ describe("기본(10카드, 카드당 450~550자) 구성", () => {
   it("10개 섹션(label 고정)이고 카드당 2문단·400~520자를 겨냥한다", () => {
     expect(BASIC_SECTIONS.map((s) => s.title)).toEqual(["한마디로", "나라는 사람", "오행", "일주와 십성", "나에게 맞는 일", "재물복", "연애운", "쓴소리", "나만의 매력", "지금의 흐름"]);
     for (const s of BASIC_SECTIONS) {
-      expect(s.min).toBe(s.id === "flow" ? 450 : 400);
+      expect(s.min).toBe(s.id === "flow" ? 450 : 370);
       expect(s.minParas).toBe(2);
       expect(s.maxParas).toBe(s.id === "flow" ? 3 : 2);
       expect(s.headlineLen).toEqual([18, 30]);

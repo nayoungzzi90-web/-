@@ -162,3 +162,23 @@ describe("고객 단어 분배·유보 표현", () => {
     expect(codes).toContain("META_PHRASE");
   });
 });
+
+describe("검수 완화(비교 시험 로그 반영)", () => {
+  const s = BASIC_SECTIONS[4]!;
+  const T = "묵묵히 버텨 온 사람이 끝내 길을 얻는 이야기";
+  const run = (b: string, o: Record<string, unknown> = {}, h = T) => checkStory(h, b, s, { ...facts, sinsalNames: [] }, { callName: "김나영", ...o }).map((i) => i.code);
+  const body = `김나영님은 월지에 자리한 편재가 중심이라 판을 벌여 굴리는 사람이에요. 연주의 상관은 표현이 앞서는 힘이에요.\n\n결론부터 말하면 부업을 키울 바탕이 있어요. ${"가나다라마바사아자차카타파하".repeat(22)}이에요.`;
+  it("'자기'처럼 흔한 낱말로 시작하는 제목끼리는 겹침으로 보지 않는다", () => {
+    expect(run(body, { priorHeadlines: ["자기 힘으로 길을 여는 이야기"] }, "자기 몫을 지켜 온 사람의 서사 이야기")).not.toContain("HEADLINE_REPEAT");
+    expect(run(body, { priorHeadlines: ["장부를 쥔 사람의 이야기"] }, "장부를 새로 쓰는 사람의 이야기")).toContain("HEADLINE_REPEAT");
+  });
+  it("'예를 들어'는 일상 장면으로 보지 않지만 회의 자리는 막는다", () => {
+    expect(run(`${body} 예를 들어 오래 버텨 왔어요.`)).not.toContain("SCENE");
+    expect(run(`${body} 회의 자리에서 말해요.`)).toContain("SCENE");
+  });
+  it("과거·현재 대비는 넓은 표현을 인정한다", () => {
+    const plan = { plan: { contrast: "과거지금" } };
+    expect(run(`${body} 지난 시간 동안 버텼고 이제는 펼칠 때예요.`, plan)).not.toContain("CONTRAST_MISSING");
+    expect(run(body, plan)).toContain("CONTRAST_MISSING");
+  });
+});
