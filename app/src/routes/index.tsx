@@ -3,7 +3,7 @@ import { Book, CookieClosed, Flame, TtottoBody, TtottoFace } from "@/components/
 import { TT } from "@/lib/ttotto-content";
 
 export const Route = createFileRoute("/")({
-  head: () => ({ meta: [{ title: "또또사주 · 내 사주, 한 편의 웹툰" }] }),
+  head: () => ({ meta: [{ title: "또또사주 · 또또와 알아보는 나의 사주" }] }),
   component: Home,
 });
 
@@ -21,8 +21,8 @@ function Home() {
 
         <main className="flex flex-1 flex-col justify-center">
           <h1 className="mt-4 text-center text-[clamp(34px,10vw,46px)] leading-[1.12]">
-            내 사주,
-            <br />한 편의 웹툰
+            또또와 알아보는
+            <br />나의 사주
           </h1>
 
           <div className="relative mx-auto mt-4 flex w-full max-w-[360px] items-end justify-center pt-16" style={{ minHeight: "clamp(210px, 36dvh, 320px)" }}>

@@ -1,5 +1,5 @@
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
-import { TtottoFace } from "@/components/ttotto/Art";
+import { CardArt, TtottoFace } from "@/components/ttotto/Art";
 import { TT, won } from "@/lib/ttotto-content";
 
 export const Route = createFileRoute("/stories")({
@@ -26,7 +26,7 @@ function Stories() {
         <main>
           <h1 className="mt-5 text-[clamp(26px,7.4vw,32px)] font-extrabold leading-tight">{TT.stories.title}</h1>
 
-          <Link to="/input" className="tt-card mt-3 flex items-center gap-2" style={{ background: "#fff4d4", minHeight: 48, padding: "8px 14px" }}>
+          <Link to="/input" className="tt-card mt-3" style={{ display: "flex", alignItems: "center", gap: 8, background: "#fff4d4", minHeight: 48, padding: "8px 14px" }}>
             <TtottoFace size={30} />
             <span className="flex-1 text-[15px] font-extrabold leading-snug">{TT.stories.freeEntry}</span>
             <span aria-hidden className="font-extrabold">→</span>
@@ -38,15 +38,20 @@ function Stories() {
                 <Link
                   to="/story/$id"
                   params={{ id: p.id }}
-                  className="tt-card h-full"
+                  className="tt-card h-full" 
                   style={{ background: p.bg }}
                   aria-label={`${p.title} ${won(p.price)}. ${p.question}`}
                 >
-                  <h2>
-                    <span>{p.title}</span>
-                    <span className="tt-price">{won(p.price)}</span>
-                  </h2>
-                  <p className="tt-q">{p.question}</p>
+                  <span className={`flex gap-2 ${i === TT.products.length - 1 ? "items-center" : "items-start"}`}>
+                    <CardArt id={p.id} size={i === TT.products.length - 1 ? 56 : 32} />
+                    <span className="min-w-0 flex-1">
+                      <h2>
+                        <span>{p.title}</span>
+                        <span className="tt-price">{won(p.price)}</span>
+                      </h2>
+                      <p className="tt-q">{p.question}</p>
+                    </span>
+                  </span>
                 </Link>
               </li>
             ))}

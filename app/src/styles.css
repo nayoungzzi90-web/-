@@ -325,3 +325,5 @@ body {
 /* 또또 주황 위의 글자는 어둡게(대비 확보) */
 [class*="bg-[var(--stamp)]"] { color: var(--ink) !important; }
 .dancheong { display: none; }
+.tt-card { padding: 10px 12px; }
+.tt-card h2 { font-size: 17px; }

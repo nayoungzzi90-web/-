@@ -18,7 +18,7 @@ export const Route = createRootRoute({
       { name: "description", content: SITE_DESC },
       { property: "og:site_name", content: SITE_NAME },
       { property: "og:type", content: "website" },
-      { property: "og:title", content: "또또사주 — 내 사주, 한 편의 웹툰" },
+      { property: "og:title", content: "또또사주 — 또또와 알아보는 나의 사주" },
       { property: "og:description", content: SITE_DESC },
       { property: "og:image", content: `${SITE_URL}/restore/hero.jpg` },
       { name: "twitter:card", content: "summary_large_image" },

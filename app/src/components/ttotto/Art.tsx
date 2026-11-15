@@ -79,3 +79,25 @@ export function CookieHalf({ flip = false, className = "" }: { flip?: boolean; c
     </svg>
   );
 }
+
+export function Calendar({ className = "" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 70 60" className={className} aria-hidden focusable="false">
+      <rect x="4" y="10" width="62" height="46" rx="6" fill="#fffdf4" stroke={INK} strokeWidth="4" />
+      <path d="M4 22 H66" stroke={INK} strokeWidth="4" />
+      <path d="M20 4 V16 M50 4 V16" stroke={INK} strokeWidth="4" strokeLinecap="round" />
+      <path d="M16 34 h8 M30 34 h8 M44 34 h8 M16 46 h8 M30 46 h8" stroke="#ff7049" strokeWidth="4" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+/** 상품 카드 안의 작은 삽화: 또또 얼굴에 상품별 소품(책·불꽃·달력). */
+export function CardArt({ id, size = 40 }: { id: string; size?: number }) {
+  const prop = id === "basic" ? <Book className="absolute -bottom-1 -right-3 w-[62%]" /> : id === "date" ? <Calendar className="absolute -bottom-1 -right-3 w-[56%]" /> : <Flame className="absolute -bottom-1 -right-3 w-[48%]" />;
+  return (
+    <span className="relative mr-3 inline-block shrink-0" style={{ width: size, height: size }} aria-hidden>
+      <TtottoFace size={size} />
+      {prop}
+    </span>
+  );
+}

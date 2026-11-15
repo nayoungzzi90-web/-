@@ -3,4 +3,4 @@
 export const SITE_URL = "https://ohaeng-friends.nayoungzzi90.workers.dev";
 export const SITE_NAME = "또또사주";
 export const SITE_DESC =
-  "내 사주, 한 편의 웹툰. 또또와 함께 사주를 보고 오늘의 운세쿠키도 열어 보세요. 30초 테스트로 나와 닮은 오행 친구를 찾을 수 있어요.";
+  "또또와 알아보는 나의 사주. 또또와 함께 사주를 보고 오늘의 운세쿠키도 열어 보세요. 30초 테스트로 나와 닮은 오행 친구를 찾을 수 있어요.";
