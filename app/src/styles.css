@@ -1216,3 +1216,19 @@ html { scroll-behavior: auto; }
 /* v62: 형광펜은 "또또"에만(글씨는 먹색 그대로) */
 .tt.tt-home .tt-hero-note u { padding: 0 4px 0 5px; margin: 0; font-size: 1.08em; color: inherit; transform: rotate(-2deg); -webkit-text-stroke: 0; text-shadow: none; }
 .tt.tt-home .tt-hero-note u::before { content: ""; left: -3px; right: 0; }
+
+/* v63: 상품 상세 — 홈과 같은 말투(연한 타일 + 물방울, 알약 닢, Jua 제목, 칩, 주황 버튼) */
+.tt-detail { --hair: #eadfcd; }
+.tt-dt-hero { position: relative; display: flex; align-items: flex-end; justify-content: center; height: 188px; padding: 0 10px 8px; border-radius: 22px; background-color: var(--tile, #edf6df); background-image: radial-gradient(rgba(255, 255, 255, .8) 1.6px, transparent 1.7px); background-size: 15px 15px; overflow: hidden; }
+.tt-dt-art { width: 100%; height: 150px; }
+.tt-dt-pill { position: absolute; top: 13px; right: 13px; display: inline-flex; align-items: center; gap: 4px; padding: 4px 11px 4px 7px; border-radius: 999px; background: #fff; box-shadow: 0 2px 6px rgba(120, 80, 30, .12); font-family: "Jua", "Gowun Dodum", sans-serif; font-size: 17px; line-height: 1; color: #28231f; }
+.tt-dt-title { margin: 20px 0 0; text-align: center; font-size: clamp(28px, 8vw, 34px); line-height: 1.15; color: #28231f; }
+.tt-dt-q { margin: 8px 0 0; text-align: center; font-size: 18px; font-weight: 700; line-height: 1.4; color: #28231f; }
+.tt-dt-topics { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 14px 0 0; padding: 0; list-style: none; }
+.tt-dt-topics li { padding: 5px 13px; border-radius: 999px; background: #fff; border: 1px solid var(--hair); font-size: 14.5px; font-weight: 700; color: #625c55; }
+.tt-dt-price { margin: 18px auto 0; }
+.tt-dt-first { margin: 12px 0 0; padding: 9px 12px; border-radius: 14px; background: #fff3ec; border: 1px solid #f4c4ae; text-align: center; font-family: "Jua", sans-serif; font-size: 16px; color: #a2491f; }
+.tt-dt-note { margin: 14px 0 0; text-align: center; font-size: 14.5px; line-height: 1.65; color: #625c55; }
+.tt-dt-soon { margin: 18px 0 0; padding: 16px; border: 1.5px dashed #d9c9b0; border-radius: 18px; background: #fff; text-align: center; }
+.tt-dt-soon p { margin: 0; font-family: "Jua", sans-serif; font-size: 18px; color: #28231f; }
+.tt-dt-soon span { display: block; margin-top: 4px; font-size: 14px; color: #625c55; }
