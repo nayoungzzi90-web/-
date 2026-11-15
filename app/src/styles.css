@@ -1181,3 +1181,9 @@ html { scroll-behavior: auto; }
 .tt.tt-home .tt-hero-note p::before { left: 2px; }
 .tt.tt-home .tt-hero-note p::after { content: "✧"; right: 2px; }
 .tt.tt-home .tt-hero-note u { background: none; text-decoration: none; }
+
+/* v56: 물결 밑줄 → 붓으로 쓱 그은 두 줄 밑줄(주황 + 연한 주황) */
+.tt.tt-home .tt-hero-note p { padding-bottom: 14px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 14' preserveAspectRatio='none'%3E%3Cpath d='M3 6 C50 2 120 2 197 5' fill='none' stroke='%23ff6f45' stroke-width='3.6' stroke-linecap='round'/%3E%3Cpath d='M44 11.5 C85 9.5 125 9.5 160 11' fill='none' stroke='%23ffb48f' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat left bottom / 100% 14px; background-origin: content-box; background-clip: content-box; }
+
+/* v57: 밑줄이 글씨를 가리지 않게 글씨 아래 여백에 둔다 */
+.tt.tt-home .tt-hero-note p { padding-bottom: 17px; background-origin: padding-box; background-clip: padding-box; background-position: 26px 100%; background-size: calc(100% - 52px) 14px; }
