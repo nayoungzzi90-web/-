@@ -499,3 +499,8 @@ html { scroll-behavior: auto; }
 .tt .tt-t2-grid > li:not(.col-span-2) > .tt-t2 { justify-content: flex-start; }
 .tt .tt-t2-grid .tt-t2-headline { min-height: 30px; align-items: center; }
 .tt .tt-t2-grid > li:not(.col-span-2) .tt-t2-art { width: 96%; height: clamp(92px, 27vw, 108px); }
+
+/* 신년운세 가로 칸: 글 영역을 세로로 쌓아 키워드를 한 줄로 */
+.tt .tt-t2-grid .tt-t2-wide .tt-t2-wide-text { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; flex: 1; }
+.tt .tt-t2-grid .tt-t2-wide .tt-t2-topics { white-space: nowrap; font-size: 13.5px; margin-top: 4px; }
+.tt .tt-t2-grid .tt-t2-wide .tt-t2-headline { justify-content: flex-start; flex-wrap: nowrap; }
