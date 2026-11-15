@@ -20,7 +20,7 @@ function Home() {
         </header>
 
         <main className="flex flex-1 flex-col justify-center">
-          <h1 className="mt-4 text-center text-[clamp(34px,10vw,46px)] leading-[1.12]">
+          <h1 className="mt-4 text-center text-[clamp(38px,11.5vw,50px)] leading-[1.12]">
             또또와 알아보는
             <br />나의 사주
           </h1>
@@ -36,6 +36,7 @@ function Home() {
               <img src={ASSETS.bookHome} alt="책을 든 또또" className="block w-[48%]" draggable={false} />
               <img src={ASSETS.flame} alt="" aria-hidden className="mb-[2%] block w-[30%]" draggable={false} />
             </div>
+            <div className="tt-ground" aria-hidden />
           </div>
 
           <div className="mt-5 space-y-3">

@@ -344,3 +344,18 @@ body {
 @keyframes tt-reveal { from { opacity: 0; } to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .tt-scene *, .tt-actions { animation: none !important; transition: none !important; } .tt-scene.is-opening .tt-grp { opacity: 1; } }
 .tt-paper-text p { text-wrap: balance; }
+
+/* 시안 정합(2026-11-15): 시안은 가는 먹선(약 1.5~2px)과 굵고 큰 한글 제목을 쓴다. 굵은 3px 테두리를 줄이고 제목을 키운다. */
+.tt-header { border-bottom-width: 1.5px; }
+.tt-btn { border-width: 2px; border-radius: 16px; }
+.tt-primary { border-color: #e65a2a; }
+.tt-sub { border-color: var(--tt-ink); border-width: 1.5px; }
+.tt-card { border-width: 1.5px; border-radius: 16px; }
+.tt-badge { border-width: 1.5px; }
+.tt-bubble { border-width: 2px !important; }
+.tt h1 { -webkit-text-stroke: 0.7px currentColor; letter-spacing: -0.01em; }
+.tt-header-title, .tt-card h2, .tt-btn { -webkit-text-stroke: 0.35px currentColor; }
+.tt-ground { height: 0; border-top: 2px solid var(--tt-ink); margin-top: -2px; position: relative; z-index: 1; }
+.tt-price { font-size: 12.5px; }
+.tt-card h2 { font-size: 16.5px; }
+.tt-card .tt-q { font-size: 13.5px; }
