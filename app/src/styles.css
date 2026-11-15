@@ -347,3 +347,8 @@ body {
 .tt .tt-soon { display: inline-block; margin-top: 4px; border: 1.5px solid var(--tt-ink); border-radius: 999px; padding: 0 8px; font-size: 12px; font-weight: 700; background: rgba(255,255,255,.7); }
 html { scroll-behavior: auto; }
 @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+
+/* 홈 합본 v2: 쿠키 띠는 작게, 주 버튼은 한 줄에 크게 */
+.tt .tt-home-primary { font-size: clamp(21px, 6.2vw, 25px); min-height: 60px; }
+.tt .tt-home-cookie-slim { font-size: clamp(17px, 5vw, 20px); min-height: 48px; }
+.tt .tt-home-cookie-slim .tt-badge { font-size: 13px; padding: 1px 10px; }
