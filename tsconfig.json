@@ -29,6 +29,6 @@
   ],
   "exclude": [
     "engine/manse/tools/crosscheck",
-    "lovable-app"
+    "docs/lovable-app-archive"
   ]
 }

@@ -3,14 +3,14 @@
 Claude Code 작업 지침. 원문 인수인계 문서는 `docs/handoff/`에 그대로 있다(차이는 `docs/handoff/CONFLICTS_WITH_CURRENT_DECISIONS.md`). **이 파일은 원문 `docs/handoff/CLAUDE.md`에 사용자 결정(2026-10-21 이후)을 반영한 현행판**이다. 충돌하면 이 파일이 우선한다.
 
 ## 구조
-- `lovable-app/` — 실제 제품(TanStack Start + Supabase). 화면, 로그인, 엽전·결제(꺼짐), 풀이 서버 함수.
-- 루트(`engine/manse`, `src/lib/{saju,report,content}`, `supabase/`) — 만세력 엔진, 해석 명제·검수·AI 작성 파이프라인, 시험. `lovable-app/src/lib/reading-core/`는 루트 코드의 사본이므로 직접 고치지 말고 원본을 고친 뒤 `node lovable-app/scripts/sync-reading-core.mjs` 로 복사(`--check` 로 동일성 확인).
+- `app/` — 현재 제품(새 앱, TanStack Start + Cloudflare Workers). 또또사주 화면, 풀이 화면, AI 풀이 시범. **옛 앱 `lovable-app/`(로그인·엽전·결제·풀이 서버 함수)은 2026-11-15 사용자 결정으로 삭제했다.** 삭제 직전 상태는 로컬 태그 `backup/lovable-app-before-removal` 에 있다(`git checkout backup/lovable-app-before-removal -- lovable-app` 로 복원). 옛 앱의 DB·법무·보안 문서와 검토용 SQL 은 `docs/lovable-app-archive/` 에 남겼다. 로그인·결제·엽전 서버 기능은 지금 코드에 없다(새로 만들거나 태그에서 복원해야 한다).
+- 루트(`engine/manse`, `src/lib/{saju,report,content}`, `supabase/`) — 만세력 엔진, 해석 명제·검수·AI 작성 파이프라인, 시험. `app/src/lib/reading-core/`는 루트 코드의 사본이다(동기화 스크립트는 옛 앱과 함께 삭제됐고 태그에 있다). 루트 원본을 고치면 사본도 같이 맞춘다.
 - `docs/saju-engine/` — R-001~R-015 명리 기준서 원문(`source/`), 참조 코드(`reference/`, 앱에 병합 금지), 규칙 상태(`RULE_REGISTRY.md`).
-- 번호 주의: 명리 규칙 R-001~R-015 ≠ `lovable-app/docs/R001_*`, `R015_*`(음력·절입 정밀, 로그인·DB 권한 감사).
+- 번호 주의: 명리 규칙 R-001~R-015 ≠ `docs/lovable-app-archive/docs/R001_*`, `R015_*`(음력·절입 정밀, 로그인·DB 권한 감사).
 
 ## 절대 규칙 (사용자 승인 없이 하지 않는다)
 1. 프로젝트 재작성·기존 기능 삭제 금지.
-2. **운영 DB 변경 금지**: DDL/DML, GRANT/REVOKE, 마이그레이션 적용, 회원·엽전·원장 변경. 새 SQL은 `lovable-app/docs/migrations/REVIEW_ONLY/` 에 검토용으로만 둔다.
+2. **운영 DB 변경 금지**: DDL/DML, GRANT/REVOKE, 마이그레이션 적용, 회원·엽전·원장 변경. 새 SQL은 `docs/lovable-app-archive/docs/migrations/REVIEW_ONLY/` 에 검토용으로만 둔다.
 3. **결제 활성화·계정 삭제 활성화·공개 배포·공개 상태 변경 금지.** `PAYMENTS_MODE` 기본 꺼짐, `ACCOUNT_DELETION_ENABLED` 기본 꺼짐, 유료 상품 `active=false`, `finalApproved=false`, R-015 `NO_GO` 를 승인 없이 바꾸지 않는다.
 4. **비밀값 금지**: `.env`, service_role, OpenAI/Gemini/PG/KASI 키, 회원정보를 코드·로그·Git·프롬프트·채팅에 넣지 않는다. 키는 서버 환경변수/Secrets 에만. 채팅에 붙여넣은 키는 폐기하도록 안내.
 5. **자료 진실성**: R-001~R-015 원문은 모두 `docs/saju-engine/source/`에 있다(대부분 DRAFT-1/검토 대기). 원문에 없는 세부(사령 분일 수치 등)는 `UNVERIFIED`로 두고 지어내지 않는다. 요약 복원이나 참조 코드를 원문 확보·전문가 승인으로 오인하지 않는다. R-006/009/010/011/013 과 《궁통보감》 120조합은 검증 전 확정 발행 금지. 정책 채택 ≠ 구현 ≠ 테스트 ≠ 전문가 검증 ≠ 출시 승인.
@@ -20,7 +20,7 @@ Claude Code 작업 지침. 원문 인수인계 문서는 `docs/handoff/`에 그�
 9. 저장소가 **공개**인 동안 사업 전략·마진 분석·보안 취약점 상세를 올리지 않는다(`START_HERE` 는 비공개 저장소를 요구). PRD·Lovable 프롬프트는 비공개 전환 뒤에 넣는다.
 
 ## 현행 제품 정책 (원문 `docs/handoff/`와 다른 점)
-- 재화 **엽전, 단위 닢**, **1닢 = 1,000원**(2026-11-15 사용자 결정, 이전 900원). 코드 상수(`lovable-app/src/lib/coins.ts`)·충전 팩 1~4닢(1,000~4,000원)·검토용 SQL(`REVIEW_ONLY`, 운영 미적용)·시험이 이 값을 따른다. **운영 DB 가격표·결제 함수는 바뀌지 않았다**(적용은 별도 승인). 5닢 충전 시 1닢 보너스는 DB 함수 변경이 필요해 아직 설계 전이다. 가입 보너스 없음.
+- 재화 **엽전, 단위 닢**, **1닢 = 1,000원**(2026-11-15 사용자 결정, 이전 900원). 삭제 전 옛 앱 코드 상수(`coins.ts`)·충전 팩 1~4닢(1,000~4,000원)·검토용 SQL(`REVIEW_ONLY`, 운영 미적용)·시험이 이 값을 따른다. **운영 DB 가격표·결제 함수는 바뀌지 않았다**(적용은 별도 승인). 5닢 충전 시 1닢 보너스는 DB 함수 변경이 필요해 아직 설계 전이다. 가입 보너스 없음.
 - 가격(2026-11-15 개정, 1닢=1,000원): 기본사주 1,000원(1닢), 궁합 1,000원(1닢), 택일 1,000원(1닢, 준비 중), 심층 연애운 2,000원(2닢), 심층사주 3,000원(3닢, 준비 중). 충전 팩 1~4닢. 새 앱 홈 표시는 연애운·재물운·직업·진로운 1,000원, 신년운세 2,000원(상품 키는 아직 옛 앱에 없음).
 - 초대 보상 1닢: 친구가 **처음 결제**하고 환불 기간(7일, 제안값) 안에 환불하지 않으면 지급, 초대자도 1닢 이상 결제한 적이 있어야 함, 한국 시간 하루 3명·월 10명.
 - 풀이 문체(2026-11-09 사용자 결정으로 변경): **사주아이처럼 전문용어·한자를 자유롭게 쓴다**(일주·십성·오행 용어, 만세력 표의 한자 등). 단, 검증되지 않은 규칙(R-006/009/010/011/013, 격국·용신·신강신약 판정 등)을 확정 사실처럼 단정하지 않는다(자료 진실성 규칙은 그대로). `src/lib/report` 의 검수 중 JARGON·HANJA 금지는 구현 단계에서 완화하고, 단정 표현 검수는 유지한다.
@@ -34,6 +34,6 @@ Claude Code 작업 지침. 원문 인수인계 문서는 `docs/handoff/`에 그�
 - 사용자 응답은 한국어, 초보자도 이해하게 짧고 정직하게(안 한 일·못 한 검증은 그대로 말한다). 작업 묶음이 끝나면 푸시 알림.
 
 ## 작업 방식
-- 변경 후 반드시: 루트 `npx vitest run`, `lovable-app` 의 `npx tsc --noEmit`, `npx vitest run`, `npx eslint src`, 필요하면 `npx vite build`.
+- 변경 후 반드시: 루트 `npx vitest run`, `app` 의 `npx tsc --noEmit`, `npx vitest run`, `npx eslint src`, 필요하면 `npx vite build`.
 - 새 서버 기능은 입력 검증(zod), 서버 전용 모듈(`*.server.ts`), 권한은 서버가 DB 에서 직접 확인(클라이언트 값 불신).
-- 보안 검토 기록: `lovable-app/docs/SECURITY_REVIEW_2026-10-29.md`. 결제 켜기 전 남은 항목이 있다.
+- 보안 검토 기록: `docs/lovable-app-archive/docs/SECURITY_REVIEW_2026-10-29.md`. 결제 켜기 전 남은 항목이 있다.

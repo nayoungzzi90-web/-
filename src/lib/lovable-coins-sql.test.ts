@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 // 엽전 가격표·결제·원장·초대 보상 SQL(PRICING_900_COIN → COINS_PAYMENTS_REFERRAL, 둘 다 REVIEW_ONLY, 운영 미적용)을
 // 운영과 같은 모양의 모의 스키마에 적용 순서대로 실행해 확인한다.
 // 단일 연결(PGlite)이라 "동시 요청" 직렬화(행 잠금)는 검증하지 못한다 → 운영 반영 전 staging 에서 확인할 항목으로 남는다.
-const read = (f: string) => readFileSync(new URL(`../../lovable-app/docs/migrations/REVIEW_ONLY/${f}`, import.meta.url), 'utf8');
+const read = (f: string) => readFileSync(new URL(`../../docs/lovable-app-archive/docs/migrations/REVIEW_ONLY/${f}`, import.meta.url), 'utf8');
 const PRICING = read('PRICING_900_COIN_REVIEW_ONLY.sql');
 const COINS = read('COINS_PAYMENTS_REFERRAL_REVIEW_ONLY.sql');
 

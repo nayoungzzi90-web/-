@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 
 // AI 풀이 저장 SQL(AI_READINGS_REVIEW_ONLY, 운영 미적용)을 운영과 같은 모양의 모의 스키마에서 확인한다.
 // 단일 연결(PGlite)이라 동시 요청 직렬화(advisory lock·행 잠금)는 검증하지 못한다 → staging 확인 항목.
-const SQL = readFileSync(new URL('../../lovable-app/docs/migrations/REVIEW_ONLY/AI_READINGS_REVIEW_ONLY.sql', import.meta.url), 'utf8');
+const SQL = readFileSync(new URL('../../docs/lovable-app-archive/docs/migrations/REVIEW_ONLY/AI_READINGS_REVIEW_ONLY.sql', import.meta.url), 'utf8');
 const U = (n: number) => `00000000-0000-4000-8000-${n.toString(16).padStart(12, '0')}`;
 const RID = 'basic:0123456789abcd';
 const V = 'ai-v1';

@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 
 // 회원 탈퇴 SQL(ACCOUNT_DELETION_REVIEW_ONLY.sql, 검토용·미적용)을 모의 스키마에서 적용 순서대로 실행해 확인한다.
 // 실제 회원 데이터는 건드리지 않는다(전부 인메모리 가상 DB).
-const read = (f: string) => readFileSync(new URL(`../../lovable-app/docs/migrations/REVIEW_ONLY/${f}`, import.meta.url), 'utf8');
+const read = (f: string) => readFileSync(new URL(`../../docs/lovable-app-archive/docs/migrations/REVIEW_ONLY/${f}`, import.meta.url), 'utf8');
 const U = (n: number) => `00000000-0000-4000-8000-${n.toString(16).padStart(12, '0')}`;
 
 async function setup() {

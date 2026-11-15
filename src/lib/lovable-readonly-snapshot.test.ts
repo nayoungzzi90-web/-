@@ -2,9 +2,9 @@ import { readFileSync } from 'node:fs';
 import { PGlite } from '@electric-sql/pglite';
 import { describe, expect, it } from 'vitest';
 
-// Lovable 운영 DB 읽기 전용 스냅샷 SQL(lovable-app/docs/ops/R015_PROD_READONLY_SNAPSHOT.sql)을
+// Lovable 운영 DB 읽기 전용 스냅샷 SQL(docs/lovable-app-archive/docs/ops/R015_PROD_READONLY_SNAPSHOT.sql)을
 // 운영과 같은 모양의 모의 스키마(PGlite)에서 실행해 (1) 문법이 맞고 (2) 읽기 전용이며 (3) 개인정보를 내보내지 않음을 확인한다.
-const SQL = readFileSync(new URL('../../lovable-app/docs/ops/R015_PROD_READONLY_SNAPSHOT.sql', import.meta.url), 'utf8');
+const SQL = readFileSync(new URL('../../docs/lovable-app-archive/docs/ops/R015_PROD_READONLY_SNAPSHOT.sql', import.meta.url), 'utf8');
 
 const strip = (s: string) => s.replace(/--[^\n]*/g, '').replace(/'(?:[^']|'')*'/g, "''");
 
@@ -84,7 +84,7 @@ describe('R015 운영 읽기 전용 스냅샷 SQL', () => {
 describe('스냅샷 분석기', () => {
   it('과다 권한·search_path 누락·한도 초과·유료 활성을 잡고, 정상 상태는 FAIL 이 없다', async () => {
     // @ts-expect-error mjs 스크립트에는 타입 선언이 없다
-    const { analyze } = (await import('../../lovable-app/scripts/analyze-snapshot.mjs')) as { analyze: (s: unknown) => { level: string; msg: string }[] };
+    const { analyze } = (await import('../../docs/lovable-app-archive/scripts/analyze-snapshot.mjs')) as { analyze: (s: unknown) => { level: string; msg: string }[] };
     const good = {
       tables: [{ table: 'wallets', rls_enabled: true }],
       policies: [{ table: 'wallets', name: 'own' }],

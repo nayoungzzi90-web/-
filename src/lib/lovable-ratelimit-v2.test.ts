@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 
 // R015 요청 제한 SQL v2(기회적 정리 포함, REVIEW_ONLY)를 PGlite 에서 실행해 한도·원자성·권한·정리를 확인한다.
 // v1 은 staging 에서 통과했다. v2 는 함수 하나만 바뀌었으므로 같은 시나리오를 다시 돌려 회귀를 막고, staging 재검증 전까지는 "미적용" 상태다.
-const SQL = readFileSync(new URL('../../lovable-app/docs/migrations/REVIEW_ONLY/R015_SAJU_RATE_LIMIT_REVIEW_ONLY_v2.sql', import.meta.url), 'utf8');
+const SQL = readFileSync(new URL('../../docs/lovable-app-archive/docs/migrations/REVIEW_ONLY/R015_SAJU_RATE_LIMIT_REVIEW_ONLY_v2.sql', import.meta.url), 'utf8');
 const H = (n: number) => n.toString(16).padStart(64, '0');
 
 async function setup() {
@@ -80,7 +80,7 @@ describe('R015 요청 제한 SQL v2', () => {
 describe('ACL 문자열 분석', () => {
   it('relacl 을 권한 목록으로 푼다(PG17 MAINTAIN 포함, 빈 grantee 는 PUBLIC)', async () => {
     // @ts-expect-error mjs 스크립트에는 타입 선언이 없다
-    const { parseAcl } = (await import('../../lovable-app/scripts/analyze-snapshot.mjs')) as { parseAcl: (a: string) => { grantee: string; privilege: string }[] };
+    const { parseAcl } = (await import('../../docs/lovable-app-archive/scripts/analyze-snapshot.mjs')) as { parseAcl: (a: string) => { grantee: string; privilege: string }[] };
     const r = parseAcl('{postgres=arwdDxtm/postgres,anon=arwdxtm/postgres,=r/postgres,sandbox_exec=ar/postgres}');
     const of = (g: string) => r.filter((x) => x.grantee === g).map((x) => x.privilege).sort();
     expect(of('anon')).toEqual(['DELETE', 'INSERT', 'MAINTAIN', 'REFERENCES', 'SELECT', 'TRIGGER', 'UPDATE']); // TRUNCATE 없음

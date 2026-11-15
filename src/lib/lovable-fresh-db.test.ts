@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 
 // 새 Supabase 프로젝트용 적용 순서(00 기본 → 가격 → 엽전·결제·초대 → 요청 제한 v2 → 최소 권한)를
 // 빈 DB(PGlite)에 그대로 실행해 끝까지 적용되고 핵심 권한이 맞는지 확인한다. 모두 REVIEW_ONLY(미적용).
-const read = (f: string) => readFileSync(new URL(`../../lovable-app/docs/migrations/REVIEW_ONLY/${f}`, import.meta.url), 'utf8');
+const read = (f: string) => readFileSync(new URL(`../../docs/lovable-app-archive/docs/migrations/REVIEW_ONLY/${f}`, import.meta.url), 'utf8');
 const U = (n: number) => `00000000-0000-4000-8000-${n.toString(16).padStart(12, '0')}`;
 
 async function fresh() {
