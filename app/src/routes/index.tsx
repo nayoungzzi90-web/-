@@ -28,8 +28,7 @@ function Home() {
   return (
     <div className="tt tt-home">
       {/* 위쪽 소개 구역: 따뜻한 색 띠 하나에 로고·제목·또또·시작 버튼을 담는다. 아래 상품 구역과 색으로 분리된다 */}
-      {/* 맨 위 로고 줄: 하얀 바탕에 아래 가장자리를 물결 물방울로 */}
-      <div className="tt-topbar">
+      <div className="tt-hero-band">
         <div className="tt-band-inner">
           <header className="tt-header">
             <span className="tt-header-title">
@@ -37,15 +36,7 @@ function Home() {
               <TtottoFace size={36} />
             </span>
           </header>
-        </div>
-        {/* 아래 상품 구역 위의 물결과 같은 모양으로 이어지는 가장자리 */}
-        <svg className="tt-top-wave" viewBox="0 0 390 26" preserveAspectRatio="none" aria-hidden focusable="false">
-          <path d="M0 0 H390 V12 C364 22 338 22 312 12 C286 2 260 2 234 12 C208 22 182 22 156 12 C130 2 104 2 78 12 C52 22 26 22 0 12 Z" />
-        </svg>
-      </div>
 
-      <div className="tt-hero-band">
-        <div className="tt-band-inner">
 
           {/* 눈에는 보이지 않지만 검색·화면 낭독기가 읽는 페이지 제목 */}
           <h1 className="sr-only">나의 사주, 또또가 알려줄게</h1>
