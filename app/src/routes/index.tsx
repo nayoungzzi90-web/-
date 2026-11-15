@@ -40,7 +40,9 @@ function Home() {
           {/* 눈에는 보이지 않지만 검색·화면 낭독기가 읽는 페이지 제목 */}
           <h1 className="sr-only">나의 사주, 또또가 알려줄게</h1>
 
-          <p className="tt-hero-tag">나의 사주, 또또가 알려줄게</p>
+          <div className="tt-hero-tag-wrap">
+            <p className="tt-hero-tag">나의 사주, 또또가 알려줄게</p>
+          </div>
 
           {/* 또또(책)·불꽃은 하단이 잘린 원본이라 하단에 맞춰 붙이고, 말풍선은 글자를 실제 HTML 로 올린다 */}
           <div className="tt-hero-panel" role="img" aria-label="책을 든 또또가 인사해요: 안녕 반가워! 나는 또또야~">
