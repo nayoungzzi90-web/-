@@ -942,3 +942,18 @@ html { scroll-behavior: auto; }
 
 /* 홈 v20: 위쪽 띠를 한 가지 색으로(그라데이션 제거) — 로고 줄이 따로 진해 보이지 않게, 아래 베이지와 같은 계열로 */
 .tt.tt-home .tt-hero-band { background: #ffefdd; }
+
+/* 홈 v21: 카드 그림 무대 위쪽에 알약 자리를 비워 알약과 캐릭터가 붙지 않게, 맨 위 허전함은 작은 소개 알약으로 */
+.tt .tt-cards .tt-card-art { height: 112px; align-items: flex-end; padding: 0 6px 6px; }
+.tt .tt-cards .tt-card-art img { width: 100%; height: 76px; object-position: center bottom; }
+.tt .tt-cards .tt-card-pill { top: 13px; right: 13px; }
+.tt .tt-cards .tt-card-wide .tt-card-art { height: 64px; align-items: center; padding: 6px; }
+.tt .tt-cards .tt-card-wide .tt-card-art img { height: 100%; }
+.tt.tt-home .tt-hero-tag { width: fit-content; margin: 2px auto 0; padding: 6px 16px 7px; border-radius: 999px; background: rgba(255, 255, 255, .7); font-size: 14.5px; font-weight: 700; line-height: 1.2; letter-spacing: -0.01em; color: #8a5a34; }
+.tt.tt-home .tt-hero-tag::before, .tt.tt-home .tt-hero-tag::after { content: "✦"; margin: 0 7px; font-size: 11px; color: #ff9a2e; }
+.tt.tt-home .tt-hero-panel { aspect-ratio: 2.6 / 1; margin-top: 8px; }
+.tt.tt-home .tt-band-inner .tt-header { padding: 16px 0 10px; }
+.tt.tt-home .tt-hero-panel { margin-top: 14px; aspect-ratio: 2.5 / 1; }
+.tt.tt-home .tt-hero-book { width: 31%; left: 7%; }
+.tt.tt-home .tt-hero-flame { width: 19%; right: 11%; }
+.tt.tt-home .tt-hero-speech { top: 8%; width: 40%; }
