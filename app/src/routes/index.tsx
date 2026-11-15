@@ -27,19 +27,20 @@ function Home() {
   }, []);
   return (
     <div className="tt tt-home">
-      <div className="tt-wrap pb-28">
-        <header className="tt-header">
-          <span className="tt-header-title">
-            {TT.brand}
-            <TtottoFace size={36} />
-          </span>
-        </header>
+      {/* 위쪽 소개 구역: 따뜻한 색 띠 하나에 로고·제목·또또·시작 버튼을 담는다. 아래 상품 구역과 색으로 분리된다 */}
+      <div className="tt-hero-band">
+        <div className="tt-band-inner">
+          <header className="tt-header">
+            <span className="tt-header-title">
+              {TT.brand}
+              <TtottoFace size={36} />
+            </span>
+          </header>
 
-        <main>
           <h1 className="tt-home-title">나의 사주, 또또가 알려줄게</h1>
 
-          {/* 액자: 또또(책)·불꽃은 하단이 잘린 원본이라 패널 하단에 맞춰 붙이고, 말풍선은 글자를 실제 HTML 로 올린다 */}
-          <div className="tt-hero-panel mt-3" role="img" aria-label="책을 든 또또가 불꽃 친구에게 말해요: 너의 사주를 한번 봐볼까?">
+          {/* 또또(책)·불꽃은 하단이 잘린 원본이라 하단에 맞춰 붙이고, 말풍선은 글자를 실제 HTML 로 올린다 */}
+          <div className="tt-hero-panel" role="img" aria-label="책을 든 또또가 불꽃 친구에게 말해요: 너의 사주를 한번 봐볼까?">
             <span aria-hidden className="tt-glow" />
             <span aria-hidden className="tt-spark tt-spark-2">✦</span>
             <span aria-hidden className="tt-spark tt-spark-3">✧</span>
@@ -48,11 +49,15 @@ function Home() {
             <img src={ASSETS.heroFlame} alt="" aria-hidden className="tt-hero-flame" draggable={false} />
           </div>
 
-          <div className="mt-3 text-center">
-            <Link ref={ctaRef} to="/input" className="tt-btn tt-primary tt-home-primary mx-auto w-[88%]">무료로 내 사주 보기</Link>
-            <p className="mt-1.5 text-[15px] text-[var(--tt-ink)]">로그인 없이 시작 · 태어난 시간 몰라도 가능</p>
+          <div className="tt-home-cta">
+            <Link ref={ctaRef} to="/input" className="tt-btn tt-primary tt-home-primary">무료로 내 사주 보기</Link>
+            <p>로그인 없이 시작 · 태어난 시간 몰라도 가능</p>
           </div>
+        </div>
+      </div>
 
+      <div className="tt-wrap pb-28">
+        <main>
           <section aria-labelledby="tt-stories-title" className="mt-4">
             <h2 id="tt-stories-title" className="text-center text-[clamp(23px,6.6vw,28px)] leading-tight">지금, 뭐가 가장 궁금해?</h2>
             <p className="tt-price-note">

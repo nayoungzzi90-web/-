@@ -796,3 +796,17 @@ html { scroll-behavior: auto; }
 .tt.tt-home main > section:first-of-type { margin-top: 32px; }
 .tt.tt-home .tt-price-note { margin-top: 10px; padding: 5px 14px 6px; }
 .tt.tt-home main > section > .tt-cards { margin-top: 14px; }
+
+/* ===== 홈 v11: 위쪽 소개 구역(띠)과 아래 상품 구역을 색·모양으로 분리 ===== */
+.tt.tt-home .tt-hero-band { background: linear-gradient(180deg, #ffe9cf 0%, #fff1dd 100%); border-radius: 0 0 32px 32px; padding-bottom: 26px; }
+.tt.tt-home .tt-band-inner { max-width: var(--tt-content-width, 480px); margin: 0 auto; padding: 0 24px; }
+.tt.tt-home .tt-band-inner .tt-header { padding: 16px 0 6px; border-bottom: 0; }
+.tt.tt-home .tt-home-title { margin: 8px 0 0; }
+.tt.tt-home .tt-hero-panel { margin-top: 10px; background: transparent; border-radius: 0; }
+.tt.tt-home .tt-hero-panel .tt-glow { display: block; background: radial-gradient(circle, rgba(255, 255, 255, .75), rgba(255, 255, 255, 0) 68%); }
+.tt.tt-home .tt-home-cta { margin-top: 18px; text-align: center; }
+.tt.tt-home .tt-home-cta .tt-home-primary { width: 100%; margin: 0; }
+.tt.tt-home .tt-home-cta p { margin: 10px 0 0; font-size: 14px; line-height: 1.5; color: #8a5a34; }
+.tt.tt-home .tt-wrap > main > section:first-of-type { margin-top: 40px; }
+.tt.tt-home .tt-hero-panel .tt-glow { opacity: 1; animation: none; }
+.tt.tt-home .tt-hero-panel .tt-glow { display: none; }
