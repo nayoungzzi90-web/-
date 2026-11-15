@@ -63,3 +63,14 @@ export function SpeechBubble({ children, className = "" }: { children: ReactNode
     </div>
   );
 }
+
+/** 엽전 모양 동전(둥근 금빛 몸통 + 네모 구멍). 동전 1개 = 1,000원을 뜻하는 표시로 쓴다. */
+export function CoinIcon({ size = 20 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden focusable="false" className="shrink-0">
+      <circle cx="12" cy="12" r="10.2" fill="#f6c14a" stroke="#c98a1e" strokeWidth="1.6" />
+      <circle cx="12" cy="12" r="7.6" fill="none" stroke="#fde7a6" strokeWidth="1.2" />
+      <rect x="8.6" y="8.6" width="6.8" height="6.8" rx="1" fill="#fffaf2" stroke="#c98a1e" strokeWidth="1.4" />
+    </svg>
+  );
+}

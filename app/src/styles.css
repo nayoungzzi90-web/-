@@ -810,3 +810,10 @@ html { scroll-behavior: auto; }
 .tt.tt-home .tt-wrap > main > section:first-of-type { margin-top: 40px; }
 .tt.tt-home .tt-hero-panel .tt-glow { opacity: 1; animation: none; }
 .tt.tt-home .tt-hero-panel .tt-glow { display: none; }
+
+/* 동전 = 1,000원 표시 */
+.tt .tt-card { position: relative; }
+.tt .tt-card-coins { position: absolute; top: 10px; right: 10px; z-index: 2; display: flex; gap: 2px; }
+.tt .tt-card-coins svg { filter: drop-shadow(0 1px 1px rgba(150, 100, 20, .25)); }
+.tt .tt-price-note { align-items: center; gap: 7px; }
+.tt .tt-price-note b { font-size: 21px; }

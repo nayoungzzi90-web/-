@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { CardArt, TtottoFace } from "@/components/ttotto/Art";
+import { CardArt, CoinIcon, TtottoFace } from "@/components/ttotto/Art";
 import { TT, won } from "@/lib/ttotto-content";
 
 // 이야기 선택 영역(이야기 선택 화면과 홈 아래쪽이 함께 쓴다): 무료 맛보기 배너 + 상품 카드. 지금 열려 있는 상품이 앞에 오고 준비 중인 것은 뒤에 표시한다.
@@ -67,6 +67,11 @@ export function HomeTiles() {
               style={{ ["--tile" as string]: p.bg }}
               aria-label={`${p.title} ${won(p.price)}. ${p.topics.join(", ")}`}
             >
+              <span className="tt-card-coins" aria-hidden>
+                {Array.from({ length: Math.max(1, Math.round(p.price / basePrice)) }, (_, k) => (
+                  <CoinIcon key={k} size={20} />
+                ))}
+              </span>
               <span className="tt-card-art">
                 <CardArt id={p.id} fit />
               </span>

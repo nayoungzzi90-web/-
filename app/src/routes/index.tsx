@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { ASSETS, SpeechBubble, TtottoFace } from "@/components/ttotto/Art";
+import { ASSETS, CoinIcon, SpeechBubble, TtottoFace } from "@/components/ttotto/Art";
 import { HomeTiles } from "@/components/ttotto/StoryPicker";
 import { TT, won } from "@/lib/ttotto-content";
 
@@ -40,12 +40,12 @@ function Home() {
           <h1 className="tt-home-title">나의 사주, 또또가 알려줄게</h1>
 
           {/* 또또(책)·불꽃은 하단이 잘린 원본이라 하단에 맞춰 붙이고, 말풍선은 글자를 실제 HTML 로 올린다 */}
-          <div className="tt-hero-panel" role="img" aria-label="책을 든 또또가 불꽃 친구에게 말해요: 너의 사주를 한번 봐볼까?">
+          <div className="tt-hero-panel" role="img" aria-label="책을 든 또또가 인사해요: 안녕! 나는 또또야">
             <span aria-hidden className="tt-glow" />
             <span aria-hidden className="tt-spark tt-spark-2">✦</span>
             <span aria-hidden className="tt-spark tt-spark-3">✧</span>
             <img src={ASSETS.heroBook} alt="" aria-hidden className="tt-hero-book" draggable={false} />
-            <SpeechBubble className="tt-hero-speech">너의 사주를<br />한번 봐볼까?</SpeechBubble>
+            <SpeechBubble className="tt-hero-speech">안녕!<br />나는 또또야</SpeechBubble>
             <img src={ASSETS.heroFlame} alt="" aria-hidden className="tt-hero-flame" draggable={false} />
           </div>
 
@@ -61,7 +61,9 @@ function Home() {
           <section aria-labelledby="tt-stories-title" className="mt-4">
             <h2 id="tt-stories-title" className="text-center text-[clamp(23px,6.6vw,28px)] leading-tight">지금, 뭐가 가장 궁금해?</h2>
             <p className="tt-price-note">
-              <span>이야기 하나에</span> <b>{won(basePrice)}</b>
+              <span>이야기 하나에</span>
+              <CoinIcon size={24} />
+              <b>= {won(basePrice)}</b>
             </p>
             <HomeTiles />
           </section>
