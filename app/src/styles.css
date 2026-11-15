@@ -668,3 +668,16 @@ html { scroll-behavior: auto; }
 .tt .tt-more-chev { display: inline-block; font-size: 18px; line-height: 1; transition: transform .2s ease; }
 .tt .tt-more-chev.is-open { transform: rotate(180deg); }
 .tt .tt-more + .tt-rows { margin-top: 12px; }
+
+/* 홈 v6: 칸을 조금 작게, 제목 옆에 가격, 키워드는 원래대로 전부 */
+.tt .tt-mini, .tt.tt-home .tt-mini { padding: 12px 8px 14px; gap: 2px; }
+.tt .tt-mini-art, .tt.tt-home .tt-mini-art { height: 58px; margin-bottom: 8px; }
+.tt .tt-mini-art::before, .tt.tt-home .tt-mini-art::before { width: 54px; height: 54px; }
+.tt .tt-mini-head { display: flex; flex-wrap: nowrap; align-items: baseline; justify-content: center; gap: 5px; }
+.tt .tt-mini-head-left { justify-content: flex-start; }
+.tt .tt-mini-title { font-size: 17px; white-space: nowrap; }
+.tt .tt-mini-price { margin-top: 0; font-size: 13px; font-weight: 600; color: var(--tt-muted); white-space: nowrap; }
+.tt .tt-mini-sub { margin-top: 2px; font-size: 13px; line-height: 1.4; }
+.tt .tt-mini-grid { gap: 10px; }
+.tt.tt-home .tt-rows .tt-row { min-height: 64px; padding: 10px 14px 10px 10px; }
+.tt .tt-row-title { font-size: 17px; }

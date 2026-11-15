@@ -73,9 +73,11 @@ export function HomeTiles() {
               <span className="tt-mini-art">
                 <CardArt id={p.id} fit />
               </span>
-              <span className="tt-mini-title">{p.title}</span>
-              <span className="tt-mini-sub">{p.topics.slice(0, 2).join(" · ")}</span>
-              <span className="tt-mini-price">{won(p.price)}</span>
+              <span className="tt-mini-head">
+                <span className="tt-mini-title">{p.title}</span>
+                <span className="tt-mini-price">{won(p.price)}</span>
+              </span>
+              <span className="tt-mini-sub">{p.topics.join(" · ")}</span>
             </Link>
           </li>
         ))}
@@ -101,10 +103,12 @@ export function HomeTiles() {
                   <CardArt id={p.id} fit />
                 </span>
                 <span className="tt-row-main">
-                  <span className="tt-row-title">{p.title}</span>
-                  <span className="tt-row-sub">{p.topics.slice(0, 3).join(" · ")}</span>
+                  <span className="tt-mini-head tt-mini-head-left">
+                    <span className="tt-row-title">{p.title}</span>
+                    <span className="tt-mini-price">{won(p.price)}</span>
+                  </span>
+                  <span className="tt-row-sub">{p.topics.join(" · ")}</span>
                 </span>
-                <span className="tt-row-price">{won(p.price)}</span>
                 <span aria-hidden className="tt-row-chev">›</span>
               </Link>
             </li>
