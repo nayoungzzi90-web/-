@@ -32,11 +32,9 @@ function Home() {
             >
               {TT.home.speech}
             </p>
-            <div className="flex items-end justify-center gap-[3%] pt-[22%]">
-              <img src={ASSETS.bookHome} alt="책을 든 또또" className="block w-[48%]" draggable={false} />
-              <img src={ASSETS.flame} alt="" aria-hidden className="mb-[2%] block w-[30%]" draggable={false} />
+            <div className="pt-[20%]">
+              <img src={ASSETS.homeScene} alt="책을 읽는 또또와 웃는 불꽃 친구" className="block w-full" draggable={false} />
             </div>
-            <div className="tt-ground" aria-hidden />
           </div>
 
           <div className="mt-5 space-y-3">

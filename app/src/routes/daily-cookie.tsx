@@ -162,21 +162,9 @@ function DailyCookie() {
           )}
 
           <div className={`tt-scene is-${state} mt-3`}>
-            {/* 캐릭터 장면: 몸통 → 쿠키 조각(+손 그룹) → 닫힌 쿠키 → 손 순으로 겹친다 */}
-            <div className="tt-char" role="img" aria-label={shown ? "쿠키를 양쪽으로 벌린 또또" : "양손으로 쿠키를 든 또또"}>
-              <img src={ASSETS.bodyNormal} alt="" aria-hidden className="tt-body tt-body-normal" draggable={false} />
-              <img src={ASSETS.bodySurprised} alt="" aria-hidden className="tt-body tt-body-surprised" draggable={false} />
-              <img src={ASSETS.cookieClosed} alt="" aria-hidden className="tt-cookie-closed" draggable={false} />
-              <div className="tt-grp tt-grp-left">
-                <img src={ASSETS.cookieLeft} alt="" aria-hidden className="tt-half-left" draggable={false} />
-                <img src={ASSETS.handLeft} alt="" aria-hidden className="tt-hand-left" draggable={false} />
-              </div>
-              <div className="tt-grp tt-grp-right">
-                <img src={ASSETS.cookieRight} alt="" aria-hidden className="tt-half-right" draggable={false} />
-                <img src={ASSETS.handRight} alt="" aria-hidden className="tt-hand-right" draggable={false} />
-              </div>
-              <img src={ASSETS.handLeft} alt="" aria-hidden className="tt-hand-left tt-hand-idle" draggable={false} />
-              <img src={ASSETS.handRight} alt="" aria-hidden className="tt-hand-right tt-hand-idle" draggable={false} />
+            {/* 캐릭터 장면: 원본 시안에서 분리한 한 장짜리 그림(쿠키를 든 또또). 조각·손은 분리 레이어가 아니므로 열 때는 흔들림으로 표현한다. */}
+            <div className="tt-char" role="img" aria-label={shown ? "쪽지를 꺼낸 또또" : "양손으로 쿠키를 든 또또"}>
+              <img src={ASSETS.cookieScene} alt="" aria-hidden className="tt-scene-art" draggable={false} />
             </div>
 
             {/* 쪽지: 빈 종이 그림과 실제 글자를 한 그룹으로 앞에서 확대된다 */}
