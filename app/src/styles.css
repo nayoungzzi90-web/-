@@ -1113,3 +1113,6 @@ html { scroll-behavior: auto; }
 
 /* v41: 압핀을 가운데가 아니라 오른쪽 위(흰 종이 조각 자리)로 */
 .tt.tt-home .tt-hero-note::before { left: auto; right: 6px; top: -8px; margin-left: 0; }
+
+/* v42: 흰 종이 조각 삭제, 빨간 압핀만 오른쪽 위에 */
+.tt.tt-home .tt-hero-note::after { display: none; }
