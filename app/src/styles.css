@@ -1058,3 +1058,9 @@ html { scroll-behavior: auto; }
 .tt.tt-home .tt-hero-note::before { content: ""; position: absolute; inset: 0; z-index: 0; background: linear-gradient(90deg, #f3e2c2 0%, #e4c795 100%); clip-path: polygon(170px 1px, 204px 0px, 209px 6px, 205px 11px, 213px 17px, 208px 23px, 214px 29px, 209px 34px, 212px 40px, 170px 39px); }
 .tt.tt-home .tt-hero-note p { position: relative; z-index: 1; display: block; width: 214px; height: 40px; padding: 0 20px 0 0; background: #fffdf9; line-height: 40px; text-align: center; font-size: 15.5px; white-space: nowrap; clip-path: polygon(0 7px, 2px 2px, 7px 0, 190px 0, 195px 5px, 189px 10px, 197px 16px, 191px 21px, 198px 27px, 192px 32px, 196px 37px, 193px 40px, 7px 40px, 2px 38px, 0 33px); }
 .tt.tt-home .tt-hero-note::after { display: block; content: ""; position: absolute; left: -2px; bottom: -3px; z-index: 2; width: 16px; height: 16px; background: linear-gradient(45deg, #d9cdbb 0%, #fffdf9 55%); clip-path: polygon(0 0, 100% 100%, 0 100%); box-shadow: none; filter: drop-shadow(1px 2px 1px rgba(40, 35, 31, .35)); transform: none; right: auto; top: auto; }
+
+/* 홈 v33: 쿠키 캐릭터를 조금 작게, 쿠키 섹션 아래 여백을 넉넉하게 */
+.tt.tt-home .tt-cookie-art { left: 6%; width: 31%; }
+.tt.tt-home .tt-cookie-box { min-height: 150px; padding-left: 44%; }
+.tt.tt-home .tt-wrap > main > section:last-of-type { margin-bottom: 36px; }
+.tt.tt-home .tt-home-foot { margin-top: 56px; }
