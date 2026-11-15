@@ -8,6 +8,11 @@ const box =
   "w-full rounded-xl border-2 border-[var(--line)] bg-[#fffdf5] px-3 py-2.5 text-[16px] outline-none focus:border-[var(--stamp)]";
 const choice = (on: boolean) =>
   `rounded-xl border-2 border-[var(--line)] py-2.5 font-extrabold ${on ? "bg-[var(--to)] shadow-[3px_3px_0_var(--line)]" : "bg-[#fffdf5]"}`;
+// 또또사주 화면(궁합 등)에서 쓰는 모양. 동작은 같고 클래스만 다르다.
+const ttBox =
+  "w-full rounded-[14px] border-[2.5px] border-[var(--tt-ink)] bg-white px-3 py-3 text-[17px] outline-none focus:border-[var(--tt-orange)]";
+const ttChoice = (on: boolean) =>
+  `rounded-[14px] border-[2.5px] border-[var(--tt-ink)] py-3 text-[17px] font-extrabold ${on ? "bg-[#ffe9a6] shadow-[0_3px_0_var(--tt-ink)]" : "bg-white"}`;
 
 // 생년월일 입력 폼(본인·상대 공용). 검증은 계산 엔진의 파서가 한다.
 export function BirthForm({
@@ -15,12 +20,18 @@ export function BirthForm({
   submitLabel,
   onSubmit,
   nameLabel = "이름(별명)",
+  tone = "classic",
 }: {
   initial: BirthInput | null;
   submitLabel: string;
   onSubmit: (b: BirthInput) => void;
   nameLabel?: string;
+  tone?: "classic" | "tt";
 }) {
+  const tt = tone === "tt";
+  const box_ = tt ? ttBox : box;
+  const choice_ = tt ? ttChoice : choice;
+  const lab = tt ? "mb-1 block text-[15px] font-extrabold" : "mb-1 block text-sm font-extrabold";
   const [name, setName] = useState(initial?.name ?? "");
   const [cal, setCal] = useState<"solar" | "lunar">(
     initial?.calendar ?? "solar",
@@ -64,9 +75,9 @@ export function BirthForm({
   return (
     <div className="space-y-4" onChange={clear}>
       <label className="block">
-        <span className="mb-1 block text-sm font-extrabold">{nameLabel}</span>
+        <span className={lab}>{nameLabel}</span>
         <input
-          className={box}
+          className={box_}
           value={name}
           onChange={(e) => setName(e.target.value)}
           maxLength={10}
@@ -74,7 +85,7 @@ export function BirthForm({
         />
       </label>
       <div>
-        <span className="mb-1 block text-sm font-extrabold">달력</span>
+        <span className={lab}>달력</span>
         <div className="grid grid-cols-2 gap-2">
           {(["solar", "lunar"] as const).map((c) => (
             <button
@@ -82,7 +93,7 @@ export function BirthForm({
               type="button"
               onClick={() => setCal(c)}
               aria-pressed={cal === c}
-              className={choice(cal === c)}
+              className={choice_(cal === c)}
             >
               {c === "solar" ? "양력" : "음력"}
             </button>
@@ -94,17 +105,17 @@ export function BirthForm({
               type="checkbox"
               checked={leap}
               onChange={(e) => setLeap(e.target.checked)}
-              className="h-5 w-5 accent-[var(--stamp)]"
+              className="h-5 w-5 accent-[var(--tt-orange,var(--stamp))]"
             />
             윤달이에요
           </label>
         )}
       </div>
       <div>
-        <span className="mb-1 block text-sm font-extrabold">생년월일</span>
+        <span className={lab}>생년월일</span>
         <div className="grid grid-cols-[1.4fr_1fr_1fr] gap-2">
           <input
-            className={box}
+            className={box_}
             inputMode="numeric"
             maxLength={4}
             value={y}
@@ -113,7 +124,7 @@ export function BirthForm({
             aria-label="태어난 해"
           />
           <input
-            className={box}
+            className={box_}
             inputMode="numeric"
             maxLength={2}
             value={m}
@@ -122,7 +133,7 @@ export function BirthForm({
             aria-label="태어난 달"
           />
           <input
-            className={box}
+            className={box_}
             inputMode="numeric"
             maxLength={2}
             value={d}
@@ -136,9 +147,9 @@ export function BirthForm({
         </p>
       </div>
       <div>
-        <span className="mb-1 block text-sm font-extrabold">태어난 시간</span>
+        <span className={lab}>태어난 시간</span>
         <input
-          className={`${box} disabled:opacity-40`}
+          className={`${box_} disabled:opacity-40`}
           type="time"
           value={time}
           disabled={unknownTime}
@@ -150,13 +161,13 @@ export function BirthForm({
             type="checkbox"
             checked={unknownTime}
             onChange={(e) => setUnknownTime(e.target.checked)}
-            className="h-5 w-5 accent-[var(--stamp)]"
+            className="h-5 w-5 accent-[var(--tt-orange,var(--stamp))]"
           />
           시간을 몰라요 (시주 없이 6글자로 봐요)
         </label>
       </div>
       <div>
-        <span className="mb-1 block text-sm font-extrabold">성별</span>
+        <span className={lab}>성별</span>
         <div className="grid grid-cols-2 gap-2">
           {(["f", "m"] as const).map((g) => (
             <button
@@ -164,7 +175,7 @@ export function BirthForm({
               type="button"
               onClick={() => setGender(g)}
               aria-pressed={gender === g}
-              className={choice(gender === g)}
+              className={choice_(gender === g)}
             >
               {g === "f" ? "여성" : "남성"}
             </button>
@@ -174,7 +185,11 @@ export function BirthForm({
       {err && (
         <p
           role="alert"
-          className="rounded-xl border-2 border-[var(--stamp)] bg-[#fde4e1] px-3 py-2 text-sm font-bold text-[var(--stamp)]"
+          className={
+            tt
+              ? "rounded-[14px] border-[2.5px] border-[var(--tt-ink)] bg-[#fce6e8] px-3 py-2 text-[15px] font-bold"
+              : "rounded-xl border-2 border-[var(--stamp)] bg-[#fde4e1] px-3 py-2 text-sm font-bold text-[var(--stamp)]"
+          }
         >
           {err}
         </p>
@@ -182,7 +197,11 @@ export function BirthForm({
       <button
         type="button"
         onClick={submit}
-        className="font-display w-full rounded-full border-[2.5px] border-[var(--line)] bg-[var(--stamp)] py-3.5 text-lg text-white shadow-[4px_4px_0_var(--line)] active:translate-y-0.5"
+        className={
+          tt
+            ? "tt-btn tt-primary"
+            : "font-display w-full rounded-full border-[2.5px] border-[var(--line)] bg-[var(--stamp)] py-3.5 text-lg text-white shadow-[4px_4px_0_var(--line)] active:translate-y-0.5"
+        }
       >
         {submitLabel}
       </button>
