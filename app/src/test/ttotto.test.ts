@@ -6,11 +6,11 @@ const mem = (): KV & { m: Map<string, string> } => { const m = new Map<string, s
 const ME = { name: "나", calendar: "solar" as const, leap: false, date: "1990-04-19", time: "01:10", gender: "f" as const };
 
 describe("화면 문구·가격", () => {
-  it("상품 7개와 표시 가격(내 사주 1,800원·첫 구매 900원, 궁합 900원, 신년 2,700원 — 닢 배수)과 문구에 '웹툰'이 없다", () => {
-    expect(TT.products.map((p) => [p.title, p.price])).toEqual([["내 사주", 1800], ["궁합", 900], ["연애운", 1800], ["재물운", 1800], ["직업·진로운", 1800], ["택일", 1800], ["신년운세", 2700]]);
+  it("상품 7개와 표시 가격(1닢=1,000원: 기본 상품 1,000원·신년 2,000원 — 닢 배수)과 문구에 '웹툰'이 없다", () => {
+    expect(TT.products.map((p) => [p.title, p.price])).toEqual([["내 사주", 1000], ["궁합", 1000], ["연애운", 1000], ["재물운", 1000], ["직업·진로운", 1000], ["택일", 1000], ["신년운세", 2000]]);
     expect(won(1900)).toBe("1,900원");
-    expect(TT.products.every((p) => p.price % 900 === 0)).toBe(true);
-    expect(TT.products.find((p) => p.id === "basic")?.first).toBe(900);
+    expect(TT.products.every((p) => p.price % 1000 === 0)).toBe(true);
+    expect(TT.products.every((p) => p.first === null)).toBe(true);
     expect(JSON.stringify(TT)).not.toContain("웹툰");
     expect(TT.home.title).toBe("또또가 알려주는 나의 사주");
     expect(TT.stories.freeEntry).toBe("처음이라면? 내 사주 무료로 맛보기");
