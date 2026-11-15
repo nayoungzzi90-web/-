@@ -41,10 +41,10 @@ export function SpeechBubble({ children, className = "" }: { children: ReactNode
     <div className={className}>
       <div className="relative" style={{ aspectRatio: "200 / 116" }}>
         <svg viewBox="0 0 200 116" className="absolute inset-0 h-full w-full overflow-visible" aria-hidden focusable="false">
-          {/* 동글동글 구름 말풍선: 같은 원들을 먼저 두꺼운 선으로, 다시 채우기로 덮어 겹친 안쪽 선을 없앤다 */}
-          <g stroke="#1b1613" strokeWidth="12" fill="#1b1613"><circle cx="36" cy="54" r="26" /><circle cx="62" cy="34" r="28" /><circle cx="100" cy="26" r="28" /><circle cx="138" cy="34" r="28" /><circle cx="164" cy="54" r="26" /><circle cx="150" cy="74" r="24" /><circle cx="112" cy="78" r="24" /><circle cx="76" cy="78" r="24" /><circle cx="48" cy="72" r="22" /><circle cx="100" cy="52" r="40" /><circle cx="50" cy="102" r="9" /><circle cx="35" cy="113" r="5.5" /></g>
-          <g fill="#fffbe6"><circle cx="36" cy="54" r="26" /><circle cx="62" cy="34" r="28" /><circle cx="100" cy="26" r="28" /><circle cx="138" cy="34" r="28" /><circle cx="164" cy="54" r="26" /><circle cx="150" cy="74" r="24" /><circle cx="112" cy="78" r="24" /><circle cx="76" cy="78" r="24" /><circle cx="48" cy="72" r="22" /><circle cx="100" cy="52" r="40" /><circle cx="50" cy="102" r="9" /><circle cx="35" cy="113" r="5.5" /></g>
-          <path d="M178 14 c-6-9-18-1-10 8 l10 9 l10-9 c8-9-4-17-10-8z" transform="translate(4 -10) scale(.9)" fill="#ff8fa3" stroke="#1b1613" strokeWidth="4" strokeLinejoin="round" />
+          {/* 젤리 방울: 말랑한 몸통에 짧은 꼬리 한 줄 + 윤기 */}
+          <path d="M18 52 C18 20 58 6 100 6 C148 6 184 22 184 52 C184 80 148 94 104 94 L60 94 C52 102 44 108 32 112 C38 104 40 98 38 90 C26 84 18 70 18 52Z" fill="#d9f3ff" stroke="#1b1613" strokeWidth="6" strokeLinejoin="round" />
+          <path d="M40 34 C50 22 70 16 88 15" fill="none" stroke="#fff" strokeWidth="7" strokeLinecap="round" />
+          <circle cx="106" cy="14" r="3.5" fill="#fff" />
         </svg>
         <p className="tt-bubble-text">{children}</p>
       </div>
