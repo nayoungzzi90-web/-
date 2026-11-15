@@ -1208,3 +1208,7 @@ html { scroll-behavior: auto; }
 .tt.tt-home .tt-hero-note u { display: inline-block; padding: 0 5px; margin: 0 1px; font-size: 1.08em; line-height: 1.15; color: inherit; transform: rotate(-2deg); -webkit-text-stroke: 0; text-shadow: none; }
 .tt.tt-home .tt-hero-note u::before { content: ""; left: -3px; right: -3px; opacity: .95; }
 .tt.tt-home .tt-hero-note p::after { content: "✦"; right: -14px; top: -8px; font-size: 14px; color: #ff9a2e; }
+
+/* v61: "또또"만 노란 글씨(먹색 윤곽 + 단단한 그림자로 살구 바탕에서도 또렷하게) */
+.tt.tt-home .tt-hero-note u { margin: 0; padding: 0 1px 0 0; font-size: 1.1em; color: #ffc61f; transform: rotate(-2deg); -webkit-text-stroke: 5px #28231f; paint-order: stroke fill; text-shadow: 1.5px 2.5px 0 #28231f; }
+.tt.tt-home .tt-hero-note u::before { content: none; }
