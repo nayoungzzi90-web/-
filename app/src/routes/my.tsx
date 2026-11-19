@@ -29,9 +29,11 @@ function MyPage() {
             <b>닢</b>
           </p>
           {coins === null && <p className="mt-2 text-[13px] text-[var(--tt-muted)]">닢을 불러오지 못했어요. 잠시 뒤 새로고침해 주세요.</p>}
-          <p className="mt-3 text-[13px] leading-relaxed text-[var(--tt-muted)]">충전과 내역은 준비 중이에요. 지금은 결제가 열려 있지 않아요.</p>
+          <p className="mt-3 text-[13px] leading-relaxed text-[var(--tt-muted)]">지금은 결제가 열려 있지 않아서 충전은 준비 중이에요.</p>
           <div className="mt-4 grid gap-2">
             <Link to="/input" className="tt-btn tt-sub">출생정보 {me ? "수정" : "입력"}</Link>
+            <Link to="/charge" className="tt-btn tt-sub">닢 충전</Link>
+            <Link to="/ledger" className="tt-btn tt-sub">닢 내역</Link>
             <button
               type="button"
               className="tt-btn tt-sub"
