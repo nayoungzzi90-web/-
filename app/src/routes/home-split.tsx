@@ -31,7 +31,7 @@ function Home() {
           </div>
 
           <div className="mt-5 space-y-3">
-            <Link to="/stories" className="tt-btn tt-primary tt-home-primary">
+            <Link to="/" className="tt-btn tt-primary tt-home-primary">
               {TT.home.primary}
             </Link>
             <Link to="/daily-cookie" className="tt-btn tt-sub tt-home-cookie">

@@ -20,7 +20,6 @@ import { Route as InputRouteImport } from './routes/input'
 import { Route as InviteRouteImport } from './routes/invite'
 import { Route as ResultRouteImport } from './routes/result'
 import { Route as SampleRouteImport } from './routes/sample'
-import { Route as StoriesRouteImport } from './routes/stories'
 import { Route as StyleRouteImport } from './routes/style'
 import { Route as TodayRouteImport } from './routes/today'
 import { Route as WaitRouteImport } from './routes/wait'
@@ -85,11 +84,6 @@ const SampleRoute = SampleRouteImport.update({
   path: '/sample',
   getParentRoute: () => rootRouteImport,
 } as any)
-const StoriesRoute = StoriesRouteImport.update({
-  id: '/stories',
-  path: '/stories',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const StyleRoute = StyleRouteImport.update({
   id: '/style',
   path: '/style',
@@ -143,7 +137,6 @@ export interface FileRoutesByFullPath {
   '/invite': typeof InviteRoute
   '/result': typeof ResultRoute
   '/sample': typeof SampleRoute
-  '/stories': typeof StoriesRoute
   '/style': typeof StyleRoute
   '/today': typeof TodayRoute
   '/wait': typeof WaitRoute
@@ -165,7 +158,6 @@ export interface FileRoutesByTo {
   '/invite': typeof InviteRoute
   '/result': typeof ResultRoute
   '/sample': typeof SampleRoute
-  '/stories': typeof StoriesRoute
   '/style': typeof StyleRoute
   '/today': typeof TodayRoute
   '/wait': typeof WaitRoute
@@ -188,7 +180,6 @@ export interface FileRoutesById {
   '/invite': typeof InviteRoute
   '/result': typeof ResultRoute
   '/sample': typeof SampleRoute
-  '/stories': typeof StoriesRoute
   '/style': typeof StyleRoute
   '/today': typeof TodayRoute
   '/wait': typeof WaitRoute
@@ -212,7 +203,6 @@ export interface FileRouteTypes {
     | '/invite'
     | '/result'
     | '/sample'
-    | '/stories'
     | '/style'
     | '/today'
     | '/wait'
@@ -234,7 +224,6 @@ export interface FileRouteTypes {
     | '/invite'
     | '/result'
     | '/sample'
-    | '/stories'
     | '/style'
     | '/today'
     | '/wait'
@@ -256,7 +245,6 @@ export interface FileRouteTypes {
     | '/invite'
     | '/result'
     | '/sample'
-    | '/stories'
     | '/style'
     | '/today'
     | '/wait'
@@ -279,7 +267,6 @@ export interface RootRouteChildren {
   InviteRoute: typeof InviteRoute
   ResultRoute: typeof ResultRoute
   SampleRoute: typeof SampleRoute
-  StoriesRoute: typeof StoriesRoute
   StyleRoute: typeof StyleRoute
   TodayRoute: typeof TodayRoute
   WaitRoute: typeof WaitRoute
@@ -369,13 +356,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SampleRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/stories': {
-      id: '/stories'
-      path: '/stories'
-      fullPath: '/stories'
-      preLoaderRoute: typeof StoriesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/style': {
       id: '/style'
       path: '/style'
@@ -447,7 +427,6 @@ const rootRouteChildren: RootRouteChildren = {
   InviteRoute: InviteRoute,
   ResultRoute: ResultRoute,
   SampleRoute: SampleRoute,
-  StoriesRoute: StoriesRoute,
   StyleRoute: StyleRoute,
   TodayRoute: TodayRoute,
   WaitRoute: WaitRoute,
