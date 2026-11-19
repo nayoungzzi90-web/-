@@ -14,14 +14,10 @@ import { Route as AiTrialRouteImport } from './routes/ai-trial'
 import { Route as CompatRouteImport } from './routes/compat'
 import { Route as ConcernRouteImport } from './routes/concern'
 import { Route as DailyCookieRouteImport } from './routes/daily-cookie'
-import { Route as HomeClassicRouteImport } from './routes/home-classic'
 import { Route as HomeSplitRouteImport } from './routes/home-split'
 import { Route as InputRouteImport } from './routes/input'
 import { Route as InviteRouteImport } from './routes/invite'
 import { Route as ResultRouteImport } from './routes/result'
-import { Route as SampleRouteImport } from './routes/sample'
-import { Route as StyleRouteImport } from './routes/style'
-import { Route as TodayRouteImport } from './routes/today'
 import { Route as WaitRouteImport } from './routes/wait'
 import { Route as RestoreChargeRouteImport } from './routes/restore.charge'
 import { Route as RestoreGuideRouteImport } from './routes/restore.guide'
@@ -54,11 +50,6 @@ const DailyCookieRoute = DailyCookieRouteImport.update({
   path: '/daily-cookie',
   getParentRoute: () => rootRouteImport,
 } as any)
-const HomeClassicRoute = HomeClassicRouteImport.update({
-  id: '/home-classic',
-  path: '/home-classic',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const HomeSplitRoute = HomeSplitRouteImport.update({
   id: '/home-split',
   path: '/home-split',
@@ -77,21 +68,6 @@ const InviteRoute = InviteRouteImport.update({
 const ResultRoute = ResultRouteImport.update({
   id: '/result',
   path: '/result',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SampleRoute = SampleRouteImport.update({
-  id: '/sample',
-  path: '/sample',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const StyleRoute = StyleRouteImport.update({
-  id: '/style',
-  path: '/style',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TodayRoute = TodayRouteImport.update({
-  id: '/today',
-  path: '/today',
   getParentRoute: () => rootRouteImport,
 } as any)
 const WaitRoute = WaitRouteImport.update({
@@ -131,14 +107,10 @@ export interface FileRoutesByFullPath {
   '/compat': typeof CompatRoute
   '/concern': typeof ConcernRoute
   '/daily-cookie': typeof DailyCookieRoute
-  '/home-classic': typeof HomeClassicRoute
   '/home-split': typeof HomeSplitRoute
   '/input': typeof InputRoute
   '/invite': typeof InviteRoute
   '/result': typeof ResultRoute
-  '/sample': typeof SampleRoute
-  '/style': typeof StyleRoute
-  '/today': typeof TodayRoute
   '/wait': typeof WaitRoute
   '/restore/charge': typeof RestoreChargeRoute
   '/restore/guide': typeof RestoreGuideRoute
@@ -152,14 +124,10 @@ export interface FileRoutesByTo {
   '/compat': typeof CompatRoute
   '/concern': typeof ConcernRoute
   '/daily-cookie': typeof DailyCookieRoute
-  '/home-classic': typeof HomeClassicRoute
   '/home-split': typeof HomeSplitRoute
   '/input': typeof InputRoute
   '/invite': typeof InviteRoute
   '/result': typeof ResultRoute
-  '/sample': typeof SampleRoute
-  '/style': typeof StyleRoute
-  '/today': typeof TodayRoute
   '/wait': typeof WaitRoute
   '/restore/charge': typeof RestoreChargeRoute
   '/restore/guide': typeof RestoreGuideRoute
@@ -174,14 +142,10 @@ export interface FileRoutesById {
   '/compat': typeof CompatRoute
   '/concern': typeof ConcernRoute
   '/daily-cookie': typeof DailyCookieRoute
-  '/home-classic': typeof HomeClassicRoute
   '/home-split': typeof HomeSplitRoute
   '/input': typeof InputRoute
   '/invite': typeof InviteRoute
   '/result': typeof ResultRoute
-  '/sample': typeof SampleRoute
-  '/style': typeof StyleRoute
-  '/today': typeof TodayRoute
   '/wait': typeof WaitRoute
   '/restore/charge': typeof RestoreChargeRoute
   '/restore/guide': typeof RestoreGuideRoute
@@ -197,14 +161,10 @@ export interface FileRouteTypes {
     | '/compat'
     | '/concern'
     | '/daily-cookie'
-    | '/home-classic'
     | '/home-split'
     | '/input'
     | '/invite'
     | '/result'
-    | '/sample'
-    | '/style'
-    | '/today'
     | '/wait'
     | '/restore/charge'
     | '/restore/guide'
@@ -218,14 +178,10 @@ export interface FileRouteTypes {
     | '/compat'
     | '/concern'
     | '/daily-cookie'
-    | '/home-classic'
     | '/home-split'
     | '/input'
     | '/invite'
     | '/result'
-    | '/sample'
-    | '/style'
-    | '/today'
     | '/wait'
     | '/restore/charge'
     | '/restore/guide'
@@ -239,14 +195,10 @@ export interface FileRouteTypes {
     | '/compat'
     | '/concern'
     | '/daily-cookie'
-    | '/home-classic'
     | '/home-split'
     | '/input'
     | '/invite'
     | '/result'
-    | '/sample'
-    | '/style'
-    | '/today'
     | '/wait'
     | '/restore/charge'
     | '/restore/guide'
@@ -261,14 +213,10 @@ export interface RootRouteChildren {
   CompatRoute: typeof CompatRoute
   ConcernRoute: typeof ConcernRoute
   DailyCookieRoute: typeof DailyCookieRoute
-  HomeClassicRoute: typeof HomeClassicRoute
   HomeSplitRoute: typeof HomeSplitRoute
   InputRoute: typeof InputRoute
   InviteRoute: typeof InviteRoute
   ResultRoute: typeof ResultRoute
-  SampleRoute: typeof SampleRoute
-  StyleRoute: typeof StyleRoute
-  TodayRoute: typeof TodayRoute
   WaitRoute: typeof WaitRoute
   RestoreChargeRoute: typeof RestoreChargeRoute
   RestoreGuideRoute: typeof RestoreGuideRoute
@@ -314,13 +262,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DailyCookieRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/home-classic': {
-      id: '/home-classic'
-      path: '/home-classic'
-      fullPath: '/home-classic'
-      preLoaderRoute: typeof HomeClassicRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/home-split': {
       id: '/home-split'
       path: '/home-split'
@@ -347,27 +288,6 @@ declare module '@tanstack/react-router' {
       path: '/result'
       fullPath: '/result'
       preLoaderRoute: typeof ResultRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sample': {
-      id: '/sample'
-      path: '/sample'
-      fullPath: '/sample'
-      preLoaderRoute: typeof SampleRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/style': {
-      id: '/style'
-      path: '/style'
-      fullPath: '/style'
-      preLoaderRoute: typeof StyleRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/today': {
-      id: '/today'
-      path: '/today'
-      fullPath: '/today'
-      preLoaderRoute: typeof TodayRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/wait': {
@@ -421,14 +341,10 @@ const rootRouteChildren: RootRouteChildren = {
   CompatRoute: CompatRoute,
   ConcernRoute: ConcernRoute,
   DailyCookieRoute: DailyCookieRoute,
-  HomeClassicRoute: HomeClassicRoute,
   HomeSplitRoute: HomeSplitRoute,
   InputRoute: InputRoute,
   InviteRoute: InviteRoute,
   ResultRoute: ResultRoute,
-  SampleRoute: SampleRoute,
-  StyleRoute: StyleRoute,
-  TodayRoute: TodayRoute,
   WaitRoute: WaitRoute,
   RestoreChargeRoute: RestoreChargeRoute,
   RestoreGuideRoute: RestoreGuideRoute,
