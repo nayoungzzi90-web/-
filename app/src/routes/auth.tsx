@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
 import { TtShell } from "@/components/ttotto/TtShell";
 import { isAuthConfigured, supabase } from "@/integrations/supabase/client";
+import { PROVIDER_INFO, enabledProviders, oauthErrorKo, type SocialProvider } from "@/lib/auth-providers";
 import { passwordProblem } from "@/lib/password-policy";
 import { safeNext } from "@/lib/safe-next";
 
@@ -12,6 +13,13 @@ export const Route = createFileRoute("/auth")({
   head: () => ({ meta: [{ title: "로그인 · 또또사주" }] }),
   component: AuthPage,
 });
+
+// 상표 로고 이미지는 쓰지 않고 글자만 쓴다(각 사의 색만 따른다).
+const SOCIAL_STYLE: Record<SocialProvider, string> = {
+  kakao: "!bg-[#FEE500] !text-[#191919] !border-0",
+  naver: "!bg-[#03C75A] !text-white !border-0",
+  google: "!bg-white !text-[#28231f] !border-[1.5px] !border-[#d6c7ab]",
+};
 
 const BOX =
   "mt-1.5 w-full rounded-[14px] border-[1.5px] border-[#d6c7ab] bg-white px-3.5 py-3 text-[17px] outline-none focus:border-[var(--tt-orange)]";
@@ -36,7 +44,28 @@ function AuthPage() {
   const [resendMsg, setResendMsg] = useState("");
   const [busy, setBusy] = useState(false);
   const [ready, setReady] = useState(true);
-  useEffect(() => setReady(isAuthConfigured()), []);
+  const [providers, setProviders] = useState<SocialProvider[]>([]);
+  useEffect(() => {
+    setReady(isAuthConfigured());
+    setProviders(enabledProviders());
+  }, []);
+
+  // 소셜 로그인: 제공자 화면으로 이동했다가 이 사이트(로그인 뒤 가려던 곳)로 돌아온다. 돌아올 주소는 Supabase 의 허용 주소에 등록돼 있어야 한다.
+  const social = async (p: SocialProvider) => {
+    setErr("");
+    setBusy(true);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: PROVIDER_INFO[p].supabaseId as never,
+        options: { redirectTo: `${window.location.origin}${safeNext(next)}` },
+      });
+      if (error) setErr(oauthErrorKo(error.message));
+    } catch {
+      setErr(oauthErrorKo(undefined));
+    } finally {
+      setBusy(false);
+    }
+  };
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
@@ -106,7 +135,28 @@ function AuthPage() {
           </button>
         </div>
       ) : (
-        <form className="hj-card space-y-4 p-5" onSubmit={submit}>
+        <div className="hj-card space-y-4 p-5">
+          {providers.length > 0 && (
+            <div className="space-y-2.5" aria-label="소셜 로그인">
+              {providers.map((p) => (
+                <button
+                  key={p}
+                  type="button"
+                  disabled={busy}
+                  onClick={() => void social(p)}
+                  className={`tt-btn w-full !min-h-[54px] !rounded-[16px] !text-[17px] !shadow-none disabled:opacity-50 ${SOCIAL_STYLE[p]}`}
+                >
+                  {PROVIDER_INFO[p].label}
+                </button>
+              ))}
+              <div className="flex items-center gap-2 pt-1 text-[13px] text-[var(--tt-muted)]" aria-hidden>
+                <span className="h-px flex-1 bg-[var(--hair)]" />
+                또는 이메일로
+                <span className="h-px flex-1 bg-[var(--hair)]" />
+              </div>
+            </div>
+          )}
+        <form className="space-y-4" onSubmit={submit}>
           <div className="grid grid-cols-2 gap-2">
             <button type="button" className={seg(mode === "signin")} onClick={() => setMode("signin")}>로그인</button>
             <button type="button" className={seg(mode === "signup")} onClick={() => setMode("signup")}>회원가입</button>
@@ -125,6 +175,7 @@ function AuthPage() {
             {busy ? "잠시만요…" : mode === "signup" ? "가입하기" : "로그인"}
           </button>
         </form>
+        </div>
       )}
     </TtShell>
   );
