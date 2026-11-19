@@ -97,8 +97,8 @@ describe('엽전 원장·교환 (AC-06)', () => {
     expect(() => redeemCoins(db, 'A', 'date_selection', 'c')).toThrow(/교환할 수 없는/);
     expect(Object.values(db.entitlements)).toHaveLength(0);
   });
-  it('교환량은 1/1/3 (택일 2·심층사주 4는 준비 중)', () => {
-    appendLedger(db, { userId: 'A', delta: 5, reason: 'seed', sourceId: 's', idempotencyKey: 'seed' });
+  it('교환량은 1/1/2 (택일 1·심층사주 3은 준비 중)', () => {
+    appendLedger(db, { userId: 'A', delta: 4, reason: 'seed', sourceId: 's', idempotencyKey: 'seed' });
     redeemCoins(db, 'A', 'basic', 'c'); redeemCoins(db, 'A', 'compatibility', 'c'); redeemCoins(db, 'A', 'love_deep', 'c');
     expect(balanceOf(db, 'A')).toBe(0);
   });
@@ -107,16 +107,16 @@ describe('엽전 원장·교환 (AC-06)', () => {
 describe('결제 (AC-05)', () => {
   it('서버 카탈로그 가격으로 주문, 1원 변조 결제는 거부되고 권한 없음', () => {
     const o = createOrder(db, 'A', 'basic', 'c1');
-    expect(o.amountKrw).toBe(900);
+    expect(o.amountKrw).toBe(1000);
     expect(() => confirmPayment(db, { orderId: o.id, userId: 'A', paymentKey: `mock_${o.id}`, amount: 1 })).toThrow(PayError);
     expect(Object.values(db.entitlements)).toHaveLength(0);
     expect(db.orders[o.id].status).toBe('pending');
   });
   it('중복 웹훅은 주문/권한을 중복 생성하지 않음', () => {
     const o = createOrder(db, 'A', 'love_deep', 'c1');
-    expect(o.amountKrw).toBe(2900);
-    const a = confirmPayment(db, { orderId: o.id, userId: 'A', paymentKey: `mock_${o.id}`, amount: 2900 });
-    const b = confirmPayment(db, { orderId: o.id, userId: 'A', paymentKey: `mock_${o.id}`, amount: 2900 });
+    expect(o.amountKrw).toBe(2000);
+    const a = confirmPayment(db, { orderId: o.id, userId: 'A', paymentKey: `mock_${o.id}`, amount: 2000 });
+    const b = confirmPayment(db, { orderId: o.id, userId: 'A', paymentKey: `mock_${o.id}`, amount: 2000 });
     expect(a.duplicate).toBe(false);
     expect(b.duplicate).toBe(true);
     expect(Object.values(db.entitlements)).toHaveLength(1);
@@ -124,14 +124,14 @@ describe('결제 (AC-05)', () => {
   });
   it('실제 PG 키는 라이브 결제 플래그 OFF 상태에서 거부, 타인 주문 승인 불가, P1 상품 주문 불가', () => {
     const o = createOrder(db, 'A', 'basic', 'c1');
-    expect(() => confirmPayment(db, { orderId: o.id, userId: 'A', paymentKey: 'tosspay_real', amount: 900 })).toThrow(/비활성/);
+    expect(() => confirmPayment(db, { orderId: o.id, userId: 'A', paymentKey: 'tosspay_real', amount: 1000 })).toThrow(/비활성/);
     mkUser('B');
-    expect(() => confirmPayment(db, { orderId: o.id, userId: 'B', paymentKey: `mock_${o.id}`, amount: 900 })).toThrow(PayError);
+    expect(() => confirmPayment(db, { orderId: o.id, userId: 'B', paymentKey: `mock_${o.id}`, amount: 1000 })).toThrow(PayError);
     expect(() => createOrder(db, 'A', 'saju_deep', 'c1')).toThrow(PayError);
   });
   it('환불은 요청 상태로만 기록', () => {
     const o = createOrder(db, 'A', 'basic', 'c1');
-    confirmPayment(db, { orderId: o.id, userId: 'A', paymentKey: `mock_${o.id}`, amount: 900 });
+    confirmPayment(db, { orderId: o.id, userId: 'A', paymentKey: `mock_${o.id}`, amount: 1000 });
     requestRefund(db, 'A', o.id, '생성 실패');
     expect(db.orders[o.id].status).toBe('refund_requested');
     expect(db.refunds[0].status).toBe('requested');
@@ -139,29 +139,29 @@ describe('결제 (AC-05)', () => {
 });
 
 describe('엽전 충전 (현금 판매)', () => {
-  it('팩 가격은 900/1,800/2,700/3,600원 (1닢=900원)', () => {
-    expect(COIN_PACKS.map((p) => [p.coins, p.priceKrw])).toEqual([[1, 900], [2, 1800], [3, 2700], [4, 3600]]);
+  it('팩 가격은 1,000/2,000/3,000/4,000원 (1닢=1,000원)', () => {
+    expect(COIN_PACKS.map((p) => [p.coins, p.priceKrw])).toEqual([[1, 1000], [2, 2000], [3, 3000], [4, 4000]]);
   });
   it('승인 후에만 원장 적립, 1원 변조는 거부되고 적립 없음', () => {
     const o = createCoinOrder(db, 'A', 'coin_3');
-    expect(o.amountKrw).toBe(2700);
+    expect(o.amountKrw).toBe(3000);
     expect(() => confirmPayment(db, { orderId: o.id, userId: 'A', paymentKey: `mock_${o.id}`, amount: 1 })).toThrow(PayError);
     expect(balanceOf(db, 'A')).toBe(0);
-    const r = confirmPayment(db, { orderId: o.id, userId: 'A', paymentKey: `mock_${o.id}`, amount: 2700 });
+    const r = confirmPayment(db, { orderId: o.id, userId: 'A', paymentKey: `mock_${o.id}`, amount: 3000 });
     expect(r.entitlement).toBeNull();
     expect(balanceOf(db, 'A')).toBe(3);
   });
   it('중복 웹훅은 엽전을 두 번 적립하지 않음, 미결제 주문은 재사용', () => {
     const o = createCoinOrder(db, 'A', 'coin_2');
     expect(createCoinOrder(db, 'A', 'coin_2').id).toBe(o.id);
-    confirmPayment(db, { orderId: o.id, userId: 'A', paymentKey: `mock_${o.id}`, amount: 1800 });
-    expect(confirmPayment(db, { orderId: o.id, userId: 'A', paymentKey: `mock_${o.id}`, amount: 1800 }).duplicate).toBe(true);
+    confirmPayment(db, { orderId: o.id, userId: 'A', paymentKey: `mock_${o.id}`, amount: 2000 });
+    expect(confirmPayment(db, { orderId: o.id, userId: 'A', paymentKey: `mock_${o.id}`, amount: 2000 }).duplicate).toBe(true);
     expect(balanceOf(db, 'A')).toBe(2);
     expect(createCoinOrder(db, 'A', 'coin_2').id).not.toBe(o.id); // 결제 완료 뒤에는 새로 살 수 있음
   });
-  it('충전한 엽전으로 연애운(3닢) 교환, 존재하지 않는 팩은 거부', () => {
-    const o = createCoinOrder(db, 'A', 'coin_3');
-    confirmPayment(db, { orderId: o.id, userId: 'A', paymentKey: `mock_${o.id}`, amount: 2700 });
+  it('충전한 엽전으로 연애운(2닢) 교환, 존재하지 않는 팩은 거부', () => {
+    const o = createCoinOrder(db, 'A', 'coin_2');
+    confirmPayment(db, { orderId: o.id, userId: 'A', paymentKey: `mock_${o.id}`, amount: 2000 });
     redeemCoins(db, 'A', 'love_deep', 'c1');
     expect(balanceOf(db, 'A')).toBe(0);
     expect(() => createCoinOrder(db, 'A', 'coin_999')).toThrow(PayError);
