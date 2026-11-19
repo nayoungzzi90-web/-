@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { PROVIDER_INFO, oauthErrorKo, parseProviders } from "@/lib/auth-providers";
+import { COMING_SOON, PROVIDER_INFO, oauthErrorKo, parseProviders, usableProviders } from "@/lib/auth-providers";
 
 describe("소셜 로그인 제공자 설정", () => {
   it("알려진 제공자만 고정 순서(카카오·네이버·구글)로", () => {
@@ -14,6 +14,11 @@ describe("소셜 로그인 제공자 설정", () => {
   it("네이버는 커스텀 제공자 id 를 쓴다", () => {
     expect(PROVIDER_INFO.naver.supabaseId).toBe("custom:naver");
     expect(PROVIDER_INFO.google.supabaseId).toBe("google");
+  });
+  it("카카오는 준비 중이라 설정 값에 있어도 쓸 수 없다", () => {
+    expect(COMING_SOON).toEqual(["kakao"]);
+    expect(usableProviders("google,kakao,naver")).toEqual(["naver", "google"]);
+    expect(usableProviders("kakao")).toEqual([]);
   });
   it("오류 문구", () => {
     expect(oauthErrorKo("Unsupported provider: provider is not enabled")).toContain("준비 중");

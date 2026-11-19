@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
 import { TtShell } from "@/components/ttotto/TtShell";
 import { isAuthConfigured, supabase } from "@/integrations/supabase/client";
-import { PROVIDER_INFO, enabledProviders, oauthErrorKo, type SocialProvider } from "@/lib/auth-providers";
+import { COMING_SOON, PROVIDER_INFO, enabledProviders, oauthErrorKo, type SocialProvider } from "@/lib/auth-providers";
 import { passwordProblem } from "@/lib/password-policy";
 import { safeNext } from "@/lib/safe-next";
 
@@ -136,8 +136,19 @@ function AuthPage() {
         </div>
       ) : (
         <div className="hj-card space-y-4 p-5">
-          {providers.length > 0 && (
+          {(providers.length > 0 || COMING_SOON.length > 0) && (
             <div className="space-y-2.5" aria-label="소셜 로그인">
+              {COMING_SOON.map((p) => (
+                <button
+                  key={p}
+                  type="button"
+                  disabled
+                  aria-disabled="true"
+                  className="tt-btn w-full !min-h-[54px] !rounded-[16px] !text-[17px] !shadow-none !border-0 !bg-[#f6f0e4] !text-[#7d7467] !opacity-100"
+                >
+                  {PROVIDER_INFO[p].label.replace("로 계속하기", "")} 로그인 · 준비 중
+                </button>
+              ))}
               {providers.map((p) => (
                 <button
                   key={p}

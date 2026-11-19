@@ -16,8 +16,16 @@ export function parseProviders(raw: string | undefined | null): SocialProvider[]
   return ORDER.filter((p) => set.has(p));
 }
 
+/** 사업자 준비 전이라 아직 열지 않는 제공자(2026-11-19 사용자 결정). 설정 값에 있어도 누를 수 없고 "준비 중"으로만 보인다. */
+export const COMING_SOON: SocialProvider[] = ["kakao"];
+
+/** 실제로 누를 수 있는 제공자: 설정 값에 있고 준비 중 목록에 없는 것. */
+export function usableProviders(raw: string | undefined | null): SocialProvider[] {
+  return parseProviders(raw).filter((p) => !COMING_SOON.includes(p));
+}
+
 export function enabledProviders(): SocialProvider[] {
-  return parseProviders(import.meta.env["VITE_AUTH_PROVIDERS"] as string | undefined);
+  return usableProviders(import.meta.env["VITE_AUTH_PROVIDERS"] as string | undefined);
 }
 
 export function oauthErrorKo(message: string | undefined): string {
