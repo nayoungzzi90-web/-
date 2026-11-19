@@ -1,87 +1,65 @@
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Friend, FRIEND_INFO } from "@/components/Friends";
-import { Page } from "@/components/Shell";
+import { ASSETS, CardArt, TtottoFace } from "@/components/ttotto/Art";
 import { decodeInvite } from "@/lib/invite";
-import { EL_FRIEND, EL_HANJA, EL_WORD, stemElement } from "@/lib/reading";
 import { setStore, useStore } from "@/lib/store";
+import { TT } from "@/lib/ttotto-content";
 
 export const Route = createFileRoute("/invite")({
+  head: () => ({ meta: [{ title: "친구가 궁합을 보자고 해요 · 또또사주" }] }),
   validateSearch: (s: Record<string, unknown>): { c: string } => ({
     c: typeof s["c"] === "string" ? s["c"] : "",
   }),
   component: Invite,
 });
 
+// 궁합 "친구에게 링크 보내기"의 도착 화면(또또사주 말투). 링크에는 이름과 일주 정보만 들어 있다.
 function Invite() {
   const { c } = Route.useSearch();
   const nav = useNavigate();
   const { me } = useStore();
   const p = decodeInvite(c);
-  if (!p)
-    return (
-      <Page>
-        <section className="px-4 pt-10 text-center">
-          <Friend kind="turtle" size={110} className="mx-auto" />
-          <p className="font-display mt-3 text-xl">초대 링크를 읽지 못했어요</p>
-          <p className="mt-1 text-sm text-[var(--ink-soft)]">
-            링크가 잘렸거나 바뀌었을 수 있어요. 친구에게 다시 받아주세요.
-          </p>
-          <Link
-            to="/"
-            className="font-display mt-5 inline-block rounded-full border-[2.5px] border-[var(--line)] bg-[var(--to)] px-6 py-2.5"
-          >
-            홈으로 가기
-          </Link>
-        </section>
-      </Page>
-    );
-  const el = stemElement(p.stem);
-  const kind = EL_FRIEND[el];
-  const info = FRIEND_INFO[kind];
   return (
-    <Page>
-      <section className="px-4 pt-6 text-center">
-        <p className="text-sm font-bold text-[var(--stamp)]">
-          친구가 궁합을 보자고 해요
-        </p>
-        <h1 className="font-display mt-1 text-[26px] leading-tight">
-          {p.name}님의 오행 친구는
-          <br />
-          {info.name}!
-        </h1>
-        <div
-          className="hj-card mx-auto mt-5 max-w-[300px] px-4 pb-4 pt-5"
-          style={{ background: info.tint }}
-        >
-          <Friend
-            kind={kind}
-            accessory="sunglasses"
-            size={150}
-            className="bob mx-auto"
-          />
-          <p className="font-display mt-1 text-lg">
-            {info.role} · {EL_HANJA[el]} {EL_WORD[el]}의 기운
-          </p>
-        </div>
-        <p className="mt-5 text-[15px] leading-relaxed">
-          나와 {p.name}님은 어떤 케미일까요?
-          <br />내 정보를 넣으면 바로 알려줄게요.
-        </p>
-        <button
-          type="button"
-          onClick={() => {
-            setStore({ invite: c });
-            void nav({ to: me ? "/compat" : "/input" });
-          }}
-          className="font-display mt-4 w-full rounded-full border-[2.5px] border-[var(--line)] bg-[var(--stamp)] py-3.5 text-lg text-white shadow-[4px_4px_0_var(--line)] active:translate-y-0.5"
-        >
-          {me ? "바로 우리 궁합 보기" : "내 정보 넣고 궁합 보기"}
-        </button>
-        <p className="mt-3 text-[11px] leading-relaxed text-[var(--ink-soft)]">
-          초대 링크에는 이름과 일주 정보만 들어 있어요. 생년월일은 들어 있지
-          않아요.
-        </p>
-      </section>
-    </Page>
+    <div className="tt tt-soft tt-detail" style={{ background: "#fffaf2" }}>
+      <div className="tt-wrap pb-10">
+        <header className="tt-header">
+          <Link to="/" className="tt-header-title">
+            {TT.brand}
+            <TtottoFace size={32} />
+          </Link>
+        </header>
+        {!p ? (
+          <main className="mt-8 text-center">
+            <img src={ASSETS.heroFlame} alt="" aria-hidden className="mx-auto h-auto w-[34%]" draggable={false} />
+            <h1 className="tt-dt-title">초대 링크를 읽지 못했어요</h1>
+            <p className="tt-dt-note">링크가 잘렸거나 바뀌었을 수 있어요. 친구에게 다시 받아주세요.</p>
+            <Link to="/" className="tt-btn tt-primary mt-5">홈으로 가기</Link>
+          </main>
+        ) : (
+          <main className="mt-5">
+            <section className="tt-dt-hero" style={{ ["--tile" as string]: "#e4f1fb" }}>
+              <div className="tt-dt-art"><CardArt id="compatibility" fit /></div>
+            </section>
+            <p className="mt-5 text-center text-[15px] font-bold text-[var(--tt-orange)]">친구가 궁합을 보자고 해요</p>
+            <h1 className="tt-dt-title" style={{ marginTop: 6 }}>
+              <mark className="tt-mark">{p.name}</mark>님과 나는<br />어떤 케미일까?
+            </h1>
+            <p className="tt-dt-note">내 정보를 넣으면 바로 알려줄게요.</p>
+            <button
+              type="button"
+              onClick={() => {
+                setStore({ invite: c });
+                void nav({ to: me ? "/compat" : "/input" });
+              }}
+              className="tt-btn tt-primary mt-4"
+            >
+              {me ? "바로 우리 궁합 보기" : "내 정보 넣고 궁합 보기"}
+            </button>
+            <p className="tt-dt-note" style={{ fontSize: 13 }}>
+              초대 링크에는 이름과 일주 정보만 들어 있어요. 생년월일은 들어 있지 않아요.
+            </p>
+          </main>
+        )}
+      </div>
+    </div>
   );
 }
