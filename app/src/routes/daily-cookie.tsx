@@ -144,7 +144,7 @@ function DailyCookie() {
   const longMsg = !!result && result.message.length > 80;
   const actionInside = !!result && !longMsg && result.action.length <= 34 && result.message.length <= 44;
   return (
-    <div className="tt">
+    <div className="tt tt-soft">
       <div className="tt-wrap pb-8">
         <header className="tt-header">
           <button type="button" className="tt-back" onClick={back} aria-label="뒤로 가기">
@@ -201,7 +201,7 @@ function DailyCookie() {
 
           {/* 글이 길거나 종이에 다 들어가지 않으면 종이 아래에서 이어서 보여 준다 */}
           {revealed && result && (longMsg || !actionInside) && (
-            <div className="tt-note-more mt-3 rounded-[18px] border-[3px] border-[var(--tt-ink)] bg-white px-4 py-3">
+            <div className="tt-note-more mt-3 rounded-[18px] border border-[var(--hair)] bg-white px-4 py-3">
               {longMsg && <p className="text-[16px] leading-relaxed">{result.message}</p>}
               <p className={longMsg ? "mt-3" : ""}><span className="tt-pill">{result.actionTitle}</span></p>
               <p className="mt-1 text-[16px] leading-relaxed">{result.action}</p>

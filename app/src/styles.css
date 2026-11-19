@@ -1232,3 +1232,6 @@ html { scroll-behavior: auto; }
 .tt-dt-soon { margin: 18px 0 0; padding: 16px; border: 1.5px dashed #d9c9b0; border-radius: 18px; background: #fff; text-align: center; }
 .tt-dt-soon p { margin: 0; font-family: "Jua", sans-serif; font-size: 18px; color: #28231f; }
 .tt-dt-soon span { display: block; margin-top: 4px; font-size: 14px; color: #625c55; }
+
+/* v64: 부드러운 화면(.tt-soft)의 배지는 굵은 검은 선 대신 연한 주황 알약 */
+.tt-soft .tt-badge { background: #fff3ec; border: 1px solid #f4c4ae; color: #a2491f; box-shadow: none; }
