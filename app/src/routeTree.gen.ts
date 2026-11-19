@@ -11,12 +11,14 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AiTrialRouteImport } from './routes/ai-trial'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CompatRouteImport } from './routes/compat'
 import { Route as ConcernRouteImport } from './routes/concern'
 import { Route as DailyCookieRouteImport } from './routes/daily-cookie'
 import { Route as HomeSplitRouteImport } from './routes/home-split'
 import { Route as InputRouteImport } from './routes/input'
 import { Route as InviteRouteImport } from './routes/invite'
+import { Route as MyRouteImport } from './routes/my'
 import { Route as ResultRouteImport } from './routes/result'
 import { Route as WaitRouteImport } from './routes/wait'
 import { Route as RestoreChargeRouteImport } from './routes/restore.charge'
@@ -33,6 +35,11 @@ const IndexRoute = IndexRouteImport.update({
 const AiTrialRoute = AiTrialRouteImport.update({
   id: '/ai-trial',
   path: '/ai-trial',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CompatRoute = CompatRouteImport.update({
@@ -63,6 +70,11 @@ const InputRoute = InputRouteImport.update({
 const InviteRoute = InviteRouteImport.update({
   id: '/invite',
   path: '/invite',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MyRoute = MyRouteImport.update({
+  id: '/my',
+  path: '/my',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResultRoute = ResultRouteImport.update({
@@ -104,12 +116,14 @@ const StoryIdRoute = StoryIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/ai-trial': typeof AiTrialRoute
+  '/auth': typeof AuthRoute
   '/compat': typeof CompatRoute
   '/concern': typeof ConcernRoute
   '/daily-cookie': typeof DailyCookieRoute
   '/home-split': typeof HomeSplitRoute
   '/input': typeof InputRoute
   '/invite': typeof InviteRoute
+  '/my': typeof MyRoute
   '/result': typeof ResultRoute
   '/wait': typeof WaitRoute
   '/restore/charge': typeof RestoreChargeRoute
@@ -121,12 +135,14 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/ai-trial': typeof AiTrialRoute
+  '/auth': typeof AuthRoute
   '/compat': typeof CompatRoute
   '/concern': typeof ConcernRoute
   '/daily-cookie': typeof DailyCookieRoute
   '/home-split': typeof HomeSplitRoute
   '/input': typeof InputRoute
   '/invite': typeof InviteRoute
+  '/my': typeof MyRoute
   '/result': typeof ResultRoute
   '/wait': typeof WaitRoute
   '/restore/charge': typeof RestoreChargeRoute
@@ -139,12 +155,14 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/ai-trial': typeof AiTrialRoute
+  '/auth': typeof AuthRoute
   '/compat': typeof CompatRoute
   '/concern': typeof ConcernRoute
   '/daily-cookie': typeof DailyCookieRoute
   '/home-split': typeof HomeSplitRoute
   '/input': typeof InputRoute
   '/invite': typeof InviteRoute
+  '/my': typeof MyRoute
   '/result': typeof ResultRoute
   '/wait': typeof WaitRoute
   '/restore/charge': typeof RestoreChargeRoute
@@ -158,12 +176,14 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/ai-trial'
+    | '/auth'
     | '/compat'
     | '/concern'
     | '/daily-cookie'
     | '/home-split'
     | '/input'
     | '/invite'
+    | '/my'
     | '/result'
     | '/wait'
     | '/restore/charge'
@@ -175,12 +195,14 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/ai-trial'
+    | '/auth'
     | '/compat'
     | '/concern'
     | '/daily-cookie'
     | '/home-split'
     | '/input'
     | '/invite'
+    | '/my'
     | '/result'
     | '/wait'
     | '/restore/charge'
@@ -192,12 +214,14 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/ai-trial'
+    | '/auth'
     | '/compat'
     | '/concern'
     | '/daily-cookie'
     | '/home-split'
     | '/input'
     | '/invite'
+    | '/my'
     | '/result'
     | '/wait'
     | '/restore/charge'
@@ -210,12 +234,14 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AiTrialRoute: typeof AiTrialRoute
+  AuthRoute: typeof AuthRoute
   CompatRoute: typeof CompatRoute
   ConcernRoute: typeof ConcernRoute
   DailyCookieRoute: typeof DailyCookieRoute
   HomeSplitRoute: typeof HomeSplitRoute
   InputRoute: typeof InputRoute
   InviteRoute: typeof InviteRoute
+  MyRoute: typeof MyRoute
   ResultRoute: typeof ResultRoute
   WaitRoute: typeof WaitRoute
   RestoreChargeRoute: typeof RestoreChargeRoute
@@ -239,6 +265,13 @@ declare module '@tanstack/react-router' {
       path: '/ai-trial'
       fullPath: '/ai-trial'
       preLoaderRoute: typeof AiTrialRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/compat': {
@@ -281,6 +314,13 @@ declare module '@tanstack/react-router' {
       path: '/invite'
       fullPath: '/invite'
       preLoaderRoute: typeof InviteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/my': {
+      id: '/my'
+      path: '/my'
+      fullPath: '/my'
+      preLoaderRoute: typeof MyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/result': {
@@ -338,12 +378,14 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AiTrialRoute: AiTrialRoute,
+  AuthRoute: AuthRoute,
   CompatRoute: CompatRoute,
   ConcernRoute: ConcernRoute,
   DailyCookieRoute: DailyCookieRoute,
   HomeSplitRoute: HomeSplitRoute,
   InputRoute: InputRoute,
   InviteRoute: InviteRoute,
+  MyRoute: MyRoute,
   ResultRoute: ResultRoute,
   WaitRoute: WaitRoute,
   RestoreChargeRoute: RestoreChargeRoute,

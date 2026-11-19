@@ -101,7 +101,7 @@ function Home() {
 
         <footer className="tt-home-foot">
           <span>사주는 나를 이해하는 하나의 관점이에요.</span>
-          <span className="tt-home-foot-links">이용안내 · 개인정보처리방침</span>
+          <span className="tt-home-foot-links">이용안내 · 개인정보처리방침 · <Link to="/my" className="underline">내 정보</Link></span>
         </footer>
       </div>
     </div>

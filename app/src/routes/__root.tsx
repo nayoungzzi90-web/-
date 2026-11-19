@@ -6,6 +6,7 @@ import {
   createRootRoute,
 } from "@tanstack/react-router";
 import { hydrateStore } from "@/lib/store";
+import { useAuthSync } from "@/lib/auth-sync";
 import { SITE_DESC, SITE_NAME, SITE_URL } from "@/lib/site";
 import appCss from "../styles.css?url";
 
@@ -46,6 +47,8 @@ function Root() {
   useEffect(() => {
     hydrateStore();
   }, []);
+  // 로그인 상태(연결 정보가 있을 때만)와 내 닢 잔액을 맞춘다.
+  useAuthSync();
   return (
     <html lang="ko">
       <head>
